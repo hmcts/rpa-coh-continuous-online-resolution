@@ -1,0 +1,4 @@
+databaseChangeLog:
+- include:
+    relativeToChangelogFile: true
+    file: db.changelog-diff-20180603-1708.yaml
