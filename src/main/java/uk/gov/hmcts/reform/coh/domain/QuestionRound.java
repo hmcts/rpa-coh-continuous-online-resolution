@@ -6,13 +6,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "online_hearing")
-public class OnlineHearing {
-
+@Table(name = "question_round")
+public class QuestionRound {
     @Id
+    @Column(name = "question_round_id")
+    private int questionRoundId;
+
     @Column(name = "online_hearing_id")
     private int onlineHearingId;
-
-    @Column(name = "EXTERNAL_REF")
-    private String externalRef;
 }
