@@ -15,4 +15,20 @@ public class OnlineHearing {
 
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
+
+    public int getOnlineHearingId() {
+        return onlineHearingId;
+    }
+
+    public void setOnlineHearingId(int onlineHearingId) {
+        this.onlineHearingId = onlineHearingId;
+    }
+
+    public String getExternalRef() {
+        return externalRef;
+    }
+
+    public void setExternalRef(String externalRef) {
+        this.externalRef = externalRef;
+    }
 }

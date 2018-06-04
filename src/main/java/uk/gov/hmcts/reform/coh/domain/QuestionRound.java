@@ -8,10 +8,27 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "question_round")
 public class QuestionRound {
+
     @Id
     @Column(name = "question_round_id")
     private int questionRoundId;
 
     @Column(name = "online_hearing_id")
     private int onlineHearingId;
+
+    public int getQuestionRoundId() {
+        return questionRoundId;
+    }
+
+    public void setQuestionRoundId(int questionRoundId) {
+        this.questionRoundId = questionRoundId;
+    }
+
+    public int getOnlineHearingId() {
+        return onlineHearingId;
+    }
+
+    public void setOnlineHearingId(int onlineHearingId) {
+        this.onlineHearingId = onlineHearingId;
+    }
 }
