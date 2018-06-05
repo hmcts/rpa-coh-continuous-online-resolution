@@ -24,8 +24,21 @@ public class OnlineHearingControllerTest {
 
     @Test
     public void testRetrieve() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/online-hearing/retrieve").accept(MediaType.APPLICATION_JSON))
+        mvc.perform(MockMvcRequestBuilders.get("/online-hearings/retrieve").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("Greetings from Online Hearing Controller")));
+    }
+
+    @Test
+    public void testCreateOnlineHearing() throws Exception {
+        String json = "{\n" +
+                "\t\"onlineHearingId\": 4,\n" +
+                "\t\"externalRef\" : \"case_id_123\" \n" +
+                "}";
+
+        mvc.perform(MockMvcRequestBuilders.post("/online-hearings/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk());
     }
 }

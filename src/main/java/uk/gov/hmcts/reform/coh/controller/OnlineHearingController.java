@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ public class OnlineHearingController {
         return "Greetings from Online Hearing Controller";
     }
 
-    @PostMapping(value = "")
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OnlineHearing> createOnlineHearing(@RequestBody OnlineHearing body) {
         return ResponseEntity.ok(body);
     }
