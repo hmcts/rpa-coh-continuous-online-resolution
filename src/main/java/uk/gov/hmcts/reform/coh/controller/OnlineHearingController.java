@@ -28,7 +28,7 @@ public class OnlineHearingController {
 
         return new ResponseEntity<>(retrievedOnlineHearing, HttpStatus.OK);
     }
-    
+
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OnlineHearing> createOnlineHearing(@RequestBody OnlineHearing body) {
 

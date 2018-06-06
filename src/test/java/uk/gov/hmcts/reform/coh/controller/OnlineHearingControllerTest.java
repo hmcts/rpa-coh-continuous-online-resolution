@@ -25,16 +25,6 @@ public class OnlineHearingControllerTest {
     private MockMvc mvc;
 
     @Test
-    public void testCreateOnlineHearing() throws Exception {
-        String json = "{\"externalRef\" : \"case_id_123\"}";
-
-        mvc.perform(MockMvcRequestBuilders.post("/online-hearings/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     public void testCreateOnlineHearingWithJsonFile() throws Exception {
 
         ClassLoader classLoader = getClass().getClassLoader();
@@ -45,9 +35,24 @@ public class OnlineHearingControllerTest {
 
         System.out.println("JSONSTRING" + jsonString);
 
-        this.mvc.perform(MockMvcRequestBuilders.post("/online-hearings/")
+        this.mvc.perform(MockMvcRequestBuilders.post("/online-hearings/create")
                 .contentType(MediaType.APPLICATION_JSON_UTF8).content(jsonString))
                 .andExpect(status().is2xxSuccessful());
     }
 
+    @Test
+    public void testReadOnlineHearingWithJsonFile() throws Exception {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(Objects.requireNonNull(classLoader.getResource("json/create_online_hearing.json")).getFile());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
+
+        System.out.println("JSONSTRING" + jsonString);
+
+        this.mvc.perform(MockMvcRequestBuilders.post("/online-hearings/retrieve")
+                .contentType(MediaType.APPLICATION_JSON_UTF8).content(jsonString))
+                .andExpect(status().is2xxSuccessful());
+    }
 }
