@@ -1,19 +1,4 @@
-
-
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-@RestController
-@RequestMapping("/online-hearings")
-public class OnlineHearingController {
-
-    @RequestMapping("/retrieve")
-    public String retrieve() {
-        return "Greetings from Online Hearing Controller";
-    }
-    
-}
-
+package uk.gov.hmcts.reform.coh.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,9 +16,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 @RequestMapping("/online-hearings")
 public class OnlineHearingController {
 
-    @RequestMapping("/retrieve")
-    public String retrieve() {
-        return "Greetings from Online Hearing Controller";
     @Autowired
     OnlineHearingService onlineHearingService;
 
@@ -46,7 +28,6 @@ public class OnlineHearingController {
 
         return new ResponseEntity<OnlineHearing>(retrievedOnlineHearing, HttpStatus.OK);
     }
-    
 
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
