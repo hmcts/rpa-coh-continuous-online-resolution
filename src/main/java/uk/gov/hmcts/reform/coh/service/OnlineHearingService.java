@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
-import java.util.UUID;
-
 @Service
 @Component
 public class OnlineHearingService {
@@ -23,11 +21,16 @@ public class OnlineHearingService {
         return onlineHearingRepository.save(onlineHearing);
     }
 
-    public OnlineHearing retrieveOnlineHearing(UUID uuid) {
-        return onlineHearingRepository.findById(uuid).orElse(null);
+    public OnlineHearing retrieveOnlineHearingByExternalRef(final OnlineHearing onlineHearing) {
+        return onlineHearingRepository.findByExternalRef(onlineHearing.getExternalRef()).orElse(null);
     }
 
-    public void deleteOnlineHearing(UUID uuid) {
-        onlineHearingRepository.deleteById(uuid);
+    public void deleteOnlineHearingByExternalRef(final OnlineHearing onlineHearing){
+        onlineHearingRepository.delete(retrieveOnlineHearingByExternalRef(onlineHearing));
+    }
+
+
+    public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
+        onlineHearingRepository.delete(onlineHearing);
     }
 }

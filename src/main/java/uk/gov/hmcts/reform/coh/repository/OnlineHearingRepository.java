@@ -4,12 +4,12 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface OnlineHearingRepository extends CrudRepository<OnlineHearing,UUID> {
 
-    List<OnlineHearing> findAll();
-
+    Optional<OnlineHearing> findByExternalRef(String externalRef);
+    void deleteByExternalRef(String externalRef);
 }

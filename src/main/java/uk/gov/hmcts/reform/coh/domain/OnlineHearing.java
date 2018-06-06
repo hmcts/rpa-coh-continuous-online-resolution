@@ -8,23 +8,19 @@ import java.util.UUID;
 public class OnlineHearing {
 
     @Id
-    @SequenceGenerator(name="online_hearing_id_seq",
-            sequenceName="online_hearing_id_seq",
-            allocationSize=1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-            generator="online_hearing_id_seq")
-    @Column(name = "online_hearing_id", updatable=false)
-    private Long onlineHearingId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "online_hearing_id")
+    private UUID onlineHearingId;
 
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
 
 
-    public Long getOnlineHearingId() {
+    public UUID getOnlineHearingId() {
         return onlineHearingId;
     }
 
-    public void setOnlineHearingId(Long onlineHearingId) {
+    public void setOnlineHearingId(UUID onlineHearingId) {
         this.onlineHearingId = onlineHearingId;
     }
 
