@@ -16,8 +16,6 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @Configuration
-@ComponentScan("uk.gov.hmcts.reform.coh")
-@WebAppConfiguration
 public class OnlineHearingServiceTest {
 
     @Autowired
@@ -28,18 +26,9 @@ public class OnlineHearingServiceTest {
 
     @Test
     public void createOnlineHearing() {
-        OnlineHearingService onlineHearingService = new OnlineHearingService(onlineHearingRepository);
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setExternalRef("TestObjectRef");
         OnlineHearing newOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
         assertNotNull(newOnlineHearing.getOnlineHearingId());
-    }
-
-    @Test
-    public void retrieveOnlineHearing() {
-    }
-
-    @Test
-    public void deleteOnlineHearing() {
     }
 }
