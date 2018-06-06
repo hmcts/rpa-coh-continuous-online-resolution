@@ -1,0 +1,102 @@
+databaseChangeLog:
+- changeSet:
+    id: 1528122986154-1
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answer_id
+            type: INT
+        - column:
+            name: answer_text
+            type: VARCHAR(255)
+        - column:
+            name: question_id
+            type: INT
+        tableName: answer
+- changeSet:
+    id: 1528122986154-2
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: online_hearing_id
+            type: INT
+        - column:
+            name: EXTERNAL_REF
+            type: VARCHAR(255)
+        tableName: online_hearing
+- changeSet:
+    id: 1528122986154-3
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: question_id
+            type: INT
+        - column:
+            name: question_round_id
+            type: INT
+        - column:
+            name: question_text
+            type: VARCHAR(255)
+        - column:
+            name: subject
+            type: VARCHAR(255)
+        tableName: question
+- changeSet:
+    id: 1528122986154-4
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: question_round_id
+            type: INT
+        - column:
+            name: online_hearing_id
+            type: INT
+        tableName: question_round
+- changeSet:
+    id: 1528122986154-5
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_id
+       constraintName: answerPK
+        tableName: answer
+- changeSet:
+    id: 1528122986154-6
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: online_hearing_id
+        constraintName: online_hearingPK
+        tableName: online_hearing
+- changeSet:
+    id: 1528122986154-7
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: question_id
+        constraintName: questionPK
+        tableName: question
+- changeSet:
+    id: 1528122986154-8
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: question_round_id
+        constraintName: question_roundPK
+        tableName: question_round
