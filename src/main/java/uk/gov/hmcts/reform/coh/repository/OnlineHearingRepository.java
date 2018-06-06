@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.coh.repository;
 
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
