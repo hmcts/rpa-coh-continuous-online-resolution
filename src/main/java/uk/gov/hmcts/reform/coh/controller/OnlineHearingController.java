@@ -26,10 +26,9 @@ public class OnlineHearingController {
         onlineHearing.setExternalRef(body.getExternalRef());
         OnlineHearing retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
 
-        return new ResponseEntity<OnlineHearing>(retrievedOnlineHearing, HttpStatus.OK);
+        return new ResponseEntity<>(retrievedOnlineHearing, HttpStatus.OK);
     }
-
-
+    
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OnlineHearing> createOnlineHearing(@RequestBody OnlineHearing body) {
 
@@ -37,6 +36,6 @@ public class OnlineHearingController {
         onlineHearing.setExternalRef(body.getExternalRef());
         OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
-        return new ResponseEntity<OnlineHearing>(createdOnlineHearing, HttpStatus.OK);
+        return new ResponseEntity<>(createdOnlineHearing, HttpStatus.OK);
     }
 }
