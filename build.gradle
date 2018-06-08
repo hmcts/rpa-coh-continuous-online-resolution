@@ -49,3 +49,37 @@ bootJar {
     baseName = 'continuous-online-hearing'
     version =  '0.0.1'
 }
+
+def coverageExclusionList = [
+        '**uk/gov/hmcts/reform/coh/Application*',
+        '**uk/gov/hmcts/reform/coh/domain/*',
+]
+
+//(jacocoTestReport | jacocoTestCoverageVerification)
+jacoco {
+    toolVersion = '0.7.9' // jacocoMavenPluginVersion
+    reportsDir = file("$buildDir/reports/jacoco")
+}
+
+jacocoTestReport {
+    executionData(test)
+
+    reports {
+        xml.enabled = true
+        csv.enabled = true
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: coverageExclusionList)
+        })
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectName", "${rootProject.name}"
+        property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+        property "sonar.exclusions", coverageExclusionList.join(", ")
+    }
+}
