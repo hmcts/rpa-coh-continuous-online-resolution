@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 1528211942108-1
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: subject
+            type: varchar(255)
+        tableName: question
+
