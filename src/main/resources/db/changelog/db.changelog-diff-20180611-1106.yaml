@@ -1,6 +1,6 @@
 databaseChangeLog:
 - changeSet:
-    id: 1528122986154-1
+    id: 1528711590325-1
     author: johnho (generated)
     changes:
     - createTable:
@@ -18,7 +18,7 @@ databaseChangeLog:
             type: INT
         tableName: answer
 - changeSet:
-    id: 1528122986154-2
+    id: 1528711590325-2
     author: johnho (generated)
     changes:
     - createTable:
@@ -33,7 +33,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: online_hearing
 - changeSet:
-    id: 1528122986154-3
+    id: 1528711590325-3
     author: johnho (generated)
     changes:
     - createTable:
@@ -54,7 +54,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: question
 - changeSet:
-    id: 1528122986154-4
+    id: 1528711590325-4
     author: johnho (generated)
     changes:
     - createTable:
@@ -69,7 +69,7 @@ databaseChangeLog:
             type: INT
         tableName: question_round
 - changeSet:
-    id: 1528122986154-5
+    id: 1528711590325-5
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -77,7 +77,7 @@ databaseChangeLog:
         constraintName: answerPK
         tableName: answer
 - changeSet:
-    id: 1528122986154-6
+    id: 1528711590325-6
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -85,7 +85,7 @@ databaseChangeLog:
         constraintName: online_hearingPK
         tableName: online_hearing
 - changeSet:
-    id: 1528122986154-7
+    id: 1528711590325-7
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -93,7 +93,7 @@ databaseChangeLog:
         constraintName: questionPK
         tableName: question
 - changeSet:
-    id: 1528122986154-8
+    id: 1528711590325-8
     author: johnho (generated)
     changes:
     - addPrimaryKey:
