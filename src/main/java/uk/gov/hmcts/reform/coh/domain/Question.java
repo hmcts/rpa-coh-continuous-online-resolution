@@ -1,15 +1,13 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "question")
 public class Question {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "question_id")
     private int questionId;
 
@@ -19,13 +17,8 @@ public class Question {
     @Column(name = "subject")
     private String subject;
 
-    public int getQuestionId() {
-        return questionId;
-    }
-
-    public void setQuestionId(int questionId) {
-        this.questionId = questionId;
-    }
+    @Column(name = "question_text")
+    private String questionText;
 
     public int getQuestionRoundId() {
         return questionRoundId;
@@ -51,6 +44,11 @@ public class Question {
         this.questionText = questionText;
     }
 
-    @Column(name = "question_text")
-    private String questionText;
+    public int getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(int questionId) {
+        this.questionId = questionId;
+    }
 }
