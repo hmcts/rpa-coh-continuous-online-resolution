@@ -25,6 +25,10 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
+    public Question retrieveQuestionById(final int question_id){
+        return questionRepository.findById(question_id).orElse(null);
+    }
+
     public Question createQuestion(final int oh_id, final int qr_id, final Question question) {
 
         // check if qr_id exists here?

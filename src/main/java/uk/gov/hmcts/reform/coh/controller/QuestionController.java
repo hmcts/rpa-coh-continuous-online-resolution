@@ -19,20 +19,13 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @GetMapping("/{oh_id}/question-rounds/{qr_id}/questions/{q_id}")
-    public String getQuestion(@PathVariable Integer oh_id, @PathVariable Integer qr_id, @PathVariable Integer q_id) {
-        System.out.println("oh_id " + oh_id);
-        System.out.println("qr_id " + qr_id);
-        System.out.println("q_id " + q_id);
-        return "GETTING QUESTION";
+    @GetMapping("/{oh_id}/question-rounds/{qr_id}/questions/{question_id}")
+    public ResponseEntity<Question> getQuestion(@PathVariable Integer oh_id, @PathVariable Integer qr_id, @PathVariable Integer question_id) {
+        return ResponseEntity.ok(questionService.retrieveQuestionById(question_id));
     }
 
     @PostMapping(value = "/{oh_id}/question-rounds/{qr_id}/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Question> createQuestion(@PathVariable Integer oh_id, @PathVariable Integer qr_id, @RequestBody Question body) {
-        System.out.println(oh_id);
-        System.out.println(qr_id);
-        System.out.println(body);
-
         return ResponseEntity.ok(questionService.createQuestion(oh_id, qr_id, body));
     }
 }
