@@ -3,4 +3,4 @@ Feature: Question Rounds
     Given an unknown online hearing
     And the endpoint is '/online-hearings/foo/question-rounds'
     When a post request is sent
-    Then the response code is 404
+    Then the response code is 415
