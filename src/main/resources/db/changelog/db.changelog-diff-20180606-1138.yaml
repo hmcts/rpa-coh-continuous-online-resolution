@@ -1,0 +1,31 @@
+databaseChangeLog:
+- changeSet:
+    id: 1528281500805-1
+    author: phillip (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: online_hearing_id
+        constraintName: online_hearingPK
+        tableName: online_hearing
+- changeSet:
+    id: 1528281500805-2
+    author: phillip (generated)
+    changes:
+    - dropUniqueConstraint:
+        constraintName: external_ref_unique
+        tableName: online_hearing
+- changeSet:
+    id: 1528281500805-3
+    author: phillip (generated)
+    changes:
+    - dropSequence:
+        sequenceName: online_hearing_id_seq
+- changeSet:
+    id: 1528281500805-4
+    author: phillip (generated)
+    changes:
+    - addNotNullConstraint:
+        columnDataType: uuid
+        columnName: online_hearing_id
+        tableName: online_hearing
+
