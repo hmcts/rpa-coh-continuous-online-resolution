@@ -3,15 +3,23 @@ package uk.gov.hmcts.reform.coh.bdd.steps;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 
 import org.apache.http.entity.StringEntity;
+import org.springframework.http.HttpMethod;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class ApiSteps {
 
@@ -19,6 +27,7 @@ public class ApiSteps {
 
     private HttpPost request;
     private HttpResponse response;
+    private String responseString;
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
 //    @Before
@@ -46,13 +55,22 @@ public class ApiSteps {
         StringEntity params = new StringEntity(json.toString());
         request.setEntity(params);
         response = httpClient.execute(request);
+
+        responseString = new BasicResponseHandler().handleResponse(response);
+    }
+
+    @Then("^the client receives a (\\d+) status code$")
+    public void the_client_receives_a_status_code(final int expectedStatus) throws IOException {
+        int currentStatusCode = response.getStatusLine().getStatusCode();
+        assertEquals(currentStatusCode, expectedStatus);
+        assertEquals("Status code is incorrect : " +
+            response.getEntity().getContent().toString(), expectedStatus, currentStatusCode);
     }
 
     @Then("^the response contains the following text '\"([^\"]*)\" '$")
     public void the_response_contains_the_following_text(String text) {
-        String message = response.toString();
-        System.out.println(message);
-        assertTrue(message.contains(text));
+        System.out.println(responseString);
+        assertTrue(responseString.contains(text));
     }
 
     // Remove added entities from the database in cleanup
