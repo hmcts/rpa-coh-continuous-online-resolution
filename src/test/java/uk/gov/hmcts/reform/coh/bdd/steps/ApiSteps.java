@@ -30,13 +30,13 @@ public class ApiSteps {
     // maybe collapse the below steps into a single step
     @Given("^SSCS prepare a json request$")
     public void sscs_prepare_a_json_request() {
-        request = new HttpPost("localhost:8080/online-hearings/create");
+        request = new HttpPost("http://localhost:8080/online-hearings/create");
         request.addHeader("content-type", "application/json");
         System.out.println("HERE");
         json = new JSONObject();
     }
 
-    @Given("^set the 'externalRef' field to ' \"([^\"]*)\": '$")
+    @Given("^set the 'externalRef' field to ' \"([^\"]*)\" '$")
     public void setTheExternalRefFieldTo(String externalRef) throws Throwable {
         json.put("externalRef", externalRef);
     }
@@ -48,7 +48,7 @@ public class ApiSteps {
         response = httpClient.execute(request);
     }
 
-    @Then("^the response contains the following text '\"([^\"]*)\": '$")
+    @Then("^the response contains the following text '\"([^\"]*)\" '$")
     public void the_response_contains_the_following_text(String text) {
         String message = response.toString();
         System.out.println(message);
