@@ -30,10 +30,8 @@ public class QuestionService {
     }
 
     public Question createQuestion(final int oh_id, final int qr_id, final Question question) {
-
-        // check if qr_id exists here?
+        question.setOnlineHearingId(oh_id);
         question.setQuestionRoundId(qr_id);
-
         return questionRepository.save(question);
     }
 }
