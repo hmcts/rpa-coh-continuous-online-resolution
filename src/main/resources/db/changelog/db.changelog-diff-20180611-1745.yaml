@@ -1,0 +1,8 @@
+databaseChangeLog:
+- changeSet:
+    id: 1528735506009-1
+    author: johnho (generated)
+    changes:
+    - createSequence:
+        sequenceName: hibernate_sequence
+
