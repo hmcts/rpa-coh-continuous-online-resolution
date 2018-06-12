@@ -4,10 +4,11 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "question_round")
+@SequenceGenerator(name="seq_question_round_id", initialValue=1, allocationSize=100)
 public class QuestionRound {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq_question_round_id")
     @Column(name = "question_round_id")
     private Long questionRoundId;
 
