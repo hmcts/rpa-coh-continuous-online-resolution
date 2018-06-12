@@ -14,6 +14,9 @@ public class Question {
     @Column(name = "question_round_id")
     private int questionRoundId;
 
+    @Column(name = "online_hearing_id")
+    private int onlineHearingId;
+
     @Column(name = "subject")
     private String subject;
 
@@ -50,5 +53,13 @@ public class Question {
 
     public void setQuestionId(int questionId) {
         this.questionId = questionId;
+    }
+
+    public int getOnlineHearingId() {
+        return onlineHearingId;
+    }
+
+    public void setOnlineHearingId(int onlineHearingId) {
+        this.onlineHearingId = onlineHearingId;
     }
 }
