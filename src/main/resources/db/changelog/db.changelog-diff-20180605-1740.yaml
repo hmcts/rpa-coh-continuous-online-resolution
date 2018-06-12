@@ -1,4 +1,5 @@
 databaseChangeLog:
+- objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
 - changeSet:
     id: 1528216832667-1
     author: phillip (generated)
