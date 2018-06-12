@@ -1,0 +1,8 @@
+databaseChangeLog:
+- changeSet:
+    id: 1528216832667-1
+    author: phillip (generated)
+    changes:
+    - createSequence:
+        sequenceName: online_hearing_id_seq
+
