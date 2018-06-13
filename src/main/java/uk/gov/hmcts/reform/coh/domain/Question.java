@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
-@Entity
+@Entity(name = "Question")
 @Table(name = "question")
 public class Question {
 
@@ -22,6 +26,59 @@ public class Question {
 
     @Column(name = "question_text")
     private String questionText;
+
+    @OneToMany(
+            mappedBy = "question",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
+
+    public Question() {
+    }
+
+    public Question(String subject) {
+        this.subject = subject;
+    }
+
+    //Getters and setters omitted for brevity
+
+    public void addState(QuestionState questionState) {
+        QuestionStateHistory questionStateHistory = new QuestionStateHistory(this, questionState);
+        questionStateHistories.add(questionStateHistory);
+        questionState.getQuestions().add(questionStateHistory);
+    }
+
+    public void removeState(QuestionState questionState) {
+        for (Iterator<QuestionStateHistory> iterator = questionStateHistories.iterator();
+             iterator.hasNext(); ) {
+            QuestionStateHistory questionStateHistory = iterator.next();
+
+            if (questionStateHistory.getQuestion().equals(this) &&
+                    questionStateHistory.getQuestionState().equals(questionState)) {
+                iterator.remove();
+                questionStateHistory.getQuestionState().getQuestions().remove(questionStateHistory);
+                questionStateHistory.setQuestion(null);
+                questionStateHistory.setQuestionState(null);
+            }
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Question question = (Question) o;
+        return Objects.equals(subject, question.subject);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(subject);
+    }
 
     public int getQuestionRoundId() {
         return questionRoundId;
