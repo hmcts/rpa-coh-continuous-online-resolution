@@ -13,44 +13,12 @@ public class QuestionStateHistory {
     private QuestionStateId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("question_id")
+    @MapsId("questionId")
     private Question question;
 
-    public QuestionStateId getId() {
-        return id;
-    }
-
-    public void setId(QuestionStateId id) {
-        this.id = id;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(Question question) {
-        this.question = question;
-    }
-
-    public QuestionState getQuestionState() {
-        return questionState;
-    }
-
-    public void setQuestionState(QuestionState questionState) {
-        this.questionState = questionState;
-    }
-
-    public Date getDateOccurred() {
-        return dateOccurred;
-    }
-
-    public void setDateOccurred(Date dateOccurred) {
-        this.dateOccurred = dateOccurred;
-    }
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("question_state_id")
-    private QuestionState questionState;
+    @MapsId("questionStateId")
+    private QuestionState questionstate; //lowercase as liquidbase is funny with case
 
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
@@ -60,10 +28,10 @@ public class QuestionStateHistory {
 
     private QuestionStateHistory() {}
 
-    public QuestionStateHistory(Question question, QuestionState questionState) {
+    public QuestionStateHistory(Question question, QuestionState questionstate) {
         this.question = question;
-        this.questionState = questionState;
-        this.id = new QuestionStateId(question.getQuestionId(), questionState.getQuestionStateId());
+        this.questionstate = questionstate;
+        this.id = new QuestionStateId(question.getQuestionId(), questionstate.getQuestionStateId());
     }
 
     @Override
@@ -75,13 +43,28 @@ public class QuestionStateHistory {
 
         QuestionStateHistory that = (QuestionStateHistory) o;
         return Objects.equals(question, that.question) &&
-                Objects.equals(questionState, that.questionState);
+                Objects.equals(questionstate, that.questionstate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(question, questionState);
+        return Objects.hash(question, questionstate);
     }
 
 
+    public QuestionStateId getId() {
+        return id;
+    }
+
+    public void setId(QuestionStateId id) {
+        this.id = id;
+    }
+
+    public Date getDateOccurred() {
+        return dateOccurred;
+    }
+
+    public void setDateOccurred(Date dateOccurred) {
+        this.dateOccurred = dateOccurred;
+    }
 }

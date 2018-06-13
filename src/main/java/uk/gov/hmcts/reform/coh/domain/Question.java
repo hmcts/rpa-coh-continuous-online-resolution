@@ -34,35 +34,13 @@ public class Question {
     )
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
-    public Question() {
-    }
+
+    public Question() {}
 
     public Question(String subject) {
         this.subject = subject;
     }
 
-    //Getters and setters omitted for brevity
-
-    public void addState(QuestionState questionState) {
-        QuestionStateHistory questionStateHistory = new QuestionStateHistory(this, questionState);
-        questionStateHistories.add(questionStateHistory);
-        questionState.getQuestions().add(questionStateHistory);
-    }
-
-    public void removeState(QuestionState questionState) {
-        for (Iterator<QuestionStateHistory> iterator = questionStateHistories.iterator();
-             iterator.hasNext(); ) {
-            QuestionStateHistory questionStateHistory = iterator.next();
-
-            if (questionStateHistory.getQuestion().equals(this) &&
-                    questionStateHistory.getQuestionState().equals(questionState)) {
-                iterator.remove();
-                questionStateHistory.getQuestionState().getQuestions().remove(questionStateHistory);
-                questionStateHistory.setQuestion(null);
-                questionStateHistory.setQuestionState(null);
-            }
-        }
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -78,6 +56,34 @@ public class Question {
     @Override
     public int hashCode() {
         return Objects.hash(subject);
+    }
+
+
+    public void addState(QuestionState state) {
+        QuestionStateHistory stateHistory = new QuestionStateHistory(this, state);
+        questionStateHistories.add(stateHistory);
+    }
+
+//    public void removeState(QuestionState state) {
+//        for (Iterator<QuestionStateHistory> iterator = questionStateHistories.iterator();
+//             iterator.hasNext(); ) {
+//            QuestionStateHistory stateHistory = iterator.next();
+//
+//            if (stateHistory.getQuestion().equals(this) &&
+//                    stateHistory.getQuestionstate().equals(state)) {
+//                iterator.remove();
+//                stateHistory.setQuestion(null);
+//                stateHistory.setQuestionstate(null);
+//            }
+//        }
+//    }
+
+    public List<QuestionStateHistory> getQuestionStateHistories() {
+        return questionStateHistories;
+    }
+
+    public void setQuestionStateHistories(List<QuestionStateHistory> questionStateHistories) {
+        this.questionStateHistories = questionStateHistories;
     }
 
     public int getQuestionRoundId() {

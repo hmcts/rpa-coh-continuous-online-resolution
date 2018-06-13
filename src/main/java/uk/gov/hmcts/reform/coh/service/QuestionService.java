@@ -17,16 +17,16 @@ import java.util.UUID;
 public class QuestionService {
 
     private QuestionRepository questionRepository;
-    private QuestionStateRepository questionStateRepository;
+
+    private final QuestionStateService questionStateService;
+
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository) {
+    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
         this.questionRepository = questionRepository;
+        this.questionStateService = questionStateService;
     }
 
-    public Question createQuestion(final Question question) {
-        return questionRepository.save(question);
-    }
 
     public Question retrieveQuestionById(final int question_id){
         return questionRepository.findById(question_id).orElse(null);
@@ -36,8 +36,7 @@ public class QuestionService {
         question.setOnlineHearingId(oh_id);
         question.setQuestionRoundId(qr_id);
 
-        QuestionStateService questionStateService = new QuestionStateService(questionStateRepository);
-        question.addState(questionStateService.retrieveQuestionStateById(3));
+        question.addState(questionStateService.retrieveQuestionStateById(1));
         return questionRepository.save(question);
     }
 }

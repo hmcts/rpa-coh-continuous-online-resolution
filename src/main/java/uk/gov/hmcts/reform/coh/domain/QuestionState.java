@@ -11,8 +11,6 @@ import java.util.Objects;
 
 @Entity(name = "Question State")
 @Table(name = "question_state")
-//@NaturalIdCache
-//@Cache( usage = CacheConcurrencyStrategy.READ_WRITE)
 public class QuestionState {
 
     @Id
@@ -24,11 +22,12 @@ public class QuestionState {
     private String state;
 
     @OneToMany(
-            mappedBy = "questionState",
+            mappedBy = "questionstate",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<QuestionStateHistory> questions = new ArrayList<>();
+
 
     public QuestionState() {
     }
@@ -36,6 +35,7 @@ public class QuestionState {
     public QuestionState(String state) {
         this.state = state;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -49,7 +49,6 @@ public class QuestionState {
     public int hashCode() {
         return Objects.hash(state);
     }
-
 
 
     public String getState() {

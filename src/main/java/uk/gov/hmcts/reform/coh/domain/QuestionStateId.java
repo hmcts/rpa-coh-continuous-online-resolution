@@ -15,12 +15,14 @@ public class QuestionStateId implements Serializable {
     @Column(name = "question_state_id")
     private int questionStateId;
 
+
     public QuestionStateId(){}
 
     public QuestionStateId(int questionId, int questionStateId){
         this.questionId = questionId;
         this.questionStateId = questionStateId;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -37,5 +39,22 @@ public class QuestionStateId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(questionId, questionStateId);
+    }
+
+
+    public int getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(int questionId) {
+        this.questionId = questionId;
+    }
+
+    public int getQuestionStateId() {
+        return questionStateId;
+    }
+
+    public void setQuestionStateId(int questionStateId) {
+        this.questionStateId = questionStateId;
     }
 }
