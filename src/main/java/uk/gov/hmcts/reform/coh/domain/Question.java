@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,6 +25,10 @@ public class Question {
 
     @Column(name = "question_text")
     private String questionText;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_state_id")
+    private QuestionState questionState;
 
     @OneToMany(
             mappedBy = "question",
@@ -60,6 +63,7 @@ public class Question {
 
 
     public void addState(QuestionState state) {
+        this.questionState = state;
         QuestionStateHistory stateHistory = new QuestionStateHistory(this, state);
         questionStateHistories.add(stateHistory);
     }
@@ -124,5 +128,13 @@ public class Question {
 
     public void setOnlineHearingId(int onlineHearingId) {
         this.onlineHearingId = onlineHearingId;
+    }
+
+    public QuestionState getQuestionState() {
+        return questionState;
+    }
+
+    public void setQuestionState(QuestionState questionState) {
+        this.questionState = questionState;
     }
 }

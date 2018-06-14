@@ -3,14 +3,9 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
-
-import java.util.UUID;
 
 @Service
 @Component
@@ -36,7 +31,14 @@ public class QuestionService {
         question.setOnlineHearingId(oh_id);
         question.setQuestionRoundId(qr_id);
 
-        question.addState(questionStateService.retrieveQuestionStateById(1));
+        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+
+        return questionRepository.save(question);
+    }
+
+    public Question editQuestion(Integer questionId, Question body) {
+        Question question = retrieveQuestionById(questionId);
+        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
         return questionRepository.save(question);
     }
 }

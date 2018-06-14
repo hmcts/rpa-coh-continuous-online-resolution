@@ -1,17 +1,14 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.Cache;
-
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity(name = "Question State")
 @Table(name = "question_state")
 public class QuestionState {
+
+    public static final int DRAFTED = 1;
+    public static final int ISSUED = 2;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,13 +17,6 @@ public class QuestionState {
 
     @Column(name = "state")
     private String state;
-
-    @OneToMany(
-            mappedBy = "questionstate",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<QuestionStateHistory> questions = new ArrayList<>();
 
 
     public QuestionState() {
@@ -40,7 +30,10 @@ public class QuestionState {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
         QuestionState questionState = (QuestionState) o;
         return Objects.equals(state, questionState.state);
     }
@@ -65,13 +58,5 @@ public class QuestionState {
 
     public void setQuestionStateId(int questionStateId) {
         this.questionStateId = questionStateId;
-    }
-
-    public List<QuestionStateHistory> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<QuestionStateHistory> questions) {
-        this.questions = questions;
     }
 }
