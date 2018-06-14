@@ -11,27 +11,27 @@ public class Question {
 
     @Id
     @Column(name = "question_id")
-    private int questionId;
+    private Long questionId;
 
-    @Column(name = "question_round_id")
-    private int questionRoundId;
+    @Column(name = "question_round_id", nullable = true)
+    private Long questionRoundId;
 
     @Column(name = "subject")
     private String subject;
 
-    public int getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(int questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
-    public int getQuestionRoundId() {
+    public Long getQuestionRoundId() {
         return questionRoundId;
     }
 
-    public void setQuestionRoundId(int questionRoundId) {
+    public void setQuestionRoundId(Long questionRoundId) {
         this.questionRoundId = questionRoundId;
     }
 

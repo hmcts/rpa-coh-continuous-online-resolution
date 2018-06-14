@@ -1,38 +1,34 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "answer")
 public class Answer {
 
+    @SequenceGenerator(name="seq_answer_id", sequenceName="seq_answer_id")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq_answer_id")
     @Id
     @Column(name = "answer_id")
-    private int answerId;
-
-    @Column(name = "question_id")
-    private int questionId;
+    private Long answerId;
 
     @Column(name = "answer_text")
     private String answerText;
 
-    public int getAnswerId() {
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "question_id")
+    @JsonIgnore
+    private Question question;
+
+    public Long getAnswerId() {
         return answerId;
     }
 
-    public void setAnswerId(int answerId) {
+    public void setAnswerId(Long answerId) {
         this.answerId = answerId;
-    }
-
-    public int getQuestionId() {
-        return questionId;
-    }
-
-    public void setQuestionId(int questionId) {
-        this.questionId = questionId;
     }
 
     public String getAnswerText() {
@@ -41,5 +37,23 @@ public class Answer {
 
     public void setAnswerText(String answerText) {
         this.answerText = answerText;
+    }
+
+    public Answer answerId(Long answerId) {
+        this.answerId = answerId;
+        return this;
+    }
+
+    public Answer answerText(String answerText) {
+        this.answerText = answerText;
+        return this;
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 }
