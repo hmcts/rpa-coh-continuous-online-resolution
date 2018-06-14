@@ -40,3 +40,11 @@ Feature: Answers
     When a PATCH request is sent
     Then the response code is 200
     And the answer text is 'bar'
+
+  Scenario: Update unknown answer
+    Given an existing question with id of 1
+    And a valid answer
+    And the answer text is 'foo'
+    And the endpoint is '/online-hearings/1/questions/1/answers/99'
+    And a PATCH request is sent
+    And the response code is 404
