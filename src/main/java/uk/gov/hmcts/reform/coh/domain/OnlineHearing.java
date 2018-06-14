@@ -15,7 +15,6 @@ public class OnlineHearing {
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
 
-
     public UUID getOnlineHearingId() {
         return onlineHearingId;
     }

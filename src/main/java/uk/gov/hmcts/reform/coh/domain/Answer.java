@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 
