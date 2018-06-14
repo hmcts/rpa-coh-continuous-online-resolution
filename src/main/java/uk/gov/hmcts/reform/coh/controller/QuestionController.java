@@ -27,4 +27,10 @@ public class QuestionController {
     public ResponseEntity<Question> createQuestion(@PathVariable Integer oh_id, @PathVariable Integer qr_id, @RequestBody Question body) {
         return ResponseEntity.ok(questionService.createQuestion(oh_id, qr_id, body));
     }
+
+    @PostMapping(value = "/edit-question/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Question> editQuestion(@PathVariable Integer questionId, @RequestBody Question body) {
+        return ResponseEntity.ok(questionService.editQuestion(questionId, body));
+    }
+
 }
