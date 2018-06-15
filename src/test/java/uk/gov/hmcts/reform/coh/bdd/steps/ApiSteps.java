@@ -12,8 +12,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 
 import org.apache.http.entity.StringEntity;
-import org.junit.After;
-import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -23,20 +21,15 @@ import java.util.ArrayList;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class ApiSteps {
 
-    @Autowired
     private OnlineHearingService onlineHearingService;
-
-    @Autowired
     private OnlineHearingRepository onlineHearingRepository;
 
     private JSONObject json;
     private String baseUrl;
 
-    private HttpPost request;
     private HttpResponse response;
     private String responseString;
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -46,17 +39,19 @@ public class ApiSteps {
     @Before
     public void setup(){
         baseUrl = "http://localhost:8080/online-hearings";
+        System.out.println("BEFORE");
     }
 
     @After
     public void cleanUp() {
         for (String object : newObjects) {
+            System.out.println(object);
             OnlineHearing onlineHearing = new OnlineHearing();
             onlineHearing.setExternalRef(object);
             onlineHearingService.deleteOnlineHearingByExternalRef(onlineHearing);
-            OnlineHearing retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
-            assertNull(retrievedOnlineHearing);
         }
+        newObjects = new ArrayList<>();
+        System.out.println("AFTER");
     }
 
     @Given("^SSCS prepare a json request with the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
@@ -68,7 +63,7 @@ public class ApiSteps {
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
-        request = new HttpPost(baseUrl + endpoint);
+        HttpPost request = new HttpPost(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
         StringEntity params = new StringEntity(json.toString());
         request.setEntity(params);
