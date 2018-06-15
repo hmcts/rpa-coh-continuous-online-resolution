@@ -18,17 +18,18 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @GetMapping("/{oh_id}/question-rounds/{qr_id}/questions/{question_id}")
-    public ResponseEntity<Question> getQuestion(@PathVariable Integer oh_id, @PathVariable Integer qr_id, @PathVariable Integer question_id) {
-        return ResponseEntity.ok(questionService.retrieveQuestionById(question_id));
+
+    @GetMapping("/{oh_id}/questions/{questionId}")
+    public ResponseEntity<Question> getQuestion(@PathVariable Integer oh_id, @PathVariable Integer questionId) {
+        return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
     }
 
-    @PostMapping(value = "/{oh_id}/question-rounds/{qr_id}/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> createQuestion(@PathVariable Integer oh_id, @PathVariable Integer qr_id, @RequestBody Question body) {
-        return ResponseEntity.ok(questionService.createQuestion(oh_id, qr_id, body));
+    @PostMapping(value = "/{oh_id}/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Question> createQuestion(@PathVariable Integer oh_id, @RequestBody Question body) {
+        return ResponseEntity.ok(questionService.createQuestion(oh_id, body));
     }
 
-    @PostMapping(value = "/edit-question/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{oh_id}/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Question> editQuestion(@PathVariable Integer questionId, @RequestBody Question body) {
         return ResponseEntity.ok(questionService.editQuestion(questionId, body));
     }

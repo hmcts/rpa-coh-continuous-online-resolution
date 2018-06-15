@@ -27,9 +27,8 @@ public class QuestionService {
         return questionRepository.findById(question_id).orElse(null);
     }
 
-    public Question createQuestion(final int oh_id, final int qr_id, final Question question) {
+    public Question createQuestion(final int oh_id, final Question question) {
         question.setOnlineHearingId(oh_id);
-        question.setQuestionRoundId(qr_id);
 
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 

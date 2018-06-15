@@ -26,7 +26,7 @@ public class Question {
     @Column(name = "question_text")
     private String questionText;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "question_state_id")
     private QuestionState questionState;
 
