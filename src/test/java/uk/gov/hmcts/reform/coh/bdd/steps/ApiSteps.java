@@ -29,7 +29,6 @@ import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 @ContextConfiguration
 @SpringBootTest
@@ -38,22 +37,19 @@ public class ApiSteps {
     @Autowired
     private OnlineHearingService onlineHearingService;
 
-    @Autowired
-    private OnlineHearingRepository onlineHearingRepository;
-
     private JSONObject json;
     private String baseUrl;
 
-    private HttpPost request;
     private HttpResponse response;
     private String responseString;
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
-    private Set<String> newObjects = new HashSet<String>();
+    private Set<String> newObjects;
 
     @Before
     public void setup(){
         baseUrl = "http://localhost:8080/online-hearings";
+        newObjects = new HashSet<String>();
     }
 
     @After
@@ -62,8 +58,6 @@ public class ApiSteps {
             OnlineHearing onlineHearing = new OnlineHearing();
             onlineHearing.setExternalRef(object);
             onlineHearingService.deleteOnlineHearingByExternalRef(onlineHearing);
-            OnlineHearing retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
-            assertNull(retrievedOnlineHearing);
         }
     }
 
@@ -76,7 +70,7 @@ public class ApiSteps {
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
-        request = new HttpPost(baseUrl + endpoint);
+        HttpPost request = new HttpPost(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
         StringEntity params = new StringEntity(json.toString());
         request.setEntity(params);
