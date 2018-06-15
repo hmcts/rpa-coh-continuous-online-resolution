@@ -13,18 +13,26 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 
 import org.apache.http.entity.StringEntity;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+@ContextConfiguration
+@SpringBootTest
 public class ApiSteps {
 
     @Autowired
@@ -41,7 +49,7 @@ public class ApiSteps {
     private String responseString;
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
-    private ArrayList<String> newObjects = new ArrayList<>();
+    private Set<String> newObjects = new HashSet<String>();
 
     @Before
     public void setup(){
