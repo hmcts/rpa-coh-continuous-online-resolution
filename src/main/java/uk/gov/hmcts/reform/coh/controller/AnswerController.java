@@ -36,14 +36,14 @@ public class AnswerController {
         AnswerResponse answerResponse = new AnswerResponse();
         try {
             Answer answer = new Answer();
-            Optional<Question> question = questionService.retrieveQuestionById(questionId);
+            Question question = questionService.retrieveQuestionById(questionId);
 
-            if (!question.isPresent()) {
+            if (question == null) {
                 return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
             }
 
             answer.setAnswerText(request.getAnswerText());
-            answer.setQuestion(question.get());
+            answer.setQuestion(question);
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
         } catch (Exception e) {
