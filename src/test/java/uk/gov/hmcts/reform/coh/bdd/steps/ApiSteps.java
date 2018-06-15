@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.bdd.steps;
 
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -12,7 +13,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 
 import org.apache.http.entity.StringEntity;
-import org.junit.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
