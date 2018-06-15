@@ -1,4 +1,4 @@
-INSERT INTO public.question_state(state)
+INSERT INTO public.question_state(question_state_id, state)
 	VALUES
-		('DRAFTED'),
-		('SUBMITTED');
+		(1, 'DRAFTED'),
+		(2, 'SUBMITTED');
