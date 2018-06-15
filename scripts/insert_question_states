@@ -1,0 +1,4 @@
+INSERT INTO public.question_state(state)
+	VALUES
+		('DRAFTED'),
+		('SUBMITTED');
