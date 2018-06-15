@@ -7,6 +7,8 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
+import javax.persistence.EntityNotFoundException;
+
 @Service
 @Component
 public class QuestionService {
@@ -23,21 +25,30 @@ public class QuestionService {
     }
 
 
-    public Question retrieveQuestionById(final int question_id){
+    public Question retrieveQuestionById(final Long question_id){
         return questionRepository.findById(question_id).orElse(null);
     }
 
     public Question createQuestion(final int oh_id, final Question question) {
         question.setOnlineHearingId(oh_id);
 
-        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+        question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 
         return questionRepository.save(question);
     }
 
-    public Question editQuestion(Integer questionId, Question body) {
+    public Question editQuestion(Long questionId, Question body) {
         Question question = retrieveQuestionById(questionId);
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
         return questionRepository.save(question);
+    }
+
+    public Question updateQuestionById(Question question) throws EntityNotFoundException {
+
+        if (questionRepository.existsById(question.getQuestionId())) {
+            return questionRepository.save(question);
+        }
+
+        throw new EntityNotFoundException("Could not find the entity with id = " + question.getQuestionId());
     }
 }

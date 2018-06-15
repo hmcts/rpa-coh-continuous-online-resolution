@@ -26,7 +26,7 @@ public class QuestionController {
     @ApiOperation("Get a question")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
     @GetMapping("/questions/{questionId}")
-    public ResponseEntity<Question> getQuestion(@PathVariable Integer oh_id, @PathVariable Integer questionId) {
+    public ResponseEntity<Question> getQuestion(@PathVariable Integer oh_id, @PathVariable Long questionId) {
         return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
     }
 
@@ -40,7 +40,7 @@ public class QuestionController {
     @ApiOperation("Edit a question")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable Integer questionId, @RequestBody Question body) {
+    public ResponseEntity<Question> editQuestion(@PathVariable Long questionId, @RequestBody Question body) {
         return ResponseEntity.ok(questionService.editQuestion(questionId, body));
     }
 

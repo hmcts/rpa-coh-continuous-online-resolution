@@ -10,7 +10,7 @@ import java.util.Objects;
 public class QuestionStateId implements Serializable {
 
     @Column(name = "question_id")
-    private int questionId;
+    private Long questionId;
 
     @Column(name = "question_state_id")
     private int questionStateId;
@@ -18,7 +18,7 @@ public class QuestionStateId implements Serializable {
 
     public QuestionStateId(){}
 
-    public QuestionStateId(int questionId, int questionStateId){
+    public QuestionStateId(Long questionId, int questionStateId){
         this.questionId = questionId;
         this.questionStateId = questionStateId;
     }
@@ -42,11 +42,11 @@ public class QuestionStateId implements Serializable {
     }
 
 
-    public int getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(int questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 

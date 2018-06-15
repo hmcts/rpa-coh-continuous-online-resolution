@@ -12,7 +12,7 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "question_id")
-    private int questionId;
+    private Long questionId;
 
     @Column(name = "question_round_id")
     private int questionRoundId;
@@ -114,11 +114,11 @@ public class Question {
         this.questionText = questionText;
     }
 
-    public int getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(int questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
