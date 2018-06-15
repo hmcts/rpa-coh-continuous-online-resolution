@@ -11,7 +11,6 @@ public class QuestionState {
     public static final int ISSUED = 2;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "question_state_id")
     private int questionStateId;
 
