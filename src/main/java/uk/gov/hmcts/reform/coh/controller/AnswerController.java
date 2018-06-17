@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,11 +22,12 @@ public class AnswerController {
 
     @Autowired
     private AnswerService answerService;
-    
+
     @Autowired
     private QuestionService questionService;
 
-    public AnswerController() {}
+    public AnswerController() {
+    }
 
     public AnswerController(AnswerService answerService, QuestionService questionService) {
         this.answerService = answerService;
@@ -72,6 +74,20 @@ public class AnswerController {
         return ResponseEntity.ok(answer.get());
     }
 
+    @GetMapping(value = "")
+    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable Long questionId) {
+
+        // Nothing to return if question doesn't exist
+        Question question = questionService.retrieveQuestionById(questionId);
+        if (question == null) {
+            return new ResponseEntity<List<Answer>>(HttpStatus.FAILED_DEPENDENCY);
+        }
+
+        List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+
+        return ResponseEntity.ok(answers);
+    }
+
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
 
@@ -81,7 +97,7 @@ public class AnswerController {
             question.setQuestionId(questionId);
             Answer answer = new Answer().answerId(answerId)
                     .answerText(request.getAnswer().getAnswer());
-                    answer.setQuestion(question);
+            answer.setQuestion(question);
 
             Optional<Answer> optionalAnswer = answerService.retrieveAnswerById(answerId);
             if (!optionalAnswer.isPresent()) {
@@ -101,9 +117,12 @@ public class AnswerController {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
-        if (request.getAnswer() != null && StringUtils.isEmpty(request.getAnswer().getAnswer())) {
+        if (request.getAnswer() == null || StringUtils.isEmpty(request.getAnswer().getAnswer())) {
             result.setValid(false);
             result.setReason("Answer text cannot be empty");
+        } else if (request.getAnswerState() == null || StringUtils.isEmpty(request.getAnswerState().getStateName())) {
+            result.setValid(false);
+            result.setReason("Answer state cannot be empty");
         }
 
         return result;

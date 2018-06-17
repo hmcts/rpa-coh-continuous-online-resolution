@@ -5,9 +5,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +29,10 @@ public class AnswerService {
 
     public Optional<Answer> retrieveAnswerById(long answerId) {
         return answerRepository.findById(answerId);
+    }
+
+    public List<Answer> retrieveAnswersByQuestion(Question question) {
+        return answerRepository.findByQuestion(question);
     }
 
     public Answer updateAnswerById(Answer answer) throws EntityNotFoundException {
