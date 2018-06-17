@@ -25,6 +25,13 @@ public class AnswerController {
     @Autowired
     private QuestionService questionService;
 
+    public AnswerController() {}
+
+    public AnswerController(AnswerService answerService, QuestionService questionService) {
+        this.answerService = answerService;
+        this.questionService = questionService;
+    }
+
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@PathVariable Long onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
 
@@ -42,7 +49,7 @@ public class AnswerController {
                 return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
             }
 
-            answer.setAnswerText(request.getAnswerText());
+            answer.setAnswerText(request.getAnswer().getAnswer());
             answer.setQuestion(question);
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
@@ -73,7 +80,7 @@ public class AnswerController {
             Question question = new Question();
             question.setQuestionId(questionId);
             Answer answer = new Answer().answerId(answerId)
-                    .answerText(request.getAnswerText());
+                    .answerText(request.getAnswer().getAnswer());
                     answer.setQuestion(question);
 
             Optional<Answer> optionalAnswer = answerService.retrieveAnswerById(answerId);
@@ -94,7 +101,7 @@ public class AnswerController {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
-        if (StringUtils.isEmpty(request.getAnswerText())) {
+        if (request.getAnswer() != null && StringUtils.isEmpty(request.getAnswer().getAnswer())) {
             result.setValid(false);
             result.setReason("Answer text cannot be empty");
         }

@@ -1,21 +1,21 @@
 Feature: Answers
 
   Scenario: Submit an answer for unknown question
-    Given a valid answer
+    Given a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
     Then the response code is 424
 
   Scenario: Submit an answer for a question
     Given a valid question
-    And a valid answer
+    And a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
     Then the response code is 200
 
   Scenario: Submit an answer with no answer text
     Given a valid question
-    Given a valid answer
+    Given a standard answer
     And the answer text is empty
     And the endpoint is for submitting an answer
     When a POST request is sent
@@ -23,14 +23,14 @@ Feature: Answers
 
   Scenario: Submit an answer for a question
     Given a valid question
-    And a valid answer
+    And a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
     Then the response code is 200
 
   Scenario: Update an answer
     Given a valid question
-    And a valid answer
+    And a standard answer
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
     And a POST request is sent
@@ -43,7 +43,8 @@ Feature: Answers
 
   Scenario: Update unknown answer
     Given a valid question
-    And an unknown answer
+    And a standard answer
+    And an unknown answer identifier
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
     And a PATCH request is sent

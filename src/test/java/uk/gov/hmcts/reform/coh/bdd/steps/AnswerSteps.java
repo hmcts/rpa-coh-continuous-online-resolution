@@ -5,7 +5,6 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -14,20 +13,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionRound;
-import uk.gov.hmcts.reform.coh.domain.QuestionState;
-import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,8 +35,6 @@ public class AnswerSteps {
 
     private ResponseEntity<String> response;
 
-    private AnswerRequest request = new AnswerRequest();
-
     private String endpoint;
 
     private Long questionId;
@@ -50,6 +42,8 @@ public class AnswerSteps {
     private Long answerId;
 
     private Map<String, String> endpoints = new HashMap<String, String>();
+
+    private AnswerRequest answerRequest;
 
     @Autowired
     private QuestionService questionService;
@@ -78,6 +72,12 @@ public class AnswerSteps {
         this.questionId = question.getQuestionId();
     }
 
+    @Given("^a standard answer$")
+    public void a_standard_answer() throws IOException {
+        JsonUtils utils = new JsonUtils();
+        this.answerRequest = (AnswerRequest)utils.toObject("answer/standard_answer", AnswerRequest.class);
+    }
+
     @Given("^a valid answer$")
     public void a_valid_answer() {
         answer_text_is("foo");
@@ -90,11 +90,11 @@ public class AnswerSteps {
 
     @Given("^the answer text is '(.*)'$")
     public void answer_text_is(String text) {
-        request.setAnswerText(text);
+        answerRequest.getAnswer().setAnswer(text);
     }
 
-    @Given("^an unknown answer$")
-    public void an_unknown_answer() throws Throwable {
+    @Given("^an unknown answer identifier$")
+    public void an_unknown_answer_identifier$() throws Throwable {
         // Write code here that turns the phrase above into concrete actions
         answerId = 0L;
     }
@@ -125,7 +125,7 @@ public class AnswerSteps {
     @When("^a (.*) request is sent$")
     public void send_request(String type) throws IOException {
 
-        String json = convertToJson(request);
+        String json = convertToJson(answerRequest);
 
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
