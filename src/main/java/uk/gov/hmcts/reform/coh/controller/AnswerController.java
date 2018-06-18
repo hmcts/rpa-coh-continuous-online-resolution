@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +37,14 @@ public class AnswerController {
         this.questionService = questionService;
     }
 
+    @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@PathVariable Long onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
 
@@ -63,6 +74,13 @@ public class AnswerController {
         return ResponseEntity.ok(answerResponse);
     }
 
+    @ApiOperation(value = "Get Answer", notes = "A GET request with a request body is used to retrieve an answer")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
+    })
     @GetMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Answer> retrieveAnswer(@PathVariable long answerId) {
 
@@ -74,6 +92,13 @@ public class AnswerController {
         return ResponseEntity.ok(answer.get());
     }
 
+    @ApiOperation(value = "Get Answers", notes = "A GET request without a body is used to retrieve all answers to a question")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
+    })
     @GetMapping(value = "")
     public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable Long questionId) {
 
@@ -88,6 +113,14 @@ public class AnswerController {
         return ResponseEntity.ok(answers);
     }
 
+    @ApiOperation(value = "Update Answers", notes = "A PATCH request is used to update an answer")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
 
