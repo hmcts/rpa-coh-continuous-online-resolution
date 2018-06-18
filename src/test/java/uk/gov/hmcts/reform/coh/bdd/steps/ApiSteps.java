@@ -6,24 +6,20 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
-
-import org.apache.http.entity.StringEntity;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,6 +64,14 @@ public class ApiSteps {
         newObjects.add(fieldInput);
     }
 
+    @When("^a get request is sent to ' \"([^\"]*)\"'$")
+    public void a_get_request_is_sent_to(String endpoint) throws Throwable {
+        HttpGet request = new HttpGet(baseUrl + endpoint);
+        request.addHeader("content-type", "application/json");
+
+        response = httpClient.execute(request);
+    }
+
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
         HttpPost request = new HttpPost(baseUrl + endpoint);
@@ -81,9 +85,9 @@ public class ApiSteps {
     @Then("^the client receives a (\\d+) status code$")
     public void the_client_receives_a_status_code(final int expectedStatus) throws IOException {
         int currentStatusCode = response.getStatusLine().getStatusCode();
-        assertEquals(currentStatusCode, expectedStatus);
+        assertEquals(expectedStatus, currentStatusCode);
         assertEquals("Status code is incorrect : " +
-            response.getEntity().getContent().toString(), expectedStatus, currentStatusCode);
+                response.getEntity().getContent().toString(), expectedStatus, currentStatusCode);
     }
 
     @Then("^the response contains the following text '\"([^\"]*)\" '$")
