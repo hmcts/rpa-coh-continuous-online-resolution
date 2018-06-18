@@ -15,12 +15,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -112,6 +114,15 @@ public class AnswerSteps {
         }
     }
 
+    @Given("^the endpoint is for submitting all (.*)$")
+    public void the_endpoint_is_for_submitting_all_answer(String entity) throws Throwable {
+        if (endpoints.containsKey(entity)) {
+            // See if we need to fix the endpoint
+            this.endpoint = endpoints.get(entity);
+            endpoint = endpoint.replaceAll("question_id", questionId == null ? "0" : questionId.toString());
+        }
+    }
+
     @Given("^an update to the answer is required$")
     public void an_update_to_the_answer_is_required() {
         try {
@@ -148,6 +159,15 @@ public class AnswerSteps {
     @Then("^the response code is (\\d+)$")
     public void the_response_code_is(int responseCode) throws Throwable {
         assertEquals("Response status code", responseCode, response.getStatusCode().value());
+    }
+
+    @Then("^there are (\\d+) answers$")
+    public void there_are_count_answers(int count) throws Throwable {
+        ObjectMapper mapper = new ObjectMapper();
+        String json =response.getBody();
+        Answer[] myObjects = mapper.readValue(json, Answer[].class);
+
+        assertEquals("Response status code", myObjects.length, count);
     }
 
     private String convertToJson(Object obj) throws IOException {
