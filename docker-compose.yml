@@ -1,0 +1,37 @@
+version: '2.1'
+
+services:
+  coh-cor:
+    build:
+      context: .
+#    image: hmcts/coh-cor:latest
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cor-db:5432/cor
+      - IDAM_USER_BASE_URI=http://idam-api:8080
+      - IDAM_S2S_BASE_URI=http://service-auth-provider-api:8080
+      # these environment variables are used by java-logging library
+      - ROOT_APPENDER=JSON_CONSOLE
+      - JSON_CONSOLE_PRETTY_PRINT=false
+      - ROOT_LOGGING_LEVEL
+      - REFORM_SERVICE_TYPE=java
+      - REFORM_SERVICE_NAME=coh-cor
+      - REFORM_TEAM=coh
+      - REFORM_ENVIRONMENT=docker
+    links:
+     - dm-store-db
+    depends_on:
+     - dm-store-db
+    ports:
+    - $SERVER_PORT:8080
+
+  cor-db:
+    image: postgres
+    restart: always
+    environment:
+     - POSTGRES_USER=cor
+     - POSTGRES_PASSWORD=cor
+     - POSTGRES_DB=cor
+    ports:
+     - 5432:5432
+
