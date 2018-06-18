@@ -46,7 +46,7 @@ public class AnswerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String endpoint = "/online-hearings/1/questions/1/answers";
+    private static final String ENDPOINT = "/online-hearings/1/questions/1/answers";
 
     private AnswerRequest request;
 
@@ -63,7 +63,7 @@ public class AnswerControllerTest {
 
         request.getAnswer().setAnswer(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().is4xxClientError());
@@ -74,7 +74,7 @@ public class AnswerControllerTest {
 
         given(questionService.retrieveQuestionById(any(Long.class))).willReturn(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().is4xxClientError());
@@ -85,7 +85,7 @@ public class AnswerControllerTest {
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
 
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());
@@ -98,7 +98,7 @@ public class AnswerControllerTest {
         answer.answerId(1L).answerText("foo");
         given(answerService.retrieveAnswerById(any(Long.class))).willReturn(Optional.of(answer));
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
