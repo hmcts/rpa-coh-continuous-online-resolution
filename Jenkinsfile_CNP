@@ -1,0 +1,40 @@
+//#!groovy
+//
+//properties([
+//    [
+//        $class: 'GithubProjectProperty',
+//        displayName: 'COH Continuous Online Resolution',
+//        projectUrlStr: 'https://github.com/hmcts/coh-continuous-online-resolution'
+//    ],
+////    parameters(),
+//    pipelineTriggers([
+//        [$class: 'GitHubPushTrigger']
+//    ])
+//])
+//
+//@Library("Infrastructure")
+//
+//def type = "java"
+//def product = "coh"
+//def component = "cor"
+//
+//def channel = '#coh-pipeline'
+//
+//List<LinkedHashMap<String, Object>> secrets = [
+//    secret('s2s-token', 'S2S_TOKEN')
+//]
+//
+//static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+//    [ $class: 'AzureKeyVaultSecret',
+//      secretType: 'Secret',
+//      name: secretName,
+//      version: '',
+//      envVariable: envVar
+//    ]
+//}
+//
+//withPipeline(type , product, component) {
+//    enableSlackNotifications(channel)
+//    enableDbMigration()
+//    loadVaultSecrets(secrets)
+//}
