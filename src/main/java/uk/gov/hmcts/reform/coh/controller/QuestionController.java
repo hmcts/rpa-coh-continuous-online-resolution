@@ -11,6 +11,8 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/online-hearings/{oh_id}")
 public class QuestionController {
@@ -26,15 +28,16 @@ public class QuestionController {
     @ApiOperation("Get a question")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
     @GetMapping("/questions/{questionId}")
-    public ResponseEntity<Question> getQuestion(@PathVariable Integer oh_id, @PathVariable Integer questionId) {
+    // oh_id is not used
+    public ResponseEntity<Question> getQuestion(@PathVariable OnlineHearing onlineHearing, @PathVariable Long questionId) {
         return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
     }
 
     @ApiOperation("Add a new question")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Question.class)})
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> createQuestion(@PathVariable Integer oh_id, @RequestBody Question body) {
-        return ResponseEntity.ok(questionService.createQuestion(oh_id, body));
+    public ResponseEntity<Question> createQuestion(@PathVariable OnlineHearing onlineHearing, @RequestBody Question body) {
+        return ResponseEntity.ok(questionService.createQuestion(onlineHearing, body));
     }
 
     @ApiOperation("Edit a question")

@@ -3,9 +3,13 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.UUID;
 
 @Service
 @Component
@@ -27,8 +31,8 @@ public class QuestionService {
         return questionRepository.findById(question_id).orElse(null);
     }
 
-    public Question createQuestion(final int oh_id, final Question question) {
-        question.setOnlineHearingId(oh_id);
+    public Question createQuestion(final OnlineHearing onlineHearing, final Question question) {
+        question.setOnlineHearing(onlineHearing);
 
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 
