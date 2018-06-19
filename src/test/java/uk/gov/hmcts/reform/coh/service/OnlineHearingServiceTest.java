@@ -32,10 +32,12 @@ public class OnlineHearingServiceTest {
     public void createOnlineHearingAndDeleteOnlineHearingAndReadOnlineHearing() {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setExternalRef("TestObjectRef");
+
+        //Create
         createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
         assertNotNull(createdOnlineHearing.getOnlineHearingId());
 
-        //REad
+        //Read
         retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
         assertNotNull(retrievedOnlineHearing);
 
