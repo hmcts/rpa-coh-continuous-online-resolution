@@ -19,6 +19,17 @@ public class QuestionRound {
     @Column(name = "round_number")
     private int roundNumber;
 
+    @Column(name = "question_round_state_id")
+    private int state_id;
+
+    public int getState_id() {
+        return state_id;
+    }
+
+    public void setState_id(int state_id) {
+        this.state_id = state_id;
+    }
+
     public int getQuestionRoundId() {
         return questionRoundId;
     }
