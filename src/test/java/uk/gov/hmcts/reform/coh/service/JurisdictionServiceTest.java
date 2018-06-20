@@ -35,8 +35,7 @@ public class JurisdictionServiceTest {
         Optional<OnlineHearing> optOnlineHearing = onlineHearingRepository.findByExternalRef("case_id_123");
         assertNotNull(optOnlineHearing);
 
-        System.out.println(optOnlineHearing.get().getJurisdictionId());
-
+        jurisdictionService.issueQuestions(optOnlineHearing.get().getExternalRef());
     }
 
 }

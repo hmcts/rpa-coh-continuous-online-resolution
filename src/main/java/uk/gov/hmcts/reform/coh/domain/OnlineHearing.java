@@ -15,10 +15,7 @@ public class OnlineHearing {
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_order")
-    private Jurisdiction jurisdiction;
-
+    @Column(name = "jurisdiction_id")
     private Integer jurisdictionId;
 
     public UUID getOnlineHearingId() {
