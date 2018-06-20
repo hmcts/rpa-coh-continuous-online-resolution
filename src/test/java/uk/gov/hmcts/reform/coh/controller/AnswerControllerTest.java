@@ -14,12 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.bdd.steps.JsonUtils;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
 import java.util.Optional;
