@@ -26,24 +26,40 @@ public class JurisdictionService {
     private OnlineHearingRepository onlineHearingRepository;
     private QuestionRoundRepository questionRoundRepository;
 
-
     @Autowired
-    public JurisdictionService(JurisdictionRepository jurisdictionRepository, OnlineHearingRepository onlineHearingRepository) {
+    public JurisdictionService(JurisdictionRepository jurisdictionRepository, OnlineHearingRepository onlineHearingRepository, QuestionRoundRepository questionRoundRepository) {
         this.onlineHearingRepository = onlineHearingRepository;
         this.jurisdictionRepository = jurisdictionRepository;
+        this.questionRoundRepository = questionRoundRepository;
     }
 
     public QuestionRound issueQuestions(String external_ref, Integer round_id) {
         Jurisdiction jurisdiction = getJurisdiction(external_ref);
 
-
-        QuestionRound questionRound = new QuestionRound();
+        QuestionRound questionRound = getQuestionRound(round_id);
 
         System.out.println("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +
-                " and the registered 'issuer' endpoint is " + jurisdiction.getUrl());
-        boolean success = issueQuestionRound(jurisdiction, external_ref);
+                " and the registered 'issuer' endpoint is " + jurisdiction.getUrl() +
+                " sending request for question round id " + questionRound.getQuestionRoundId());
 
-        return questionRound;
+        boolean success = issueQuestionRound(jurisdiction, external_ref);
+        if(success){
+            questionRound.setState_id(3);
+            questionRoundRepository.save(questionRound);
+            System.out.println("Successfully updated state to issued");
+            return questionRound;
+        }else{
+            System.out.println("No update has been made");
+            return questionRound;
+        }
+    }
+
+    public QuestionRound getQuestionRound(Integer round_id){
+        Optional<QuestionRound> optQuestionRound = questionRoundRepository.findById(round_id);
+        if(!optQuestionRound.isPresent()){
+            throw new NoSuchElementException("Question round not found");
+        }
+        return optQuestionRound.get();
     }
 
     public Jurisdiction getJurisdiction(String external_ref){
