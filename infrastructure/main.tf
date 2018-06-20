@@ -35,6 +35,8 @@ module "app" {
     SPRING_DATASOURCE_USERNAME = "${module.db.user_name}"
     SPRING_DATASOURCE_PASSWORD = "${module.db.postgresql_password}"
 
+    ENABLE_DB_MIGRATE="false"
+
     # idam
     IDAM_API_BASE_URI = "${var.idam_api_url}"
     S2S_BASE_URI = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"

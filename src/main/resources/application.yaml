@@ -8,6 +8,10 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/coh}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -69,13 +73,13 @@ management:
 #  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:solicitor}
 #  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw}
 #
-#info:
-#  app:
-#    environment: ${PACKAGES_ENVIRONMENT:local}
-#    project: ${PACKAGES_PROJECT:evidence}
-#    name: ${PACKAGES_NAME:dm-store}
-##    version: ${PACKAGES_VERSION:unknown}
-#
+info:
+  app:
+    environment: ${PACKAGES_ENVIRONMENT:local}
+    project: ${PACKAGES_PROJECT:coh}
+    name: ${PACKAGES_NAME:cor}
+#    version: ${PACKAGES_VERSION:unknown}
+
 #azure:
 #  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
 #
