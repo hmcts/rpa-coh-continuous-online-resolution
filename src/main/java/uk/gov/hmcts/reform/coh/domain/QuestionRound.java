@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(name = "question_round")
@@ -14,7 +15,7 @@ public class QuestionRound {
     private int questionRoundId;
 
     @Column(name = "online_hearing_id")
-    private int onlineHearingId;
+    private UUID onlineHearingId;
 
     @Column(name = "round_number")
     private int roundNumber;
@@ -38,11 +39,11 @@ public class QuestionRound {
         this.questionRoundId = questionRoundId;
     }
 
-    public int getOnlineHearingId() {
+    public UUID getOnlineHearingId() {
         return onlineHearingId;
     }
 
-    public void setOnlineHearingId(int onlineHearingId) {
+    public void setOnlineHearingId(UUID onlineHearingId) {
         this.onlineHearingId = onlineHearingId;
     }
 

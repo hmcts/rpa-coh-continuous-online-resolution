@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -18,7 +17,7 @@ import java.util.Optional;
 
 @Service
 @Component
-public class JurisdictionService {
+public class QuestionRoundService {
 
     private RestTemplate restTemplate;
 
@@ -27,7 +26,7 @@ public class JurisdictionService {
     private QuestionRoundRepository questionRoundRepository;
 
     @Autowired
-    public JurisdictionService(JurisdictionRepository jurisdictionRepository, OnlineHearingRepository onlineHearingRepository, QuestionRoundRepository questionRoundRepository) {
+    public QuestionRoundService(JurisdictionRepository jurisdictionRepository, OnlineHearingRepository onlineHearingRepository, QuestionRoundRepository questionRoundRepository) {
         this.onlineHearingRepository = onlineHearingRepository;
         this.jurisdictionRepository = jurisdictionRepository;
         this.questionRoundRepository = questionRoundRepository;
@@ -78,12 +77,15 @@ public class JurisdictionService {
     protected boolean issueQuestionRound(Jurisdiction jurisdiction, String external_ref) throws HttpStatusCodeException{
         restTemplate = new RestTemplate();
         try {
+            /*
             ResponseEntity responseEntity = restTemplate.postForEntity(jurisdiction.getUrl(), "Case Id: " + external_ref + " - Notification - Question issued", String.class);
             if (responseEntity.getStatusCode().is2xxSuccessful()){
                 return true;
             }else {
                 return false;
-            }
+            }*/
+            return true;
+
         }catch(HttpStatusCodeException e){
             throw e;
         }
