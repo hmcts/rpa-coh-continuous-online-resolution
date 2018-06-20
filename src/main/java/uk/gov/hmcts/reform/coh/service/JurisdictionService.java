@@ -29,7 +29,7 @@ public class JurisdictionService {
 
         Optional<OnlineHearing> onlineHearing = onlineHearingRepository.findByExternalRef(external_ref);
         if(onlineHearing.isPresent()) {
-            jurisdictionRepository.findById(onlineHearing.get().getJuridictionId());
+            jurisdictionRepository.findById(onlineHearing.get().getJurisdictionId());
         }
         return null;
     }
