@@ -22,39 +22,39 @@ spring:
   liquibase:
    enabled: ${ENABLE_DB_MIGRATE:true}
    change-log: classpath:/db/changelog/db.changelog-master.yaml
-#
-#management:
-#  endpoints:
-#    web:
-#      base-path: '/'
-#      exposure:
-#        include:
-#         - health
-#         - info
-#  health:
-#    db:
-#      enabled: true
-#    disk:
-#      enabled: true
-#      threshold: ${HEALTH_DISK_THRESHOLD:262144000}
-#    status:
-#     order:
-#       - FATAL
-#       - DOWN
-#       - UNKNOWN
-#       - UP
-#  info:
-#     build:
-#       enabled: true # Whether to enable build info.
-#     defaults:
-#       enabled: true # Whether to enable default info contributors.
-#     env:
-#       enabled: true # Whether to enable environment info.
-#     git:
-#       enabled: true # Whether to enable git info.
-#       mode: simple # Mode to use to expose git information.
-#
-#
+
+management:
+  endpoints:
+    web:
+      base-path: '/'
+      exposure:
+        include:
+         - health
+         - info
+  health:
+    db:
+      enabled: true
+    disk:
+      enabled: true
+      threshold: ${HEALTH_DISK_THRESHOLD:262144000}
+    status:
+     order:
+       - FATAL
+       - DOWN
+       - UNKNOWN
+       - UP
+  info:
+     build:
+       enabled: true # Whether to enable build info.
+     defaults:
+       enabled: true # Whether to enable default info contributors.
+     env:
+       enabled: true # Whether to enable environment info.
+     git:
+       enabled: true # Whether to enable git info.
+       mode: simple # Mode to use to expose git information.
+
+
 #auth:
 #  idam:
 #    client:
