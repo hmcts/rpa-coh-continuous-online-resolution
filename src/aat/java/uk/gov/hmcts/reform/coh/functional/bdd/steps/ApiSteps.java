@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.bdd.steps;
+package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
