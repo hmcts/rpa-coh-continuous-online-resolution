@@ -57,7 +57,12 @@ management:
      git:
        enabled: true # Whether to enable git info.
        mode: simple # Mode to use to expose git information.
-
+info:
+  app:
+    environment: ${PACKAGES_ENVIRONMENT:local}
+    project: ${PACKAGES_PROJECT:coh}
+    name: ${PACKAGES_NAME:cor}
+#    version: ${PACKAGES_VERSION:unknown}
 
 #auth:
 #  idam:
