@@ -4,10 +4,10 @@ MAINTAINER "HMCTS Evidence Team <https://github.com/hmcts>"
 LABEL maintainer = "HMCTS Evidence Team <https://github.com/hmcts>"
 
 WORKDIR /opt/app
-COPY build/install/application .
+COPY build/install/continuous-online-hearing .
 
 HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" curl --silent --fail http://localhost:8080/health
 
 EXPOSE 8080 5005
 
-ENTRYPOINT ["/opt/app/bin/application"]
+ENTRYPOINT ["/opt/app/bin/continuous-online-hearing"]

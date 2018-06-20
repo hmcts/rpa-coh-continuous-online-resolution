@@ -22,5 +22,5 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - ./gradlew installDist bootRepackage
+  - ./gradlew installDist
   - test "$TRAVIS_BRANCH" = "master" && test "$TRAVIS_PULL_REQUEST" = "false" && sh ./publish-swagger-docs.sh

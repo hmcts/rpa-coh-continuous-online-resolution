@@ -19,9 +19,9 @@ services:
       - REFORM_TEAM=coh
       - REFORM_ENVIRONMENT=docker
     links:
-     - dm-store-db
+     - cor-db
     depends_on:
-     - dm-store-db
+     - cor-db
     ports:
     - $SERVER_PORT:8080
 
