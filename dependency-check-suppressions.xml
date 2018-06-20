@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <suppress>
+        <notes><![CDATA[
+   file name: postgresql-42.2.2.jar
+   ]]></notes>
+        <gav regex="true">^org\.postgresql:postgresql:.*$</gav>
+        <cpe>cpe:/a:postgresql:postgresql</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: postgresql-42.2.2.jar
+   ]]></notes>
+        <gav regex="true">^org\.postgresql:postgresql:.*$</gav>
+        <cpe>cpe:/a:postgresql:postgresql_jdbc_driver</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: h2-1.4.197.jar
+   ]]></notes>
+        <gav regex="true">com.h2database:h2:1.4.197</gav>
+        <cpe>cpe:/a:h2database:h2:1.4.197</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: cucumber-jvm-deps-1.0.5.jar/META-INF/maven/com.thoughtworks.xstream/xstream/pom.xml
+   ]]></notes>
+        <gav regex="true">com.thoughtworks.xstream:xstream:1.4.8</gav>
+        <cpe>cpe:/a:xstream_project:xstream:1.4.8</cpe>
+    </suppress>
+
+
+</suppressions>
