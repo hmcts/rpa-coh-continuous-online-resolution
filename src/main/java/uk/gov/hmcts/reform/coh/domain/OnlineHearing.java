@@ -15,6 +15,9 @@ public class OnlineHearing {
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
 
+    @Column(name = "jurisdiction_id")
+    private UUID juridictionId;
+
     public UUID getOnlineHearingId() {
         return onlineHearingId;
     }
@@ -31,6 +34,10 @@ public class OnlineHearing {
         this.externalRef = externalRef;
     }
 
+    public UUID getJuridictionId() {
+        return juridictionId;
+    }
+
     @Override
     public String toString() {
         return "OnlineHearing{" +
@@ -38,6 +45,4 @@ public class OnlineHearing {
                 ", externalRef='" + externalRef + '\'' +
                 '}';
     }
-
-
 }
