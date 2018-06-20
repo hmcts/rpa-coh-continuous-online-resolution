@@ -65,6 +65,7 @@ public class Question {
 
     public void addState(QuestionState state) {
         this.questionState = state;
+        System.out.println(state);
         QuestionStateHistory stateHistory = new QuestionStateHistory(this, state);
         questionStateHistories.add(stateHistory);
     }
@@ -115,11 +116,11 @@ public class Question {
         this.questionText = questionText;
     }
 
-    public int getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(int questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 

@@ -12,4 +12,6 @@ databaseChangeLog:
     file: db.changelog-diff-20180614-1523.yaml
     file: db.changelog-diff-20180614-1531.yaml
     file: db.changelog-diff-20180619-1531.yaml
+    file: db.changelog-diff-20180620-1432.yaml
+    file: db.changelog-diff-20180620-1447.yaml
 

@@ -1,0 +1,30 @@
+databaseChangeLog:
+- changeSet:
+    id: 1529501557066-1
+    author: rose (generated)
+    changes:
+    - createSequence:
+        sequenceName: seq_answer_id
+- changeSet:
+    id: 1529501557066-2
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: round_number
+            type: int4
+        tableName: question_round
+- changeSet:
+    id: 1529501557066-3
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_id
+        baseTableName: answer
+        constraintName: FK8frr4bcabmmeyyu60qt7iiblo
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_id
+        referencedTableName: question
+

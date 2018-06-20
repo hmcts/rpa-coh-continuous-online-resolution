@@ -29,21 +29,21 @@ public class QuestionController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
     @GetMapping("/questions/{questionId}")
     // oh_id is not used
-    public ResponseEntity<Question> getQuestion(@PathVariable OnlineHearing onlineHearing, @PathVariable int questionId) {
+    public ResponseEntity<Question> getQuestion(@PathVariable UUID oh_id, @PathVariable Long questionId) {
         return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
     }
 
     @ApiOperation("Add a new question")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Question.class)})
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> createQuestion(@PathVariable OnlineHearing onlineHearing, @RequestBody Question body) {
-        return ResponseEntity.ok(questionService.createQuestion(onlineHearing, body));
+    public ResponseEntity<Question> createQuestion(@PathVariable UUID oh_id, @RequestBody Question body) {
+        return ResponseEntity.ok(questionService.createQuestion(oh_id, body));
     }
 
     @ApiOperation("Edit a question")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable Integer questionId, @RequestBody Question body) {
+    public ResponseEntity<Question> editQuestion(@PathVariable Long questionId, @RequestBody Question body) {
         return ResponseEntity.ok(questionService.editQuestion(questionId, body));
     }
 

@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 @Repository
-public interface QuestionRepository extends CrudRepository<Question,Integer> {
+public interface QuestionRepository extends CrudRepository<Question,Long> {
 
 }

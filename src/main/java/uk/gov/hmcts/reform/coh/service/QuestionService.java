@@ -19,19 +19,23 @@ public class QuestionService {
 
     private final QuestionStateService questionStateService;
 
+    private final OnlineHearingService onlineHearingService;
+
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
+    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService, OnlineHearingService onlineHearingService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
+        this.onlineHearingService = onlineHearingService;
     }
 
 
-    public Question retrieveQuestionById(final int question_id){
+    public Question retrieveQuestionById(final Long question_id){
         return questionRepository.findById(question_id).orElse(null);
     }
 
-    public Question createQuestion(final OnlineHearing onlineHearing, final Question question) {
+    public Question createQuestion(final UUID onlineHearingId, final Question question) {
+        OnlineHearing onlineHearing = onlineHearingService.retrieveOnlineHearingById(onlineHearingId);
         question.setOnlineHearing(onlineHearing);
 
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
@@ -39,7 +43,7 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public Question editQuestion(Integer questionId, Question body) {
+    public Question editQuestion(Long questionId, Question body) {
         Question question = retrieveQuestionById(questionId);
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
         return questionRepository.save(question);

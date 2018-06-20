@@ -1,24 +1,22 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Objects;
 
 @Embeddable
 public class QuestionStateId implements Serializable {
 
     @Column(name = "question_id")
-    private int questionId;
+    private Long questionId;
 
     @Column(name = "question_state_id")
-    private int questionStateId;
+    private Long questionStateId;
 
 
     public QuestionStateId(){}
 
-    public QuestionStateId(int questionId, int questionStateId){
+    public QuestionStateId(Long questionId, Long questionStateId){
         this.questionId = questionId;
         this.questionStateId = questionStateId;
     }
@@ -42,19 +40,19 @@ public class QuestionStateId implements Serializable {
     }
 
 
-    public int getQuestionId() {
+    public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(int questionId) {
+    public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
 
-    public int getQuestionStateId() {
+    public Long getQuestionStateId() {
         return questionStateId;
     }
 
-    public void setQuestionStateId(int questionStateId) {
+    public void setQuestionStateId(Long questionStateId) {
         this.questionStateId = questionStateId;
     }
 }
