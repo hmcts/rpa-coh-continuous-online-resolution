@@ -16,6 +16,9 @@ public class QuestionRound {
     @Column(name = "online_hearing_id")
     private int onlineHearingId;
 
+    @Column(name = "round_number")
+    private int roundNumber;
+
     public int getQuestionRoundId() {
         return questionRoundId;
     }
@@ -30,5 +33,13 @@ public class QuestionRound {
 
     public void setOnlineHearingId(int onlineHearingId) {
         this.onlineHearingId = onlineHearingId;
+    }
+
+    public int getRoundNumber() {
+        return roundNumber;
+    }
+
+    public void setRoundNumber(int roundNumber) {
+        this.roundNumber = roundNumber;
     }
 }

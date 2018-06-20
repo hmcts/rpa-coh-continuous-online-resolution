@@ -12,7 +12,7 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "question_id")
-    private int questionId;
+    private Long questionId;
 
     @Column(name = "question_round_id")
     private int questionRoundId;
