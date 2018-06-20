@@ -16,7 +16,7 @@ public class OnlineHearing {
     private String externalRef;
 
     @Column(name = "jurisdiction_id")
-    private UUID juridictionId;
+    private Integer jurisdictionId;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -34,8 +34,12 @@ public class OnlineHearing {
         this.externalRef = externalRef;
     }
 
-    public UUID getJuridictionId() {
-        return juridictionId;
+    public Integer getJurisdictionId() {
+        return jurisdictionId;
+    }
+
+    public void setJurisdictionId(Integer jurisdictionId){
+        this.jurisdictionId = jurisdictionId;
     }
 
     @Override
