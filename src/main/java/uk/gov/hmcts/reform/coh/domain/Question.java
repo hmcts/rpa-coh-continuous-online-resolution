@@ -68,20 +68,6 @@ public class Question {
         questionStateHistories.add(stateHistory);
     }
 
-//    public void removeState(QuestionState state) {
-//        for (Iterator<QuestionStateHistory> iterator = questionStateHistories.iterator();
-//             iterator.hasNext(); ) {
-//            QuestionStateHistory stateHistory = iterator.next();
-//
-//            if (stateHistory.getQuestion().equals(this) &&
-//                    stateHistory.getQuestionstate().equals(state)) {
-//                iterator.remove();
-//                stateHistory.setQuestion(null);
-//                stateHistory.setQuestionstate(null);
-//            }
-//        }
-//    }
-
     public List<QuestionStateHistory> getQuestionStateHistories() {
         return questionStateHistories;
     }
