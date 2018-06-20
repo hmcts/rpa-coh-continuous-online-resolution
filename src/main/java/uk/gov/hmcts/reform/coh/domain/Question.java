@@ -18,7 +18,7 @@ public class Question {
     private int questionRoundId;
 
     @ManyToOne(targetEntity = OnlineHearing.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "online_hearing_id")
+    @JoinColumn(name = "online_hearing")
     private OnlineHearing onlineHearing;
 
     @Column(name = "subject")

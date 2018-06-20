@@ -1,0 +1,121 @@
+databaseChangeLog:
+- changeSet:
+    id: 1529418721071-1
+    author: rose (generated)
+    changes:
+    - createSequence:
+        sequenceName: hibernate_sequence
+- changeSet:
+    id: 1529418721071-2
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: question_statePK
+            name: question_state_id
+            type: INT
+        - column:
+            name: state
+            type: VARCHAR(255)
+        tableName: question_state
+- changeSet:
+    id: 1529418721071-3
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: date_occurred
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: question_question_id
+            type: INT
+        - column:
+            constraints:
+              nullable: false
+            name: questionstate_question_state_id
+            type: INT
+        tableName: question_state_history
+- changeSet:
+    id: 1529418721071-4
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: online_hearing
+            type: uuid
+        tableName: question
+- changeSet:
+    id: 1529418721071-5
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: question_state_id
+            type: int4
+        tableName: question
+- changeSet:
+    id: 1529418721071-6
+    author: rose (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: question_question_id, questionstate_question_state_id
+        constraintName: question_state_historyPK
+        tableName: question_state_history
+- changeSet:
+    id: 1529418721071-7
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing
+        baseTableName: question
+        constraintName: FK3ha3ujjcmn2bthfeobi1bqv5m
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_id
+        referencedTableName: online_hearing
+- changeSet:
+    id: 1529418721071-8
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: questionstate_question_state_id
+        baseTableName: question_state_history
+        constraintName: FKbex44qq4lr3f2pghtf7j7792k
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_state_id
+        referencedTableName: question_state
+- changeSet:
+    id: 1529418721071-9
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_state_id
+        baseTableName: question
+        constraintName: FKf4q9b9kmtx4v67e5hb1u5axmg
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_state_id
+        referencedTableName: question_state
+- changeSet:
+    id: 1529418721071-10
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_question_id
+        baseTableName: question_state_history
+        constraintName: FKm8w2mrtxf7h6rpd8ni8j1nfdb
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_id
+        referencedTableName: question
+

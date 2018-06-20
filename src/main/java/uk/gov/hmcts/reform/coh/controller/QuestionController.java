@@ -29,7 +29,7 @@ public class QuestionController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
     @GetMapping("/questions/{questionId}")
     // oh_id is not used
-    public ResponseEntity<Question> getQuestion(@PathVariable OnlineHearing onlineHearing, @PathVariable Long questionId) {
+    public ResponseEntity<Question> getQuestion(@PathVariable OnlineHearing onlineHearing, @PathVariable int questionId) {
         return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
     }
 
