@@ -32,6 +32,6 @@ services:
      - POSTGRES_USER=cor
      - POSTGRES_PASSWORD=cor
      - POSTGRES_DB=cor
-    ports:
-     - 5432:5432
+#    ports:
+#     - 5432:5432
 
