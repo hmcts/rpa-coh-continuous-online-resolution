@@ -1,0 +1,22 @@
+databaseChangeLog:
+- changeSet:
+    id: 1529491581713-1
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: online_hearing
+        constraintName: fk_jurisdiction_id
+- changeSet:
+    id: 1529491581713-2
+    author: phill (generated)
+    changes:
+    - dropUniqueConstraint:
+        constraintName: constraint_name
+        tableName: online_hearing
+- changeSet:
+    id: 1529491581713-3
+    author: phill (generated)
+    changes:
+    - dropTable:
+        tableName: jurisdiction
+
