@@ -1,0 +1,18 @@
+databaseChangeLog:
+- changeSet:
+    id: 1529594077475-1
+    author: phill (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: question_round_id
+        constraintName: question_roundPK
+        tableName: question_round
+- changeSet:
+    id: 1529594077475-2
+    author: phill (generated)
+    changes:
+    - addNotNullConstraint:
+        columnDataType: uuid
+        columnName: question_round_id
+        tableName: question_round
+
