@@ -1,10 +1,8 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "question_round")
@@ -14,21 +12,25 @@ public class QuestionRound {
     @Column(name = "question_round_id")
     private int questionRoundId;
 
-    @Column(name = "online_hearing_id")
-    private UUID onlineHearingId;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "online_hearing_id")
+    @JsonIgnore
+    private OnlineHearing onlineHearing;
 
     @Column(name = "round_number")
     private int roundNumber;
 
-    @Column(name = "question_round_state_id")
-    private int state_id;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "question_round_state_id")
+    @JsonIgnore
+    private QuestionState questionState;
 
-    public int getState_id() {
-        return state_id;
+    public QuestionState getQuestionState() {
+        return questionState;
     }
 
-    public void setState_id(int state_id) {
-        this.state_id = state_id;
+    public void setQuestionState(QuestionState questionState) {
+        this.questionState = questionState;
     }
 
     public int getQuestionRoundId() {
@@ -39,12 +41,12 @@ public class QuestionRound {
         this.questionRoundId = questionRoundId;
     }
 
-    public UUID getOnlineHearingId() {
-        return onlineHearingId;
+    public OnlineHearing getOnlineHearing() {
+        return onlineHearing;
     }
 
-    public void setOnlineHearingId(UUID onlineHearingId) {
-        this.onlineHearingId = onlineHearingId;
+    public void setOnlineHearing(OnlineHearing onlineHearing) {
+        this.onlineHearing = onlineHearing;
     }
 
     public int getRoundNumber() {

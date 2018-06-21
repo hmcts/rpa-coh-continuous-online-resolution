@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -15,8 +17,10 @@ public class OnlineHearing {
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
 
-    @Column(name = "jurisdiction_id")
-    private Integer jurisdictionId;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "jurisdiction_id")
+    @JsonIgnore
+    private Jurisdiction jurisdiction;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -34,12 +38,12 @@ public class OnlineHearing {
         this.externalRef = externalRef;
     }
 
-    public Integer getJurisdictionId() {
-        return jurisdictionId;
+    public Jurisdiction getJurisdiction() {
+        return jurisdiction;
     }
 
-    public void setJurisdictionId(Integer jurisdictionId){
-        this.jurisdictionId = jurisdictionId;
+    public void setJurisdiction(Jurisdiction jurisdiction){
+        this.jurisdiction = jurisdiction;
     }
 
     @Override
