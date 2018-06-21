@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.coh.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.util.Objects;
 
-@Entity(name = "Question State")
+@Entity
 @Table(name = "question_state")
 public class QuestionState {
 
@@ -12,9 +15,11 @@ public class QuestionState {
 
     @Id
     @Column(name = "question_state_id")
+    @JsonIgnore
     private int questionStateId;
 
     @Column(name = "state")
+    @JsonProperty("state_name")
     private String state;
 
 
@@ -41,7 +46,6 @@ public class QuestionState {
     public int hashCode() {
         return Objects.hash(state);
     }
-
 
     public String getState() {
         return state;

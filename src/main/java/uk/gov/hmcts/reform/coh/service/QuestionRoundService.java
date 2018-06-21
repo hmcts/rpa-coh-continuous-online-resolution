@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRoundRepository;
+import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,11 +21,13 @@ public class QuestionRoundService {
 
     private QuestionRoundRepository questionRoundRepository;
     private QuestionRoundDespatcher questionRoundDespatcher;
+    private QuestionStateRepository questionStateRepository;
 
     @Autowired
-    public QuestionRoundService(QuestionRoundRepository questionRoundRepository, QuestionRoundDespatcher questionRoundDespatcher) {
+    public QuestionRoundService(QuestionRoundRepository questionRoundRepository, QuestionRoundDespatcher questionRoundDespatcher, QuestionStateRepository questionStateRepository) {
         this.questionRoundRepository = questionRoundRepository;
         this.questionRoundDespatcher = questionRoundDespatcher;
+        this.questionStateRepository = questionStateRepository;
     }
 
     public Optional<QuestionRound> getQuestionRound(UUID roundId) {
@@ -42,7 +45,7 @@ public class QuestionRoundService {
                 " sending request for question round id " + questionRound.getQuestionRoundId());
 
         boolean success = setStateToIssued(jurisdiction, questionRound);
-
+        //boolean success = true;
         if(success){
             questionRoundRepository.save(questionRound);
             System.out.println("Successfully issued question round and sent notification to jurisdiction");
@@ -57,7 +60,8 @@ public class QuestionRoundService {
         try {
             ResponseEntity responseEntity = questionRoundDespatcher.sendRequestToJuridiction(jurisdiction, questionRound);
             if (responseEntity.getStatusCode().is2xxSuccessful()){
-                QuestionState questionState = new QuestionState();
+                Optional<QuestionState> optQuestionState = questionStateRepository.findById(3);
+                QuestionState questionState = optQuestionState.get();
                 questionState.setQuestionStateId(3);
                 questionRound.setQuestionState(questionState);
                 return true;
