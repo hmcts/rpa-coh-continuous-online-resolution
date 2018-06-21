@@ -12,7 +12,6 @@ public class QuestionStateService {
 
     private QuestionStateRepository questionStateRepository;
 
-
     @Autowired
     public QuestionStateService(QuestionStateRepository questionStateRepository) {
         this.questionStateRepository = questionStateRepository;
@@ -22,5 +21,4 @@ public class QuestionStateService {
     public QuestionState retrieveQuestionStateById(final int questionStateId){
         return questionStateRepository.findById(questionStateId).orElse(null);
     }
-
 }

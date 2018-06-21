@@ -1,11 +1,13 @@
-package uk.gov.hmcts.reform.coh.bdd.steps;
+package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import springfox.documentation.spring.web.json.Json;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -22,7 +25,6 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -31,7 +33,8 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 public class AnswerSteps {
 
-    private String baseUrl = "http://localhost:8080";
+    @Value("${base-urls.test-url}")
+    private String baseUrl;
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
 
@@ -56,6 +59,7 @@ public class AnswerSteps {
     @Before
     public void setup() {
         endpoints.put("answer", "/online-hearings/1/questions/question_id/answers");
+        endpoints.put("question", "/online-hearings/1/questions");
         questionId = null;
         answerId = null;
     }
@@ -64,20 +68,25 @@ public class AnswerSteps {
     /**
      * Creates a question to be used for testing with an answer
      */
-    public void an_existing_question_with_id() {
+    public void an_existing_question_with_id() throws IOException {
         Question question = new Question();
-        question.setQuestionState(questionStateRepository.findById(2).get());
         question.setSubject("foo");
         question.setQuestionText("question text");
         question.setQuestionRoundId(1);
-        question = questionService.createQuestion(1, question);
+        question.setOnlineHearingId(1);
+        HttpHeaders header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(question), header);
+        response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
+        String json = response.getBody();
+        question = (Question) JsonUtils.toObjectFromJson(json, Question.class);
         this.questionId = question.getQuestionId();
     }
 
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
         JsonUtils utils = new JsonUtils();
-        this.answerRequest = (AnswerRequest)utils.toObject("answer/standard_answer", AnswerRequest.class);
+        this.answerRequest = (AnswerRequest)utils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
     }
 
     @Given("^a valid answer$")

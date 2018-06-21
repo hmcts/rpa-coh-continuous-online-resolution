@@ -35,6 +35,7 @@ public class Question {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
 

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.bdd.steps;
+package uk.gov.hmcts.reform.coh.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

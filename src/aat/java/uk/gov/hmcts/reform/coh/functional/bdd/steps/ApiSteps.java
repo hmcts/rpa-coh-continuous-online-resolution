@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.bdd.steps;
+package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
@@ -41,19 +42,28 @@ public class ApiSteps {
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
     private Set<String> newObjects;
+    private Set<OnlineHearing> newOnlineHearings;
 
     @Before
     public void setup(){
         baseUrl = "http://localhost:8080/online-hearings";
         newObjects = new HashSet<String>();
+        newOnlineHearings = new HashSet<OnlineHearing>();
     }
 
     @After
     public void cleanUp() {
-        for (String object : newObjects) {
-            OnlineHearing onlineHearing = new OnlineHearing();
-            onlineHearing.setExternalRef(object);
-            onlineHearingService.deleteOnlineHearingByExternalRef(onlineHearing);
+//        for (String object : newObjects) {
+//            OnlineHearing onlineHearing = new OnlineHearing();
+//            onlineHearing.setExternalRef(object);
+//            onlineHearingService.deleteOnlineHearingByExternalRef(onlineHearing);
+//        }
+
+        for (OnlineHearing oh : newOnlineHearings) {
+            Optional<OnlineHearing> opt = onlineHearingService.retrieveOnlineHearing(oh);
+            if (opt.isPresent()) {
+                onlineHearingService.deleteOnlineHearing(oh);
+            }
         }
     }
 
@@ -80,6 +90,8 @@ public class ApiSteps {
         request.setEntity(params);
         response = httpClient.execute(request);
         responseString = new BasicResponseHandler().handleResponse(response);
+        OnlineHearing oh = (OnlineHearing) JsonUtils.toObjectFromJson(responseString, OnlineHearing.class);
+        newOnlineHearings.add(oh);
     }
 
     @Then("^the client receives a (\\d+) status code$")
