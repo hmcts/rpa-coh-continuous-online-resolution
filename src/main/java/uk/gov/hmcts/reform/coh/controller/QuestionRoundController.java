@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/online-hearings/{oh_id}")
+@RequestMapping("/online-hearings/{onlineHearingId}")
 public class QuestionRoundController {
 
     private QuestionRoundService questionRoundService;
