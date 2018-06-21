@@ -33,8 +33,10 @@ public class QuestionRoundService {
     }
 
     public QuestionRound issueQuestions(String external_ref, Integer round_id) {
-        Jurisdiction jurisdiction = getJurisdiction(external_ref);
 
+        System.out.println("Log reached");
+
+        Jurisdiction jurisdiction = getJurisdiction(external_ref);
         QuestionRound questionRound = getQuestionRound(round_id);
 
         System.out.println("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +
