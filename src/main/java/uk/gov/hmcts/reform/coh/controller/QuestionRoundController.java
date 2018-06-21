@@ -41,7 +41,7 @@ public class QuestionRoundController {
             return new ResponseEntity<QuestionRound>(HttpStatus.FAILED_DEPENDENCY);
         }
 
-        Boolean success = questionRoundService.setStateToIssued(optQuestionRound.get());
+        Boolean success = questionRoundService.notifyJurisdiction(optQuestionRound.get());
         if(success) {
             return ResponseEntity.ok(optQuestionRound.get());
         }else {

@@ -9,7 +9,6 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRoundRepository;
 
 import java.util.Optional;
@@ -19,12 +18,10 @@ import java.util.Optional;
 public class QuestionRoundService {
 
     private RestTemplate restTemplate;
-    private JurisdictionRepository jurisdictionRepository;
     private QuestionRoundRepository questionRoundRepository;
 
     @Autowired
-    public QuestionRoundService(JurisdictionRepository jurisdictionRepository, QuestionRoundRepository questionRoundRepository) {
-        this.jurisdictionRepository = jurisdictionRepository;
+    public QuestionRoundService(QuestionRoundRepository questionRoundRepository) {
         this.questionRoundRepository = questionRoundRepository;
     }
 
@@ -32,7 +29,7 @@ public class QuestionRoundService {
         return questionRoundRepository.findById(roundId);
     }
 
-    public Boolean setStateToIssued(QuestionRound questionRound) {
+    public Boolean notifyJurisdiction(QuestionRound questionRound) {
         Jurisdiction jurisdiction = questionRound.getOnlineHearing().getJurisdiction();
         if(jurisdiction==null){
             throw new NullPointerException("No Jurisdiction found for online hearing: " + questionRound.getOnlineHearing().getOnlineHearingId());
@@ -42,7 +39,7 @@ public class QuestionRoundService {
                 " and the registered 'issuer' endpoint is " + jurisdiction.getUrl() +
                 " sending request for question round id " + questionRound.getQuestionRoundId());
 
-        boolean success = notifyJurisdiction(jurisdiction, questionRound);
+        boolean success = setStateToIssued(jurisdiction, questionRound);
         if(success){
             questionRoundRepository.save(questionRound);
             System.out.println("Successfully issued question round and sent notification to jurisdiction");
@@ -53,7 +50,7 @@ public class QuestionRoundService {
         }
     }
 
-    protected boolean notifyJurisdiction(Jurisdiction jurisdiction, QuestionRound questionRound) throws HttpStatusCodeException{
+    protected boolean setStateToIssued(Jurisdiction jurisdiction, QuestionRound questionRound) throws HttpStatusCodeException{
         restTemplate = new RestTemplate();
         try {
             ResponseEntity responseEntity = restTemplate.postForEntity(jurisdiction.getUrl(), "Online hearing id: " +
