@@ -49,7 +49,7 @@ public class QuestionRoundControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionRoundController).build();
         given(questionRoundService.getQuestionRound(QUESTION_ROUND_ID)).willReturn(java.util.Optional.of(questionRound));
-        given(questionRoundService.notifyJurisdiction(any(QuestionRound.class))).willReturn(true);
+        given(questionRoundService.notifyJurisdictionToIssued(any(QuestionRound.class))).willReturn(true);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithJurisdictionEndpointDownReturnsFailedDependency() throws Exception {
-        given(questionRoundService.notifyJurisdiction(any(QuestionRound.class))).willReturn(false);
+        given(questionRoundService.notifyJurisdictionToIssued(any(QuestionRound.class))).willReturn(false);
         mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ROUND_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))

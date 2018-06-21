@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.ResourceAccessException;
+import uk.gov.hmcts.reform.coh.Notification.QuestionRoundDespatcher;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -18,19 +18,20 @@ import java.util.UUID;
 @Component
 public class QuestionRoundService {
 
-    private RestTemplate restTemplate;
     private QuestionRoundRepository questionRoundRepository;
+    private QuestionRoundDespatcher questionRoundDespatcher;
 
     @Autowired
-    public QuestionRoundService(QuestionRoundRepository questionRoundRepository) {
+    public QuestionRoundService(QuestionRoundRepository questionRoundRepository, QuestionRoundDespatcher questionRoundDespatcher) {
         this.questionRoundRepository = questionRoundRepository;
+        this.questionRoundDespatcher = questionRoundDespatcher;
     }
 
     public Optional<QuestionRound> getQuestionRound(UUID roundId) {
         return questionRoundRepository.findById(roundId);
     }
 
-    public Boolean notifyJurisdiction(QuestionRound questionRound) {
+    public Boolean notifyJurisdictionToIssued(QuestionRound questionRound) {
         Jurisdiction jurisdiction = questionRound.getOnlineHearing().getJurisdiction();
         if(jurisdiction==null){
             throw new NullPointerException("No Jurisdiction found for online hearing: " + questionRound.getOnlineHearing().getOnlineHearingId());
@@ -51,13 +52,9 @@ public class QuestionRoundService {
         }
     }
 
-    protected boolean setStateToIssued(Jurisdiction jurisdiction, QuestionRound questionRound) throws HttpStatusCodeException{
-        restTemplate = new RestTemplate();
+    protected boolean setStateToIssued(Jurisdiction jurisdiction, QuestionRound questionRound) throws ResourceAccessException{
         try {
-            ResponseEntity responseEntity = restTemplate.postForEntity(jurisdiction.getUrl(), "Online hearing id: " +
-                    questionRound.getOnlineHearing().getOnlineHearingId() + " - Notification - Question round issued: " +
-                    questionRound.getQuestionRoundId(), String.class);
-
+            ResponseEntity responseEntity = questionRoundDespatcher.sendRequestToJuridiction(jurisdiction, questionRound);
             if (responseEntity.getStatusCode().is2xxSuccessful()){
                 QuestionState questionState = new QuestionState();
                 questionState.setQuestionStateId(3);
@@ -67,7 +64,7 @@ public class QuestionRoundService {
                 return false;
             }
 
-        }catch(HttpStatusCodeException e){
+        }catch(ResourceAccessException e){
             throw e;
         }
     }
