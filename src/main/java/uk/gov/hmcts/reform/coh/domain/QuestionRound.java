@@ -3,14 +3,16 @@ package uk.gov.hmcts.reform.coh.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "question_round")
 public class QuestionRound {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "question_round_id")
-    private int questionRoundId;
+    private UUID questionRoundId;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "online_hearing_id")
@@ -33,11 +35,11 @@ public class QuestionRound {
         this.questionState = questionState;
     }
 
-    public int getQuestionRoundId() {
+    public UUID getQuestionRoundId() {
         return questionRoundId;
     }
 
-    public void setQuestionRoundId(int questionRoundId) {
+    public void setQuestionRoundId(UUID questionRoundId) {
         this.questionRoundId = questionRoundId;
     }
 

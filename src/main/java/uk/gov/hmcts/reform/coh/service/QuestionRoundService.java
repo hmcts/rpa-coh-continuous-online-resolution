@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRoundRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Component
@@ -25,7 +26,7 @@ public class QuestionRoundService {
         this.questionRoundRepository = questionRoundRepository;
     }
 
-    public Optional<QuestionRound> getQuestionRound(Integer roundId) {
+    public Optional<QuestionRound> getQuestionRound(UUID roundId) {
         return questionRoundRepository.findById(roundId);
     }
 

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 
 import java.util.Optional;
@@ -20,19 +19,17 @@ import java.util.UUID;
 public class QuestionRoundController {
 
     private QuestionRoundService questionRoundService;
-    private OnlineHearingRepository onlineHearingRepository;
 
 
     @Autowired
-    public QuestionRoundController(QuestionRoundService questionRoundService, OnlineHearingRepository onlineHearingRepository) {
+    public QuestionRoundController(QuestionRoundService questionRoundService) {
         this.questionRoundService = questionRoundService;
-        this.onlineHearingRepository = onlineHearingRepository;
     }
 
     @GetMapping("/questionrounds/{round_id}")
-    public ResponseEntity<QuestionRound> issueQuestions(@PathVariable UUID oh_id, @PathVariable Integer round_id) {
+    public ResponseEntity<QuestionRound> issueQuestions(@PathVariable UUID round_id) {
 
-        if(StringUtils.isEmpty(oh_id) || oh_id == null || StringUtils.isEmpty(round_id) || round_id == null){
+        if(StringUtils.isEmpty(round_id) || round_id == null){
             return new ResponseEntity<QuestionRound>(HttpStatus.FAILED_DEPENDENCY);
         }
 

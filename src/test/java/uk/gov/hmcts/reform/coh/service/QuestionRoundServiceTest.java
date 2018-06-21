@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRoundRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -26,27 +27,22 @@ public class QuestionRoundServiceTest {
 
     private QuestionRound questionRound;
 
+    private UUID questionRoundId = UUID.fromString("d6248584-4aa5-4cb0-aba6-d2633ad5a375");
     @After
     public void teardown(){
         QuestionState questionState = new QuestionState();
         questionState.setQuestionStateId(2);
 
-        Optional<QuestionRound> optQuestionRound = questionRoundService.getQuestionRound(1);
+        Optional<QuestionRound> optQuestionRound = questionRoundService.getQuestionRound(questionRoundId);
         questionRound = optQuestionRound.get();
         questionRound.setQuestionState(questionState);
-        questionRound.setQuestionRoundId(1);
 
         questionRoundRepository.save(questionRound);
     }
 
     @Test
-    public void testGetQuestionRoundUsingId(){
-
-    }
-
-    @Test
     public void testUpdateQuestionRoundToIssued(){
-        Optional<QuestionRound> optQuestionRound = questionRoundService.getQuestionRound(1);
+        Optional<QuestionRound> optQuestionRound = questionRoundService.getQuestionRound(questionRoundId);
         questionRound = optQuestionRound.get();
         questionRoundService.notifyJurisdiction(questionRound);
     }
