@@ -29,6 +29,39 @@
         <gav regex="true">com.thoughtworks.xstream:xstream:1.4.8</gav>
         <cpe>cpe:/a:xstream_project:xstream:1.4.8</cpe>
     </suppress>
-
-
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-8.5.29.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-websocket:.*$</gav>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-8.5.29.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-websocket:.*$</gav>
+        <cpe>cpe:/a:apache_tomcat:apache_tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-8.5.29.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-websocket:.*$</gav>
+        <cpe>cpe:/a:apache_software_foundation:tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-8.5.29.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-websocket:.*$</gav>
+        <cve>CVE-2018-8014</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-core-8.5.29.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-core:.*$</gav>
+        <cve>CVE-2018-8014</cve>
+    </suppress>
 </suppressions>
