@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 
@@ -31,7 +30,7 @@ public class QuestionRoundController {
 
     @ApiOperation(value = "Issue Question Round", notes = "A GET request is used to notify the jurisdiction.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
+            @ApiResponse(code = 200, message = "Success", response = QuestionRound.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
@@ -41,12 +40,12 @@ public class QuestionRoundController {
     public ResponseEntity<QuestionRound> issueQuestions(@PathVariable UUID round_id) {
 
         if(StringUtils.isEmpty(round_id) || round_id == null){
-            return new ResponseEntity<QuestionRound>(HttpStatus.FAILED_DEPENDENCY);
+            return new ResponseEntity<QuestionRound>(HttpStatus.BAD_REQUEST);
         }
 
         Optional<QuestionRound> optQuestionRound = questionRoundService.getQuestionRound(round_id);
         if(!optQuestionRound.isPresent() || optQuestionRound == null){
-            return new ResponseEntity<QuestionRound>(HttpStatus.FAILED_DEPENDENCY);
+            return new ResponseEntity<QuestionRound>(HttpStatus.BAD_REQUEST);
         }
 
         Boolean success = questionRoundService.notifyJurisdictionToIssued(optQuestionRound.get());
