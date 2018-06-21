@@ -16,8 +16,6 @@ public class QuestionRoundDespatcher {
     }
 
     public ResponseEntity sendRequestToJuridiction(Jurisdiction jurisdiction, QuestionRound questionRound){
-        return restTemplate.postForEntity(jurisdiction.getUrl(), "Online hearing id: " +
-                questionRound.getOnlineHearing().getOnlineHearingId() + " - Notification - Question round issued: " +
-                questionRound.getQuestionRoundId(), String.class);
+        return restTemplate.postForEntity(jurisdiction.getUrl(), questionRound, String.class);
     }
 }

@@ -42,6 +42,7 @@ public class QuestionRoundService {
                 " sending request for question round id " + questionRound.getQuestionRoundId());
 
         boolean success = setStateToIssued(jurisdiction, questionRound);
+
         if(success){
             questionRoundRepository.save(questionRound);
             System.out.println("Successfully issued question round and sent notification to jurisdiction");
