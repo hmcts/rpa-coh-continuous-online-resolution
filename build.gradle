@@ -149,3 +149,7 @@ task smoke(type: Test) {
 
     environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
+
+dependencyCheck {
+    suppressionFile = 'dependency-check-suppressions.xml'
+}
