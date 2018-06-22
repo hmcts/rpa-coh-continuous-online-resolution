@@ -19,7 +19,7 @@ import java.util.UUID;
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class OnlineHearingServiceTest {
@@ -60,5 +60,13 @@ public class OnlineHearingServiceTest {
         when(onlineHearingRepository.findByExternalRef(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
         OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(createdOnlineHearing);
         assertEquals(createdOnlineHearing, newOnlineHearing);
+    }
+
+    @Test
+    public void testDeleteOnlineHearing() {
+        createdOnlineHearing.setExternalRef("foo");
+        doNothing().when(onlineHearingRepository).delete(createdOnlineHearing);
+        onlineHearingService.deleteOnlineHearing(createdOnlineHearing);
+        verify(onlineHearingRepository, times(1)).delete(createdOnlineHearing);
     }
 }
