@@ -52,7 +52,7 @@ public class QuestionControllerTest {
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssued() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID + "/issue")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -64,7 +64,7 @@ public class QuestionControllerTest {
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithNullRoundIdReturnsClientError() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + "/issue")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().is4xxClientError())
@@ -73,7 +73,7 @@ public class QuestionControllerTest {
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithWrongRoundIdReturnsClientError() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + "Not-A-valid-id" + "/issue")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + "Not-A-valid-id" )
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().is4xxClientError())
@@ -83,7 +83,7 @@ public class QuestionControllerTest {
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithJurisdictionEndpointDownReturnsFailedDependency() throws Exception {
         given(questionService.issueQuestion(any(Question.class))).willReturn(false);
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID + "/issue")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isFailedDependency())

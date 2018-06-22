@@ -2,4 +2,5 @@ Feature: Questions feature
 
   Scenario: Create question to state issued
     Given the default online hearing
-    Then remove test data ' "case_id_179" '
+    And the draft a question
+    When set question state to issued
