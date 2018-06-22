@@ -28,10 +28,6 @@ public class OnlineHearingService {
         return onlineHearingRepository.findById(onlineHearing.getOnlineHearingId());
     }
 
-    public Optional<OnlineHearing> retrieveOnlineHearingById(final UUID onlineHearingId) {
-        return onlineHearingRepository.findById(onlineHearingId);
-    }
-
     public OnlineHearing retrieveOnlineHearingByExternalRef(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.findByExternalRef(onlineHearing.getExternalRef()).orElse(null);
     }
