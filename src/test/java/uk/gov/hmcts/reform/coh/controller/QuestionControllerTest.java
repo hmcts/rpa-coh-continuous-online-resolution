@@ -14,10 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.domain.QuestionRound;
-import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
-
-import java.util.UUID;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,46 +25,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class QuestionRoundControllerTest {
+public class QuestionControllerTest {
 
     @Mock
-    private QuestionRoundService questionRoundService;
+    private QuestionService questionService;
 
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questionrounds";
+    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions";
 
-    private static final UUID QUESTION_ROUND_ID = UUID.fromString("d6248584-4aa5-4cb0-aba6-d2633ad5a375");
+    private static final Long QUESTION_ID = Long.valueOf(2000);
 
     @InjectMocks
-    private QuestionRoundController questionRoundController;
+    private QuestionController questionController;
 
     @Before
     public void setup() {
-        QuestionRound questionRound = new QuestionRound();
-        questionRound.setQuestionRoundId(QUESTION_ROUND_ID);
+        Question question = new Question();
+        question.setQuestionId(QUESTION_ID);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(questionRoundController).build();
-        given(questionRoundService.getQuestionRound(QUESTION_ROUND_ID)).willReturn(java.util.Optional.of(questionRound));
-        given(questionRoundService.notifyJurisdictionToIssued(any(QuestionRound.class))).willReturn(true);
+        mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
+        given(questionService.retrieveQuestionById(QUESTION_ID)).willReturn(question);
+        given(questionService.issueQuestion(any(Question.class))).willReturn(true);
     }
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssued() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ROUND_ID)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID + "/issue")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"questionRoundId\":\"d6248584-4aa5-4cb0-aba6-d2633ad5a375\",\"roundNumber\":0}", response);
+        assertEquals("{\"questionId\":2000,\"questionRoundId\":0,\"subject\":null,\"questionText\":null,\"questionState\":null,\"questionStateHistories\":[]}", response);
     }
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithNullRoundIdReturnsClientError() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + "/issue")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().is4xxClientError())
@@ -75,7 +73,7 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithWrongRoundIdReturnsClientError() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + "Not-A-valid-id")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + "Not-A-valid-id" + "/issue")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().is4xxClientError())
@@ -84,8 +82,8 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithJurisdictionEndpointDownReturnsFailedDependency() throws Exception {
-        given(questionRoundService.notifyJurisdictionToIssued(any(QuestionRound.class))).willReturn(false);
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ROUND_ID)
+        given(questionService.issueQuestion(any(Question.class))).willReturn(false);
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID + "/issue")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isFailedDependency())

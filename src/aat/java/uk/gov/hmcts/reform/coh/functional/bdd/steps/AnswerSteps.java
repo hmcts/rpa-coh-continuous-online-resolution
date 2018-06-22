@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -15,10 +14,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-import springfox.documentation.spring.web.json.Json;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
@@ -26,6 +25,7 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -73,7 +73,11 @@ public class AnswerSteps {
         question.setSubject("foo");
         question.setQuestionText("question text");
         question.setQuestionRoundId(1);
-        question.setOnlineHearingId(1);
+
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.fromString("d9248584-4aa5-4cb0-aba6-d2633ad5a375"));
+        question.setOnlineHearing(onlineHearing);
+        
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(question), header);

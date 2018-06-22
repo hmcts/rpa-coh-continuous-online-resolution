@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +19,8 @@ public class Question {
     @Column(name = "question_round_id")
     private int questionRoundId;
 
-    @Column(name = "online_hearing_id")
-    private int onlineHearingId;
+    //@Column(name = "online_hearing_id")
+    //private int onlineHearingId;
 
     @Column(name = "subject")
     private String subject;
@@ -35,16 +37,18 @@ public class Question {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "online_hearing_id")
+    @JsonIgnore
+    private OnlineHearing onlineHearing;
 
     public Question() {}
 
     public Question(String subject) {
         this.subject = subject;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -123,13 +127,13 @@ public class Question {
         this.questionId = questionId;
     }
 
-    public int getOnlineHearingId() {
-        return onlineHearingId;
-    }
+    //public int getOnlineHearingId() {
+    //    return onlineHearingId;
+    //}
 
-    public void setOnlineHearingId(int onlineHearingId) {
-        this.onlineHearingId = onlineHearingId;
-    }
+    // void setOnlineHearingId(int onlineHearingId) {
+     //   this.onlineHearingId = onlineHearingId;
+    //}
 
     public QuestionState getQuestionState() {
         return questionState;
@@ -137,5 +141,13 @@ public class Question {
 
     public void setQuestionState(QuestionState questionState) {
         this.questionState = questionState;
+    }
+
+    public OnlineHearing getOnlineHearing() {
+        return onlineHearing;
+    }
+
+    public void setOnlineHearing(OnlineHearing onlineHearing) {
+        this.onlineHearing = onlineHearing;
     }
 }
