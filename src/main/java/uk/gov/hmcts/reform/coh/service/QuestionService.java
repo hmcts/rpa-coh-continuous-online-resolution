@@ -29,7 +29,7 @@ public class QuestionService {
         return questionRepository.findById(question_id).orElse(null);
     }
 
-    public Question createQuestion(final int oh_id, final Question question) {
+    public Question createQuestion(final int oh_id, Question question) {
         question.setOnlineHearingId(oh_id);
 
         question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
@@ -41,14 +41,5 @@ public class QuestionService {
         Question question = retrieveQuestionById(questionId);
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
         return questionRepository.save(question);
-    }
-
-    public Question updateQuestionById(Question question) throws EntityNotFoundException {
-
-        if (questionRepository.existsById(question.getQuestionId())) {
-            return questionRepository.save(question);
-        }
-
-        throw new EntityNotFoundException("Could not find the entity with id = " + question.getQuestionId());
     }
 }

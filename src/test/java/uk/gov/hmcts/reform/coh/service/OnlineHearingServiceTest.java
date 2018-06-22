@@ -1,54 +1,64 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import java.util.Optional;
+import java.util.UUID;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest
-@Configuration
-@ActiveProfiles({"local"})
+import static java.util.UUID.randomUUID;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringRunner.class)
 public class OnlineHearingServiceTest {
 
-    @Autowired
-    private OnlineHearingService onlineHearingService;
-
-    @Autowired
+    @Mock
     private OnlineHearingRepository onlineHearingRepository;
 
+    private OnlineHearingService onlineHearingService;
+
     private OnlineHearing createdOnlineHearing;
-    private OnlineHearing retrievedOnlineHearing;
 
 
-    // Will be replaced by cucumber tests!!
+    @Before
+    public void setup() {
+        onlineHearingService = new OnlineHearingService(onlineHearingRepository);
+        createdOnlineHearing = new OnlineHearing();
+        createdOnlineHearing.setOnlineHearingId(randomUUID());
+    }
+
     @Test
-    public void createOnlineHearingAndDeleteOnlineHearingAndReadOnlineHearing() {
-//        OnlineHearing onlineHearing = new OnlineHearing();
-//        onlineHearing.setExternalRef("TestObjectRef");
-//
-//        //Create
-//        createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
-//        assertNotNull(createdOnlineHearing.getOnlineHearingId());
-//
-//        //Read
-//        retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
-//        assertNotNull(retrievedOnlineHearing);
-//
-//        //Delete
-//        System.out.println(onlineHearing.toString());
-//        onlineHearingService.deleteOnlineHearingByExternalRef(onlineHearing);
-//
-//        //Check deleted
-//        retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
-//        assertNull(retrievedOnlineHearing);
+    public void testCreateOnlineHearing() {
+        when(onlineHearingRepository.save(createdOnlineHearing)).thenReturn(createdOnlineHearing);
+        OnlineHearing newOnlineHearing = onlineHearingService.createOnlineHearing(createdOnlineHearing);
+        assertEquals(createdOnlineHearing, newOnlineHearing);
+    }
+
+    @Test
+    public void testRetrieveOnlineHearing() {
+        when(onlineHearingRepository.findById(any(UUID.class))).thenReturn(Optional.of(createdOnlineHearing));
+        Optional<OnlineHearing> newOnlineHearing = onlineHearingService.retrieveOnlineHearing(createdOnlineHearing);
+        assertTrue(newOnlineHearing.isPresent());
+        assertEquals(createdOnlineHearing, newOnlineHearing.get());
+    }
+
+    @Test
+    public void testRetrieveOnlineHearingByExternalRef() {
+        createdOnlineHearing.setExternalRef("foo");
+        when(onlineHearingRepository.findByExternalRef(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
+        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(createdOnlineHearing);
+        assertEquals(createdOnlineHearing, newOnlineHearing);
     }
 }
