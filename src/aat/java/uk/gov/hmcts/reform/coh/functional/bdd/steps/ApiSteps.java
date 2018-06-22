@@ -74,12 +74,19 @@ public class ApiSteps {
         newObjects.add(fieldInput);
     }
 
+    @Given("^the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
+    public void add_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
+        json.put(fieldName, fieldInput);
+        newObjects.add(fieldInput);
+    }
+
     @When("^a get request is sent to ' \"([^\"]*)\"'$")
     public void a_get_request_is_sent_to(String endpoint) throws Throwable {
         HttpGet request = new HttpGet(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
 
         response = httpClient.execute(request);
+        responseString = new BasicResponseHandler().handleResponse(response);
     }
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")

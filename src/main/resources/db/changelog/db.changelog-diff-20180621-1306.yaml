@@ -1,0 +1,37 @@
+databaseChangeLog:
+- changeSet:
+    id: 1529582769675-1
+    author: phill (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: question_round_id
+        constraintName: question_roundPK
+        tableName: question_round
+- changeSet:
+    id: 1529582769675-2
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_round_state_id
+        baseTableName: question_round
+        constraintName: FKs2i0jkthn6buscimms0u80h2g
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_state_id
+        referencedTableName: question_state
+- changeSet:
+    id: 1529582769675-3
+    author: phill (generated)
+    changes:
+    - dropUniqueConstraint:
+        constraintName: constraint_name
+        tableName: online_hearing
+- changeSet:
+    id: 1529582769675-4
+    author: phill (generated)
+    changes:
+    - addNotNullConstraint:
+        columnDataType: uuid
+        columnName: question_round_id
+        tableName: question_round
+

@@ -1,0 +1,1 @@
+insert into jurisdiction(jurisdiction_id, jurisdiction_name, url) values (1, 'SSCS', 'http://SSCS.endpoint');
