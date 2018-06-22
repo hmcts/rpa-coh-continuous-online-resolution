@@ -9,10 +9,10 @@ import javax.persistence.Table;
 @Table(name = "jurisdiction")
 public class Jurisdiction {
 
-    @Id
     @Column(name = "jurisdiction_id")
     private Integer jurisdictionId;
 
+    @Id
     @Column(name = "jurisdiction_name")
     private String jurisdictionName;
 
@@ -43,5 +43,12 @@ public class Jurisdiction {
         this.url = url;
     }
 
-
+    @Override
+    public String toString() {
+        return "Jurisdiction{" +
+                "jurisdictionId=" + jurisdictionId +
+                ", jurisdictionName='" + jurisdictionName + '\'' +
+                ", url='" + url + '\'' +
+                '}';
+    }
 }

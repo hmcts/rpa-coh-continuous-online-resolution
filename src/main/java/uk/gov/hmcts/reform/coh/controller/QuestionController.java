@@ -7,11 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/online-hearings/{onlineHearingId}")
@@ -24,19 +25,11 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-
-    @ApiOperation("Get a question")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
-    @GetMapping("/questions/{questionId}")
-    public ResponseEntity<Question> getQuestion(@PathVariable Long questionId) {
-        return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
-    }
-
     @ApiOperation("Add a new question")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Question.class)})
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> createQuestion(@RequestBody Question body) {
-        return ResponseEntity.ok(questionService.createQuestion(body));
+    public ResponseEntity<Question> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody Question body) {
+        return ResponseEntity.ok(questionService.createQuestion(body, onlineHearingId));
     }
 
     @ApiOperation("Edit a question")
@@ -54,19 +47,15 @@ public class QuestionController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @GetMapping("/questions/{questionId}/issue")
-    public ResponseEntity<Question> issueQuestions(@PathVariable Long questionId) {
-
-        if(StringUtils.isEmpty(questionId) || questionId == null){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
-        }
+    @GetMapping("/questions/{questionId}")
+    public ResponseEntity<Question> issueQuestion(@PathVariable Long questionId) {
 
         Question question = questionService.retrieveQuestionById(questionId);
         if(question == null){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 
-        Boolean success = questionService.issueQuestion(question);
+        boolean success = questionService.issueQuestion(question);
         if(success) {
             return ResponseEntity.ok(question);
         }else {

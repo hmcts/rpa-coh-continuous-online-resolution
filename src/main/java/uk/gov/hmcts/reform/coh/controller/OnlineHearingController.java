@@ -8,8 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/online-hearings")
@@ -17,6 +21,9 @@ public class OnlineHearingController {
 
     @Autowired
     OnlineHearingService onlineHearingService;
+
+    @Autowired
+    JurisdictionService jurisdictionService;
 
     @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
     @ApiResponses(value = {
@@ -47,7 +54,15 @@ public class OnlineHearingController {
     public ResponseEntity<OnlineHearing> createOnlineHearing(@RequestBody OnlineHearing body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
+
+        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdictionName());
+        if(!jurisdiction.isPresent()){
+            return new ResponseEntity<OnlineHearing>(HttpStatus.BAD_REQUEST);
+        }
         onlineHearing.setExternalRef(body.getExternalRef());
+        onlineHearing.setJurisdiction(jurisdiction.get());
+        onlineHearing.setJurisdictionName(body.getJurisdictionName());
+
         OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
         return new ResponseEntity<>(createdOnlineHearing, HttpStatus.OK);

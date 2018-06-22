@@ -1,3 +1,4 @@
 {
-  "externalRef" : "case_id_123"
+  "externalRef" : "case_id_123",
+  "jurisdictionId" : "SSCS"
 }

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.Notification;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -25,14 +26,15 @@ public class QuestionNotification {
     }
 
     private ResponseEntity notifyJurisdiction(Question question){
+
         Jurisdiction jurisdiction = question.getOnlineHearing().getJurisdiction();
-        if(jurisdiction==null){
+
+        if(jurisdiction.getUrl()==null || jurisdiction.getJurisdictionName() == null || StringUtils.isEmpty(jurisdiction.getUrl())){
             throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlineHearing().getOnlineHearingId());
         }
 
         System.out.println("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +
-                " and the registered 'issuer' endpoint is " + jurisdiction.getUrl() +
-                " sending request for question round id " + question.getQuestionRoundId());
+                " and the registered 'issuer' endpoint is " + jurisdiction.getUrl());
 
         return restTemplate.postForEntity(jurisdiction.getUrl(), question, String.class);
     }

@@ -5,11 +5,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Component
@@ -18,21 +21,30 @@ public class QuestionService {
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
     private QuestionNotification questionNotification;
+    private OnlineHearingService onlineHearingService;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService, QuestionNotification questionNotification) {
+    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService, QuestionNotification questionNotification, OnlineHearingService onlineHearingService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
         this.questionNotification = questionNotification;
+        this.onlineHearingService = onlineHearingService;
     }
 
     public Question retrieveQuestionById(final Long question_id){
         return questionRepository.findById(question_id).orElse(null);
     }
 
-    public Question createQuestion(final Question question) {
-        //question.setOnlineHearingId(oh_id);
+    public Question createQuestion(final Question question, UUID onlineHearingId) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
 
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        if(!optionalOnlineHearing.isPresent()){
+            throw new EntityNotFoundException();
+        }
+
+        question.setOnlineHearing(optionalOnlineHearing.get());
         question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 
         return questionRepository.save(question);
@@ -54,35 +66,27 @@ public class QuestionService {
     }
 
     public boolean issueQuestion(Question question) {
-        boolean success = false;
-
         QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-        try {
-            success = updateQuestionState(question, issuedQuestionState);
-        }catch(ResourceAccessException e){
-            System.out.println(e);
-        }finally {
-            if(success){
-                System.out.println("Successfully issued question round and sent notification to jurisdiction");
-                return true;
-            }else{
-                System.out.println("Request to jurisdiction was unsuccessful");
-                return false;
-            }
+
+        boolean success = updateQuestionState(question, issuedQuestionState);
+        if(success){
+            System.out.println("Successfully issued question round and sent notification to jurisdiction");
+            return true;
+        }else{
+            System.out.println("Request to jurisdiction was unsuccessful");
+            return false;
         }
     }
 
     protected boolean updateQuestionState(Question question, QuestionState questionState) throws ResourceAccessException{
-        try {
-            question.addState(questionState);
-            if (questionNotification.notifyQuestionState(question)){
-                questionRepository.save(question);
-                return true;
-            }else {
-                return false;
-            }
-        }catch(ResourceAccessException e){
-            throw e;
+        question.addState(questionState);
+        boolean result = questionNotification.notifyQuestionState(question);
+
+        if (result){
+            questionRepository.save(question);
+            return true;
+        }else {
+            return false;
         }
     }
 }
