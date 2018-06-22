@@ -29,13 +29,12 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
 @SpringBootTest
-public class ApiSteps {
+public class ApiSteps extends BaseSteps {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
 
     private JSONObject json;
-    private String baseUrl;
 
     private HttpResponse response;
     private String responseString;
@@ -46,7 +45,6 @@ public class ApiSteps {
 
     @Before
     public void setup(){
-        baseUrl = "http://localhost:8080/online-hearings";
         newObjects = new HashSet<String>();
         newOnlineHearings = new HashSet<OnlineHearing>();
     }

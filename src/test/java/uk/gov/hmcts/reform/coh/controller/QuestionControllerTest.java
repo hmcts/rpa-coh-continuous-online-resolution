@@ -1,5 +1,4 @@
 package uk.gov.hmcts.reform.coh.controller;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -16,8 +16,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
-import static junit.framework.TestCase.assertEquals;
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,41 +29,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles({"local"})
 public class QuestionControllerTest {
 
     @Mock
     private QuestionService questionService;
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions";
-
-    private static final Long QUESTION_ID = Long.valueOf(2000);
-
     @InjectMocks
     private QuestionController questionController;
 
-    @Before
-    public void setup() {
-        Question question = new Question();
-        question.setQuestionId(QUESTION_ID);
+    @Autowired
+    private MockMvc mockMvc;
 
+    private static final String ENDPOINT = "/online-hearings/0aea5a5e-7d0b-4d82-801f-98c245ea7719/questions";
+    private Integer questionId = 95;
+
+    private Question question;
+
+    @Before
+    public void setup() throws IOException {
+        question = new Question();
+        question.setQuestionText("foo");
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
-        given(questionService.retrieveQuestionById(QUESTION_ID)).willReturn(question);
+        given(questionService.retrieveQuestionById(any(Long.class))).willReturn(question);
+        given(questionService.createQuestion(question, UUID.randomUUID())).willReturn(question);
+        given(questionService.editQuestion(1L, question)).willReturn(question);
+
         given(questionService.issueQuestion(any(Question.class))).willReturn(true);
     }
 
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssued() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID)
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + questionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"questionId\":2000,\"questionRoundId\":0,\"subject\":null,\"questionText\":null,\"questionState\":null,\"questionStateHistories\":[]}", response);
+        assertEquals("{\"questionId\":null,\"questionRoundId\":0,\"subject\":null,\"questionText\":\"foo\",\"questionState\":null,\"questionStateHistories\":[]}", response);
     }
 
     @Test
@@ -83,10 +92,52 @@ public class QuestionControllerTest {
     @Test
     public void testGetRequestToSetQuestionRoundStateToIssuedWithJurisdictionEndpointDownReturnsFailedDependency() throws Exception {
         given(questionService.issueQuestion(any(Question.class))).willReturn(false);
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + QUESTION_ID)
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + questionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isFailedDependency())
                 .andReturn();
+    }
+
+    @Test
+    public void testGetQuestion() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
+        assertEquals("foo", responseQuestion.getQuestionText());
+    }
+
+    @Test
+    public void testCreateQuestion() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(question)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
+        assertEquals("foo", responseQuestion.getQuestionText());
+    }
+
+    @Test
+    public void testEditQuestion() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(question)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
+        assertEquals("foo", responseQuestion.getQuestionText());
     }
 }

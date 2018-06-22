@@ -65,6 +65,7 @@ public class QuestionService {
         throw new EntityNotFoundException("Could not find the entity with id = " + question.getQuestionId());
     }
 
+
     public boolean issueQuestion(Question question) {
         QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
 
@@ -78,7 +79,7 @@ public class QuestionService {
         }
     }
 
-    protected boolean updateQuestionState(Question question, QuestionState questionState) throws ResourceAccessException{
+    protected boolean updateQuestionState(Question question, QuestionState questionState) throws ResourceAccessException {
         question.addState(questionState);
         boolean result = questionNotification.notifyQuestionState(question);
 
