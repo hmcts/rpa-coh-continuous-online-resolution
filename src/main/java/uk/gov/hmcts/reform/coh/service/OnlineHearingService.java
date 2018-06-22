@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Component
@@ -25,6 +26,10 @@ public class OnlineHearingService {
 
     public Optional<OnlineHearing> retrieveOnlineHearing(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.findById(onlineHearing.getOnlineHearingId());
+    }
+
+    public Optional<OnlineHearing> retrieveOnlineHearingById(final UUID onlineHearingId) {
+        return onlineHearingRepository.findById(onlineHearingId);
     }
 
     public OnlineHearing retrieveOnlineHearingByExternalRef(final OnlineHearing onlineHearing) {

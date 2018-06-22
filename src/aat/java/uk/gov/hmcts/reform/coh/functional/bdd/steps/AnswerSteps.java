@@ -31,10 +31,7 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
 @SpringBootTest
-public class AnswerSteps {
-
-    @Value("${base-urls.test-url}")
-    private String baseUrl;
+public class AnswerSteps extends BaseSteps{
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
 
