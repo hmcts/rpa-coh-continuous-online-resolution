@@ -53,4 +53,12 @@ public class OnlineHearingServiceTest {
         assertTrue(newOnlineHearing.isPresent());
         assertEquals(createdOnlineHearing, newOnlineHearing.get());
     }
+
+    @Test
+    public void testRetrieveOnlineHearingByExternalRef() {
+        createdOnlineHearing.setExternalRef("foo");
+        when(onlineHearingRepository.findByExternalRef(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
+        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(createdOnlineHearing);
+        assertEquals(createdOnlineHearing, newOnlineHearing);
+    }
 }
