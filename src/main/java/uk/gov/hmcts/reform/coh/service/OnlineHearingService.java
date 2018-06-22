@@ -31,11 +31,6 @@ public class OnlineHearingService {
         return onlineHearingRepository.findByExternalRef(onlineHearing.getExternalRef()).orElse(null);
     }
 
-    public void deleteOnlineHearingByExternalRef(final OnlineHearing onlineHearing){
-        onlineHearingRepository.delete(retrieveOnlineHearingByExternalRef(onlineHearing));
-    }
-
-
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
         onlineHearingRepository.delete(onlineHearing);
     }
