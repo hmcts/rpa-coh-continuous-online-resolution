@@ -58,6 +58,7 @@ public class QuestionControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(any(Long.class))).willReturn(question);
         given(questionService.createQuestion(1, question)).willReturn(question);
+        given(questionService.editQuestion(1L, question)).willReturn(question);
     }
 
     @Test
@@ -78,6 +79,20 @@ public class QuestionControllerTest {
     public void testCreateQuestion() throws Exception {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(question)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
+        assertEquals("foo", responseQuestion.getQuestionText());
+    }
+
+    @Test
+    public void testEditQuestion() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(question)))
                 .andExpect(status().isOk())
