@@ -16,9 +16,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class QuestionServiceTest {
@@ -79,5 +77,12 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).findById(ONE);
         assertEquals("Correct state", issued, newQuestion.getQuestionState());
         assertEquals("Event logged", 1, newQuestion.getQuestionStateHistories().size());
+    }
+
+    @Test
+    public void tesDelete() {
+        doNothing().when(questionRepository).delete(question);
+        questionService.deleteQuestion(question);
+        verify(questionRepository, times(1)).delete(question);
     }
 }
