@@ -3,17 +3,19 @@ package uk.gov.hmcts.reform.coh.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.util.List;
@@ -23,17 +25,16 @@ import java.util.Optional;
 @RequestMapping("/online-hearings/{onlineHearingId}/questions/{questionId}/answers")
 public class AnswerController {
 
-    @Autowired
     private AnswerService answerService;
 
-    @Autowired
+    private AnswerStateService answerStateService;
+
     private QuestionService questionService;
 
-    public AnswerController() {
-    }
-
-    public AnswerController(AnswerService answerService, QuestionService questionService) {
+    @Autowired
+    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService) {
         this.answerService = answerService;
+        this.answerStateService = answerStateService;
         this.questionService = questionService;
     }
 
@@ -43,7 +44,7 @@ public class AnswerController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 422, message = "Validator error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> createAnswer(@PathVariable Long onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
@@ -62,7 +63,7 @@ public class AnswerController {
                 return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
             }
 
-            answer.setAnswerText(request.getAnswer().getAnswer());
+            answer.setAnswerText(request.getAnswerText());
             answer.setQuestion(question);
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
@@ -119,7 +120,7 @@ public class AnswerController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 422, message = "Validator error")
     })
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
@@ -129,7 +130,7 @@ public class AnswerController {
             Question question = new Question();
             question.setQuestionId(questionId);
             Answer answer = new Answer().answerId(answerId)
-                    .answerText(request.getAnswer().getAnswer());
+                    .answerText(request.getAnswerText());
             answer.setQuestion(question);
 
             Optional<Answer> optionalAnswer = answerService.retrieveAnswerById(answerId);
@@ -150,12 +151,19 @@ public class AnswerController {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
-        if (request.getAnswer() == null || StringUtils.isEmpty(request.getAnswer().getAnswer())) {
+        if (request.getAnswerText() == null || StringUtils.isEmpty(request.getAnswerText())) {
             result.setValid(false);
             result.setReason("Answer text cannot be empty");
-        } else if (request.getAnswerState() == null || StringUtils.isEmpty(request.getAnswerState().getStateName())) {
+        } else if (StringUtils.isEmpty(request.getAnswerState())) {
             result.setValid(false);
             result.setReason("Answer state cannot be empty");
+        } else {
+            Optional<AnswerState> optAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+            if (!optAnswerState.isPresent()) {
+                result.setValid(false);
+                result.setReason("Answer state is not valid");
+            }
+
         }
 
         return result;

@@ -4,96 +4,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AnswerRequest {
 
-    @JsonProperty("question_id")
-    private String questionId;
+    @JsonProperty("answer_text")
+    private String answerText;
 
-    @JsonProperty("question_part_id")
-    private String questionPartId;
+    @JsonProperty("answer_state")
+    private String answerState;
 
-    private Answer answer;
+    public String getAnswerText() {
+        return answerText;
+    }
 
-    public AnswerState getAnswerState() {
+    public void setAnswerText(String answerText) {
+        this.answerText = answerText;
+    }
+
+    public String getAnswerState() {
         return answerState;
     }
 
-    public void setAnswerState(AnswerState answerState) {
+    public void setAnswerState(String answerState) {
         this.answerState = answerState;
-    }
-
-    @JsonProperty("answer_state")
-    private AnswerState answerState;
-
-    public String getQuestionPartId() {
-        return questionPartId;
-    }
-
-    public void setQuestionPartId(String questionPartId) {
-        this.questionPartId = questionPartId;
-    }
-
-    public String getQuestionId() {
-        return questionId;
-    }
-
-    public void setQuestionId(String questionId) {
-        this.questionId = questionId;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
-    }
-
-    public class Answer {
-
-        @JsonProperty("type_of_answer")
-        private String typeOfAnswer;
-
-        @JsonProperty("answer")
-        private String answer;
-
-        public String getTypeOfAnswer() {
-            return typeOfAnswer;
-        }
-
-        public void setTypeOfAnswer(String typeOfAnswer) {
-            this.typeOfAnswer = typeOfAnswer;
-        }
-
-        public String getAnswer() {
-            return answer;
-        }
-
-        public void setAnswer(String answer) {
-            this.answer = answer;
-        }
-    }
-
-    public class AnswerState {
-
-        @JsonProperty("state_name")
-        private String stateName;
-
-        @JsonProperty("state_datetime")
-        private String stateStartTime;
-
-        public String getStateName() {
-            return stateName;
-        }
-
-        public void setStateName(String stateName) {
-            this.stateName = stateName;
-        }
-
-        public String getStateStartTime() {
-            return stateStartTime;
-        }
-
-        public void setStateStartTime(String stateStartTime) {
-            this.stateStartTime = stateStartTime;
-        }
     }
 }

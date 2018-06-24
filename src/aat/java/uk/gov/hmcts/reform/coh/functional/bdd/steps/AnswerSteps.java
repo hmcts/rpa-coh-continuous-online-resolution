@@ -120,7 +120,7 @@ public class AnswerSteps extends BaseSteps {
 
     @Given("^the answer text is '(.*)'$")
     public void answer_text_is(String text) {
-        answerRequest.getAnswer().setAnswer(text);
+        answerRequest.setAnswerText(text);
     }
 
     @Given("^an unknown answer identifier$")

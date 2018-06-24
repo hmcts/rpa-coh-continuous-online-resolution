@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
@@ -12,15 +13,22 @@ public class Answer {
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq_answer_id")
     @Id
     @Column(name = "answer_id")
+    @JsonProperty("answer_id")
     private Long answerId;
 
     @Column(name = "answer_text")
+    @JsonProperty("answer_text")
     private String answerText;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "question_id")
     @JsonIgnore
     private Question question;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "answer_state_id")
+    @JsonProperty("current_answer_state")
+    private AnswerState answerState;
 
     public Long getAnswerId() {
         return answerId;
@@ -54,5 +62,13 @@ public class Answer {
 
     public void setQuestion(Question question) {
         this.question = question;
+    }
+
+    public AnswerState getAnswerState() {
+        return answerState;
+    }
+
+    public void setAnswerState(AnswerState answerState) {
+        this.answerState = answerState;
     }
 }
