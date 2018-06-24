@@ -63,6 +63,11 @@ public class AnswerController {
                 return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
             }
 
+            Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+            if (answerState.isPresent()) {
+                answer.setAnswerState(answerState.get());
+            }
+
             answer.setAnswerText(request.getAnswerText());
             answer.setQuestion(question);
             answer = answerService.createAnswer(answer);
