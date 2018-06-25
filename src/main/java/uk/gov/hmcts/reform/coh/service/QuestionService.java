@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -77,23 +76,14 @@ public class QuestionService {
 
     protected void issueQuestion(Question question) {
         QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-        boolean success = updateQuestionState(question, issuedQuestionState);
-        if(success){
+        
+        question.addState(issuedQuestionState);
+        boolean result = questionNotification.notifyQuestionState(question);
+        if (result){
             System.out.println("Successfully issued question round and sent notification to jurisdiction");
+            questionRepository.save(question);
         }else{
             System.out.println("Error: Request to jurisdiction was unsuccessful");
-        }
-    }
-
-    protected boolean updateQuestionState(Question question, QuestionState questionState) throws ResourceAccessException {
-        question.addState(questionState);
-        boolean result = questionNotification.notifyQuestionState(question);
-
-        if (result){
-            questionRepository.save(question);
-            return true;
-        }else {
-            return false;
         }
     }
 }
