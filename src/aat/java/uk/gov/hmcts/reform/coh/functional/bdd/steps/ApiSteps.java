@@ -14,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -29,7 +30,10 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
 @SpringBootTest
-public class ApiSteps extends BaseSteps {
+public class ApiSteps {
+
+    @Value("${base-urls.test-url}")
+    String baseUrl;
 
     @Autowired
     private OnlineHearingService onlineHearingService;
