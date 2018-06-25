@@ -23,6 +23,10 @@ public class OnlineHearingService {
         return onlineHearingRepository.save(onlineHearing);
     }
 
+    public Optional<OnlineHearing> retrieveOnlineHearing(final OnlineHearing onlineHearing) {
+        return onlineHearingRepository.findById(onlineHearing.getOnlineHearingId());
+    }
+
     public OnlineHearing retrieveOnlineHearingByExternalRef(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.findByExternalRef(onlineHearing.getExternalRef()).orElse(null);
     }
@@ -33,5 +37,9 @@ public class OnlineHearingService {
 
     public void deleteOnlineHearingByExternalRef(final OnlineHearing onlineHearing){
         onlineHearingRepository.delete(retrieveOnlineHearingByExternalRef(onlineHearing));
+    }
+
+    public void deleteByExternalRef(String externalRef) {
+        onlineHearingRepository.deleteByExternalRef(externalRef);
     }
 }

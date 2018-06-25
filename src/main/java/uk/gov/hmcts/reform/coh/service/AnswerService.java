@@ -43,4 +43,8 @@ public class AnswerService {
 
         throw new EntityNotFoundException("Could not find the entity with id = " + answer.getAnswerId());
     }
+
+    public void deleteAnswer(Answer answer) {
+        answerRepository.delete(answer);
+    }
 }

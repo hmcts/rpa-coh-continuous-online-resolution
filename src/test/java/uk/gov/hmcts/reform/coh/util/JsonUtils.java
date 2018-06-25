@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.bdd.steps;
+package uk.gov.hmcts.reform.coh.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,9 +20,14 @@ public class JsonUtils {
         return mapper.writeValueAsString(mapper.readValue(testFile, Object.class));
     }
 
-    public static Object toObject(String testName, Class clazz) throws IOException {
+    public static Object toObjectFromTestName(String testName, Class clazz) throws IOException {
 
         return mapper.readValue(getJsonInput(testName), clazz);
+    }
+
+    public static Object toObjectFromJson(String json, Class clazz) throws IOException {
+
+        return mapper.readValue(json, clazz);
     }
 
     public static String toJson(Object obj) throws JsonProcessingException {

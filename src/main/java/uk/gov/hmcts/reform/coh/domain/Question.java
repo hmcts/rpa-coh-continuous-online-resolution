@@ -36,6 +36,7 @@ public class Question {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
 
@@ -138,5 +139,10 @@ public class Question {
 
     public void setQuestionState(QuestionState questionState) {
         this.questionState = questionState;
+    }
+
+    public Question questionId(Long questionId) {
+        this.questionId = questionId;
+        return this;
     }
 }

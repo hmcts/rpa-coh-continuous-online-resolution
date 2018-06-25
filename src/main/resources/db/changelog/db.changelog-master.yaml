@@ -1,17 +1,4 @@
 databaseChangeLog:
 - include:
     relativeToChangelogFile: true
-    file: db.changelog-diff-20180611-1106.yaml
-    file: db.changelog-diff-20180611-1107.yaml
-    file: db.changelog-diff-20180606-1139.yaml
-    file: db.changelog-diff-20180611-1550.yaml
-    file: db.changelog-diff-20180612-1646.yaml
-    file: db.changelog-diff-20180613-1416.yaml
-    file: db.changelog-diff-20180613-1613.yaml
-    file: db.changelog-diff-20180614-1436.yaml
-    file: db.changelog-diff-20180614-1523.yaml
-    file: db.changelog-diff-20180614-1531.yaml
-    file: db.changelog-diff-20180619-1531.yaml
-    file: db.changelog-diff-20180620-1432.yaml
-    file: db.changelog-diff-20180620-1447.yaml
-
+    file: db.changelog-diff-20180620-1733.yaml
