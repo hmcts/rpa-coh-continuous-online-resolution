@@ -7,6 +7,6 @@ import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import java.util.Optional;
 
 @Repository
-public interface JurisdictionRepository extends CrudRepository<Jurisdiction, Integer> {
+public interface JurisdictionRepository extends CrudRepository<Jurisdiction, String> {
     Optional<Jurisdiction> findByJurisdictionName(String jurisdictionName);
 }

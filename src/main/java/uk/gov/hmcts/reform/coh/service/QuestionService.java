@@ -59,18 +59,20 @@ public class QuestionService {
         questionRepository.delete(question);
     }
 
-    public Question updateQuestion(Question currentQuestion, Question newQuestion){
+    public Question updateQuestion(Question currentQuestion, Question updateToQuestion){
         QuestionState questionState = currentQuestion.getQuestionState();
-        QuestionState proposedState = newQuestion.getQuestionState();
 
-        if(proposedState.getQuestionStateId() == QuestionState.ISSUED) {
+        QuestionState proposedState = updateToQuestion.getQuestionState();
+
+        if(proposedState.getState().equals("ISSUED")) {
             if (questionState.getQuestionStateId() != QuestionState.ISSUED) {
-                issueQuestion(newQuestion);
+                issueQuestion(currentQuestion);
             }
         }else{
-            questionRepository.save(newQuestion);
+            // Add code to update question text / body ect here (NOT THIS BRANCH)
+            questionRepository.save(currentQuestion);
         }
-        return newQuestion;
+        return currentQuestion;
     }
 
     protected void issueQuestion(Question question) {

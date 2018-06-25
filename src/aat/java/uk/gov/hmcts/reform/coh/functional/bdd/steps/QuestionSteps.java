@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -13,61 +13,106 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
+import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
-import java.io.IOException;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
-public class QuestionSteps {
-
-    @Value("${base-urls.test-url}")
-    private String baseUrl;
+public class QuestionSteps extends BaseSteps{
 
     private TestRestTemplate restTemplate = new TestRestTemplate();
     private String ENDPOINT = "/online-hearings";
-    private UUID onlineHearingId;
+    private OnlineHearing onlineHearing;
     private HttpHeaders header;
-    private Long questionId;
+    private Question question;
+    private List<Long> questionIds;
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
+
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    @Autowired
+    private JurisdictionRepository jurisdictionRepository;
 
     @Before
     public void setup() {
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
+        questionIds = new ArrayList<>();
     }
 
-    @Given("the default online hearing")
-    public void createOnlineHearing() throws IOException {
-        String externalId = String.valueOf(UUID.randomUUID());
-        HttpEntity<String> request = new HttpEntity<>("{\"externalRef\" : \"" + externalId +"\", \"jurisdictionName\" : \"SSCS\"}", header);
-        ResponseEntity<OnlineHearing> response = restTemplate.exchange(baseUrl + ENDPOINT, HttpMethod.POST, request, OnlineHearing.class);
-
-        this.onlineHearingId = response.getBody().getOnlineHearingId();
+    @After
+    public void cleanUp() {
+        for (Long questionId : questionIds) {
+            questionRepository.deleteById(questionId);
+        }
+        Optional<Jurisdiction> optJurisdiction = jurisdictionRepository.findById("SSCS");
+        optJurisdiction.get().setUrl("http://localhost:8080/SSCS/notifications");
+        jurisdictionRepository.save(optJurisdiction.get());
     }
 
-    @And("^the draft a question$")
-    public void theDraftAQuestion() throws Throwable {
-        HttpEntity<String> request = new HttpEntity<>("{\n" +
-                "    \"questionRoundId\": 1,\n" +
-                "    \"subject\": \"My Second Question\",\n" +
-                "    \"questionText\": \"If a wood chuck could chuck wood?\"\n" +
-                "}", header);
+    @And("^the draft a question for online_hearing ' \"([^\"]*)\" '$")
+    public void theDraftAQuestion(String externalRef) throws Throwable {
 
-        ResponseEntity<Question> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearingId + "/questions", HttpMethod.POST, request, Question.class);
-        this.questionId = response.getBody().getQuestionId();
+        Optional<OnlineHearing> optOnlineHearing = onlineHearingRepository.findByExternalRef(externalRef);
+        onlineHearing = optOnlineHearing.get();
+
+        String jsonBody = JsonUtils.getJsonInput("question/standard_question");
+        HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
+
+        ResponseEntity<Question> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, Question.class);
+        question = response.getBody();
+        questionIds.add(question.getQuestionId());
     }
 
-    @When("^set question state to issued$")
-    public void setQuestionStateToIssued() throws Throwable {
-        HttpEntity<String> request = new HttpEntity<>("", header);
+    @Then("^the question state is ' \"([^\"]*)\" '$")
+    public void theQuestionStateIs(String expectedState) throws Throwable {
+       String state = question.getQuestionState().getState();
+       assertEquals(expectedState, state);
+    }
 
-        ResponseEntity<Question> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearingId + "/questions/" + questionId, HttpMethod.GET, request, Question.class);
+    @When("^a patch request is sent to ' \"([^\"]*)\" ' and response status is ' \"([^\"]*)\" '")
+    public void aPatchRequestIsSentToOnlineHearingsOnlineHearingIdQuestionsQuestionId(String endpoint, String expectedStatus) throws Throwable {
 
+        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
+        endpoint = endpoint.replaceAll("question_id", String.valueOf(question.getQuestionId()));
+
+        System.out.println("Generated endpoint: " + endpoint);
+        /**
+         * This is a workaround for https://jira.spring.io/browse/SPR-15347
+         *
+         **/
+        String jsonBody = JsonUtils.getJsonInput("question/issue_question");
+        HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
+        ResponseEntity<Question> response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, Question.class);
+        if(response.getStatusCode().is2xxSuccessful()){
+            question = response.getBody();
+        }
+
+        if(expectedStatus.contains("Successful")){
+            assertTrue(response.getStatusCode().is2xxSuccessful());
+        }else if(expectedStatus.contains("Server error")){
+            assertTrue(response.getStatusCode().is5xxServerError());
+        }
+    }
+
+    @And("^the SSCS endpoint is invalid$")
+    public void theSSCSEndpointIsInvalid() throws Throwable {
+        Optional<Jurisdiction> optJurisdiction = jurisdictionRepository.findById("SSCS");
+        optJurisdiction.get().setUrl("http://localhost:8080/SSCS/downEndpoint");
+        jurisdictionRepository.save(optJurisdiction.get());
     }
 }

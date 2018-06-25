@@ -26,7 +26,6 @@ public class QuestionNotification {
     }
 
     private ResponseEntity notifyJurisdiction(Question question){
-
         Jurisdiction jurisdiction = question.getOnlineHearing().getJurisdiction();
 
         if(jurisdiction.getUrl()==null || StringUtils.isEmpty(jurisdiction.getUrl())){
