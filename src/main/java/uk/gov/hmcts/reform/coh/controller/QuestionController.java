@@ -26,14 +26,28 @@ public class QuestionController {
     }
 
     @ApiOperation("Add a new question")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Question.class)})
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created", response = Question.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Question> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody Question body) {
         return ResponseEntity.ok(questionService.createQuestion(body, onlineHearingId));
     }
 
     @ApiOperation("Edit a question")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Success", response = Question.class)})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Question.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Question> editQuestion(@PathVariable Long questionId, @RequestBody Question body) {
         return ResponseEntity.ok(questionService.editQuestion(questionId, body));
@@ -42,6 +56,7 @@ public class QuestionController {
     @ApiOperation(value = "Issue Question", notes = "A GET request is used to notify the jurisdiction.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = QuestionRound.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
