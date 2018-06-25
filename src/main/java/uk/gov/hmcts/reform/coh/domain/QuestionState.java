@@ -7,13 +7,12 @@ import java.util.Objects;
 @Table(name = "question_state")
 public class QuestionState {
 
-    public static final Long DRAFTED = 1L;
-    public static final Long ISSUED = 2L;
+    public static final int DRAFTED = 1;
+    public static final int ISSUED = 2;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "question_state_id")
-    private Long questionStateId;
+    private int questionStateId;
 
     @Column(name = "state")
     private String state;
@@ -52,11 +51,11 @@ public class QuestionState {
         this.state = state;
     }
 
-    public Long getQuestionStateId() {
+    public int getQuestionStateId() {
         return questionStateId;
     }
 
-    public void setQuestionStateId(Long questionStateId) {
+    public void setQuestionStateId(int questionStateId) {
         this.questionStateId = questionStateId;
     }
 }

@@ -17,9 +17,8 @@ public class Question {
     @Column(name = "question_round_id")
     private int questionRoundId;
 
-    @ManyToOne(targetEntity = OnlineHearing.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "online_hearing")
-    private OnlineHearing onlineHearing;
+    @Column(name = "online_hearing_id")
+    private int onlineHearingId;
 
     @Column(name = "subject")
     private String subject;
@@ -124,12 +123,12 @@ public class Question {
         this.questionId = questionId;
     }
 
-    public OnlineHearing getOnlineHearing() {
-        return onlineHearing;
+    public int getOnlineHearingId() {
+        return onlineHearingId;
     }
 
-    public void setOnlineHearing(OnlineHearing onlineHearingId) {
-        this.onlineHearing = onlineHearingId;
+    public void setOnlineHearingId(int onlineHearingId) {
+        this.onlineHearingId = onlineHearingId;
     }
 
     public QuestionState getQuestionState() {

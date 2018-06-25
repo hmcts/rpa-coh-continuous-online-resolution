@@ -82,7 +82,7 @@ public class AnswerController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Answer> retrieveAnswer(@PathVariable Long answerId) {
+    public ResponseEntity<Answer> retrieveAnswer(@PathVariable long answerId) {
 
         Optional<Answer> answer = answerService.retrieveAnswerById(answerId);
         if (!answer.isPresent()) {
@@ -122,7 +122,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {
