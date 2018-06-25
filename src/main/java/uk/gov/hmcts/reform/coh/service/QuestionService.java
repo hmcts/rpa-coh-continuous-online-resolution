@@ -65,17 +65,23 @@ public class QuestionService {
         throw new EntityNotFoundException("Could not find the entity with id = " + question.getQuestionId());
     }
 
+    public Question updateQuestion(Question question){
+        QuestionState questionState = question.getQuestionState();
+        if(questionState.getQuestionStateId() != QuestionState.ISSUED){
+            issueQuestion(question);
+        }else{
+            questionRepository.save(question);
+        }
+        return question;
+    }
 
-    public boolean issueQuestion(Question question) {
+    protected void issueQuestion(Question question) {
         QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-
         boolean success = updateQuestionState(question, issuedQuestionState);
         if(success){
             System.out.println("Successfully issued question round and sent notification to jurisdiction");
-            return true;
         }else{
-            System.out.println("Request to jurisdiction was unsuccessful");
-            return false;
+            System.out.println("Error: Request to jurisdiction was unsuccessful");
         }
     }
 

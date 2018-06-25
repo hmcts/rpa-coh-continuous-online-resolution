@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
@@ -54,21 +53,8 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable Long questionId, @RequestBody Question body) {
-        return ResponseEntity.ok(questionService.editQuestion(questionId, body));
-    }
+    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable Long questionId, @RequestBody Question body) {
 
-    @ApiOperation(value = "Issue Question", notes = "A GET request is used to notify the jurisdiction.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = QuestionRound.class),
-            @ApiResponse(code = 400, message = "Bad Request"),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 422, message = "Validation error")
-    })
-    @GetMapping("/questions/{questionId}")
-    public ResponseEntity<Question> issueQuestion(@PathVariable UUID onlineHearingId, @PathVariable Long questionId) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
@@ -85,11 +71,7 @@ public class QuestionController {
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 
-        boolean success = questionService.issueQuestion(question);
-        if(success) {
-            return ResponseEntity.ok(question);
-        }else {
-            return new ResponseEntity<Question>(HttpStatus.FAILED_DEPENDENCY);
-        }
+        question = questionService.updateQuestion(question);
+        return ResponseEntity.ok(question);
     }
 }

@@ -19,9 +19,6 @@ public class Question {
     @Column(name = "question_round_id")
     private int questionRoundId;
 
-    //@Column(name = "online_hearing_id")
-    //private int onlineHearingId;
-
     @Column(name = "subject")
     private String subject;
 
@@ -73,20 +70,6 @@ public class Question {
         questionStateHistories.add(stateHistory);
     }
 
-//    public void removeState(QuestionState state) {
-//        for (Iterator<QuestionStateHistory> iterator = questionStateHistories.iterator();
-//             iterator.hasNext(); ) {
-//            QuestionStateHistory stateHistory = iterator.next();
-//
-//            if (stateHistory.getQuestion().equals(this) &&
-//                    stateHistory.getQuestionstate().equals(state)) {
-//                iterator.remove();
-//                stateHistory.setQuestion(null);
-//                stateHistory.setQuestionstate(null);
-//            }
-//        }
-//    }
-
     public List<QuestionStateHistory> getQuestionStateHistories() {
         return questionStateHistories;
     }
@@ -126,14 +109,6 @@ public class Question {
     public void setQuestionId(Long questionId) {
         this.questionId = questionId;
     }
-
-    //public int getOnlineHearingId() {
-    //    return onlineHearingId;
-    //}
-
-    // void setOnlineHearingId(int onlineHearingId) {
-     //   this.onlineHearingId = onlineHearingId;
-    //}
 
     public QuestionState getQuestionState() {
         return questionState;
