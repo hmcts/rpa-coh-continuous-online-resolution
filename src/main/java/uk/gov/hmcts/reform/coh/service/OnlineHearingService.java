@@ -33,6 +33,10 @@ public class OnlineHearingService {
     }
 
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
-        onlineHearingRepository.delete(onlineHearing);
+        onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
+    }
+
+    public void deleteByExternalRef(String externalRef) {
+        onlineHearingRepository.deleteByExternalRef(externalRef);
     }
 }

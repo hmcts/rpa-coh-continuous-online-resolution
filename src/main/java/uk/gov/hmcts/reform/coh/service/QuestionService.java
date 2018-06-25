@@ -42,4 +42,8 @@ public class QuestionService {
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
         return questionRepository.save(question);
     }
+
+    public void deleteQuestion(Question question) {
+        questionRepository.delete(question);
+    }
 }

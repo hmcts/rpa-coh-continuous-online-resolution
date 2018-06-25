@@ -17,7 +17,7 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class AnswerServiceTest {
@@ -84,5 +84,12 @@ public class AnswerServiceTest {
         when(answerRepository.existsById(ONE)).thenReturn(true);
         when(answerRepository.save(answer)).thenReturn(answer);
         answerService.updateAnswerById(answer);
+    }
+
+    @Test
+    public void tesDelete() {
+        doNothing().when(answerRepository).delete(answer);
+        answerService.deleteAnswer(answer);
+        verify(answerRepository, times(1)).delete(answer);
     }
 }

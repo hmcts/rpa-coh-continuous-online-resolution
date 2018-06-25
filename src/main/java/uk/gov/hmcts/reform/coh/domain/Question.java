@@ -138,4 +138,9 @@ public class Question {
     public void setQuestionState(QuestionState questionState) {
         this.questionState = questionState;
     }
+
+    public Question questionId(Long questionId) {
+        this.questionId = questionId;
+        return this;
+    }
 }
