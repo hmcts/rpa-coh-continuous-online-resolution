@@ -66,7 +66,6 @@ public class Question {
 
     public void addState(QuestionState state) {
         this.questionState = state;
-        System.out.println(state);
         QuestionStateHistory stateHistory = new QuestionStateHistory(this, state);
         questionStateHistories.add(stateHistory);
     }
