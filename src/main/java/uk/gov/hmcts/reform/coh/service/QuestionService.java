@@ -55,13 +55,8 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public Question updateQuestionById(Question question) throws EntityNotFoundException {
-
-        if (questionRepository.existsById(question.getQuestionId())) {
-            return questionRepository.save(question);
-        }
-
-        throw new EntityNotFoundException("Could not find the entity with id = " + question.getQuestionId());
+    public void deleteQuestion(Question question) {
+        questionRepository.delete(question);
     }
 
     public Question updateQuestion(Question question){

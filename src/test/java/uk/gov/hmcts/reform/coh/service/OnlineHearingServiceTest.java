@@ -64,9 +64,20 @@ public class OnlineHearingServiceTest {
 
     @Test
     public void testDeleteOnlineHearing() {
+        UUID uuid = UUID.randomUUID();
+        createdOnlineHearing.setOnlineHearingId(uuid);
         createdOnlineHearing.setExternalRef("foo");
-        doNothing().when(onlineHearingRepository).delete(createdOnlineHearing);
+        doNothing().when(onlineHearingRepository).deleteById(uuid);
         onlineHearingService.deleteOnlineHearing(createdOnlineHearing);
-        verify(onlineHearingRepository, times(1)).delete(createdOnlineHearing);
+        verify(onlineHearingRepository, times(1)).deleteById(uuid);
+    }
+
+    @Test
+    public void testDeleteByExternalRef() {
+        String externalRef = "foo";
+        createdOnlineHearing.setExternalRef(externalRef);
+        doNothing().when(onlineHearingRepository).deleteByExternalRef(externalRef);
+        onlineHearingService.deleteByExternalRef(externalRef);
+        verify(onlineHearingRepository, times(1)).deleteByExternalRef(externalRef);
     }
 }

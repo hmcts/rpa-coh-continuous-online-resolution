@@ -125,4 +125,9 @@ public class Question {
     public void setOnlineHearing(OnlineHearing onlineHearing) {
         this.onlineHearing = onlineHearing;
     }
+
+    public Question questionId(Long questionId) {
+        this.questionId = questionId;
+        return this;
+    }
 }

@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -19,7 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
+import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
@@ -39,33 +39,57 @@ public class AnswerSteps extends BaseSteps{
 
     private String endpoint;
 
-    private Long questionId;
+    private Long currentQuestionId;
 
-    private Long answerId;
+    private Long currentAnswerId;
 
     private Map<String, String> endpoints = new HashMap<String, String>();
 
     private AnswerRequest answerRequest;
 
+    private List<Long> questionIds;
+
+    private List<Long> answerIds;
+
     @Autowired
     private QuestionService questionService;
 
     @Autowired
-    private QuestionStateRepository questionStateRepository;
+    private AnswerService answerService;
 
     @Before
     public void setup() {
         endpoints.put("answer", "/online-hearings/1/questions/question_id/answers");
         endpoints.put("question", "/online-hearings/1/questions");
-        questionId = null;
-        answerId = null;
+
+        currentQuestionId = null;
+        currentAnswerId = null;
+
+        questionIds = new ArrayList<>();
+        answerIds = new ArrayList<>();
     }
 
-    @Given("^a valid question$")
+    @After
+    public void cleanup() {
+        /**
+         * For each test run, answers are attached to questions. These need
+         * to be deleted after test completion. Delete in reverse order for
+         * FK constrains
+         */
+        for (Long answerId : answerIds) {
+            answerService.deleteAnswer(new Answer().answerId(answerId));
+        }
+
+        for (Long questionId : questionIds) {
+            questionService.deleteQuestion(new Question().questionId(questionId));
+        }
+    }
+
     /**
      * Creates a question to be used for testing with an answer
      */
-    public void an_existing_question_with_id() throws IOException {
+    @Given("^a valid question$")
+    public void an_existing_question() throws IOException {
         Question question = new Question();
         question.setSubject("foo");
         question.setQuestionText("question text");
@@ -81,7 +105,8 @@ public class AnswerSteps extends BaseSteps{
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
         question = (Question) JsonUtils.toObjectFromJson(json, Question.class);
-        this.questionId = question.getQuestionId();
+        this.currentQuestionId = question.getQuestionId();
+        questionIds.add(question.getQuestionId());
     }
 
     @Given("^a standard answer$")
@@ -107,8 +132,7 @@ public class AnswerSteps extends BaseSteps{
 
     @Given("^an unknown answer identifier$")
     public void an_unknown_answer_identifier$() throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        answerId = 0L;
+        currentAnswerId = 0L;
     }
 
     @Given("^the endpoint is for submitting an (.*)$")
@@ -116,11 +140,11 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            endpoint = endpoint.replaceAll("question_id", questionId == null ? "0" : questionId.toString());
+            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? "0" : currentQuestionId.toString());
         }
 
-        if ("answer".equalsIgnoreCase(entity) && answerId != null) {
-            endpoint += "/" + answerId;
+        if ("answer".equalsIgnoreCase(entity) && currentAnswerId != null) {
+            endpoint += "/" + currentAnswerId;
         }
     }
 
@@ -129,7 +153,7 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            endpoint = endpoint.replaceAll("question_id", questionId == null ? "0" : questionId.toString());
+            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? "0" : currentQuestionId.toString());
         }
     }
 
@@ -146,7 +170,7 @@ public class AnswerSteps extends BaseSteps{
     @When("^a (.*) request is sent$")
     public void send_request(String type) throws IOException {
 
-        String json = convertToJson(answerRequest);
+        String json = JsonUtils.toJson(answerRequest);
 
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
@@ -164,6 +188,11 @@ public class AnswerSteps extends BaseSteps{
             HttpEntity<String> request = new HttpEntity<>(json, header);
             response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
         }
+
+        Optional<Long> optAnswerId = getAnswerId(response.getBody());
+        if (optAnswerId.isPresent()) {
+            answerIds.add(optAnswerId.get());
+        }
     }
 
     @Then("^the response code is (\\d+)$")
@@ -173,18 +202,10 @@ public class AnswerSteps extends BaseSteps{
 
     @Then("^there are (\\d+) answers$")
     public void there_are_count_answers(int count) throws Throwable {
-        ObjectMapper mapper = new ObjectMapper();
-        String json =response.getBody();
-        Answer[] myObjects = mapper.readValue(json, Answer[].class);
+        String json = response.getBody();
+        Answer[] myObjects = (Answer[]) JsonUtils.toObjectFromJson(json, Answer[].class);
 
         assertEquals("Response status code", myObjects.length, count);
-    }
-
-    private String convertToJson(Object obj) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        return mapper.writeValueAsString(obj);
     }
 
     private Object convertToClass(String json) throws IOException {
@@ -192,5 +213,32 @@ public class AnswerSteps extends BaseSteps{
         ObjectMapper mapper = new ObjectMapper();
 
         return mapper.readValue(json, AnswerResponse.class);
+    }
+
+    /**
+     * This will work out which type of entity has been returned and get the
+     * answer id from it
+     *
+     * @param json
+     * @return
+     */
+    private Optional<Long> getAnswerId(String json) throws IOException {
+
+        if (json == null) {
+            return Optional.empty();
+        }
+
+        Long answerId = null;
+        if (json.indexOf("question_id") > 0) {
+            Answer answer = (Answer) JsonUtils.toObjectFromJson(json, Answer.class);
+            answerId = answer.getAnswerId();
+        } else {
+            if (!json.startsWith("[")) {
+                AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+                answerId = answerResponse.getAnswerId();
+            }
+        }
+
+        return Optional.ofNullable(answerId);
     }
 }

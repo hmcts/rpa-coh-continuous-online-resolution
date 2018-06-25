@@ -21,8 +21,8 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -40,28 +40,17 @@ public class ApiSteps extends BaseSteps {
     private String responseString;
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
-    private Set<String> newObjects;
-    private Set<OnlineHearing> newOnlineHearings;
+    private Set<String> externalRefs;
 
     @Before
     public void setup(){
-        newObjects = new HashSet<String>();
-        newOnlineHearings = new HashSet<OnlineHearing>();
+        externalRefs = new HashSet<String>();
     }
 
     @After
     public void cleanUp() {
-//        for (String object : newObjects) {
-//            OnlineHearing onlineHearing = new OnlineHearing();
-//            onlineHearing.setExternalRef(object);
-//            onlineHearingService.deleteOnlineHearingByExternalRef(onlineHearing);
-//        }
-
-        for (OnlineHearing oh : newOnlineHearings) {
-            Optional<OnlineHearing> opt = onlineHearingService.retrieveOnlineHearing(oh);
-            if (opt.isPresent()) {
-                onlineHearingService.deleteOnlineHearing(oh);
-            }
+        for (String externalRef : externalRefs) {
+            onlineHearingService.deleteByExternalRef(externalRef);
         }
     }
 
@@ -69,7 +58,7 @@ public class ApiSteps extends BaseSteps {
     public void sscs_prepare_a_json_request_with_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
         json = new JSONObject();
         json.put(fieldName, fieldInput);
-        newObjects.add(fieldInput);
+        externalRefs.add(fieldInput);
     }
 
     @Given("^the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
@@ -96,7 +85,6 @@ public class ApiSteps extends BaseSteps {
         response = httpClient.execute(request);
         responseString = new BasicResponseHandler().handleResponse(response);
         OnlineHearing oh = (OnlineHearing) JsonUtils.toObjectFromJson(responseString, OnlineHearing.class);
-        newOnlineHearings.add(oh);
     }
 
     @Then("^the client receives a (\\d+) status code$")
@@ -111,5 +99,4 @@ public class ApiSteps extends BaseSteps {
     public void the_response_contains_the_following_text(String text) {
         assertTrue(responseString.contains(text));
     }
-
 }
