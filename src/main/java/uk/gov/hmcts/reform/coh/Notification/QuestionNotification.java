@@ -29,7 +29,7 @@ public class QuestionNotification {
 
         Jurisdiction jurisdiction = question.getOnlineHearing().getJurisdiction();
 
-        if(jurisdiction.getUrl()==null || jurisdiction.getJurisdictionName() == null || StringUtils.isEmpty(jurisdiction.getUrl())){
+        if(jurisdiction.getUrl()==null || StringUtils.isEmpty(jurisdiction.getUrl())){
             throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlineHearing().getOnlineHearingId());
         }
 
