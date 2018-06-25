@@ -20,9 +20,9 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -41,10 +41,12 @@ public class ApiSteps extends BaseSteps {
     private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
     private Set<String> externalRefs;
+    private ArrayList newObjects;
 
     @Before
     public void setup(){
         externalRefs = new HashSet<String>();
+        newObjects = new ArrayList<>();
     }
 
     @After

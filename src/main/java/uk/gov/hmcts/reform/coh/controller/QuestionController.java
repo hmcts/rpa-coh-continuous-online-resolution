@@ -29,6 +29,20 @@ public class QuestionController {
         this.onlineHearingService = onlineHearingService;
     }
 
+    @ApiOperation("Get a question")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Question.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @GetMapping("/questions/{questionId}")
+    public ResponseEntity<Question> getQuestion(@PathVariable Long questionId) {
+        return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
+    }
+
     @ApiOperation("Add a new question")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created", response = Question.class),
@@ -71,7 +85,7 @@ public class QuestionController {
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 
-        question = questionService.updateQuestion(question);
+        question = questionService.updateQuestion(question, body);
         return ResponseEntity.ok(question);
     }
 }
