@@ -96,3 +96,11 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/gradle
 
 application/src/main/resources/META-INF/build-info.properties
+
+gradle/wrapper/gradle-wrapper\.jar
+
+gradle/wrapper/gradle-wrapper\.properties
+
+gradlew
+
+gradlew\.bat
