@@ -27,7 +27,7 @@ public class AnswerService {
         return answerRepository.save(answer);
     }
 
-    public Optional<Answer> retrieveAnswerById(long answerId) {
+    public Optional<Answer> retrieveAnswerById(Long answerId) {
         return answerRepository.findById(answerId);
     }
 
