@@ -28,15 +28,15 @@ public class OnlineHearingService {
         return onlineHearingRepository.findById(onlineHearing.getOnlineHearingId());
     }
 
-    public OnlineHearing retrieveOnlineHearingByExternalRef(final OnlineHearing onlineHearing) {
-        return onlineHearingRepository.findByExternalRef(onlineHearing.getExternalRef()).orElse(null);
+    public OnlineHearing retrieveOnlineHearingByCaseId(final OnlineHearing onlineHearing) {
+        return onlineHearingRepository.findByCaseId(onlineHearing.getCaseId()).orElse(null);
     }
 
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
         onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
     }
 
-    public void deleteByExternalRef(String externalRef) {
-        onlineHearingRepository.deleteByExternalRef(externalRef);
+    public void deleteByCaseId(String caseId) {
+        onlineHearingRepository.deleteByCaseId(caseId);
     }
 }

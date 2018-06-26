@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.coh.domain;
 import javax.persistence.*;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "Online Hearing")
 @Table(name = "online_hearing")
 public class OnlineHearing {
 
@@ -12,8 +12,8 @@ public class OnlineHearing {
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
-    @Column(name = "EXTERNAL_REF")
-    private String externalRef;
+    @Column(name = "CASE ID")
+    private String caseId;
 
     @ManyToOne(targetEntity = Jurisdiction.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "jurisdiction_id")
@@ -38,12 +38,12 @@ public class OnlineHearing {
         this.onlineHearingId = onlineHearingId;
     }
 
-    public String getExternalRef() {
-        return externalRef;
+    public String getCaseId() {
+        return caseId;
     }
 
-    public void setExternalRef(String externalRef) {
-        this.externalRef = externalRef;
+    public void setCaseId(String caseId) {
+        this.caseId = caseId;
     }
 
     public Jurisdiction getJurisdiction() {
