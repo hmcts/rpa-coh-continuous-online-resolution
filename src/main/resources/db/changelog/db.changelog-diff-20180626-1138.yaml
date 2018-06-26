@@ -1,0 +1,47 @@
+databaseChangeLog:
+- changeSet:
+    id: 1530009519232-1
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answer_state_id
+            type: INT
+        - column:
+            name: state
+            type: VARCHAR(255)
+        tableName: answer_state
+- changeSet:
+    id: 1530009519232-2
+    author: johnho (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: answer_state_id
+            type: int4
+        tableName: answer
+- changeSet:
+    id: 1530009519232-3
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_state_id
+        constraintName: answer_statePK
+        tableName: answer_state
+- changeSet:
+    id: 1530009519232-4
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answer_state_id
+        baseTableName: answer
+        constraintName: FKr0xo0gmdxmblwklcfjd61h3to
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_state_id
+        referencedTableName: answer_state
+
