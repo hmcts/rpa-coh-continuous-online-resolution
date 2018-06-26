@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -8,18 +7,18 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 public class AnswerSteps extends BaseSteps{
 
-    private TestRestTemplate restTemplate = new TestRestTemplate();
+    private RestTemplate restTemplate;
 
     private ResponseEntity<String> response;
 
@@ -50,10 +49,6 @@ public class AnswerSteps extends BaseSteps{
 
     private List<Long> answerIds;
 
-    private OnlineHearing onlineHearing;
-
-    private String onlineHearingExternalRef;
-
     @Autowired
     private QuestionService questionService;
 
@@ -64,7 +59,7 @@ public class AnswerSteps extends BaseSteps{
     private OnlineHearingRepository onlineHearingRepository;
 
     @Before
-    public void setup() throws IOException {
+        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
 
@@ -174,7 +169,7 @@ public class AnswerSteps extends BaseSteps{
     @Given("^an update to the answer is required$")
     public void an_update_to_the_answer_is_required() {
         try {
-            AnswerResponse answerResponse = (AnswerResponse) convertToClass(response.getBody().toString());
+            AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), AnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
             System.out.println("Exception " + e.getMessage());
@@ -189,29 +184,35 @@ public class AnswerSteps extends BaseSteps{
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
 
-        if ("GET".equalsIgnoreCase(type)) {
-            response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
-        } else if ("POST".equalsIgnoreCase(type)) {
-            HttpEntity<String> request = new HttpEntity<>(json, header);
-            response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-        } else if ("PATCH".equalsIgnoreCase(type)) {
-            /**
-             * This is a workaround for https://jira.spring.io/browse/SPR-15347
-             *
-             **/
-            HttpEntity<String> request = new HttpEntity<>(json, header);
-            response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
-        }
+        try {
+            if ("GET".equalsIgnoreCase(type)) {
+                response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
+            } else if ("POST".equalsIgnoreCase(type)) {
+                HttpEntity<String> request = new HttpEntity<>(json, header);
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+            } else if ("PATCH".equalsIgnoreCase(type)) {
+                /**
+                 * This is a workaround for https://jira.spring.io/browse/SPR-15347
+                 *
+                 **/
+                HttpEntity<String> request = new HttpEntity<>(json, header);
+                response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
+            }
+            httpResponseCode = response.getStatusCodeValue();
 
-        Optional<Long> optAnswerId = getAnswerId(response.getBody());
-        if (optAnswerId.isPresent()) {
-            answerIds.add(optAnswerId.get());
+
+            Optional<Long> optAnswerId = getAnswerId(response.getBody());
+            if (optAnswerId.isPresent()) {
+                answerIds.add(optAnswerId.get());
+            }
+        } catch (HttpClientErrorException hcee) {
+            httpResponseCode = hcee.getRawStatusCode();
         }
     }
 
     @Then("^the response code is (\\d+)$")
     public void the_response_code_is(int responseCode) throws Throwable {
-        assertEquals("Response status code", responseCode, response.getStatusCode().value());
+        assertEquals("Response status code", responseCode, httpResponseCode);
     }
 
     @Then("^there are (\\d+) answers$")
@@ -220,13 +221,6 @@ public class AnswerSteps extends BaseSteps{
         Answer[] myObjects = (Answer[]) JsonUtils.toObjectFromJson(json, Answer[].class);
 
         assertEquals("Response status code", myObjects.length, count);
-    }
-
-    private Object convertToClass(String json) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        return mapper.readValue(json, AnswerResponse.class);
     }
 
     /**

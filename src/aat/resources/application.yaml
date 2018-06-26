@@ -22,6 +22,11 @@ spring:
       max-idle: ${MAX_IDLE_DB_CONNECTIONS:25}
       max-wait: ${MAX_WAIT_DB_CONNECTIONS:10000} # Number of ms to wait before throwing an exception if no connection is available.
       test-on-borrow: ${TEST_ON_BORROW_DB_CONNECTION:true} # Validate the connection before borrowing it from the pool.
+
+  liquibase:
+   enabled: false
+   change-log: classpath:/db/changelog/db.changelog-master.yam
+
 base-urls:
   idam-user: ${IDAM_API_URL:http://localhost:4501}
   idam-s2s: ${S2S_URL:http://localhost:4502}
@@ -34,3 +39,4 @@ info:
     environment: ${PACKAGES_ENVIRONMENT:local}
     project: ${PACKAGES_PROJECT:coh}
     name: ${PACKAGES_NAME:cor}
+

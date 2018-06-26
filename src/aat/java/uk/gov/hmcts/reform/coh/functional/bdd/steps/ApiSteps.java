@@ -8,24 +8,29 @@ import cucumber.api.java.en.When;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.reflections.util.ConfigurationBuilder.build;
 
 @ContextConfiguration
 @SpringBootTest
@@ -38,14 +43,20 @@ public class ApiSteps extends BaseSteps {
 
     private HttpResponse response;
     private String responseString;
-    private CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    private CloseableHttpClient httpClient;
 
     private Set<String> externalRefs;
     private ArrayList newObjects;
 
     @Before
-    public void setup(){
+    public void setup() throws Exception {
         externalRefs = new HashSet<String>();
+        httpClient = HttpClientBuilder
+                .create()
+                .setSslcontext(new SSLContextBuilder()
+                        .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
+                        .build())
+                .build();
         newObjects = new ArrayList<>();
     }
 
