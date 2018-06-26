@@ -36,4 +36,12 @@ public class AnswerState {
     public void setState(String state) {
         this.state = state;
     }
+
+    @Override
+    public String toString() {
+        return "AnswerState{" +
+                "answerStateId=" + answerStateId +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

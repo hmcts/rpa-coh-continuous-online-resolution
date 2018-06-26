@@ -143,4 +143,17 @@ public class Question {
         this.questionId = questionId;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "questionId=" + questionId +
+                ", questionRoundId=" + questionRoundId +
+                ", onlineHearingId=" + onlineHearingId +
+                ", subject='" + subject + '\'' +
+                ", questionText='" + questionText + '\'' +
+                ", questionState=" + questionState +
+                ", questionStateHistories=" + questionStateHistories +
+                '}';
+    }
 }

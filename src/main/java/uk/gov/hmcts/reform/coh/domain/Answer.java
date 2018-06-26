@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "answer")
@@ -29,6 +31,26 @@ public class Answer {
     @JoinColumn(name = "answer_state_id")
     @JsonProperty("current_answer_state")
     private AnswerState answerState;
+
+    @OneToMany(mappedBy = "answer",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<AnswerStateHistory> answerStateHistories = new ArrayList<>();
+
+
+    public void addState(AnswerState answerState){
+        this.answerState = answerState;
+        AnswerStateHistory answerStateHistory = new AnswerStateHistory(this, answerState);
+        answerStateHistories.add(answerStateHistory);
+    }
+
+    public List<AnswerStateHistory> getAnswerStateHistories() {
+        return answerStateHistories;
+    }
+
+    public void setAnswerStateHistories(List<AnswerStateHistory> answerStateHistories) {
+        this.answerStateHistories = answerStateHistories;
+    }
 
     public Long getAnswerId() {
         return answerId;
@@ -71,4 +93,16 @@ public class Answer {
     public void setAnswerState(AnswerState answerState) {
         this.answerState = answerState;
     }
+
+    @Override
+    public String toString() {
+        return "Answer{" +
+                "answerId=" + answerId +
+                ", answerText='" + answerText + '\'' +
+                ", question=" + question.toString() +
+                ", answerState=" + answerState.toString() +
+                ", answerStateHistories=" + answerStateHistories +
+                '}';
+    }
+
 }

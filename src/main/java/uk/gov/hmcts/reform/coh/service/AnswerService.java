@@ -44,6 +44,11 @@ public class AnswerService {
         throw new EntityNotFoundException("Could not find the entity with id = " + answer.getAnswerId());
     }
 
+    public Answer updateAnswer(Answer answer, Answer updateAnswer){
+        return answer;
+    }
+
+
     @Transactional
     public void deleteAnswer(Answer answer) {
         answerRepository.delete(answer);

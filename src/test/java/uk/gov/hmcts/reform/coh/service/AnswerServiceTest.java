@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 
@@ -31,10 +32,21 @@ public class AnswerServiceTest {
 
     private static final Long ONE = 1L;
 
+    private AnswerState issuedState;
+    private AnswerState draftedState;
+
     @Before
     public void setup() {
         answer = new Answer();
         answerService = new AnswerService(answerRepository);
+
+        draftedState = new AnswerState();
+        draftedState.setState("DRAFTED");
+        draftedState.setAnswerStateId(1);
+
+        issuedState = new AnswerState();
+        issuedState.setState("ISSUED");
+        issuedState.setAnswerStateId(3);
     }
 
     @Test
@@ -91,5 +103,21 @@ public class AnswerServiceTest {
         doNothing().when(answerRepository).delete(answer);
         answerService.deleteAnswer(answer);
         verify(answerRepository, times(1)).delete(answer);
+    }
+
+    @Test
+    public void testAddStateToHistories(){
+        Answer answerUpdate = new Answer();
+
+        Answer answer = new Answer();
+        answer.setAnswerState(draftedState);
+        answer.setAnswerId(1L);
+        answer.setAnswerStateHistories(new ArrayList<>());
+        answer.setQuestion(new Question());
+        answer.setAnswerText("foo");
+
+        System.out.println(answer.toString());
+        answer = answerService.updateAnswer(answer, answerUpdate);
+        assertTrue(answer.getAnswerState().equals(answerState));
     }
 }

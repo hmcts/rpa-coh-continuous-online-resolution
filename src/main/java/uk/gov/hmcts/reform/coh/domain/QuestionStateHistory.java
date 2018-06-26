@@ -34,17 +34,6 @@ public class QuestionStateHistory {
         this.id = new QuestionStateId(question.getQuestionId(), questionstate.getQuestionStateId());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        QuestionStateHistory that = (QuestionStateHistory) o;
-        return Objects.equals(question, that.question) &&
-                Objects.equals(questionstate, that.questionstate);
-    }
 
     @Override
     public int hashCode() {
