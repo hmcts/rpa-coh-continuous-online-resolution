@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -14,6 +16,11 @@ public class OnlineHearing {
 
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
+
+    @OneToMany()
+    @JoinColumn(name = "online_hearing_panel")
+    private Set<OnlineHearingPanel> panel = new HashSet<>();
+
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -31,6 +38,8 @@ public class OnlineHearing {
         this.externalRef = externalRef;
     }
 
+
+
     @Override
     public String toString() {
         return "OnlineHearing{" +
@@ -39,5 +48,11 @@ public class OnlineHearing {
                 '}';
     }
 
+    public Set<OnlineHearingPanel> getPanel() {
+        return panel;
+    }
 
+    public void setPanel(Set<OnlineHearingPanel> panel) {
+        this.panel = panel;
+    }
 }

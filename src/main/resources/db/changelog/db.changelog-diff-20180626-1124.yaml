@@ -1,0 +1,88 @@
+databaseChangeLog:
+- changeSet:
+    id: 1530008667314-1
+    author: Bishwin (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: online_hearing_panelPK
+            name: online_hearing_panel_id
+            type: BIGINT
+        - column:
+            name: first_name
+            type: VARCHAR(255)
+        - column:
+            name: full_name
+            type: VARCHAR(255)
+        - column:
+            name: last_name
+            type: VARCHAR(255)
+        - column:
+            name: online_hearing_id
+            type: UUID
+        tableName: online_hearing_panel
+- changeSet:
+    id: 1530008667314-2
+    author: Bishwin (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing_id
+        baseTableName: online_hearing_panel
+        constraintName: FK703d5q49w8ae5svero1xl4quk
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_id
+        referencedTableName: online_hearing
+- changeSet:
+    id: 1530008667314-3
+    author: Bishwin (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: online_hearing
+        constraintName: FK2hmdj07dr68wb5meq3272joo8
+- changeSet:
+    id: 1530008667314-4
+    author: Bishwin (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: question
+        constraintName: FK6rdsf7v183stsrc6cun38qiil
+- changeSet:
+    id: 1530008667314-5
+    author: Bishwin (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: question_round
+        constraintName: FKr3a8bvw19wfbbkse2qocmi4xw
+- changeSet:
+    id: 1530008667314-6
+    author: Bishwin (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: question_round
+        constraintName: FKs2i0jkthn6buscimms0u80h2g
+- changeSet:
+    id: 1530008667314-7
+    author: Bishwin (generated)
+    changes:
+    - dropTable:
+        tableName: jurisdiction
+- changeSet:
+    id: 1530008667314-8
+    author: Bishwin (generated)
+    changes:
+    - dropColumn:
+        columnName: jurisdiction
+        tableName: online_hearing
+- changeSet:
+    id: 1530008667314-9
+    author: Bishwin (generated)
+    changes:
+    - dropColumn:
+        columnName: question_round_state_id
+        tableName: question_round
+
