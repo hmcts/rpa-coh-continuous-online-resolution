@@ -5,9 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity(name = "Online Hearing State Type")
-@Table(name = "online_hearing_state_type")
-public class OnlineHearingStateType {
+@Entity(name = "Online Hearing State")
+@Table(name = "online_hearing_state")
+public class OnlineHearingState {
 
     public static final int CREATED = 1;
     public static final int CLOSED = 2;
@@ -19,7 +19,9 @@ public class OnlineHearingStateType {
     @Column(name = "online_hearing_state")
     private String state;
 
-    public OnlineHearingStateType(String state) {
+    public OnlineHearingState() {}
+
+    public OnlineHearingState(String state) {
         this.state = state;
     }
 
