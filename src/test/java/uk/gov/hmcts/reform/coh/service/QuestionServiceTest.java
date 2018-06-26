@@ -44,9 +44,10 @@ public class QuestionServiceTest {
     @Before
     public void setup() {
         questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService);
-        QuestionState questionState = new QuestionState();
-
-        given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(questionState);
+        QuestionState issuedState = new QuestionState();
+        issuedState.setQuestionStateId(3);
+        issuedState.setState("ISSUED");
+        given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
         given(questionNotification.notifyQuestionState(any(Question.class))).willReturn(true);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(new OnlineHearing()));
         question = new Question();
@@ -95,5 +96,34 @@ public class QuestionServiceTest {
         doNothing().when(questionRepository).delete(question);
         questionService.deleteQuestion(question);
         verify(questionRepository, times(1)).delete(question);
+    }
+
+    @Test
+    public void testIssueQuestion(){
+        Question question = new Question();
+        questionService.issueQuestion(question);
+        assertEquals(3, question.getQuestionState().getQuestionStateId());
+    }
+
+    @Test
+    public void testUpdateIssuesQuestion(){
+        Question currentQuestion = new Question();
+        currentQuestion.setQuestionState(drafted);
+
+        Question updateBody = new Question();
+        updateBody.setQuestionState(issued);
+        questionService.updateQuestion(currentQuestion, updateBody);
+        assertEquals(3, currentQuestion.getQuestionState().getQuestionStateId());
+    }
+
+    @Test
+    public void testUpdateQuestionDoesNotIssueQuestionWhenStateIsAlreadyIssued(){
+        Question currentQuestion = new Question();
+        currentQuestion.setQuestionState(issued);
+
+        Question updateBody = new Question();
+        updateBody.setQuestionState(issued);
+        questionService.updateQuestion(currentQuestion, updateBody);
+        assertEquals(3, currentQuestion.getQuestionState().getQuestionStateId());
     }
 }
