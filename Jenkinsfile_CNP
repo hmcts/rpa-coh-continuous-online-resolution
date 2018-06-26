@@ -37,8 +37,8 @@ withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
 //    loadVaultSecrets(secrets)
-    
-    after('functionalTest:aat') {
-      error('Halting pipeline before prod stages')
+
+    before('buildinfra:prod') {
+        error('Halting pipeline before prod stages')
     }
 }
