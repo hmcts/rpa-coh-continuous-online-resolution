@@ -101,4 +101,15 @@ public class ApiSteps extends BaseSteps {
     public void the_response_contains_the_following_text(String text) {
         assertTrue(responseString.contains(text));
     }
+
+    @Given("^a standard online hearing is created$")
+    public void aStandardOnlineHearingIsCreated() throws Throwable {
+        HttpPost request = new HttpPost(baseUrl + "/online-hearings/");
+        request.addHeader("content-type", "application/json");
+
+        String jsonBody = JsonUtils.getJsonInput("create_online_hearing");
+        StringEntity params = new StringEntity(jsonBody);
+        request.setEntity(params);
+        response = httpClient.execute(request);
+    }
 }

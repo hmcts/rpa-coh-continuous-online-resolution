@@ -8,6 +8,7 @@ import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,13 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -36,6 +36,8 @@ public class QuestionSteps extends BaseSteps{
     private HttpHeaders header;
     private Question question;
     private List<Long> questionIds;
+    private String onlineHearingExternalRef;
+
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -43,14 +45,14 @@ public class QuestionSteps extends BaseSteps{
     @Autowired
     private QuestionRepository questionRepository;
 
-    @Autowired
-    private JurisdictionRepository jurisdictionRepository;
-
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         questionIds = new ArrayList<>();
+
+        OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
+        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
     }
 
     @After
@@ -58,14 +60,20 @@ public class QuestionSteps extends BaseSteps{
         for (Long questionId : questionIds) {
             questionRepository.deleteById(questionId);
         }
-        onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
+
+        if(onlineHearingExternalRef!=null) {
+            try {
+                onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+            }catch(DataIntegrityViolationException e){
+                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            }
+        }
     }
 
-    @And("^the draft a question for online_hearing ' \"([^\"]*)\" '$")
-    public void theDraftAQuestion(String externalRef) throws Throwable {
+    @And("^the draft a question for online_hearing$")
+    public void theDraftAQuestion() throws Throwable {
 
-        Optional<OnlineHearing> optOnlineHearing = onlineHearingRepository.findByExternalRef(externalRef);
-        onlineHearing = optOnlineHearing.get();
+        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
 
         String jsonBody = JsonUtils.getJsonInput("question/standard_question");
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);

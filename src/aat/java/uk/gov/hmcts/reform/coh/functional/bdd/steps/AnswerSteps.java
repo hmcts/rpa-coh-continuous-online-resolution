@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
@@ -51,14 +52,19 @@ public class AnswerSteps extends BaseSteps{
 
     private OnlineHearing onlineHearing;
 
+    private String onlineHearingExternalRef;
+
     @Autowired
     private QuestionService questionService;
 
     @Autowired
     private AnswerService answerService;
 
+    @Autowired
+    private OnlineHearingRepository onlineHearingRepository;
+
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
 
@@ -67,6 +73,9 @@ public class AnswerSteps extends BaseSteps{
 
         questionIds = new ArrayList<>();
         answerIds = new ArrayList<>();
+
+        OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
+        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
     }
 
     @After
@@ -83,6 +92,8 @@ public class AnswerSteps extends BaseSteps{
         for (Long questionId : questionIds) {
             questionService.deleteQuestion(new Question().questionId(questionId));
         }
+
+        onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
     }
 
     /**
@@ -95,11 +106,10 @@ public class AnswerSteps extends BaseSteps{
         question.setQuestionText("question text");
         question.setQuestionRoundId(1);
 
-        onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(UUID.fromString("d9248584-4aa5-4cb0-aba6-d2633ad5a375"));
+        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
-        question.setOnlineHearing(onlineHearing);
 
+        question.setOnlineHearing(onlineHearing);
 
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
@@ -115,6 +125,8 @@ public class AnswerSteps extends BaseSteps{
     public void a_standard_answer() throws IOException {
         JsonUtils utils = new JsonUtils();
         this.answerRequest = (AnswerRequest)utils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        updateEndpointWithOnlineHearingId();
     }
 
     @Given("^a valid answer$")
@@ -245,6 +257,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     private void updateEndpointWithOnlineHearingId(){
-        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
+        endpoints.put("question",endpoints.get("question").replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId())));
+        endpoints.put("answer",endpoints.get("answer").replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId())));
     }
 }

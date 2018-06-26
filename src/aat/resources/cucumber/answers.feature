@@ -1,12 +1,14 @@
 Feature: Answers
 
   Scenario: Submit an answer for unknown question
+    Given a standard online hearing is created
     Given a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
     Then the response code is 424
 
   Scenario: Submit an answer for a question
+    Given a standard online hearing is created
     Given a valid question
     And a standard answer
     And the endpoint is for submitting an answer
@@ -14,6 +16,7 @@ Feature: Answers
     Then the response code is 200
 
   Scenario: Submit an answer with no answer text
+    Given a standard online hearing is created
     Given a valid question
     Given a standard answer
     And the answer text is empty
@@ -22,6 +25,7 @@ Feature: Answers
     Then the response code is 422
 
   Scenario: Submit an answer for a question
+    Given a standard online hearing is created
     Given a valid question
     And a standard answer
     And the endpoint is for submitting an answer
@@ -29,6 +33,7 @@ Feature: Answers
     Then the response code is 200
 
   Scenario: Update an answer
+    Given a standard online hearing is created
     Given a valid question
     And a standard answer
     And the answer text is 'foo'
@@ -42,6 +47,7 @@ Feature: Answers
     And the answer text is 'bar'
 
   Scenario: Update unknown answer
+    Given a standard online hearing is created
     Given a valid question
     And a standard answer
     And an unknown answer identifier
@@ -51,6 +57,7 @@ Feature: Answers
     And the response code is 404
 
   Scenario: Return multiple answers
+    Given a standard online hearing is created
     Given a valid question
     And a standard answer
     And the answer text is 'foo'
