@@ -49,6 +49,8 @@ public class AnswerSteps extends BaseSteps{
 
     private List<Long> answerIds;
 
+    private OnlineHearing onlineHearing;
+
     @Autowired
     private QuestionService questionService;
 
@@ -57,8 +59,8 @@ public class AnswerSteps extends BaseSteps{
 
     @Before
     public void setup() {
-        endpoints.put("answer", "/online-hearings/1/questions/question_id/answers");
-        endpoints.put("question", "/online-hearings/1/questions");
+        endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
+        endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
 
         currentQuestionId = null;
         currentAnswerId = null;
@@ -93,10 +95,12 @@ public class AnswerSteps extends BaseSteps{
         question.setQuestionText("question text");
         question.setQuestionRoundId(1);
 
-        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.fromString("d9248584-4aa5-4cb0-aba6-d2633ad5a375"));
+        updateEndpointWithOnlineHearingId();
         question.setOnlineHearing(onlineHearing);
-        
+
+
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(question), header);
@@ -238,5 +242,9 @@ public class AnswerSteps extends BaseSteps{
         }
 
         return Optional.ofNullable(answerId);
+    }
+
+    private void updateEndpointWithOnlineHearingId(){
+        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
     }
 }

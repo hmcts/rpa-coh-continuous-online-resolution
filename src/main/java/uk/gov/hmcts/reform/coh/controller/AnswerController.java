@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/online-hearings/{onlineHearingId}/questions/{questionId}/answers")
@@ -46,7 +47,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable Long onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {

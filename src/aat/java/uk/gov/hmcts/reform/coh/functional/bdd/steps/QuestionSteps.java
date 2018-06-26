@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
@@ -59,9 +58,7 @@ public class QuestionSteps extends BaseSteps{
         for (Long questionId : questionIds) {
             questionRepository.deleteById(questionId);
         }
-        Optional<Jurisdiction> optJurisdiction = jurisdictionRepository.findById("SSCS");
-        optJurisdiction.get().setUrl("http://localhost:8080/SSCS/notifications");
-        jurisdictionRepository.save(optJurisdiction.get());
+        onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
     }
 
     @And("^the draft a question for online_hearing ' \"([^\"]*)\" '$")
@@ -107,12 +104,5 @@ public class QuestionSteps extends BaseSteps{
         }else if(expectedStatus.contains("Server error")){
             assertTrue(response.getStatusCode().is5xxServerError());
         }
-    }
-
-    @And("^the SSCS endpoint is invalid$")
-    public void theSSCSEndpointIsInvalid() throws Throwable {
-        Optional<Jurisdiction> optJurisdiction = jurisdictionRepository.findById("SSCS");
-        optJurisdiction.get().setUrl("http://localhost:8080/SSCS/downEndpoint");
-        jurisdictionRepository.save(optJurisdiction.get());
     }
 }
