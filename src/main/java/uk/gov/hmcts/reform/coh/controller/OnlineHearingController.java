@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanel;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 @RestController
@@ -47,6 +48,10 @@ public class OnlineHearingController {
     public ResponseEntity<OnlineHearing> createOnlineHearing(@RequestBody OnlineHearing body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
+        for(OnlineHearingPanel panel : body.getPanel()) {
+            System.out.println(panel.getName());
+            System.out.println(panel.getIdentityToken());
+        }
         onlineHearing.setExternalRef(body.getExternalRef());
         OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 

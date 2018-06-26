@@ -17,9 +17,12 @@ public class OnlineHearing {
     @Column(name = "EXTERNAL_REF")
     private String externalRef;
 
-    @OneToMany()
-    @JoinColumn(name = "online_hearing_panel")
-    private Set<OnlineHearingPanel> panel = new HashSet<>();
+    @OneToMany(
+            mappedBy = "onlineHearing",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<OnlineHearingPanel> panel;
 
 
     public UUID getOnlineHearingId() {
@@ -37,7 +40,6 @@ public class OnlineHearing {
     public void setExternalRef(String externalRef) {
         this.externalRef = externalRef;
     }
-
 
 
     @Override

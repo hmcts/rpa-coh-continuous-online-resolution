@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
 @Table(name = "online_hearing_panel")
@@ -16,15 +15,11 @@ public class OnlineHearingPanel {
     @JoinColumn(name = "online_hearing_id")
     private OnlineHearing onlineHearing;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
+    @Column(name = "identity_reference")
+    private String identityToken;
 
 
     public Long getOnlineHearingPanelId() {
@@ -35,35 +30,21 @@ public class OnlineHearingPanel {
         this.onlineHearingPanelId = onlineHearingPanelId;
     }
 
-    public OnlineHearing getOnlineHearing() {
-        return onlineHearing;
+
+
+    public String getName() {
+        return name;
     }
 
-    public void setOnlineHearing(OnlineHearing onlineHearing) {
-        this.onlineHearing = onlineHearing;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getIdentityToken() {
+        return identityToken;
     }
 
-    public void setFullName() {
-        this.fullName = firstName + " " + lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setIdentityToken(String identityToken) {
+        this.identityToken = identityToken;
     }
 }
