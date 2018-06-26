@@ -18,7 +18,7 @@ public class QuestionStateService {
     }
 
 
-    public QuestionState retrieveQuestionStateById(final int questionStateId){
+    public QuestionState retrieveQuestionStateById(final Integer questionStateId){
         return questionStateRepository.findById(questionStateId).orElse(null);
     }
 }

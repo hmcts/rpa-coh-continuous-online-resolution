@@ -16,13 +16,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.File;
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,15 +41,20 @@ public class OnlineHearingControllerTest {
     @Mock
     private OnlineHearingService onlineHearingService;
 
+    @Mock
+    private JurisdictionService jurisdictionService;
+
     private static final String ENDPOINT = "/online-hearings";
 
     @InjectMocks
     private OnlineHearingController onlineHearingController;
 
+
     @Before
     public void setup(){
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(new OnlineHearing());
+        given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
     }
 
     @Test
