@@ -10,12 +10,12 @@ public class OnlineHearingStateHistory {
     @EmbeddedId
     private OnlineHearingState id;
 
-    @ManyToOne
-    @MapsId
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("online_hearing")
     private OnlineHearing onlineHearing;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("onlineHearingStateId")
+    @MapsId("online_hearing_state_id")
     private OnlineHearingState onlineHearingState;
 
     @Column(name = "date_occurred")

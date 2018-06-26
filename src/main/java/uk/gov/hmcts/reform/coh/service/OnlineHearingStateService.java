@@ -18,8 +18,9 @@ public class OnlineHearingStateService {
         }
 
 
-        public OnlineHearingState retrieveOnlineHearingStateById(final OnlineHearingState onlineHearingStateId){
+        public OnlineHearingState retrieveOnlineHearingStateById(final int onlineHearingStateId){
             return onlineHearingStateRepository.findById(onlineHearingStateId).orElse(null);
         }
-    }
+
 }
+

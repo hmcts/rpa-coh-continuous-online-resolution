@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity(name = "Online Hearing")
@@ -12,7 +13,7 @@ public class OnlineHearing {
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
-    @Column(name = "CASE ID")
+    @Column(name = "case_id")
     private String caseId;
 
     @ManyToOne(targetEntity = Jurisdiction.class, fetch = FetchType.EAGER)
@@ -28,6 +29,25 @@ public class OnlineHearing {
 
     public void setJurisdictionName(String jurisdictionName) {
         this.jurisdictionName = jurisdictionName;
+    }
+
+    @Column(name = "jurisdiction_id")
+    private String jurisdictionId;
+
+    @Column(name = "start_date")
+    private Date startDate;
+
+    @Column(name = "end_date")
+    private Date endDate;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId("online_hearing_state_id")
+    private OnlineHearingState onlineHearingState;
+
+    @Column(name = "owner_reference_id")
+    private String ownerReferenceId;
+
+    public OnlineHearing() {
     }
 
     public UUID getOnlineHearingId() {
@@ -57,10 +77,10 @@ public class OnlineHearing {
     @Override
     public String toString() {
         return "OnlineHearing{" +
-                "onlineHearingId=" + onlineHearingId +
-                ", externalRef='" + externalRef + '\'' +
-                ", jurisdiction=" + jurisdiction +
-                ", jurisdictionName='" + jurisdictionName + '\'' +
+                ", onlineHearingId=" + onlineHearingId +
+                ", caseId='" + caseId + '\'' +
                 '}';
     }
+
+
 }
