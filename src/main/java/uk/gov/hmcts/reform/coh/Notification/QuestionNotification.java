@@ -12,6 +12,9 @@ public class QuestionNotification {
 
     private RestTemplate restTemplate;
 
+    public QuestionNotification(RestTemplate restTemplate){
+        this.restTemplate = restTemplate;
+    }
     public QuestionNotification(){
         this.restTemplate = new RestTemplate();
     }

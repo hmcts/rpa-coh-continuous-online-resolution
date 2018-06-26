@@ -19,10 +19,15 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -48,6 +53,9 @@ public class AnswerSteps extends BaseSteps{
     private List<Long> questionIds;
 
     private List<Long> answerIds;
+    private String onlineHearingExternalRef;
+    private OnlineHearing onlineHearing;
+    private int httpResponseCode;
 
     @Autowired
     private QuestionService questionService;
@@ -59,6 +67,7 @@ public class AnswerSteps extends BaseSteps{
     private OnlineHearingRepository onlineHearingRepository;
 
     @Before
+    public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
