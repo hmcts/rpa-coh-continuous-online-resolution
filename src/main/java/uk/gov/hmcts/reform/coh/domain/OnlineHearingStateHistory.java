@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity(name = "Online Hearing State History")
@@ -8,7 +9,7 @@ import java.util.Date;
 public class OnlineHearingStateHistory {
 
     @EmbeddedId
-    private OnlineHearingState id;
+    private OnlineHearingStateId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("online_hearing")
@@ -18,6 +19,8 @@ public class OnlineHearingStateHistory {
     @MapsId("online_hearing_state_id")
     private OnlineHearingState onlineHearingState;
 
+    @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_occurred")
     private Date dateOccurred;
 
@@ -29,14 +32,6 @@ public class OnlineHearingStateHistory {
         this.onlineHearing = onlineHearing;
         this.onlineHearingState = onlineHearingState;
         this.dateOccurred = dateOccurred;
-    }
-
-    public OnlineHearingState getState() {
-        return id;
-    }
-
-    public void setState(OnlineHearingState id) {
-        this.id = id;
     }
 
     public Date getDateOccurred() {
