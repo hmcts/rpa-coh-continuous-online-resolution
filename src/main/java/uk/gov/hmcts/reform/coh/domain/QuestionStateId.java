@@ -1,9 +1,8 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Objects;
 
 @Embeddable
@@ -15,15 +14,11 @@ public class QuestionStateId implements Serializable {
     @Column(name = "question_state_id")
     private int questionStateId;
 
-
-    public QuestionStateId(){}
-
     public QuestionStateId(Long questionId, int questionStateId){
         this.questionId = questionId;
         this.questionStateId = questionStateId;
     }
-
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

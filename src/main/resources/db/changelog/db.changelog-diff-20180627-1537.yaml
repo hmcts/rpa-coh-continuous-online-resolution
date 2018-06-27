@@ -1,0 +1,94 @@
+databaseChangeLog:
+- changeSet:
+    id: 1530110265029-1
+    author: phill (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answer_answer_id
+            type: int8
+        tableName: answer_state_history
+- changeSet:
+    id: 1530110265029-2
+    author: phill (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answerstate_answer_state_id
+            type: int4
+        tableName: answer_state_history
+- changeSet:
+    id: 1530110265029-3
+    author: phill (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_answer_id, answerstate_answer_state_id
+        constraintName: answer_state_historyPK
+        tableName: answer_state_history
+- changeSet:
+    id: 1530110265029-4
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answerstate_answer_state_id
+        baseTableName: answer_state_history
+        constraintName: FKo7rbsygwtjr0t55i8vrypqijd
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_state_id
+        referencedTableName: answer_state
+- changeSet:
+    id: 1530110265029-5
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answer_answer_id
+        baseTableName: answer_state_history
+        constraintName: FKre7rcxsj4st5vxcvdficgkaq3
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_id
+        referencedTableName: answer
+- changeSet:
+    id: 1530110265029-6
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: answer_state_history
+        constraintName: fk_answer_state_history_answer_id
+- changeSet:
+    id: 1530110265029-7
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: answer_state_history
+        constraintName: fk_answer_state_history_answer_state_id
+- changeSet:
+    id: 1530110265029-8
+    author: phill (generated)
+    changes:
+    - dropColumn:
+        columnName: answerId
+        tableName: answer_state_history
+- changeSet:
+    id: 1530110265029-9
+    author: phill (generated)
+    changes:
+    - dropColumn:
+        columnName: answerStateId
+        tableName: answer_state_history
+- changeSet:
+    id: 1530110265029-10
+    author: phill (generated)
+    changes:
+    - dropNotNullConstraint:
+        columnDataType: timestamp
+        columnName: date_occured
+        tableName: answer_state_history
+
