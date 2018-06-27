@@ -12,22 +12,22 @@ public class AnswerStateHistory {
     private AnswerStateId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "answer_id")
+    @MapsId("answerId")
     private Answer answer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "answer_state_id")
-    private AnswerState answerState;
+    @MapsId("answerStateId")
+    private AnswerState answerstate;
 
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_occured")
     private Date dateOccured = new Date();
 
-    public AnswerStateHistory(Answer answer, AnswerState answerState){
+    public AnswerStateHistory(Answer answer, AnswerState answerstate){
         this.answer = answer;
-        this.answerState = answerState;
-        this.id =  new AnswerStateId(answer.getAnswerId(), answerState.getAnswerStateId());
+        this.answerstate = answerstate;
+        this.id =  new AnswerStateId(answer.getAnswerId(), answerstate.getAnswerStateId());
     }
 
     public AnswerStateId getId() {
@@ -46,12 +46,12 @@ public class AnswerStateHistory {
         this.answer = answer;
     }
 
-    public AnswerState getAnswerState() {
-        return answerState;
+    public AnswerState getAnswerstate() {
+        return answerstate;
     }
 
-    public void setAnswerState(AnswerState answerState) {
-        this.answerState = answerState;
+    public void setAnswerstate(AnswerState answerstate) {
+        this.answerstate = answerstate;
     }
 
     public Date getDateOccured() {

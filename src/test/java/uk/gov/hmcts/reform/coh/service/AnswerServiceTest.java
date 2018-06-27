@@ -112,7 +112,7 @@ public class AnswerServiceTest {
     }
 
     @Test
-    public void tesDelete() {
+    public void testDelete() {
         doNothing().when(answerRepository).delete(answer);
         answerService.deleteAnswer(answer);
         verify(answerRepository, times(1)).delete(answer);
