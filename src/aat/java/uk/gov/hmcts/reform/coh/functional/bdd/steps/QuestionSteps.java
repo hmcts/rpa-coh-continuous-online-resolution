@@ -14,12 +14,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +37,7 @@ import static junit.framework.TestCase.assertTrue;
 @SpringBootTest
 public class QuestionSteps extends BaseSteps{
 
-    private TestRestTemplate restTemplate = new TestRestTemplate();
+    private RestTemplate restTemplate;
     private String ENDPOINT = "/online-hearings";
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
@@ -46,7 +53,8 @@ public class QuestionSteps extends BaseSteps{
     private QuestionRepository questionRepository;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         questionIds = new ArrayList<>();
@@ -102,15 +110,21 @@ public class QuestionSteps extends BaseSteps{
          **/
         String jsonBody = JsonUtils.getJsonInput("question/issue_question");
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-        ResponseEntity<Question> response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, Question.class);
-        if(response.getStatusCode().is2xxSuccessful()){
-            question = response.getBody();
+        int httpResponseCode = 0;
+        try {
+            ResponseEntity<Question> response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, Question.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                question = response.getBody();
+            }
+            httpResponseCode = response.getStatusCode().value();
+        } catch (HttpServerErrorException hsee) {
+            httpResponseCode = hsee.getRawStatusCode();
         }
 
         if(expectedStatus.contains("Successful")){
-            assertTrue(response.getStatusCode().is2xxSuccessful());
+            assertEquals(200, httpResponseCode);
         }else if(expectedStatus.contains("Server error")){
-            assertTrue(response.getStatusCode().is5xxServerError());
+            assertEquals(500, httpResponseCode);
         }
     }
 }
