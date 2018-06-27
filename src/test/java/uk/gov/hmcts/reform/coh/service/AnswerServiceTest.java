@@ -12,12 +12,11 @@ import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
@@ -34,6 +33,9 @@ public class AnswerServiceTest {
 
     private AnswerState issuedState;
     private AnswerState draftedState;
+    private AnswerState submittedState;
+
+    private Answer source;
 
     @Before
     public void setup() {
@@ -47,6 +49,17 @@ public class AnswerServiceTest {
         issuedState = new AnswerState();
         issuedState.setState("ISSUED");
         issuedState.setAnswerStateId(3);
+
+        submittedState = new AnswerState();
+        submittedState.setState("SUBMITTED");
+        submittedState.setAnswerStateId(2);
+
+        source = new Answer();
+        source.setAnswerId(ONE);
+        source.setAnswerState(draftedState);
+        source.setAnswerStateHistories(new ArrayList<>());
+        source.setQuestion(new Question());
+        source.setAnswerText("foo");
     }
 
     @Test
@@ -106,18 +119,67 @@ public class AnswerServiceTest {
     }
 
     @Test
-    public void testAddStateToHistories(){
-        Answer answerUpdate = new Answer();
+    public void testEditAnswerWithStateUpdate(){
+        Answer body = new Answer();
+        body.setAnswerId(ONE);
+        body.setAnswerState(issuedState);
+        body.setAnswerText("foo");
+        when(answerRepository.findById(ONE)).thenReturn(Optional.of(source));
 
-        Answer answer = new Answer();
-        answer.setAnswerState(draftedState);
-        answer.setAnswerId(1L);
-        answer.setAnswerStateHistories(new ArrayList<>());
-        answer.setQuestion(new Question());
-        answer.setAnswerText("foo");
+        answerService.editAnswer(body);
+        assertEquals(issuedState, source.getAnswerState());
+        assertTrue(source.getAnswerStateHistories().size()==1);
+    }
 
-        System.out.println(answer.toString());
-        answer = answerService.updateAnswer(answer, answerUpdate);
-        assertTrue(answer.getAnswerState().equals(answerState));
+    @Test(expected = EntityNotFoundException.class)
+    public void testEditAnswerWithIncorrectAnswerIdThrowsEntityNotFoundException(){
+        Answer body = new Answer();
+        body.setAnswerId(2L);
+        body.setAnswerState(issuedState);
+        body.setAnswerText("foo");
+        when(answerRepository.findById(ONE)).thenReturn(Optional.of(source));
+
+        answerService.editAnswer(body);
+    }
+
+    @Test
+    public void testUpdateAnswerRecordChangesMade(){
+        Answer target = new Answer();
+        target.setAnswerId(ONE);
+        target.setAnswerState(issuedState);
+        target.setAnswerText("foo");
+
+        source = answerService.updateAnswer(source, target);
+        assertEquals(issuedState, source.getAnswerState());
+        assertTrue(source.getAnswerStateHistories().size()==1);
+    }
+
+    @Test
+    public void testUpdateAnswerRecordHoldsMultipleStateChanges(){
+        Answer target = new Answer();
+        target.setAnswerId(ONE);
+        target.setAnswerState(submittedState);
+        target.setAnswerText("foo");
+
+        source = answerService.updateAnswer(source, target);
+        assertEquals(submittedState, source.getAnswerState());
+        assertTrue(source.getAnswerStateHistories().size()==1);
+
+        target.setAnswerState(issuedState);
+        source = answerService.updateAnswer(source, target);
+        assertEquals(issuedState, source.getAnswerState());
+        assertTrue(source.getAnswerStateHistories().size()==2);
+    }
+
+    @Test(expected = InputMismatchException.class)
+    public void testUpdateAnswerDoesNotUpdateIfIdsDoNotMatch(){
+        Answer target = new Answer();
+        target.setAnswerId(2L);
+        target.setAnswerState(issuedState);
+        target.setAnswerText("foo");
+
+        source = answerService.updateAnswer(source, target);
+        assertEquals(draftedState, source.getAnswerState());
+        assertTrue(source.getAnswerStateHistories().size()==0);
     }
 }

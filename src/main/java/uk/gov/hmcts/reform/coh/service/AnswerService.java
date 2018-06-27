@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,10 +45,23 @@ public class AnswerService {
         throw new EntityNotFoundException("Could not find the entity with id = " + answer.getAnswerId());
     }
 
-    public Answer updateAnswer(Answer answer, Answer updateAnswer){
-        return answer;
+    public Answer editAnswer(Answer body){
+        Optional<Answer> optAnswer = answerRepository.findById(body.getAnswerId());
+        if(optAnswer.isPresent()){
+            return updateAnswer(optAnswer.get(), body);
+        }
+        throw new EntityNotFoundException("Could not find the entity with id = " + body.getAnswerId());
     }
 
+    protected Answer updateAnswer(Answer source, Answer target){
+        if(source.getAnswerId().equals(target.getAnswerId())) {
+            source.setAnswerText(target.getAnswerText());
+            source.addState(target.getAnswerState());
+            answerRepository.save(source);
+            return source;
+        }
+        throw new InputMismatchException("Could not match answer with request");
+    }
 
     @Transactional
     public void deleteAnswer(Answer answer) {
