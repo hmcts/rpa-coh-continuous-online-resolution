@@ -1,9 +1,0 @@
-databaseChangeLog:
-- changeSet:
-    id: 1528986679366-1
-    author: jake (generated)
-    changes:
-    - dropColumn:
-        columnName: current_state
-        tableName: question
-

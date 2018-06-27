@@ -16,7 +16,7 @@ public class OnlineHearing {
     private String externalRef;
 
     @ManyToOne(targetEntity = Jurisdiction.class, fetch = FetchType.EAGER)
-    @JoinColumn(name = "jurisdiction")
+    @JoinColumn(name = "jurisdiction_id")
     private Jurisdiction jurisdiction;
 
     @Transient

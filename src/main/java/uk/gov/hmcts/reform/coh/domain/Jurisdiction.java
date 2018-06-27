@@ -9,21 +9,21 @@ import javax.persistence.Table;
 @Table(name = "jurisdiction")
 public class Jurisdiction {
 
-    @Column(name = "jurisdiction_id")
-    private Integer jurisdictionId;
-
     @Id
+    @Column(name = "jurisdiction_id")
+    private Long jurisdictionId;
+
     @Column(name = "jurisdiction_name")
     private String jurisdictionName;
 
     @Column(name = "url")
     private String url;
 
-    public Integer getJurisdictionId() {
+    public Long getJurisdictionId() {
         return jurisdictionId;
     }
 
-    public void setJurisdictionId(Integer jurisdictionId) {
+    public void setJurisdictionId(Long jurisdictionId) {
         this.jurisdictionId = jurisdictionId;
     }
 

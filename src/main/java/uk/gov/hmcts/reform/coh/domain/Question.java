@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ public class Question {
     @Column(name = "question_id")
     private Long questionId;
 
-    @Column(name = "question_round_id")
-    private int questionRoundId;
+    @Column(name = "question_round")
+    private int questionRound;
 
     @Column(name = "subject")
     private String subject;
@@ -78,12 +79,12 @@ public class Question {
         this.questionStateHistories = questionStateHistories;
     }
 
-    public int getQuestionRoundId() {
-        return questionRoundId;
+    public int getQuestionRound() {
+        return questionRound;
     }
 
-    public void setQuestionRoundId(int questionRoundId) {
-        this.questionRoundId = questionRoundId;
+    public void setQuestionRound(int questionRound) {
+        this.questionRound = questionRound;
     }
 
     public String getSubject() {

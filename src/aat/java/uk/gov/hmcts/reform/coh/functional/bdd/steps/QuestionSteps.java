@@ -61,10 +61,10 @@ public class QuestionSteps extends BaseSteps{
             questionRepository.deleteById(questionId);
         }
 
-        if(onlineHearingExternalRef!=null) {
+        if (onlineHearingExternalRef != null) {
             try {
                 onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }

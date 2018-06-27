@@ -7,6 +7,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -97,7 +98,11 @@ public class AnswerSteps extends BaseSteps{
             questionService.deleteQuestion(new Question().questionId(questionId));
         }
 
-        onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+        try {
+            onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+        } catch(DataIntegrityViolationException e){
+            System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+        }
     }
 
     /**
@@ -108,7 +113,7 @@ public class AnswerSteps extends BaseSteps{
         Question question = new Question();
         question.setSubject("foo");
         question.setQuestionText("question text");
-        question.setQuestionRoundId(1);
+        question.setQuestionRound(1);
 
         onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
