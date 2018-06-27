@@ -1,0 +1,164 @@
+databaseChangeLog:
+- changeSet:
+    id: 1530117240346-1
+    author: phill (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answer_state_id
+            type: INT
+        - column:
+            name: state
+            type: VARCHAR(255)
+        tableName: answer_state
+- changeSet:
+    id: 1530117240346-2
+    author: phill (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: answer_state_id
+            type: int4
+        tableName: answer
+- changeSet:
+    id: 1530117240346-3
+    author: phill (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answerstate_answer_state_id
+            type: int4
+        tableName: answer_state_history
+- changeSet:
+    id: 1530117240346-4
+    author: phill (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: date_occured
+            type: timestamp
+        tableName: answer_state_history
+- changeSet:
+    id: 1530117240346-5
+    author: phill (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_state_id
+        constraintName: answer_statePK
+        tableName: answer_state
+- changeSet:
+    id: 1530117240346-6
+    author: phill (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_answer_id, answerstate_answer_state_id
+        constraintName: answer_state_historyPK
+        tableName: answer_state_history
+- changeSet:
+    id: 1530117240346-7
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answerstate_answer_state_id
+        baseTableName: answer_state_history
+        constraintName: FKo7rbsygwtjr0t55i8vrypqijd
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_state_id
+        referencedTableName: answer_state
+- changeSet:
+    id: 1530117240346-8
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answer_state_id
+        baseTableName: answer
+        constraintName: FKr0xo0gmdxmblwklcfjd61h3to
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_state_id
+        referencedTableName: answer_state
+- changeSet:
+    id: 1530117240346-9
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answer_answer_id
+        baseTableName: answer_state_history
+        constraintName: FKre7rcxsj4st5vxcvdficgkaq3
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_id
+        referencedTableName: answer
+- changeSet:
+    id: 1530117240346-10
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: online_hearing
+        constraintName: FK2hmdj07dr68wb5meq3272joo8
+- changeSet:
+    id: 1530117240346-11
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: question
+        constraintName: FK6rdsf7v183stsrc6cun38qiil
+- changeSet:
+    id: 1530117240346-12
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: question_round
+        constraintName: FKr3a8bvw19wfbbkse2qocmi4xw
+- changeSet:
+    id: 1530117240346-13
+    author: phill (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: question_round
+        constraintName: FKs2i0jkthn6buscimms0u80h2g
+- changeSet:
+    id: 1530117240346-14
+    author: phill (generated)
+    changes:
+    - dropTable:
+        tableName: jurisdiction
+- changeSet:
+    id: 1530117240346-15
+    author: phill (generated)
+    changes:
+    - dropColumn:
+        columnName: answer_answer_state_id
+        tableName: answer_state_history
+- changeSet:
+    id: 1530117240346-16
+    author: phill (generated)
+    changes:
+    - dropColumn:
+        columnName: jurisdiction
+        tableName: online_hearing
+- changeSet:
+    id: 1530117240346-17
+    author: phill (generated)
+    changes:
+    - dropColumn:
+        columnName: question_round_state_id
+        tableName: question_round
+- changeSet:
+    id: 1530117240346-18
+    author: phill (generated)
+    changes:
+    - addNotNullConstraint:
+        columnDataType: bigint
+        columnName: answer_answer_id
+        tableName: answer_state_history
+
