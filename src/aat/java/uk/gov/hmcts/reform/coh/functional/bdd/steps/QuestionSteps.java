@@ -7,14 +7,12 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -31,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
@@ -73,7 +70,7 @@ public class QuestionSteps extends BaseSteps{
             try {
                 onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
             } catch(DataIntegrityViolationException e){
-                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
             }
         }
     }
