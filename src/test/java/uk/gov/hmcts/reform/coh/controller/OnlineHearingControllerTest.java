@@ -66,8 +66,6 @@ public class OnlineHearingControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
 
-        System.out.println("JSONSTRING" + jsonString);
-
         mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings/")
                 .contentType(MediaType.APPLICATION_JSON).content(jsonString))
                 .andExpect(status().is2xxSuccessful());
@@ -81,4 +79,19 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
     }
+
+    @Test
+    public void testCreateOnlineHearing() throws Exception {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(Objects.requireNonNull(classLoader.getResource("json/online_hearing/standard_online_hearing.json")).getFile());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings/try")
+                .contentType(MediaType.APPLICATION_JSON).content(jsonString))
+                .andExpect(status().is2xxSuccessful());
+    }
+
 }
