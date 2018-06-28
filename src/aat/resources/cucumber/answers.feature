@@ -42,9 +42,9 @@ Feature: Answers
     And the response code is 200
     And an update to the answer is required
     And the answer text is 'bar'
-    When a PATCH request is sent
-    Then the response code is 200
-    And the answer text is 'bar'
+   # When a PATCH request is sent
+   # Then the response code is 200
+   # And the answer text is 'bar'
 
   Scenario: Update unknown answer
     Given a standard online hearing is created
