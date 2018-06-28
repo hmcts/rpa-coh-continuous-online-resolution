@@ -14,6 +14,10 @@ public class QuestionStateId implements Serializable {
     @Column(name = "question_state_id")
     private int questionStateId;
 
+    public QuestionStateId(){
+    // Required for hibernate
+    }
+
     public QuestionStateId(Long questionId, int questionStateId){
         this.questionId = questionId;
         this.questionStateId = questionStateId;
