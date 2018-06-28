@@ -16,6 +16,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
@@ -60,7 +61,11 @@ public class ApiSteps extends BaseSteps {
     @After
     public void cleanUp() {
         for (String externalRef : externalRefs) {
-            onlineHearingService.deleteByExternalRef(externalRef);
+            try {
+                onlineHearingService.deleteByExternalRef(externalRef);
+            }catch(DataIntegrityViolationException e){
+                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            }
         }
     }
 
