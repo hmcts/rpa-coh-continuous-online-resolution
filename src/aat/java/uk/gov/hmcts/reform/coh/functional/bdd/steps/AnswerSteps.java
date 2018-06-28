@@ -101,7 +101,7 @@ public class AnswerSteps extends BaseSteps{
         try {
             onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
-            System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
     }
 
