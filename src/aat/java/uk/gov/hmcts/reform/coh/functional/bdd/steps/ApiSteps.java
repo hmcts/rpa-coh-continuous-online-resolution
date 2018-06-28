@@ -8,7 +8,6 @@ import cucumber.api.java.en.When;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -17,21 +16,19 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.reflections.util.ConfigurationBuilder.build;
 
 @ContextConfiguration
 @SpringBootTest
@@ -47,6 +44,7 @@ public class ApiSteps extends BaseSteps {
     private CloseableHttpClient httpClient;
 
     private Set<String> externalRefs;
+    private ArrayList newObjects;
 
     @Before
     public void setup() throws Exception {
@@ -57,12 +55,17 @@ public class ApiSteps extends BaseSteps {
                         .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
                         .build())
                 .build();
+        newObjects = new ArrayList<>();
     }
 
     @After
     public void cleanUp() {
         for (String externalRef : externalRefs) {
-            onlineHearingService.deleteByExternalRef(externalRef);
+            try {
+                onlineHearingService.deleteByExternalRef(externalRef);
+            }catch(DataIntegrityViolationException e){
+                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            }
         }
     }
 
@@ -73,12 +76,19 @@ public class ApiSteps extends BaseSteps {
         externalRefs.add(fieldInput);
     }
 
+    @Given("^the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
+    public void add_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
+        json.put(fieldName, fieldInput);
+        newObjects.add(fieldInput);
+    }
+
     @When("^a get request is sent to ' \"([^\"]*)\"'$")
     public void a_get_request_is_sent_to(String endpoint) throws Throwable {
         HttpGet request = new HttpGet(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
 
         response = httpClient.execute(request);
+        responseString = new BasicResponseHandler().handleResponse(response);
     }
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
@@ -103,5 +113,16 @@ public class ApiSteps extends BaseSteps {
     @Then("^the response contains the following text '\"([^\"]*)\" '$")
     public void the_response_contains_the_following_text(String text) {
         assertTrue(responseString.contains(text));
+    }
+
+    @Given("^a standard online hearing is created$")
+    public void aStandardOnlineHearingIsCreated() throws Throwable {
+        HttpPost request = new HttpPost(baseUrl + "/online-hearings/");
+        request.addHeader("content-type", "application/json");
+
+        String jsonBody = JsonUtils.getJsonInput("create_online_hearing");
+        StringEntity params = new StringEntity(jsonBody);
+        request.setEntity(params);
+        response = httpClient.execute(request);
     }
 }

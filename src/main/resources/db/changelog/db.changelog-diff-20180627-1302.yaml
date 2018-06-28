@@ -1,7 +1,19 @@
 databaseChangeLog:
 - changeSet:
-    id: 1528983370981-1
-    author: jake (generated)
+    id: 1530100978313-1
+    author: johnho (generated)
+    changes:
+    - createSequence:
+        sequenceName: hibernate_sequence
+- changeSet:
+    id: 1530100978313-2
+    author: johnho (generated)
+    changes:
+    - createSequence:
+        sequenceName: seq_answer_id
+- changeSet:
+    id: 1530100978313-3
+    author: johnho (generated)
     changes:
     - createTable:
         columns:
@@ -9,17 +21,17 @@ databaseChangeLog:
             constraints:
               nullable: false
             name: answer_id
-            type: INT
+            type: BIGINT
         - column:
             name: answer_text
             type: VARCHAR(255)
         - column:
             name: question_id
-            type: INT
+            type: BIGINT
         tableName: answer
 - changeSet:
-    id: 1528983370981-2
-    author: jake (generated)
+    id: 1530100978313-4
+    author: johnho (generated)
     changes:
     - createTable:
         columns:
@@ -31,10 +43,13 @@ databaseChangeLog:
         - column:
             name: EXTERNAL_REF
             type: VARCHAR(255)
+        - column:
+            name: jurisdiction_id
+            type: BIGINT
         tableName: online_hearing
 - changeSet:
-    id: 1528983370981-3
-    author: jake (generated)
+    id: 1530100978313-5
+    author: johnho (generated)
     changes:
     - createTable:
         columns:
@@ -44,15 +59,9 @@ databaseChangeLog:
               primaryKey: true
               primaryKeyName: questionPK
             name: question_id
-            type: INT
+            type: BIGINT
         - column:
-            name: current_state
-            type: VARCHAR(255)
-        - column:
-            name: online_hearing_id
-            type: INT
-        - column:
-            name: question_round_id
+            name: question_round
             type: INT
         - column:
             name: question_text
@@ -60,33 +69,22 @@ databaseChangeLog:
         - column:
             name: subject
             type: VARCHAR(255)
+        - column:
+            name: online_hearing_id
+            type: UUID
+        - column:
+            name: question_state_id
+            type: INT
         tableName: question
 - changeSet:
-    id: 1528983370981-4
-    author: jake (generated)
+    id: 1530100978313-6
+    author: johnho (generated)
     changes:
     - createTable:
         columns:
         - column:
             constraints:
               nullable: false
-            name: question_round_id
-            type: INT
-        - column:
-            name: online_hearing_id
-            type: INT
-        tableName: question_round
-- changeSet:
-    id: 1528983370981-5
-    author: jake (generated)
-    changes:
-    - createTable:
-        columns:
-        - column:
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-              primaryKeyName: question_statePK
             name: question_state_id
             type: INT
         - column:
@@ -94,8 +92,8 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: question_state
 - changeSet:
-    id: 1528983370981-6
-    author: jake (generated)
+    id: 1530100978313-7
+    author: johnho (generated)
     changes:
     - createTable:
         columns:
@@ -106,7 +104,7 @@ databaseChangeLog:
             constraints:
               nullable: false
             name: question_question_id
-            type: INT
+            type: BIGINT
         - column:
             constraints:
               nullable: false
@@ -114,40 +112,64 @@ databaseChangeLog:
             type: INT
         tableName: question_state_history
 - changeSet:
-    id: 1528983370981-7
-    author: jake (generated)
+    id: 1530100978313-8
+    author: johnho (generated)
     changes:
     - addPrimaryKey:
         columnNames: answer_id
         constraintName: answerPK
         tableName: answer
 - changeSet:
-    id: 1528983370981-8
-    author: jake (generated)
+    id: 1530100978313-9
+    author: johnho (generated)
     changes:
     - addPrimaryKey:
         columnNames: online_hearing_id
         constraintName: online_hearingPK
         tableName: online_hearing
 - changeSet:
-    id: 1528983370981-9
-    author: jake (generated)
+    id: 1530100978313-10
+    author: johnho (generated)
     changes:
     - addPrimaryKey:
-        columnNames: question_round_id
-        constraintName: question_roundPK
-        tableName: question_round
+        columnNames: question_state_id
+        constraintName: question_statePK
+        tableName: question_state
 - changeSet:
-    id: 1528983370981-10
-    author: jake (generated)
+    id: 1530100978313-11
+    author: johnho (generated)
     changes:
     - addPrimaryKey:
         columnNames: question_question_id, questionstate_question_state_id
         constraintName: question_state_historyPK
         tableName: question_state_history
 - changeSet:
-    id: 1528983370981-11
-    author: jake (generated)
+    id: 1530100978313-12
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing_id
+        baseTableName: question
+        constraintName: FK6rdsf7v183stsrc6cun38qiil
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_id
+        referencedTableName: online_hearing
+- changeSet:
+    id: 1530100978313-13
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_id
+        baseTableName: answer
+        constraintName: FK8frr4bcabmmeyyu60qt7iiblo
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_id
+        referencedTableName: question
+- changeSet:
+    id: 1530100978313-14
+    author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
         baseColumnNames: questionstate_question_state_id
@@ -158,8 +180,32 @@ databaseChangeLog:
         referencedColumnNames: question_state_id
         referencedTableName: question_state
 - changeSet:
-    id: 1528983370981-12
-    author: jake (generated)
+    id: 1530100978313-15
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_state_id
+        baseTableName: question
+        constraintName: FKf4q9b9kmtx4v67e5hb1u5axmg
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_state_id
+        referencedTableName: question_state
+- changeSet:
+    id: 1530100978313-16
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: jurisdiction_id
+        baseTableName: online_hearing
+        constraintName: FKi7d7eroliuowqqj6l29q75n79
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: jurisdiction_id
+        referencedTableName: jurisdiction
+- changeSet:
+    id: 1530100978313-17
+    author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
         baseColumnNames: question_question_id

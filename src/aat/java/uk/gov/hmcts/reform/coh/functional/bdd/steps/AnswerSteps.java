@@ -7,6 +7,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,19 +18,24 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
 @SpringBootTest
-public class AnswerSteps extends BaseSteps {
+public class AnswerSteps extends BaseSteps{
 
     private RestTemplate restTemplate;
 
@@ -48,7 +54,8 @@ public class AnswerSteps extends BaseSteps {
     private List<Long> questionIds;
 
     private List<Long> answerIds;
-
+    private String onlineHearingExternalRef;
+    private OnlineHearing onlineHearing;
     private int httpResponseCode;
 
     @Autowired
@@ -57,18 +64,23 @@ public class AnswerSteps extends BaseSteps {
     @Autowired
     private AnswerService answerService;
 
-    @Before
-    public void setup() throws Exception {
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+    @Autowired
+    private OnlineHearingRepository onlineHearingRepository;
 
-        endpoints.put("answer", "/online-hearings/1/questions/question_id/answers");
-        endpoints.put("question", "/online-hearings/1/questions");
+    @Before
+    public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+        endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
+        endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
 
         currentQuestionId = null;
         currentAnswerId = null;
 
         questionIds = new ArrayList<>();
         answerIds = new ArrayList<>();
+
+        OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
+        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
     }
 
     @After
@@ -85,6 +97,12 @@ public class AnswerSteps extends BaseSteps {
         for (Long questionId : questionIds) {
             questionService.deleteQuestion(new Question().questionId(questionId));
         }
+
+        try {
+            onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+        } catch(DataIntegrityViolationException e){
+            System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
+        }
     }
 
     /**
@@ -95,8 +113,13 @@ public class AnswerSteps extends BaseSteps {
         Question question = new Question();
         question.setSubject("foo");
         question.setQuestionText("question text");
-        question.setQuestionRoundId(1);
-        question.setOnlineHearingId(1);
+        question.setQuestionRound(1);
+
+        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        updateEndpointWithOnlineHearingId();
+
+        question.setOnlineHearing(onlineHearing);
+
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(question), header);
@@ -111,6 +134,8 @@ public class AnswerSteps extends BaseSteps {
     public void a_standard_answer() throws IOException {
         JsonUtils utils = new JsonUtils();
         this.answerRequest = (AnswerRequest)utils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        updateEndpointWithOnlineHearingId();
     }
 
     @Given("^a valid answer$")
@@ -237,5 +262,10 @@ public class AnswerSteps extends BaseSteps {
         }
 
         return Optional.ofNullable(answerId);
+    }
+
+    private void updateEndpointWithOnlineHearingId(){
+        endpoints.put("question",endpoints.get("question").replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId())));
+        endpoints.put("answer",endpoints.get("answer").replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId())));
     }
 }

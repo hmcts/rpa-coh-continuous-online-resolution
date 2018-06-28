@@ -15,18 +15,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
-import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,25 +39,36 @@ public class QuestionControllerTest {
     @Mock
     private QuestionService questionService;
 
+    @Mock
+    private OnlineHearingService onlineHearingService;
+
     @InjectMocks
     private QuestionController questionController;
 
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String ENDPOINT = "/online-hearings/1/questions";
+    private static final String ENDPOINT = "/online-hearings/0c08b113-16d1-4fb5-b41f-a928aa64d39a/questions";
 
     private Question question;
 
     @Before
     public void setup() throws IOException {
+        OnlineHearing onlineHearing = new OnlineHearing();
+
         question = new Question();
-        question.setOnlineHearingId(1);
         question.setQuestionText("foo");
+        question.setOnlineHearing(onlineHearing);
+        QuestionState issuedState = new QuestionState();
+        issuedState.setQuestionStateId(QuestionState.ISSUED);
+        question.setQuestionState(issuedState);
+
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(any(Long.class))).willReturn(question);
-        given(questionService.createQuestion(1, question)).willReturn(question);
+        given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
         given(questionService.editQuestion(1L, question)).willReturn(question);
+        given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
     }
 
     @Test
