@@ -24,6 +24,10 @@ public class AnswerStateHistory {
     @Column(name = "date_occured")
     private Date dateOccured = new Date();
 
+    public AnswerStateHistory(){
+        // Required for hibernate
+    }
+
     public AnswerStateHistory(Answer answer, AnswerState answerstate){
         this.answer = answer;
         this.answerstate = answerstate;

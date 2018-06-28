@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 
@@ -119,30 +118,6 @@ public class AnswerServiceTest {
     }
 
     @Test
-    public void testEditAnswerWithStateUpdate(){
-        Answer body = new Answer();
-        body.setAnswerId(ONE);
-        body.setAnswerState(issuedState);
-        body.setAnswerText("foo");
-        when(answerRepository.findById(ONE)).thenReturn(Optional.of(source));
-
-        answerService.editAnswer(body);
-        assertEquals(issuedState, source.getAnswerState());
-        assertTrue(source.getAnswerStateHistories().size()==1);
-    }
-
-    @Test(expected = EntityNotFoundException.class)
-    public void testEditAnswerWithIncorrectAnswerIdThrowsEntityNotFoundException(){
-        Answer body = new Answer();
-        body.setAnswerId(2L);
-        body.setAnswerState(issuedState);
-        body.setAnswerText("foo");
-        when(answerRepository.findById(ONE)).thenReturn(Optional.of(source));
-
-        answerService.editAnswer(body);
-    }
-
-    @Test
     public void testUpdateAnswerRecordChangesMade(){
         Answer target = new Answer();
         target.setAnswerId(ONE);
@@ -169,17 +144,5 @@ public class AnswerServiceTest {
         source = answerService.updateAnswer(source, target);
         assertEquals(issuedState, source.getAnswerState());
         assertTrue(source.getAnswerStateHistories().size()==2);
-    }
-
-    @Test(expected = InputMismatchException.class)
-    public void testUpdateAnswerDoesNotUpdateIfIdsDoNotMatch(){
-        Answer target = new Answer();
-        target.setAnswerId(2L);
-        target.setAnswerState(issuedState);
-        target.setAnswerText("foo");
-
-        source = answerService.updateAnswer(source, target);
-        assertEquals(draftedState, source.getAnswerState());
-        assertTrue(source.getAnswerStateHistories().size()==0);
     }
 }

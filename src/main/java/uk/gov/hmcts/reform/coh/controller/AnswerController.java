@@ -131,24 +131,29 @@ public class AnswerController {
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
 
-        AnswerResponse answerResponse = new AnswerResponse();
-        try {
-            Question question = new Question();
-            question.setQuestionId(questionId);
-            Answer answer = new Answer().answerId(answerId)
-                    .answerText(request.getAnswerText());
-            answer.setQuestion(question);
+        ValidationResult validationResult = validate(request);
+        if (!validationResult.isValid()) {
+            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
 
-            Optional<Answer> optionalAnswer = answerService.retrieveAnswerById(answerId);
-            if (!optionalAnswer.isPresent()) {
-                return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
-            }
+        Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
 
-            answerService.updateAnswerById(answer);
-            answerResponse.setAnswerId(answer.getAnswerId());
-        } catch (Exception e) {
+        if(!optAnswer.isPresent()){
+            return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
+        }
+
+        Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+        if(!optionalAnswerState.isPresent()){
             return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
         }
+
+        Answer body = new Answer();
+        body.setAnswerState(optionalAnswerState.get());
+        body.setAnswerText(request.getAnswerText());
+        Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
+
+        AnswerResponse answerResponse = new AnswerResponse();
+        answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
         return ResponseEntity.ok(answerResponse);
     }
@@ -169,9 +174,7 @@ public class AnswerController {
                 result.setValid(false);
                 result.setReason("Answer state is not valid");
             }
-
         }
-
         return result;
     }
 

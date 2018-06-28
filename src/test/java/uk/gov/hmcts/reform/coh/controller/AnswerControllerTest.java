@@ -75,6 +75,7 @@ public class AnswerControllerTest {
         given(questionService.retrieveQuestionById(any(Long.class))).willReturn(new Question());
         given(answerService.createAnswer(any(Answer.class))).willReturn(answer);
         given(answerStateService.retrieveAnswerStateByState(any(String.class))).willReturn(Optional.of(answerState));
+        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(answer);
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
     }
 
@@ -189,7 +190,7 @@ public class AnswerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().is5xxServerError())
                 .andReturn();
     }
 }

@@ -1,9 +1,11 @@
 INSERT INTO public.question_state(question_state_id, state)
 	VALUES
 		(1, 'DRAFTED'),
-		(2, 'SUBMITTED');
+		(2, 'SUBMITTED')
+		(3, 'ISSUED');
 
 INSERT INTO public.answer_state(answer_state_id, state)
 	VALUES
 		(1, 'DRAFTED'),
-		(2, 'SUBMITTED');
+		(2, 'SUBMITTED'),
+		(3, 'ISSUED');
