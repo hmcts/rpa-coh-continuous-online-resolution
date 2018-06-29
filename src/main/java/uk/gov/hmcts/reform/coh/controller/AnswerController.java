@@ -66,7 +66,7 @@ public class AnswerController {
 
             Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (answerState.isPresent()) {
-                answer.setAnswerState(answerState.get());
+                answer.addState(answerState.get());
             }
 
             answer.setAnswerText(request.getAnswerText());
