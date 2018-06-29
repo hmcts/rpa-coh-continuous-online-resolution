@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.repository.AnswerStateRepository;
 
@@ -24,13 +25,18 @@ public class AnswerStateService {
     }
 
     public boolean validateStateTransition(AnswerState sourceState, AnswerState targetState){
-        AnswerState submittedAnswerState = answerStateRepository.findByState("SUBMITTED").get();
-        AnswerState draftedAnswerState = answerStateRepository.findByState("DRAFTED").get();
+        AnswerState submittedAnswerState = retrieveAnswerStateByState("SUBMITTED").get();
+        AnswerState draftedAnswerState = retrieveAnswerStateByState("DRAFTED").get();
+        AnswerState editedAnswerState = retrieveAnswerStateByState("answer_edited").get();
 
         if (sourceState.equals(submittedAnswerState) && targetState.equals(draftedAnswerState)){
-            return false;
-        }else {
-            return true;
+            throw new NotAValidUpdateException();
         }
+
+        if (sourceState.equals(editedAnswerState) && targetState.equals(draftedAnswerState)){
+            throw new NotAValidUpdateException();
+        }
+
+        return true;
     }
 }

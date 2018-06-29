@@ -24,34 +24,37 @@ public class AnswerServiceTest {
     @Mock
     private AnswerRepository answerRepository;
 
+    @Mock
+    private AnswerStateService answerStateService;
+
     private AnswerService answerService;
 
     private Answer answer;
 
     private static final Long ONE = 1L;
 
-    private AnswerState issuedState;
     private AnswerState draftedState;
     private AnswerState submittedState;
+    private AnswerState editedState;
 
     private Answer source;
 
     @Before
     public void setup() {
         answer = new Answer();
-        answerService = new AnswerService(answerRepository);
+        answerService = new AnswerService(answerRepository, answerStateService);
 
         draftedState = new AnswerState();
         draftedState.setState("DRAFTED");
         draftedState.setAnswerStateId(1);
 
-        issuedState = new AnswerState();
-        issuedState.setState("ISSUED");
-        issuedState.setAnswerStateId(3);
+        editedState = new AnswerState();
+        editedState.setState("answer_edited");
+        editedState.setAnswerStateId(2);
 
         submittedState = new AnswerState();
         submittedState.setState("SUBMITTED");
-        submittedState.setAnswerStateId(2);
+        submittedState.setAnswerStateId(3);
 
         source = new Answer();
         source.setAnswerId(ONE);
@@ -59,6 +62,8 @@ public class AnswerServiceTest {
         source.setAnswerStateHistories(new ArrayList<>());
         source.setQuestion(new Question());
         source.setAnswerText("foo");
+
+        when(answerStateService.validateStateTransition(any(AnswerState.class), any(AnswerState.class))).thenReturn(true);
     }
 
     @Test
@@ -121,11 +126,11 @@ public class AnswerServiceTest {
     public void testUpdateAnswerRecordChangesMade(){
         Answer target = new Answer();
         target.setAnswerId(ONE);
-        target.setAnswerState(issuedState);
+        target.setAnswerState(editedState);
         target.setAnswerText("foo");
 
         source = answerService.updateAnswer(source, target);
-        assertEquals(issuedState, source.getAnswerState());
+        assertEquals(editedState, source.getAnswerState());
         assertTrue(source.getAnswerStateHistories().size()==1);
     }
 
@@ -133,16 +138,16 @@ public class AnswerServiceTest {
     public void testUpdateAnswerRecordHoldsMultipleStateChanges(){
         Answer target = new Answer();
         target.setAnswerId(ONE);
-        target.setAnswerState(submittedState);
+        target.setAnswerState(editedState);
         target.setAnswerText("foo");
 
         source = answerService.updateAnswer(source, target);
-        assertEquals(submittedState, source.getAnswerState());
+        assertEquals(editedState, source.getAnswerState());
         assertTrue(source.getAnswerStateHistories().size()==1);
 
-        target.setAnswerState(issuedState);
+        target.setAnswerState(submittedState);
         source = answerService.updateAnswer(source, target);
-        assertEquals(issuedState, source.getAnswerState());
+        assertEquals(submittedState, source.getAnswerState());
         assertTrue(source.getAnswerStateHistories().size()==2);
     }
 }

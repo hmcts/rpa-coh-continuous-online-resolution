@@ -5,18 +5,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
-import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.AnswerStateRepository;
 
-import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class AnswerStateServiceTest {
@@ -26,30 +23,59 @@ public class AnswerStateServiceTest {
 
     private AnswerStateService answerStateService;
 
-    private AnswerState answerState;
-
     private static final Long ONE = 1L;
+
+    private AnswerState draftedState;
+    private AnswerState editedState;
+    private AnswerState submittedState;
 
     @Before
     public void setup() {
-        answerState = new AnswerState();
-        answerState.setState("foo");
+        draftedState = new AnswerState();
+        draftedState.setState("DRAFTED");
+        draftedState.setAnswerStateId(1);
+
+        editedState = new AnswerState();
+        editedState.setState("answer_edited");
+        editedState.setAnswerStateId(2);
+
+        submittedState = new AnswerState();
+        submittedState.setState("SUBMITTED");
+        submittedState.setAnswerStateId(3);
+
         answerStateService = new AnswerStateService(answerStateRepository);
+        when(answerStateRepository.findByState("DRAFTED")).thenReturn(Optional.of(draftedState));
+        when(answerStateRepository.findByState("SUBMITTED")).thenReturn(Optional.of(submittedState));
+        when(answerStateRepository.findByState("answer_edited")).thenReturn(Optional.of(editedState));
     }
 
     @Test
     public void testRetrieveAnswerState() {
-        when(answerStateRepository.findByState("foo")).thenReturn(Optional.of(answerState));
+        when(answerStateRepository.findByState("DRAFTED")).thenReturn(Optional.of(draftedState));
 
-        AnswerState newAnswerState = answerStateService.retrieveAnswerStateByState("foo").get();
-        assertEquals(answerState, newAnswerState);
+        AnswerState newAnswerState = answerStateService.retrieveAnswerStateByState("DRAFTED").get();
+        assertEquals(draftedState, newAnswerState);
     }
 
     @Test
-    public void testRetrieveAnswerStateFail() {
-        when(answerStateRepository.findByState("foo")).thenReturn(Optional.of(answerState));
+    public void testValidateStateUpdateServiceDraftedToEdited(){
+        boolean valid = answerStateService.validateStateTransition(draftedState, editedState);
+        assertTrue(valid);
+    }
 
-        Optional<AnswerState> newAnswerState = answerStateService.retrieveAnswerStateByState("bar");
-        assertFalse(newAnswerState.isPresent());
+    @Test
+    public void testValidateStateUpdateServiceEditedToSubmitted(){
+        boolean valid = answerStateService.validateStateTransition(editedState, submittedState);
+        assertTrue(valid);
+    }
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testValidateStateUpdateSubmittedToDrafted(){
+        answerStateService.validateStateTransition(submittedState, draftedState);
+    }
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testValidateStateUpdateEditedToDrafted(){
+        boolean valid = answerStateService.validateStateTransition(editedState, draftedState);
     }
 }
