@@ -42,9 +42,22 @@ Feature: Answers
     And the response code is 200
     And an update to the answer is required
     And the answer text is 'bar'
-   # When a PATCH request is sent
-   # Then the response code is 200
-   # And the answer text is 'bar'
+    When a PATCH request is sent
+    Then the response code is 200
+    And the answer text is 'bar'
+
+  Scenario: Update an answer state
+    Given a standard online hearing is created
+    Given a valid question
+    And a standard answer
+    And the answer text is 'foo'
+    And the endpoint is for submitting an answer
+    And a POST request is sent
+    And the response code is 200
+    And an update to the answer is required
+    And the answer state is 'SUBMITTED'
+    When a PATCH request is sent
+    Then the response code is 200
 
   Scenario: Update unknown answer
     Given a standard online hearing is created
