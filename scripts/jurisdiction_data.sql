@@ -1,2 +1,0 @@
-insert into jurisdiction(jurisdiction_id, jurisdiction_name, url) values (1, 'SSCS', 'http://localhost:8080/SSCS/notifications');
-insert into jurisdiction(jurisdiction_id, jurisdiction_name, url) values (2, 'SSCSDown', 'http://localhost:8080/SSCS/downEndpoint');

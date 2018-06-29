@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -64,7 +66,7 @@ public class AnswerControllerTest {
     private AnswerState answerState;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, NotFoundException {
         answer = new Answer();
         answer.answerId(1L).answerText("foo");
 
@@ -91,11 +93,22 @@ public class AnswerControllerTest {
     }
 
     @Test
+    public void testEmptyAnswerTextForPatchThrowsRequestError() throws Exception {
+
+        request.setAnswerText(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     public void testEmptyAnswerState() throws Exception {
         AnswerRequest request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         request.setAnswerState(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().is4xxClientError())
@@ -191,6 +204,30 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().is4xxClientError())
+                .andReturn();
+    }
+
+    @Test
+    public void testUpdateAnswersFailDueToAnswerStateNotFoundThrowException() throws Exception {
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+    }
+
+    @Test
+    public void testUpdateAnswersFailDueIncorrectStateOrdering() throws Exception {
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willThrow(NotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
                 .andReturn();
     }
 }

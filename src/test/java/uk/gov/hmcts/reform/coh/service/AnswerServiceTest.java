@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -40,7 +42,7 @@ public class AnswerServiceTest {
     private Answer source;
 
     @Before
-    public void setup() {
+    public void setup() throws NotFoundException {
         answer = new Answer();
         answerService = new AnswerService(answerRepository, answerStateService);
 
@@ -123,7 +125,7 @@ public class AnswerServiceTest {
     }
 
     @Test
-    public void testUpdateAnswerRecordChangesMade(){
+    public void testUpdateAnswerRecordChangesMade() throws NotFoundException {
         Answer target = new Answer();
         target.setAnswerId(ONE);
         target.setAnswerState(editedState);
@@ -135,7 +137,7 @@ public class AnswerServiceTest {
     }
 
     @Test
-    public void testUpdateAnswerRecordHoldsMultipleStateChanges(){
+    public void testUpdateAnswerRecordHoldsMultipleStateChanges() throws NotFoundException {
         Answer target = new Answer();
         target.setAnswerId(ONE);
         target.setAnswerState(editedState);
@@ -149,5 +151,23 @@ public class AnswerServiceTest {
         source = answerService.updateAnswer(source, target);
         assertEquals(submittedState, source.getAnswerState());
         assertTrue(source.getAnswerStateHistories().size()==2);
+    }
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testUpdateAnswerInvalidStateTransition() throws NotFoundException {
+        source = new Answer();
+        source.setAnswerId(ONE);
+        source.setAnswerState(submittedState);
+        source.setAnswerStateHistories(new ArrayList<>());
+        source.setQuestion(new Question());
+        source.setAnswerText("foo");
+
+        Answer target = new Answer();
+        target.setAnswerId(ONE);
+        target.setAnswerState(draftedState);
+        target.setAnswerText("foo");
+
+        when(answerStateService.validateStateTransition(submittedState, draftedState)).thenThrow(NotAValidUpdateException.class);
+        source = answerService.updateAnswer(source, target);
     }
 }

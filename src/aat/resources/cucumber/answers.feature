@@ -55,9 +55,44 @@ Feature: Answers
     And a POST request is sent
     And the response code is 200
     And an update to the answer is required
+    And the answer state is 'answer_edited'
+    When a PATCH request is sent
+    Then the response code is 200
     And the answer state is 'SUBMITTED'
     When a PATCH request is sent
     Then the response code is 200
+
+  Scenario: Try and update an answer state from SUBMITTED to draft
+    Given a standard online hearing is created
+    Given a valid question
+    And a standard answer
+    And the answer text is 'foo'
+    And the endpoint is for submitting an answer
+    And a POST request is sent
+    And the response code is 200
+    And an update to the answer is required
+    And the answer state is 'SUBMITTED'
+    When a PATCH request is sent
+    Then the response code is 200
+    And the answer state is 'DRAFTED'
+    When a PATCH request is sent
+    Then the response code is 400
+
+  Scenario: Try and update an answer state from edited to draft
+    Given a standard online hearing is created
+    Given a valid question
+    And a standard answer
+    And the answer text is 'foo'
+    And the endpoint is for submitting an answer
+    And a POST request is sent
+    And the response code is 200
+    And an update to the answer is required
+    And the answer state is 'answer_edited'
+    When a PATCH request is sent
+    Then the response code is 200
+    And the answer state is 'DRAFTED'
+    When a PATCH request is sent
+    Then the response code is 400
 
   Scenario: Update unknown answer
     Given a standard online hearing is created

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,23 @@ public class AnswerStateServiceTest {
         when(answerStateRepository.findByState("answer_edited")).thenReturn(Optional.of(editedState));
     }
 
+    @Test(expected = NotFoundException.class)
+    public void testRetrievingDraftedStateFailure() throws NotFoundException{
+        when(answerStateRepository.findByState("DRAFTED")).thenReturn(Optional.empty());
+        answerStateService.validateStateTransition(draftedState, editedState);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testRetrievingEditedStateFailure() throws NotFoundException{
+        when(answerStateRepository.findByState("answer_edited")).thenReturn(Optional.empty());
+        answerStateService.validateStateTransition(draftedState, editedState);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testRetrievingSubmittedStateFailure() throws NotFoundException{
+        when(answerStateRepository.findByState("SUBMITTED")).thenReturn(Optional.empty());
+        answerStateService.validateStateTransition(draftedState, submittedState);
+    }
     @Test
     public void testRetrieveAnswerState() {
         when(answerStateRepository.findByState("DRAFTED")).thenReturn(Optional.of(draftedState));
@@ -58,24 +76,24 @@ public class AnswerStateServiceTest {
     }
 
     @Test
-    public void testValidateStateUpdateServiceDraftedToEdited(){
+    public void testValidateStateUpdateServiceDraftedToEdited() throws NotFoundException {
         boolean valid = answerStateService.validateStateTransition(draftedState, editedState);
         assertTrue(valid);
     }
 
     @Test
-    public void testValidateStateUpdateServiceEditedToSubmitted(){
+    public void testValidateStateUpdateServiceEditedToSubmitted() throws NotFoundException {
         boolean valid = answerStateService.validateStateTransition(editedState, submittedState);
         assertTrue(valid);
     }
 
     @Test(expected = NotAValidUpdateException.class)
-    public void testValidateStateUpdateSubmittedToDrafted(){
+    public void testValidateStateUpdateSubmittedToDrafted() throws NotFoundException {
         answerStateService.validateStateTransition(submittedState, draftedState);
     }
 
     @Test(expected = NotAValidUpdateException.class)
-    public void testValidateStateUpdateEditedToDrafted(){
-        boolean valid = answerStateService.validateStateTransition(editedState, draftedState);
+    public void testValidateStateUpdateEditedToDrafted() throws NotFoundException {
+        answerStateService.validateStateTransition(editedState, draftedState);
     }
 }

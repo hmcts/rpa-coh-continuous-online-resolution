@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javassist.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -152,11 +153,14 @@ public class AnswerController {
         body.setAnswerState(optionalAnswerState.get());
         body.setAnswerText(request.getAnswerText());
 
-        Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
-        AnswerResponse answerResponse = new AnswerResponse();
-        answerResponse.setAnswerId(updatedAnswer.getAnswerId());
-        return ResponseEntity.ok(answerResponse);
-
+        try {
+            Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
+            AnswerResponse answerResponse = new AnswerResponse();
+            answerResponse.setAnswerId(updatedAnswer.getAnswerId());
+            return ResponseEntity.ok(answerResponse);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+        }
     }
 
     private ValidationResult validate(AnswerRequest request) {

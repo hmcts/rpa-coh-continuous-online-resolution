@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class AnswerService {
         throw new EntityNotFoundException("Could not find the entity with id = " + answer.getAnswerId());
     }
 
-    public Answer updateAnswer(Answer source, Answer target) {
+    public Answer updateAnswer(Answer source, Answer target) throws NotFoundException {
         source.setAnswerText(target.getAnswerText());
 
         if(answerStateService.validateStateTransition(source.getAnswerState(), target.getAnswerState())) {

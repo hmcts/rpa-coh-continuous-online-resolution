@@ -193,7 +193,7 @@ public class AnswerSteps extends BaseSteps{
 
     @And("^the answer state is '(.*)'$")
     public void theAnswerStateIsSUBMITTED(String answerState) throws Throwable {
-        answerRequest.setAnswerText(answerState);
+        answerRequest.setAnswerState(answerState);
     }
 
     @When("^a (.*) request is sent$")
