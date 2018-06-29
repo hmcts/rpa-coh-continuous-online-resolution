@@ -66,7 +66,8 @@ public class AnswerController {
 
             Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (answerState.isPresent()) {
-                answer.addState(answerState.get());
+                answer.setAnswerState(answerState.get());
+                answer.registerStateChange();
             }
 
             answer.setAnswerText(request.getAnswerText());
@@ -150,12 +151,12 @@ public class AnswerController {
         Answer body = new Answer();
         body.setAnswerState(optionalAnswerState.get());
         body.setAnswerText(request.getAnswerText());
-        Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
 
+        Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
         AnswerResponse answerResponse = new AnswerResponse();
         answerResponse.setAnswerId(updatedAnswer.getAnswerId());
-
         return ResponseEntity.ok(answerResponse);
+
     }
 
     private ValidationResult validate(AnswerRequest request) {

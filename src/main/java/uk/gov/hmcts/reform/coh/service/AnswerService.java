@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
@@ -18,9 +19,12 @@ public class AnswerService {
 
     private AnswerRepository answerRepository;
 
+    private AnswerStateService answerStateService;
+
     @Autowired
-    public AnswerService(AnswerRepository answerRepository) {
+    public AnswerService(AnswerRepository answerRepository, AnswerStateService answerStateService) {
         this.answerRepository = answerRepository;
+        this.answerStateService = answerStateService;
     }
 
     public Answer createAnswer(Answer answer) {
@@ -44,11 +48,18 @@ public class AnswerService {
         throw new EntityNotFoundException("Could not find the entity with id = " + answer.getAnswerId());
     }
 
-    public Answer updateAnswer(Answer source, Answer target){
+    public Answer updateAnswer(Answer source, Answer target) {
         source.setAnswerText(target.getAnswerText());
-        source.addState(target.getAnswerState());
-        answerRepository.save(source);
-        return source;
+
+        if(answerStateService.validateStateTransition(source.getAnswerState(), target.getAnswerState())) {
+
+            source.setAnswerState(target.getAnswerState());
+            source.registerStateChange();
+            answerRepository.save(source);
+            return source;
+        }else{
+            throw new NotAValidUpdateException();
+        }
     }
 
     @Transactional

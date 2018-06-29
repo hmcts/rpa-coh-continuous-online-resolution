@@ -23,4 +23,14 @@ public class AnswerStateService {
         return answerStateRepository.findByState(state);
     }
 
+    public boolean validateStateTransition(AnswerState sourceState, AnswerState targetState){
+        AnswerState submittedAnswerState = answerStateRepository.findByState("SUBMITTED").get();
+        AnswerState draftedAnswerState = answerStateRepository.findByState("DRAFTED").get();
+
+        if (sourceState.equals(submittedAnswerState) && targetState.equals(draftedAnswerState)){
+            return false;
+        }else {
+            return true;
+        }
+    }
 }

@@ -39,8 +39,7 @@ public class Answer {
     private List<AnswerStateHistory> answerStateHistories = new ArrayList<>();
 
 
-    public void addState(AnswerState answerState){
-        this.answerState = answerState;
+    public void registerStateChange(){
         AnswerStateHistory answerStateHistory = new AnswerStateHistory(this, answerState);
         answerStateHistories.add(answerStateHistory);
     }
