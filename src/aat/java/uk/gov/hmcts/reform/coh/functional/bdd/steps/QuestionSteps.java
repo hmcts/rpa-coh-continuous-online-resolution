@@ -40,7 +40,7 @@ public class QuestionSteps extends BaseSteps{
     private HttpHeaders header;
     private Question question;
     private List<Long> questionIds;
-    private String onlineHearingExternalRef;
+    private String onlineHearingCaseId;
 
 
     @Autowired
@@ -57,7 +57,7 @@ public class QuestionSteps extends BaseSteps{
         questionIds = new ArrayList<>();
 
         OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
-        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
+        onlineHearingCaseId = preparedOnlineHearing.getCaseId();
     }
 
     @After
@@ -66,9 +66,9 @@ public class QuestionSteps extends BaseSteps{
             questionRepository.deleteById(questionId);
         }
 
-        if (onlineHearingExternalRef != null) {
+        if (onlineHearingCaseId != null) {
             try {
-                onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+                onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
             } catch(DataIntegrityViolationException e){
                 System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
             }
@@ -78,7 +78,7 @@ public class QuestionSteps extends BaseSteps{
     @And("^the draft a question for online_hearing$")
     public void theDraftAQuestion() throws Throwable {
 
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
 
         String jsonBody = JsonUtils.getJsonInput("question/standard_question");
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);

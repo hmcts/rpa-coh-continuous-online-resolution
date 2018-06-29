@@ -59,7 +59,7 @@ public class OnlineHearingController {
         if(!jurisdiction.isPresent()){
             return new ResponseEntity<OnlineHearing>(HttpStatus.BAD_REQUEST);
         }
-        onlineHearing.setExternalRef(body.getExternalRef());
+        onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setJurisdictionName(body.getJurisdictionName());
 

@@ -54,7 +54,7 @@ public class AnswerSteps extends BaseSteps{
     private List<Long> questionIds;
 
     private List<Long> answerIds;
-    private String onlineHearingExternalRef;
+    private String onlineHearingCaseId;
     private OnlineHearing onlineHearing;
     private int httpResponseCode;
 
@@ -80,7 +80,7 @@ public class AnswerSteps extends BaseSteps{
         answerIds = new ArrayList<>();
 
         OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
-        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
+        onlineHearingCaseId = preparedOnlineHearing.getCaseId();
     }
 
     @After
@@ -99,7 +99,7 @@ public class AnswerSteps extends BaseSteps{
         }
 
         try {
-            onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
         } catch(DataIntegrityViolationException e){
             System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
@@ -115,7 +115,7 @@ public class AnswerSteps extends BaseSteps{
         question.setQuestionText("question text");
         question.setQuestionRound(1);
 
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
 
         question.setOnlineHearing(onlineHearing);
@@ -134,7 +134,7 @@ public class AnswerSteps extends BaseSteps{
     public void a_standard_answer() throws IOException {
         JsonUtils utils = new JsonUtils();
         this.answerRequest = (AnswerRequest)utils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
     }
 

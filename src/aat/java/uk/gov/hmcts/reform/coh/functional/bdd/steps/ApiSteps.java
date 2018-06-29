@@ -43,12 +43,12 @@ public class ApiSteps extends BaseSteps {
     private String responseString;
     private CloseableHttpClient httpClient;
 
-    private Set<String> externalRefs;
+    private Set<String> caseIds;
     private ArrayList newObjects;
 
     @Before
     public void setup() throws Exception {
-        externalRefs = new HashSet<String>();
+        caseIds = new HashSet<String>();
         httpClient = HttpClientBuilder
                 .create()
                 .setSslcontext(new SSLContextBuilder()
@@ -60,9 +60,9 @@ public class ApiSteps extends BaseSteps {
 
     @After
     public void cleanUp() {
-        for (String externalRef : externalRefs) {
+        for (String caseId : caseIds) {
             try {
-                onlineHearingService.deleteByExternalRef(externalRef);
+                onlineHearingService.deleteByCaseId(caseId);
             }catch(DataIntegrityViolationException e){
                 System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
@@ -73,7 +73,7 @@ public class ApiSteps extends BaseSteps {
     public void sscs_prepare_a_json_request_with_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
         json = new JSONObject();
         json.put(fieldName, fieldInput);
-        externalRefs.add(fieldInput);
+        caseIds.add(fieldInput);
     }
 
     @Given("^the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")

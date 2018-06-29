@@ -55,10 +55,10 @@ public class OnlineHearingServiceTest {
     }
 
     @Test
-    public void testRetrieveOnlineHearingByExternalRef() {
-        createdOnlineHearing.setExternalRef("foo");
-        when(onlineHearingRepository.findByExternalRef(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
-        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(createdOnlineHearing);
+    public void testRetrieveOnlineHearingByCaseId() {
+        createdOnlineHearing.setCaseId("foo");
+        when(onlineHearingRepository.findByCaseId(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
+        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(createdOnlineHearing);
         assertEquals(createdOnlineHearing, newOnlineHearing);
     }
 
@@ -66,18 +66,18 @@ public class OnlineHearingServiceTest {
     public void testDeleteOnlineHearing() {
         UUID uuid = UUID.randomUUID();
         createdOnlineHearing.setOnlineHearingId(uuid);
-        createdOnlineHearing.setExternalRef("foo");
+        createdOnlineHearing.setCaseId("foo");
         doNothing().when(onlineHearingRepository).deleteById(uuid);
         onlineHearingService.deleteOnlineHearing(createdOnlineHearing);
         verify(onlineHearingRepository, times(1)).deleteById(uuid);
     }
 
     @Test
-    public void testDeleteByExternalRef() {
-        String externalRef = "foo";
-        createdOnlineHearing.setExternalRef(externalRef);
-        doNothing().when(onlineHearingRepository).deleteByExternalRef(externalRef);
-        onlineHearingService.deleteByExternalRef(externalRef);
-        verify(onlineHearingRepository, times(1)).deleteByExternalRef(externalRef);
+    public void testDeleteByCaseId() {
+        String caseId = "foo";
+        createdOnlineHearing.setCaseId(caseId);
+        doNothing().when(onlineHearingRepository).deleteByCaseId(caseId);
+        onlineHearingService.deleteByCaseId(caseId);
+        verify(onlineHearingRepository, times(1)).deleteByCaseId(caseId);
     }
 }

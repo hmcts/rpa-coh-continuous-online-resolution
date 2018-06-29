@@ -23,17 +23,6 @@ public class OnlineHearing {
     @Transient
     private String jurisdictionName;
 
-    public String getJurisdictionName() {
-        return jurisdictionName;
-    }
-
-    public void setJurisdictionName(String jurisdictionName) {
-        this.jurisdictionName = jurisdictionName;
-    }
-
-    @Column(name = "jurisdiction_id")
-    private String jurisdictionId;
-
     @Column(name = "start_date")
     private Date startDate;
 
@@ -72,6 +61,14 @@ public class OnlineHearing {
 
     public void setJurisdiction(Jurisdiction jurisdiction){
         this.jurisdiction = jurisdiction;
+    }
+
+    public String getJurisdictionName() {
+        return jurisdictionName;
+    }
+
+    public void setJurisdictionName(String jurisdictionName) {
+        this.jurisdictionName = jurisdictionName;
     }
 
     @Override
