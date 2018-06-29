@@ -35,6 +35,7 @@ public class Answer {
     @OneToMany(mappedBy = "answer",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
+    @JsonIgnore
     private List<AnswerStateHistory> answerStateHistories = new ArrayList<>();
 
 
