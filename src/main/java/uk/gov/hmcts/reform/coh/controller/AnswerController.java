@@ -139,7 +139,7 @@ public class AnswerController {
         Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
 
         if(!optAnswer.isPresent()){
-            return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
         }
 
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());

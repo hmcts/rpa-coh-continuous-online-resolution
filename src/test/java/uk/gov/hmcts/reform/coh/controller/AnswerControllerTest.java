@@ -190,7 +190,7 @@ public class AnswerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andReturn();
     }
 }
