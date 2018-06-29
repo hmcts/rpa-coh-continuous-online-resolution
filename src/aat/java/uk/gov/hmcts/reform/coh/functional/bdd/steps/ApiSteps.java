@@ -117,10 +117,10 @@ public class ApiSteps extends BaseSteps {
 
     @Given("^a standard online hearing is created$")
     public void aStandardOnlineHearingIsCreated() throws Throwable {
-        HttpPost request = new HttpPost(baseUrl + "/online-hearings/");
+        HttpPost request = new HttpPost(baseUrl + "/online-hearings/new");
         request.addHeader("content-type", "application/json");
 
-        String jsonBody = JsonUtils.getJsonInput("create_online_hearing");
+        String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
         StringEntity params = new StringEntity(jsonBody);
         request.setEntity(params);
         response = httpClient.execute(request);

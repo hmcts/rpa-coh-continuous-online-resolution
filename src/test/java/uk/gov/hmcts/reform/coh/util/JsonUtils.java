@@ -2,15 +2,23 @@ package uk.gov.hmcts.reform.coh.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
 
 public class JsonUtils {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper;
+
+    static {
+        // StdDateFormat is ISO8601
+        mapper = new ObjectMapper().setDateFormat(new StdDateFormat());
+    }
 
     private static ClassLoader classLoader = JsonUtils.class.getClassLoader();
 
