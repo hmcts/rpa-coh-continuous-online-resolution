@@ -12,4 +12,6 @@ import java.util.UUID;
 @Repository
 public interface OnlineHearingPanelMemberRepository extends CrudRepository<OnlineHearingPanelMember,Long> {
 
+    @Transactional
+    void deleteByOnlineHearing(OnlineHearing onlineHearing);
 }

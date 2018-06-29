@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Component
@@ -23,5 +24,9 @@ public class OnlineHearingPanelMemberService {
 
     public OnlineHearingPanelMember createOnlineHearing(final OnlineHearingPanelMember onlineHearingPanelMember) {
         return onlineHearingPanelMemberRepository.save(onlineHearingPanelMember);
+    }
+
+    public void deleteByOnlineHearing(OnlineHearing onlineHearing) {
+        onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
     }
 }

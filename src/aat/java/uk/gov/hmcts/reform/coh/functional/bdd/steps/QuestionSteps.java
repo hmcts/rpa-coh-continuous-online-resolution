@@ -15,9 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
@@ -49,6 +51,9 @@ public class QuestionSteps extends BaseSteps{
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Autowired
+    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
     @Before
     public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
@@ -56,8 +61,8 @@ public class QuestionSteps extends BaseSteps{
         header.add("Content-Type", "application/json");
         questionIds = new ArrayList<>();
 
-        OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
-        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
+        OnlineHearingRequest preparedOnlineHearing = (OnlineHearingRequest)JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        onlineHearingExternalRef = preparedOnlineHearing.getCaseId();
     }
 
     @After
@@ -68,6 +73,7 @@ public class QuestionSteps extends BaseSteps{
 
         if (onlineHearingExternalRef != null) {
             try {
+                onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
             } catch(DataIntegrityViolationException e){
                 System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);

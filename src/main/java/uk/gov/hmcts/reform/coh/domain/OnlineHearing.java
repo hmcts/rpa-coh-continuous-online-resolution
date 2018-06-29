@@ -26,7 +26,7 @@ public class OnlineHearing {
     private Jurisdiction jurisdiction;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn
+    @JoinColumn(name = "online_hearing_id")
     private List<OnlineHearingPanelMember> panelMembers;
 
     @Transient

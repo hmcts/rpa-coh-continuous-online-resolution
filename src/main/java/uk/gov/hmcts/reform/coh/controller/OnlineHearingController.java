@@ -88,8 +88,8 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PostMapping(value = "/try", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateOnlineHearingResponse> createOnlineHearingTry(@RequestBody OnlineHearingRequest body) {
+    @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreateOnlineHearingResponse> createOnlineHearingNew(@RequestBody OnlineHearingRequest body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
 
