@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -52,12 +53,17 @@ public class QuestionControllerTest {
 
     private static final String ENDPOINT = "/online-hearings/0c08b113-16d1-4fb5-b41f-a928aa64d39a/questions";
 
+    private QuestionRequest questionRequest;
+
     private Question question;
 
     private UUID uuid;
 
     @Before
     public void setup() throws IOException {
+
+        questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
+
         OnlineHearing onlineHearing = new OnlineHearing();
         uuid = UUID.randomUUID();
         question = new Question();
@@ -103,6 +109,56 @@ public class QuestionControllerTest {
         String response = result.getResponse().getContentAsString();
         CreateQuestionResponse responseQuestion = (CreateQuestionResponse) JsonUtils.toObjectFromJson(response, CreateQuestionResponse.class);
         assertNotNull(responseQuestion.getQuestionId());
+    }
+
+    @Test
+    public void testValidateQuestionRound() throws Exception {
+
+        questionRequest.setQuestionRound(null);
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testValidateQuestionOrdinal() throws Exception {
+
+        questionRequest.setQuestionOrdinal(null);
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testValidateQuestionHeaderText() throws Exception {
+
+        questionRequest.setQuestionHeaderText(null);
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testValidateQuestionBodyText() throws Exception {
+
+        questionRequest.setQuestionBodyText(null);
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testValidateQuestionOwnerReference() throws Exception {
+
+        questionRequest.setOwnerReference(null);
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test

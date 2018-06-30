@@ -115,7 +115,7 @@ public class QuestionController {
         if (StringUtils.isEmpty(request.getQuestionRound())
                 || StringUtils.isEmpty(request.getQuestionOrdinal())
                 || StringUtils.isEmpty(request.getQuestionHeaderText())
-                || StringUtils.isEmpty(request.getQuestionHeaderText())
+                || StringUtils.isEmpty(request.getQuestionBodyText())
                 || StringUtils.isEmpty(request.getOwnerReference())
                 ) {
 
