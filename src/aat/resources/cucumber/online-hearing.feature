@@ -6,7 +6,7 @@ Feature: Online hearing
     And the response contains the following text '"online_hearing_id" '
     And the response contains the online hearing UUID
 
-  Scenario: Create online hearing
+  Scenario: Retrieve online hearing
     Given a standard online hearing is created
     Then the client receives a 201 status code
     And the response contains the following text '"online_hearing_id" '

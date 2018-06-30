@@ -31,7 +31,7 @@ public class QuestionService {
         this.onlineHearingService = onlineHearingService;
     }
 
-    public Question retrieveQuestionById(final Long question_id){
+    public Question retrieveQuestionById(final UUID question_id){
         return questionRepository.findById(question_id).orElse(null);
     }
 
@@ -50,7 +50,7 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public Question editQuestion(Long questionId, Question body) {
+    public Question editQuestion(UUID questionId, Question body) {
         Question question = retrieveQuestionById(questionId);
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
         return questionRepository.save(question);

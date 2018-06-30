@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,11 +54,14 @@ public class QuestionControllerTest {
 
     private Question question;
 
+    private UUID uuid;
+
     @Before
     public void setup() throws IOException {
         OnlineHearing onlineHearing = new OnlineHearing();
-
+        uuid = UUID.randomUUID();
         question = new Question();
+        question.setQuestionId(uuid);
         question.setQuestionText("foo");
         question.setOnlineHearing(onlineHearing);
         QuestionState issuedState = new QuestionState();
@@ -64,9 +69,9 @@ public class QuestionControllerTest {
         question.setQuestionState(issuedState);
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
-        given(questionService.retrieveQuestionById(any(Long.class))).willReturn(question);
+        given(questionService.retrieveQuestionById(uuid)).willReturn(question);
         given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
-        given(questionService.editQuestion(1L, question)).willReturn(question);
+        given(questionService.editQuestion(uuid, question)).willReturn(question);
         given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
     }
@@ -74,7 +79,7 @@ public class QuestionControllerTest {
     @Test
     public void testGetQuestion() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -88,21 +93,22 @@ public class QuestionControllerTest {
     @Test
     public void testCreateQuestion() throws Exception {
 
+        String json = JsonUtils.getJsonInput("question/standard_question");
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(question)))
+                .content(json))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
-        assertEquals("foo", responseQuestion.getQuestionText());
+        CreateQuestionResponse responseQuestion = (CreateQuestionResponse) JsonUtils.toObjectFromJson(response, CreateQuestionResponse.class);
+        assertNotNull(responseQuestion.getQuestionId());
     }
 
     @Test
     public void testEditQuestion() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(question)))
                 .andExpect(status().isOk())

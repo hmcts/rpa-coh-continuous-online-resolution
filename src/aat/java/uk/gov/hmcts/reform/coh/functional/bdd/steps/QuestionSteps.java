@@ -29,6 +29,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -41,7 +42,7 @@ public class QuestionSteps extends BaseSteps{
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
     private Question question;
-    private List<Long> questionIds;
+    private List<UUID> questionIds;
     private String onlineHearingExternalRef;
 
 
@@ -67,7 +68,7 @@ public class QuestionSteps extends BaseSteps{
 
     @After
     public void cleanUp() {
-        for (Long questionId : questionIds) {
+        for (UUID questionId : questionIds) {
             questionRepository.deleteById(questionId);
         }
 
