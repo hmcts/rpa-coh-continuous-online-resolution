@@ -1,21 +1,17 @@
 Feature: Online hearing
 
   Scenario: Create online hearing
-    Given SSCS prepare a json request with the ' "externalRef"' field set to ' "CucumberExternalRefTestCreate" '
-    And the ' "jurisdictionName"' field set to ' "SSCS" '
-    When a post request is sent to ' "/online-hearings/"'
-    Then the client receives a 200 status code
-    And the response contains the following text '"onlineHearingId" '
-    And the response contains the following text '"CucumberExternalRefTestCreate" '
+    Given a standard online hearing is created
+    Then the client receives a 201 status code
+    And the response contains the following text '"online_hearing_id" '
+    And the response contains the online hearing UUID
 
-  Scenario: Read online hearing
-   Given SSCS prepare a json request with the ' "externalRef"' field set to ' "CucumberExternalRefTestRetrieve1" '
-    And the ' "jurisdictionName"' field set to ' "SSCS" '
-   And a post request is sent to ' "/online-hearings/"'
-   And the client receives a 200 status code
-   And the response contains the following text '"CucumberExternalRefTestRetrieve1" '
-   And SSCS prepare a json request with the ' "externalRef"' field set to ' "CucumberExternalRefTestRetrieve1" '
-   And a get request is sent to ' "/online-hearings/CucumberExternalRefTestRetrieve1"'
-   Then the client receives a 200 status code
-   And the response contains the following text '"onlineHearingId" '
-   And the response contains the following text '"CucumberExternalRefTestRetrieve1" '
+  Scenario: Create online hearing
+    Given a standard online hearing is created
+    Then the client receives a 201 status code
+    And the response contains the following text '"online_hearing_id" '
+    And the response contains the online hearing UUID
+    When a get request is sent to ' "/online-hearings"' for the saved online hearing
+    Then the client receives a 200 status code
+    And the response contains the following text '"case_123" '
+    And the response contains 1 panel member

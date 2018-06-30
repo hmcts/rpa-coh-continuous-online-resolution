@@ -26,7 +26,9 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -62,13 +64,19 @@ public class OnlineHearingControllerTest {
 
     private OnlineHearing onlineHearing;
 
+    private OnlineHearingPanelMember member;
+
     @Before
     public void setup(){
         uuid = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
+        member = new OnlineHearingPanelMember();
+        member.setFullName("foo bar");
+        onlineHearing.setPanelMembers(Arrays.asList(member));
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
         given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
     }
@@ -77,7 +85,7 @@ public class OnlineHearingControllerTest {
     public void testCreateOnlineHearingWithJsonFile() throws Exception {
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("json/create_online_hearing.json")).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource("json/online_hearing/standard_online_hearing.json")).getFile());
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
@@ -89,7 +97,7 @@ public class OnlineHearingControllerTest {
 
     @Test
     public void testReadOnlineHearingWithJsonFile() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/case_id_123")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -105,7 +113,7 @@ public class OnlineHearingControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings/new")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings")
                 .contentType(MediaType.APPLICATION_JSON).content(jsonString))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();

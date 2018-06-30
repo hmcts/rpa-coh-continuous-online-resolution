@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -25,8 +26,8 @@ public class OnlineHearing {
     @JoinColumn(name = "jurisdiction_id")
     private Jurisdiction jurisdiction;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "online_hearing_id")
+    @OneToMany(mappedBy = "onlineHearing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<OnlineHearingPanelMember> panelMembers;
 
     @Transient

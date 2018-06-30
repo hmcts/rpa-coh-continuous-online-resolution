@@ -11,8 +11,8 @@ public class OnlineHearingPanelMember {
     @Column(name = "online_hearing_panel_id", nullable = false)
     private Long onlineHearingPanelId;
 
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "online_hearing_id")
-    @ManyToOne(optional=false)
     private OnlineHearing onlineHearing;
 
     @Column(name = "full_name")
