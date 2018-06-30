@@ -39,10 +39,11 @@ public class QuestionServiceTest {
     private QuestionState issued = new QuestionState("ISSUED");
     private Question question;
 
-    private static final Long ONE = 1L;
+    private static UUID ONE;
 
     @Before
     public void setup() {
+        ONE = UUID.randomUUID();
         questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);

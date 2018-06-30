@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,7 +51,7 @@ public class AnswerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions/1/answers";
+    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions/d9248584-4aa5-4cb0-aba6-d2633ad5a375/answers";
 
     private AnswerRequest request;
 
@@ -59,7 +60,7 @@ public class AnswerControllerTest {
     @Before
     public void setup() throws IOException {
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
-        given(questionService.retrieveQuestionById(any(Long.class))).willReturn(new Question());
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(new Question());
         given(answerService.createAnswer(any(Answer.class))).willReturn(new Answer());
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         answer = new Answer();
@@ -80,7 +81,7 @@ public class AnswerControllerTest {
     @Test
     public void testQuestionNotFound() throws Exception {
 
-        given(questionService.retrieveQuestionById(any(Long.class))).willReturn(null);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,11 +119,12 @@ public class AnswerControllerTest {
     public void testGetAnswers() throws Exception {
 
         Question question = new Question();
-        question.setQuestionId(1L);
+        question.setQuestionId(UUID.randomUUID());
         Answer answer = new Answer();
         answer.answerId(1L).answerText("foo");
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(question);
         given(answerService.retrieveAnswersByQuestion(question)).willReturn(answerList);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)

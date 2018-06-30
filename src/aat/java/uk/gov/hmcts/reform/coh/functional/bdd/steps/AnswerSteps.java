@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -18,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -45,7 +48,7 @@ public class AnswerSteps extends BaseSteps{
 
     private String endpoint;
 
-    private Long currentQuestionId;
+    private UUID currentQuestionId;
 
     private Long currentAnswerId;
 
@@ -53,7 +56,7 @@ public class AnswerSteps extends BaseSteps{
 
     private AnswerRequest answerRequest;
 
-    private List<Long> questionIds;
+    private List<UUID> questionIds;
 
     private List<Long> answerIds;
     private String onlineHearingExternalRef;
@@ -99,7 +102,7 @@ public class AnswerSteps extends BaseSteps{
             answerService.deleteAnswer(new Answer().answerId(answerId));
         }
 
-        for (Long questionId : questionIds) {
+        for (UUID questionId : questionIds) {
             questionService.deleteQuestion(new Question().questionId(questionId));
         }
 
@@ -116,24 +119,19 @@ public class AnswerSteps extends BaseSteps{
      */
     @Given("^a valid question$")
     public void an_existing_question() throws IOException {
-        Question question = new Question();
-        question.setSubject("foo");
-        question.setQuestionText("question text");
-        question.setQuestionRound(1);
+        QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
         onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
 
-        question.setOnlineHearing(onlineHearing);
-
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(question), header);
+        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
-        question = (Question) JsonUtils.toObjectFromJson(json, Question.class);
-        this.currentQuestionId = question.getQuestionId();
-        questionIds.add(question.getQuestionId());
+        CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        this.currentQuestionId = createQuestionResponse.getQuestionId();
+        questionIds.add(createQuestionResponse.getQuestionId());
     }
 
     @Given("^a standard answer$")
@@ -169,7 +167,7 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? "0" : currentQuestionId.toString());
+            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? UUID.randomUUID().toString() : currentQuestionId.toString());
         }
 
         if ("answer".equalsIgnoreCase(entity) && currentAnswerId != null) {

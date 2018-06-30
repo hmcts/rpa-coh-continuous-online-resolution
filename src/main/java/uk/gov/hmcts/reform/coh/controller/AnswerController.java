@@ -47,7 +47,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
@@ -101,7 +101,7 @@ public class AnswerController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "")
-    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable Long questionId) {
+    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable UUID questionId) {
 
         // Nothing to return if question doesn't exist
         Question question = questionService.retrieveQuestionById(questionId);
@@ -123,7 +123,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {
