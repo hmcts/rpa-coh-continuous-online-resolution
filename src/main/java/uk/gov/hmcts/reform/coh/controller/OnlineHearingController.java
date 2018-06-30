@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -22,6 +24,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/online-hearings")
@@ -43,40 +46,20 @@ public class OnlineHearingController {
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
     })
-    @GetMapping(value = "{externalId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OnlineHearing> retrieveOnlineHearing(@PathVariable String externalId) {
-
-        System.out.println(externalId);
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setExternalRef(externalId);
-        OnlineHearing retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
-
-        return new ResponseEntity<>(retrievedOnlineHearing, HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Create Online Hearing", notes = "A POST request is used to create an online hearing")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not Found")
-    })
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OnlineHearing> createOnlineHearing(@RequestBody OnlineHearing body) {
+    @GetMapping(value = "{onlineHearingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<OnlineHearingResponse> retrieveOnlineHearing(@PathVariable String onlineHearingId ) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
-
-        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdictionName());
-        if(!jurisdiction.isPresent()){
-            return new ResponseEntity<OnlineHearing>(HttpStatus.BAD_REQUEST);
+        onlineHearing.setOnlineHearingId(UUID.fromString(onlineHearingId));
+        Optional<OnlineHearing> retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        if (!retrievedOnlineHearing.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        onlineHearing.setExternalRef(body.getExternalRef());
-        onlineHearing.setJurisdiction(jurisdiction.get());
-        onlineHearing.setJurisdictionName(body.getJurisdictionName());
+        OnlineHearingResponse response = new OnlineHearingResponse();
+        OnlineHearingMapper mapper = new OnlineHearingMapper(response, retrievedOnlineHearing.get());
+        mapper.map();
 
-        OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
-
-        return new ResponseEntity<>(createdOnlineHearing, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Create Online Hearing", notes = "A POST request is used to create an online hearing")
@@ -88,21 +71,17 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateOnlineHearingResponse> createOnlineHearingNew(@RequestBody OnlineHearingRequest body) {
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreateOnlineHearingResponse> createOnlineHearing(@RequestBody OnlineHearingRequest body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
 
-        if (StringUtils.isEmpty(body.getCaseId())) {
+        if (StringUtils.isEmpty(body.getCaseId()) || body.getPanel() == null || body.getPanel().isEmpty()) {
             return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
         if (!jurisdiction.isPresent()) {
-            return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        if (body.getPanel().isEmpty()) {
             return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
@@ -115,7 +94,6 @@ public class OnlineHearingController {
         onlineHearing.setExternalRef(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
-
 
         OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
