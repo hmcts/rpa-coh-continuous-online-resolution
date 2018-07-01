@@ -108,12 +108,9 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
-    @Then("^the client receives a (\\d+) status code$")
-    public void the_client_receives_a_status_code(final int expectedStatus) throws IOException {
-        int httpResponseStatus = testContext.getHttpContext().getHttpResponseStatusCode();
-        assertEquals(expectedStatus, httpResponseStatus);
-        assertEquals("Status code is incorrect : " +
-                testContext.getHttpContext().getRawResponseString(), expectedStatus, httpResponseStatus);
+    @Then("^the response code is (\\d+)$")
+    public void the_response_code_is(int responseCode) throws Throwable {
+        assertEquals("Response status code", responseCode, testContext.getHttpContext().getHttpResponseStatusCode());
     }
 
     @Then("^the response contains the following text '\"([^\"]*)\" '$")
