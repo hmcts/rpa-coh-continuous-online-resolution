@@ -49,7 +49,7 @@ public class AnswerSteps extends BaseSteps{
 
     private UUID currentQuestionId;
 
-    private Long currentAnswerId;
+    private UUID currentAnswerId;
 
     private Map<String, String> endpoints = new HashMap<String, String>();
 
@@ -57,7 +57,7 @@ public class AnswerSteps extends BaseSteps{
 
     private List<UUID> questionIds;
 
-    private List<Long> answerIds;
+    private List<UUID> answerIds;
 
     private OnlineHearing onlineHearing;
 
@@ -81,7 +81,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @Before
-    public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    public void setup() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
@@ -100,7 +100,7 @@ public class AnswerSteps extends BaseSteps{
          * to be deleted after test completion. Delete in reverse order for
          * FK constrains
          */
-        for (Long answerId : answerIds) {
+        for (UUID answerId : answerIds) {
             answerService.deleteAnswer(new Answer().answerId(answerId));
         }
 
@@ -163,7 +163,7 @@ public class AnswerSteps extends BaseSteps{
 
     @Given("^an unknown answer identifier$")
     public void an_unknown_answer_identifier$() throws Throwable {
-        currentAnswerId = 0L;
+        currentAnswerId = UUID.randomUUID();
     }
 
     @Given("^the endpoint is for submitting an (.*)$")
@@ -223,7 +223,7 @@ public class AnswerSteps extends BaseSteps{
             }
             httpResponseCode = response.getStatusCodeValue();
 
-            Optional<Long> optAnswerId = getAnswerId(response.getBody());
+            Optional<UUID> optAnswerId = getAnswerId(response.getBody());
             if (optAnswerId.isPresent()) {
                 answerIds.add(optAnswerId.get());
             }
@@ -248,13 +248,13 @@ public class AnswerSteps extends BaseSteps{
      * @param json
      * @return
      */
-    private Optional<Long> getAnswerId(String json) throws IOException {
+    private Optional<UUID> getAnswerId(String json) throws IOException {
 
         if (json == null) {
             return Optional.empty();
         }
 
-        Long answerId = null;
+        UUID answerId = null;
         if (json.indexOf("question_id") > 0) {
             Answer answer = (Answer) JsonUtils.toObjectFromJson(json, Answer.class);
             answerId = answer.getAnswerId();

@@ -30,9 +30,6 @@ public class AnswerController {
     @Autowired
     private QuestionService questionService;
 
-    public AnswerController() {
-    }
-
     public AnswerController(AnswerService answerService, QuestionService questionService) {
         this.answerService = answerService;
         this.questionService = questionService;
@@ -51,7 +48,7 @@ public class AnswerController {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         AnswerResponse answerResponse = new AnswerResponse();
@@ -60,7 +57,7 @@ public class AnswerController {
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
 
             if (!optionalQuestion.isPresent()) {
-                return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+                return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
             }
 
             Question question = optionalQuestion.get();
@@ -84,11 +81,11 @@ public class AnswerController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Answer> retrieveAnswer(@PathVariable long answerId) {
+    public ResponseEntity<Answer> retrieveAnswer(@PathVariable UUID answerId) {
 
         Optional<Answer> answer = answerService.retrieveAnswerById(answerId);
         if (!answer.isPresent()) {
-            return new ResponseEntity<Answer>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.ok(answer.get());
@@ -125,7 +122,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {

@@ -3,16 +3,16 @@ package uk.gov.hmcts.reform.coh.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "answer")
 public class Answer {
 
-    @SequenceGenerator(name="seq_answer_id", sequenceName="seq_answer_id", allocationSize = 1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq_answer_id")
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "answer_id")
-    private Long answerId;
+    private UUID answerId;
 
     @Column(name = "answer_text")
     private String answerText;
@@ -22,11 +22,11 @@ public class Answer {
     @JsonIgnore
     private Question question;
 
-    public Long getAnswerId() {
+    public UUID getAnswerId() {
         return answerId;
     }
 
-    public void setAnswerId(Long answerId) {
+    public void setAnswerId(UUID answerId) {
         this.answerId = answerId;
     }
 
@@ -38,7 +38,7 @@ public class Answer {
         this.answerText = answerText;
     }
 
-    public Answer answerId(Long answerId) {
+    public Answer answerId(UUID answerId) {
         this.answerId = answerId;
         return this;
     }

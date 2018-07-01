@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Component
@@ -27,7 +28,7 @@ public class AnswerService {
         return answerRepository.save(answer);
     }
 
-    public Optional<Answer> retrieveAnswerById(long answerId) {
+    public Optional<Answer> retrieveAnswerById(UUID answerId) {
         return answerRepository.findById(answerId);
     }
 
