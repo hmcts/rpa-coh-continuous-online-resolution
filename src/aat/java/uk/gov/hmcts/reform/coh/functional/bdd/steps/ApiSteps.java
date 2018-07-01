@@ -12,7 +12,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -89,19 +88,6 @@ public class ApiSteps extends BaseSteps {
                 System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-    }
-
-    @Given("^SSCS prepare a json request with the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
-    public void sscs_prepare_a_json_request_with_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
-        json = new JSONObject();
-        json.put(fieldName, fieldInput);
-        externalRefs.add(fieldInput);
-    }
-
-    @Given("^the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
-    public void add_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
-        json.put(fieldName, fieldInput);
-        newObjects.add(fieldInput);
     }
 
     @When("^a get request is sent to ' \"([^\"]*)\"' for the saved online hearing$")
