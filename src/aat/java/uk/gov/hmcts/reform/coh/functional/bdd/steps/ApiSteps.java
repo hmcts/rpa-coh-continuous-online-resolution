@@ -12,7 +12,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -52,13 +51,10 @@ public class ApiSteps extends BaseSteps {
     private JSONObject json;
 
     private HttpResponse response;
-    private String responseString;
     private CloseableHttpClient httpClient;
 
     private Set<String> externalRefs;
     private ArrayList newObjects;
-
-    private int httpResponseStatus;
 
     private TestContext testContext;
 
@@ -94,29 +90,13 @@ public class ApiSteps extends BaseSteps {
         }
     }
 
-    @Given("^SSCS prepare a json request with the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
-    public void sscs_prepare_a_json_request_with_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
-        json = new JSONObject();
-        json.put(fieldName, fieldInput);
-        externalRefs.add(fieldInput);
-    }
-
-    @Given("^the ' \"([^\"]*)\"' field set to ' \"([^\"]*)\" '$")
-    public void add_the_field_set_to(String fieldName, String fieldInput) throws Throwable {
-        json.put(fieldName, fieldInput);
-        newObjects.add(fieldInput);
-    }
-
     @When("^a get request is sent to ' \"([^\"]*)\"' for the saved online hearing$")
     public void a_get_request_is_sent_to(String endpoint) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         HttpGet request = new HttpGet(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString());
         request.addHeader("content-type", "application/json");
 
-        response = httpClient.execute(request);
-        responseString = new BasicResponseHandler().handleResponse(response);
-        httpResponseStatus = response.getStatusLine().getStatusCode();
-        testContext.getHttpContext().setRawResponseString(responseString);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
@@ -125,25 +105,22 @@ public class ApiSteps extends BaseSteps {
         request.addHeader("content-type", "application/json");
         StringEntity params = new StringEntity(json.toString());
         request.setEntity(params);
-        response = httpClient.execute(request);
-        responseString = new BasicResponseHandler().handleResponse(response);
-        httpResponseStatus = response.getStatusLine().getStatusCode();
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
-    @Then("^the client receives a (\\d+) status code$")
-    public void the_client_receives_a_status_code(final int expectedStatus) throws IOException {
-        assertEquals(expectedStatus, httpResponseStatus);
-        assertEquals("Status code is incorrect : " +
-                responseString, expectedStatus, httpResponseStatus);
+    @Then("^the response code is (\\d+)$")
+    public void the_response_code_is(int responseCode) throws Throwable {
+        assertEquals("Response status code", responseCode, testContext.getHttpContext().getHttpResponseStatusCode());
     }
 
     @Then("^the response contains the following text '\"([^\"]*)\" '$")
     public void the_response_contains_the_following_text(String text) throws IOException {
-        assertTrue(responseString.contains(text));
+        assertTrue(testContext.getHttpContext().getRawResponseString().contains(text));
     }
 
     @Then("^the response contains the online hearing UUID$")
     public void the_response_contains_the_online_hearing_UUID() throws IOException {
+        String responseString = testContext.getHttpContext().getRawResponseString();
         CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         assertEquals(response.getOnlineHearingId(), UUID.fromString(response.getOnlineHearingId()).toString());
     }
@@ -156,10 +133,9 @@ public class ApiSteps extends BaseSteps {
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/online-hearings", HttpMethod.POST, request, String.class);
-        responseString = response.getBody();
-        httpResponseStatus = response.getStatusCodeValue();
-        testContext.getHttpContext().setRawResponseString(responseString);
-        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseStatus);
+        String responseString = response.getBody();
+
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().setCurrentOnlineHearing(createOnlineHearingFromResponse(newOnlineHearing));

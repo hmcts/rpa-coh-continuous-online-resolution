@@ -235,11 +235,6 @@ public class AnswerSteps extends BaseSteps{
         testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
     }
 
-    @Then("^the response code is (\\d+)$")
-    public void the_response_code_is(int responseCode) throws Throwable {
-        assertEquals("Response status code", responseCode, testContext.getHttpContext().getHttpResponseStatusCode());
-    }
-
     @Then("^there are (\\d+) answers$")
     public void there_are_count_answers(int count) throws Throwable {
         String json = response.getBody();
