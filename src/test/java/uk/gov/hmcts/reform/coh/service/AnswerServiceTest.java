@@ -13,6 +13,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,10 +30,11 @@ public class AnswerServiceTest {
 
     private Answer answer;
 
-    private static final Long ONE = 1L;
+    private UUID ONE;
 
     @Before
     public void setup() {
+        ONE = UUID.randomUUID();
         answer = new Answer();
         answerService = new AnswerService(answerRepository);
     }

@@ -6,9 +6,10 @@ import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface AnswerRepository extends CrudRepository<Answer, Long> {
+public interface AnswerRepository extends CrudRepository<Answer, UUID> {
 
     List<Answer> findByQuestion(Question question);
 }
