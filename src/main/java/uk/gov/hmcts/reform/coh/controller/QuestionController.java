@@ -9,9 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResquestMapper;
+import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -43,8 +41,17 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questions/{questionId}")
-    public ResponseEntity<Question> getQuestion(@PathVariable UUID questionId) {
-        return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
+    public ResponseEntity<QuestionResponse> getQuestion(@PathVariable UUID questionId) {
+        QuestionResponse questionResponse = new QuestionResponse();
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+        if (!optionalQuestion.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Question question = optionalQuestion.get();
+        QuestionResponseMapper.map(question, questionResponse);
+
+        return ResponseEntity.ok(questionResponse);
     }
 
     @ApiOperation("Add a new question")
@@ -97,10 +104,11 @@ public class QuestionController {
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 
-        Question question = questionService.retrieveQuestionById(questionId);
-        if(question == null){
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+        if(!optionalQuestion.isPresent()){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
+        Question question = optionalQuestion.get();
 
         if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);

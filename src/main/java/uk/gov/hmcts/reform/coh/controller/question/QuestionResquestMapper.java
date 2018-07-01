@@ -18,10 +18,10 @@ public class QuestionResquestMapper {
 
     public void map() {
         question.onlineHearing(onlineHearing)
-                .questionOrdinal(questionRequest.getQuestionOrdinal())
+                .questionOrdinal(Integer.parseInt(questionRequest.getQuestionOrdinal()))
                 .questionHeaderText(questionRequest.getQuestionHeaderText())
                 .questionText(questionRequest.getQuestionBodyText())
-                .questionRound(questionRequest.getQuestionRound())
+                .questionRound(Integer.parseInt(questionRequest.getQuestionRound()))
                 .ownerReferenceId(questionRequest.getOwnerReference());
     }
 }

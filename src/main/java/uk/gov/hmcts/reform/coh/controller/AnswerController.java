@@ -57,12 +57,13 @@ public class AnswerController {
         AnswerResponse answerResponse = new AnswerResponse();
         try {
             Answer answer = new Answer();
-            Question question = questionService.retrieveQuestionById(questionId);
+            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
 
-            if (question == null) {
+            if (!optionalQuestion.isPresent()) {
                 return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
             }
 
+            Question question = optionalQuestion.get();
             answer.setAnswerText(request.getAnswer().getAnswer());
             answer.setQuestion(question);
             answer = answerService.createAnswer(answer);
@@ -104,11 +105,12 @@ public class AnswerController {
     public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable UUID questionId) {
 
         // Nothing to return if question doesn't exist
-        Question question = questionService.retrieveQuestionById(questionId);
-        if (question == null) {
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+        if (!optionalQuestion.isPresent()) {
             return new ResponseEntity<List<Answer>>(HttpStatus.FAILED_DEPENDENCY);
         }
 
+        Question question = optionalQuestion.get();
         List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
 
         return ResponseEntity.ok(answers);

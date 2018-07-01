@@ -30,7 +30,7 @@ public class Question {
     private String questionText;
 
     @Column(name = "question_round")
-    private int questionRound;
+    private Integer questionRound;
 
     @Column(name = "deadline_expiry_date ")
     @Temporal(TemporalType.TIMESTAMP)
@@ -117,11 +117,11 @@ public class Question {
         this.questionStateHistories = questionStateHistories;
     }
 
-    public int getQuestionRound() {
+    public Integer getQuestionRound() {
         return questionRound;
     }
 
-    public void setQuestionRound(int questionRound) {
+    public void setQuestionRound(Integer questionRound) {
         this.questionRound = questionRound;
     }
 

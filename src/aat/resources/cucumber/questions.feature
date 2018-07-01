@@ -1,4 +1,9 @@
 Feature: Questions feature
+
+  Scenario: Submit a question
+    Given a standard online hearing is created
+    And a valid question
+    When the response code is 201
 #
 #  Scenario: Create question and assign state to issued
 #    Given a standard online hearing is created

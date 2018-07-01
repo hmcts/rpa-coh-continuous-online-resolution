@@ -72,9 +72,9 @@ public class QuestionServiceTest {
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
 
-        Question newQuestion = questionService.retrieveQuestionById(ONE);
+        Optional<Question> newQuestion = questionService.retrieveQuestionById(ONE);
         verify(questionRepository, times(1)).findById(ONE);
-        assertEquals(newQuestion, question);
+        assertEquals(question, newQuestion.get());
     }
 
     @Test
