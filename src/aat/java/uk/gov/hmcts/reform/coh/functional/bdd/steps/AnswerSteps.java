@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -24,6 +23,7 @@ import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
@@ -61,7 +61,6 @@ public class AnswerSteps extends BaseSteps{
     private List<Long> answerIds;
     private String onlineHearingExternalRef;
     private OnlineHearing onlineHearing;
-    private int httpResponseCode;
 
     @Autowired
     private QuestionService questionService;
@@ -74,6 +73,13 @@ public class AnswerSteps extends BaseSteps{
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    private TestContext testContext;
+
+    @Autowired
+    public AnswerSteps(TestContext testContext) {
+        this.testContext = testContext;
+    }
 
     @Before
     public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
@@ -202,6 +208,7 @@ public class AnswerSteps extends BaseSteps{
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
 
+        int httpResponseCode = 0;
         try {
             if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
@@ -218,7 +225,6 @@ public class AnswerSteps extends BaseSteps{
             }
             httpResponseCode = response.getStatusCodeValue();
 
-
             Optional<Long> optAnswerId = getAnswerId(response.getBody());
             if (optAnswerId.isPresent()) {
                 answerIds.add(optAnswerId.get());
@@ -226,11 +232,12 @@ public class AnswerSteps extends BaseSteps{
         } catch (HttpClientErrorException hcee) {
             httpResponseCode = hcee.getRawStatusCode();
         }
+        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
     }
 
     @Then("^the response code is (\\d+)$")
     public void the_response_code_is(int responseCode) throws Throwable {
-        assertEquals("Response status code", responseCode, httpResponseCode);
+        assertEquals("Response status code", responseCode, testContext.getHttpContext().getHttpResponseStatusCode());
     }
 
     @Then("^there are (\\d+) answers$")

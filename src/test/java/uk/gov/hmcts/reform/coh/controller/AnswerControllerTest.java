@@ -60,7 +60,7 @@ public class AnswerControllerTest {
     @Before
     public void setup() throws IOException {
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
-        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(new Question());
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(new Question()));
         given(answerService.createAnswer(any(Answer.class))).willReturn(new Answer());
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         answer = new Answer();
@@ -124,7 +124,7 @@ public class AnswerControllerTest {
         answer.answerId(1L).answerText("foo");
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
-        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(question);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
         given(answerService.retrieveAnswersByQuestion(question)).willReturn(answerList);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)

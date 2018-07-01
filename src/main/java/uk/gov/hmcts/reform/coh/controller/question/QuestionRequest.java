@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class QuestionRequest {
 
     @JsonProperty("question_round")
-    private Integer questionRound;
+    private String questionRound;
 
     @JsonProperty("question_ordinal")
-    private Integer questionOrdinal;
+    private String questionOrdinal;
 
     @JsonProperty("question_header_text")
     private String questionHeaderText;
@@ -19,19 +19,19 @@ public class QuestionRequest {
     @JsonProperty("owner_reference")
     private String ownerReference;
 
-    public Integer getQuestionRound() {
+    public String getQuestionRound() {
         return questionRound;
     }
 
-    public void setQuestionRound(Integer questionRound) {
+    public void setQuestionRound(String questionRound) {
         this.questionRound = questionRound;
     }
 
-    public Integer getQuestionOrdinal() {
+    public String getQuestionOrdinal() {
         return questionOrdinal;
     }
 
-    public void setQuestionOrdinal(Integer questionOrdinal) {
+    public void setQuestionOrdinal(String questionOrdinal) {
         this.questionOrdinal = questionOrdinal;
     }
 

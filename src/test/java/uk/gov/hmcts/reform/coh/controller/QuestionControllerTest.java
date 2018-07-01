@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -25,6 +26,7 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -70,12 +72,13 @@ public class QuestionControllerTest {
         question.setQuestionId(uuid);
         question.setQuestionText("foo");
         question.setOnlineHearing(onlineHearing);
+        question.setQuestionRound(1);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(QuestionState.ISSUED);
         question.setQuestionState(issuedState);
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
-        given(questionService.retrieveQuestionById(uuid)).willReturn(question);
+        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
         given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
         given(questionService.editQuestion(uuid, question)).willReturn(question);
         given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
@@ -92,8 +95,8 @@ public class QuestionControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
-        assertEquals("foo", responseQuestion.getQuestionText());
+        QuestionResponse responseQuestion = (QuestionResponse)JsonUtils.toObjectFromJson(response, QuestionResponse.class);
+        assertEquals("foo", responseQuestion.getQuestionBodyText());
     }
 
     @Test

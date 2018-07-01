@@ -158,6 +158,8 @@ public class ApiSteps extends BaseSteps {
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/online-hearings", HttpMethod.POST, request, String.class);
         responseString = response.getBody();
         httpResponseStatus = response.getStatusCodeValue();
+        testContext.getHttpContext().setRawResponseString(responseString);
+        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseStatus);
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().setCurrentOnlineHearing(createOnlineHearingFromResponse(newOnlineHearing));
