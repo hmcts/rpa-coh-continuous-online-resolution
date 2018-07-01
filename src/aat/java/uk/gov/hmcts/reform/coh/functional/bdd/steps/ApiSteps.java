@@ -8,7 +8,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -26,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
@@ -50,7 +50,6 @@ public class ApiSteps extends BaseSteps {
 
     private JSONObject json;
 
-    private HttpResponse response;
     private CloseableHttpClient httpClient;
 
     private Set<String> externalRefs;
@@ -131,14 +130,16 @@ public class ApiSteps extends BaseSteps {
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
+
+        OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
-
+        testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
-        testContext.getScenarioContext().setCurrentOnlineHearing(createOnlineHearingFromResponse(newOnlineHearing));
+        testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
     }
 
     @And("^the response contains (\\d+) panel member$")

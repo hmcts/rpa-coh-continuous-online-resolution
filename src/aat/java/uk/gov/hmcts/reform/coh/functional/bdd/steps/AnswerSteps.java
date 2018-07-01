@@ -17,7 +17,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -59,7 +58,7 @@ public class AnswerSteps extends BaseSteps{
     private List<UUID> questionIds;
 
     private List<Long> answerIds;
-    private String onlineHearingExternalRef;
+
     private OnlineHearing onlineHearing;
 
     @Autowired
@@ -92,9 +91,6 @@ public class AnswerSteps extends BaseSteps{
 
         questionIds = new ArrayList<>();
         answerIds = new ArrayList<>();
-
-        OnlineHearingRequest preparedOnlineHearing = (OnlineHearingRequest)JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-        onlineHearingExternalRef = preparedOnlineHearing.getCaseId();
     }
 
     @After
@@ -113,6 +109,7 @@ public class AnswerSteps extends BaseSteps{
         }
 
         try {
+            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
             onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
             onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
@@ -127,6 +124,7 @@ public class AnswerSteps extends BaseSteps{
     public void an_existing_question() throws IOException {
         QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
         onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
 
@@ -142,8 +140,8 @@ public class AnswerSteps extends BaseSteps{
 
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
-        JsonUtils utils = new JsonUtils();
-        this.answerRequest = (AnswerRequest)utils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
         onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
     }

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -24,6 +25,11 @@ public class ScenarioContext {
 
     public void setCurrentOnlineHearing(OnlineHearing currentOnlineHearing) {
         this.currentOnlineHearing = currentOnlineHearing;
+    }
+
+    public void setCurrentOnlineHearing(OnlineHearingRequest onlineHearingRequest) {
+        currentOnlineHearing = new OnlineHearing();
+        currentOnlineHearing.setExternalRef(onlineHearingRequest.getCaseId());
     }
 
     public Question getCurrentQuestion() {
