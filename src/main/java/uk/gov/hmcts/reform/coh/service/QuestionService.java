@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ import java.util.UUID;
 @Service
 @Component
 public class QuestionService {
+    private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
+
+
 
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
@@ -88,10 +93,10 @@ public class QuestionService {
         question.addState(issuedQuestionState);
         boolean result = questionNotification.notifyQuestionState(question);
         if (result){
-            System.out.println("Successfully issued question round and sent notification to jurisdiction");
+            log.info("Successfully issued question round and sent notification to jurisdiction");
             questionRepository.save(question);
         }else{
-            System.out.println("Error: Request to jurisdiction was unsuccessful");
+            log.error("Error: Request to jurisdiction was unsuccessful");
         }
     }
 }

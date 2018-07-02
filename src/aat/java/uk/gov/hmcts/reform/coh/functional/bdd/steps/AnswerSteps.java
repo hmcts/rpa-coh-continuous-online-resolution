@@ -6,6 +6,8 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,6 +43,8 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration
 @SpringBootTest
 public class AnswerSteps extends BaseSteps{
+    private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
+
 
     private RestTemplate restTemplate;
 
@@ -114,7 +118,7 @@ public class AnswerSteps extends BaseSteps{
             onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
             onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
-            System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
+            log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
     }
 
@@ -195,7 +199,7 @@ public class AnswerSteps extends BaseSteps{
             AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), AnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
-            System.out.println("Exception " + e.getMessage());
+            log.error("Exception " + e.getMessage());
         }
     }
 

@@ -1,14 +1,18 @@
 package uk.gov.hmcts.reform.coh.Notification;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.AnswerController;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 @Component
 public class QuestionNotification {
+    private static final Logger log = LoggerFactory.getLogger(QuestionNotification.class);
 
     private RestTemplate restTemplate;
 
@@ -35,7 +39,7 @@ public class QuestionNotification {
             throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlineHearing().getOnlineHearingId());
         }
 
-        System.out.println("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +
+        log.info("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +
                 " and the registered 'issuer' endpoint is " + jurisdiction.getUrl());
 
         return restTemplate.postForEntity(jurisdiction.getUrl(), question, String.class);

@@ -15,6 +15,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +36,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.LogManager;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -41,6 +44,7 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration
 @SpringBootTest
 public class ApiSteps extends BaseSteps {
+    private static final Logger log = LoggerFactory.getLogger(ApiSteps.class);
 
     @Autowired
     private OnlineHearingService onlineHearingService;
@@ -84,7 +88,7 @@ public class ApiSteps extends BaseSteps {
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByExternalRef(externalRef);
             }catch(DataIntegrityViolationException e){
-                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
     }

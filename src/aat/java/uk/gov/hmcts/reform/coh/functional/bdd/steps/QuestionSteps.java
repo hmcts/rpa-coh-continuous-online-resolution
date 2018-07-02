@@ -5,6 +5,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -32,6 +34,7 @@ import static junit.framework.TestCase.assertEquals;
 @ContextConfiguration
 @SpringBootTest
 public class QuestionSteps extends BaseSteps{
+    private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
     private RestTemplate restTemplate;
     private String ENDPOINT = "/online-hearings";
@@ -76,7 +79,7 @@ public class QuestionSteps extends BaseSteps{
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingRepository.deleteByExternalRef(onlineHearing.getExternalRef());
             } catch(DataIntegrityViolationException e){
-                System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
+                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
             }
         }
     }
