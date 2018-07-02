@@ -27,11 +27,9 @@ public class OnlineHearingStateHistory {
     private OnlineHearingStateHistory() {}
 
     public OnlineHearingStateHistory(OnlineHearing onlineHearing,
-                                     OnlineHearingState onlineHearingState,
-                                     Date dateOccurred) {
+                                     OnlineHearingState onlineHearingState) {
         this.onlineHearing = onlineHearing;
         this.onlineHearingState = onlineHearingState;
-        this.dateOccurred = dateOccurred;
     }
 
     public Date getDateOccurred() {

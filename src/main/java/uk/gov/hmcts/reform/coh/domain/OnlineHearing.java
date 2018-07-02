@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity(name = "Online Hearing")
@@ -32,6 +34,8 @@ public class OnlineHearing {
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId("online_hearing_state_id")
     private OnlineHearingState onlineHearingState;
+
+    private List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
 
     @Column(name = "owner_reference_id")
     private String ownerReferenceId;
@@ -87,4 +91,15 @@ public class OnlineHearing {
     public void setOnlineHearingState(OnlineHearingState onlineHearingState) {
         this.onlineHearingState = onlineHearingState;
     }
+
+    public void addState(OnlineHearingState state) {
+        this.onlineHearingState = state;
+        OnlineHearingStateHistory stateHistory = new OnlineHearingStateHistory(this, state);
+        onlineHearingStateHistories.add(stateHistory);
+    }
+
+    public List<OnlineHearingStateHistory> getOnlineHearingStateHistories() {
+        return onlineHearingStateHistories;
+    }
+
 }

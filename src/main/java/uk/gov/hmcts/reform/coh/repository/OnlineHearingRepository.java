@@ -11,8 +11,8 @@ import java.util.UUID;
 @Repository
 public interface OnlineHearingRepository extends CrudRepository<OnlineHearing,UUID> {
 
-    Optional<OnlineHearing> findByCaseId(String caseId);
+    Optional<OnlineHearing> findById(UUID uuid);
 
     @Transactional
-    void deleteByCaseId(String caseId);
+    void deleteById(UUID uuid);
 }
