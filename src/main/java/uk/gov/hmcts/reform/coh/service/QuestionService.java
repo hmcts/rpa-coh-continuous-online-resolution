@@ -22,18 +22,20 @@ public class QuestionService {
     private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
 
 
-
+    private QuestionRoundService questionRoundService;
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
     private QuestionNotification questionNotification;
     private OnlineHearingService onlineHearingService;
 
     @Autowired
-    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService, QuestionNotification questionNotification, OnlineHearingService onlineHearingService) {
+    public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
+                           QuestionNotification questionNotification, OnlineHearingService onlineHearingService, QuestionRoundService questionRoundService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
         this.questionNotification = questionNotification;
         this.onlineHearingService = onlineHearingService;
+        this.questionRoundService = questionRoundService;
     }
 
     public Optional<Question> retrieveQuestionById(final UUID question_id){
