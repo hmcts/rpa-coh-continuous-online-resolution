@@ -57,7 +57,8 @@ public class QuestionService {
         }
 
         question.setOnlineHearing(optionalOnlineHearing.get());
-        question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+
 
         return questionRepository.save(question);
     }
