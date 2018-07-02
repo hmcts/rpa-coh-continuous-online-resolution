@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import java.util.Optional;
 
 @Repository
-public interface AnswerStateRepository extends CrudRepository<AnswerState, Long> {
+public interface AnswerStateRepository extends CrudRepository<AnswerState, Integer> {
 
     Optional<AnswerState> findByState(String state);
 }

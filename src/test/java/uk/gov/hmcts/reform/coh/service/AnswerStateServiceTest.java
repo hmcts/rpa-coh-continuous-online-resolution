@@ -24,8 +24,6 @@ public class AnswerStateServiceTest {
 
     private AnswerStateService answerStateService;
 
-    private static final Long ONE = 1L;
-
     private AnswerState draftedState;
     private AnswerState editedState;
     private AnswerState submittedState;

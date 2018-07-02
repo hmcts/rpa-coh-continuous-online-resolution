@@ -160,7 +160,7 @@ public class AnswerController {
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
             return ResponseEntity.ok(answerResponse);
         } catch (NotFoundException e) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
 

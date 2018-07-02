@@ -70,16 +70,19 @@ public class AnswerControllerTest {
     @Before
     public void setup() throws IOException, NotFoundException {
         answer = new Answer();
-        answer.answerId(UUID.randomUUID()).answerText("foo");
-        uuid = UUID.randomUUID();
+        uuid = UUID.fromString("399388b4-7776-40f9-bb79-0e900807063b");
         answer.answerId(uuid).answerText("foo");
 
         answerState = new AnswerState();
         answerState.setState("DRAFTED");
-
+        answerState.setAnswerStateId(1);
+        answer.setAnswerState(answerState);
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(new Question()));
-        given(answerService.createAnswer(any(Answer.class))).willReturn(new Answer());
+        given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.ofNullable(answer));
+        given(answerService.createAnswer(any(Answer.class))).willReturn(answer);
+        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(answer);
+        given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.ofNullable(answerState));
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
 
     }
@@ -154,7 +157,7 @@ public class AnswerControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"answerId\":\"" + uuid + "\",\"answerText\":\"foo\"}", response);
+        assertEquals("{\"answerId\":\"" + uuid +"\",\"answer_text\":\"foo\",\"current_answer_state\":{\"state_name\":\"DRAFTED\"}}", response);
         Answer getAnswer = (Answer) JsonUtils.toObjectFromJson(response, Answer.class);
         assertEquals(uuid, getAnswer.getAnswerId());
         assertEquals("foo", getAnswer.getAnswerText());
@@ -223,14 +226,14 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testUpdateAnswersFailDueIncorrectStateOrdering() throws Exception {
+    public void testUpdateAnswersFailDueToInvalidStateTransition() throws Exception {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willThrow(NotFoundException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
 }
