@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -158,7 +159,7 @@ public class AnswerSteps extends BaseSteps{
 
     @Given("^the answer text is '(.*)'$")
     public void answer_text_is(String text) {
-        answerRequest.getAnswer().setAnswer(text);
+        answerRequest.setAnswerText(text);
     }
 
     @Given("^an unknown answer identifier$")
@@ -196,6 +197,11 @@ public class AnswerSteps extends BaseSteps{
         } catch (Exception e) {
             System.out.println("Exception " + e.getMessage());
         }
+    }
+
+    @And("^the answer state is '(.*)'$")
+    public void theAnswerStateIsSUBMITTED(String answerState) throws Throwable {
+        answerRequest.setAnswerState(answerState);
     }
 
     @When("^a (.*) request is sent$")

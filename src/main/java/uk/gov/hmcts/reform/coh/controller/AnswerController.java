@@ -3,17 +3,20 @@ package uk.gov.hmcts.reform.coh.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import javassist.NotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.util.List;
@@ -24,14 +27,16 @@ import java.util.UUID;
 @RequestMapping("/online-hearings/{onlineHearingId}/questions/{questionId}/answers")
 public class AnswerController {
 
-    @Autowired
     private AnswerService answerService;
 
-    @Autowired
+    private AnswerStateService answerStateService;
+
     private QuestionService questionService;
 
-    public AnswerController(AnswerService answerService, QuestionService questionService) {
+    @Autowired
+    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService) {
         this.answerService = answerService;
+        this.answerStateService = answerStateService;
         this.questionService = questionService;
     }
 
@@ -60,9 +65,14 @@ public class AnswerController {
                 return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
             }
 
-            Question question = optionalQuestion.get();
-            answer.setAnswerText(request.getAnswer().getAnswer());
-            answer.setQuestion(question);
+            Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+            if (answerState.isPresent()) {
+                answer.setAnswerState(answerState.get());
+                answer.registerStateChange();
+            }
+
+            answer.setAnswerText(request.getAnswerText());
+            answer.setQuestion(optionalQuestion.get());
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
         } catch (Exception e) {
@@ -124,40 +134,53 @@ public class AnswerController {
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
-        AnswerResponse answerResponse = new AnswerResponse();
-        try {
-            Question question = new Question();
-            question.setQuestionId(questionId);
-            Answer answer = new Answer().answerId(answerId)
-                    .answerText(request.getAnswer().getAnswer());
-            answer.setQuestion(question);
+        ValidationResult validationResult = validate(request);
+        if (!validationResult.isValid()) {
+            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
 
-            Optional<Answer> optionalAnswer = answerService.retrieveAnswerById(answerId);
-            if (!optionalAnswer.isPresent()) {
-                return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
-            }
+        Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
 
-            answerService.updateAnswerById(answer);
-            answerResponse.setAnswerId(answer.getAnswerId());
-        } catch (Exception e) {
+        if(!optAnswer.isPresent()){
+            return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
+        }
+
+        Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+        if(!optionalAnswerState.isPresent()){
             return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
         }
 
-        return ResponseEntity.ok(answerResponse);
+        Answer body = new Answer();
+        body.setAnswerState(optionalAnswerState.get());
+        body.setAnswerText(request.getAnswerText());
+
+        try {
+            Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
+            AnswerResponse answerResponse = new AnswerResponse();
+            answerResponse.setAnswerId(updatedAnswer.getAnswerId());
+            return ResponseEntity.ok(answerResponse);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 
     private ValidationResult validate(AnswerRequest request) {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
-        if (request.getAnswer() == null || StringUtils.isEmpty(request.getAnswer().getAnswer())) {
+        if (request.getAnswerText() == null || StringUtils.isEmpty(request.getAnswerText())) {
             result.setValid(false);
             result.setReason("Answer text cannot be empty");
-        } else if (request.getAnswerState() == null || StringUtils.isEmpty(request.getAnswerState().getStateName())) {
+        } else if (StringUtils.isEmpty(request.getAnswerState())) {
             result.setValid(false);
             result.setReason("Answer state cannot be empty");
+        } else {
+            Optional<AnswerState> optAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+            if (!optAnswerState.isPresent()) {
+                result.setValid(false);
+                result.setReason("Answer state is not valid");
+            }
         }
-
         return result;
     }
 

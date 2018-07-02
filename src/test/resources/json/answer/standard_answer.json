@@ -1,12 +1,4 @@
 {
-  "question_id": "123",
-  "question_part_id": "456",
-  "answer": {
-    "type_of_answer": "freetext",
-    "answer": "string"
-  },
-  "answer_state": {
-    "state_name": "answer_submitted",
-    "state_datetime": "2018-06-16T19:20:30.45+01:00"
-  }
+    "answer_text": "string",
+    "answer_state": "DRAFTED"
 }
