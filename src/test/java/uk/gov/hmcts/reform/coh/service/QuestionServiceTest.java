@@ -92,7 +92,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void tesDelete() {
+    public void testDelete() {
         doNothing().when(questionRepository).delete(question);
         questionService.deleteQuestion(question);
         verify(questionRepository, times(1)).delete(question);

@@ -24,6 +24,9 @@ public class OnlineHearingService {
         this.onlineHearingStateService = onlineHearingStateService;
     }
 
+    public OnlineHearingService(OnlineHearingRepository onlineHearingRepository) {
+    }
+
     public OnlineHearing createOnlineHearing(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.save(onlineHearing);
     }

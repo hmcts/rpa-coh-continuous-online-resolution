@@ -44,7 +44,7 @@ public class OnlineHearingController {
         System.out.println(externalId);
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setCaseId(externalId);
-        OnlineHearing retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
+        OnlineHearing retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearingById(onlineHearing.getOnlineHearingId());
 
         return new ResponseEntity<>(retrievedOnlineHearing, HttpStatus.OK);
     }

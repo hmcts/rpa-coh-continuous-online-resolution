@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
 import java.util.Optional;
@@ -24,12 +25,19 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 public class OnlineHearingServiceTest {
 
+    private OnlineHearingService onlineHearingService;
+
     @Mock
     private OnlineHearingRepository onlineHearingRepository;
 
-    private OnlineHearingService onlineHearingService;
-
+    @Mock
     private OnlineHearing createdOnlineHearing;
+
+    @Mock
+    private OnlineHearingStateService onlineHearingStateService;
+
+    private OnlineHearingState created = new OnlineHearingState("CREATED");
+    private OnlineHearingState closed = new OnlineHearingState("CLOSED");
 
 
     @Before
@@ -37,6 +45,7 @@ public class OnlineHearingServiceTest {
         onlineHearingService = new OnlineHearingService(onlineHearingRepository);
         createdOnlineHearing = new OnlineHearing();
         createdOnlineHearing.setOnlineHearingId(randomUUID());
+        createdOnlineHearing.setOnlineHearingState(created);
     }
 
     @Test
@@ -57,8 +66,8 @@ public class OnlineHearingServiceTest {
     @Test
     public void testRetrieveOnlineHearingByCaseId() {
         createdOnlineHearing.setCaseId("foo");
-        when(onlineHearingRepository.findByCaseId(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
-        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(createdOnlineHearing);
+        when(onlineHearingRepository.findById(any(UUID.class))).thenReturn(Optional.of(createdOnlineHearing));
+        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingById(createdOnlineHearing.getOnlineHearingId());
         assertEquals(createdOnlineHearing, newOnlineHearing);
     }
 
@@ -76,8 +85,21 @@ public class OnlineHearingServiceTest {
     public void testDeleteByCaseId() {
         String caseId = "foo";
         createdOnlineHearing.setCaseId(caseId);
-        doNothing().when(onlineHearingRepository).deleteByCaseId(caseId);
-        onlineHearingService.deleteByCaseId(caseId);
-        verify(onlineHearingRepository, times(1)).deleteByCaseId(caseId);
+        UUID onlineHearingId = createdOnlineHearing.getOnlineHearingId();
+        doNothing().when(onlineHearingRepository).deleteById(onlineHearingId);
+        onlineHearingService.deleteById(onlineHearingId);
+        verify(onlineHearingRepository, times(1)).deleteById(onlineHearingId);
+    }
+
+    @Test
+    public void testUpdateOnlineHearingState() {
+        // close online hearing - can only change state from created to closed
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingState(created);
+
+        OnlineHearing updatedOnlineHearing = new OnlineHearing();
+        updatedOnlineHearing.setOnlineHearingState(closed);
+        onlineHearingService.updateOnlineHearingState(onlineHearing.getOnlineHearingId(), updatedOnlineHearing);
+        assertEquals(2, onlineHearing.getOnlineHearingState().getOnlineHearingStateId());
     }
 }
