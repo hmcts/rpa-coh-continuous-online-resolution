@@ -16,12 +16,10 @@ import java.util.List;
 public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
-    private OnlineHearingService onlineHearingService;
 
     @Autowired
-    public QuestionRoundService(QuestionRepository questionRepository, OnlineHearingService onlineHearingService){
+    public QuestionRoundService(QuestionRepository questionRepository){
         this.questionRepository = questionRepository;
-        this.onlineHearingService = onlineHearingService;
     }
 
     public boolean validateQuestionRound(Question question, OnlineHearing onlineHearing){
@@ -36,9 +34,7 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getQuestionRound(onlineHearing);
 
-        if(currentQuestionRound == 0){
-            return targetQuestionRound == 1;
-        }else if(currentQuestionRound == targetQuestionRound) {
+        if(currentQuestionRound == targetQuestionRound) {
             return true;
         }else if(targetQuestionRound <= maxQuestionRounds && targetQuestionRound == currentQuestionRound + 1){
             return true;
@@ -47,12 +43,11 @@ public class QuestionRoundService {
         }
     }
 
-    private int getQuestionRound(OnlineHearing onlineHearing){
+    protected int getQuestionRound(OnlineHearing onlineHearing){
         List<Question> orderedQuestions = getQuestionsOrderedByRound(onlineHearing);
         if (orderedQuestions.isEmpty()){
-            return 0;
+            return 1;
         }
-
         return orderedQuestions.get(0).getQuestionRound();
     }
 
