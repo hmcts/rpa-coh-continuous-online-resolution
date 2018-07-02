@@ -112,7 +112,6 @@ public class QuestionSteps extends BaseSteps{
         endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
         endpoint = endpoint.replaceAll("question_id", String.valueOf(question.getQuestionId()));
 
-        System.out.println("Generated endpoint: " + endpoint);
         /**
          * This is a workaround for https://jira.spring.io/browse/SPR-15347
          *
