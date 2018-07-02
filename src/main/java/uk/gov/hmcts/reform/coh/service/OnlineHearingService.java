@@ -39,4 +39,14 @@ public class OnlineHearingService {
     public void deleteByCaseId(String caseId) {
         onlineHearingRepository.deleteByCaseId(caseId);
     }
+
+    //public OnlineHearing updateOnlineHearingState(String caseId, OnlineHearing body) {
+     //   OnlineHearing onlineHearing = retrieveOnlineHearingByCaseId(caseId);
+    //}
+
+//    public Question editQuestion(Long questionId, Question body) {
+//        Question question = retrieveQuestionById(questionId);
+//        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
+//        return questionRepository.save(question);
+//    }
 }

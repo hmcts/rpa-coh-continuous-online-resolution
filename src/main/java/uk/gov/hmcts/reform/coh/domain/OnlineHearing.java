@@ -80,4 +80,11 @@ public class OnlineHearing {
     }
 
 
+    public OnlineHearingState getOnlineHearingState() {
+        return onlineHearingState;
+    }
+
+    public void setOnlineHearingState(OnlineHearingState onlineHearingState) {
+        this.onlineHearingState = onlineHearingState;
+    }
 }
