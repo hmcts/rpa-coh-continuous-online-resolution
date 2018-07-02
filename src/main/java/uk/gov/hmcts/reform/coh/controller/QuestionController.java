@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -39,8 +41,17 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questions/{questionId}")
-    public ResponseEntity<Question> getQuestion(@PathVariable Long questionId) {
-        return ResponseEntity.ok(questionService.retrieveQuestionById(questionId));
+    public ResponseEntity<QuestionResponse> getQuestion(@PathVariable UUID questionId) {
+        QuestionResponse questionResponse = new QuestionResponse();
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+        if (!optionalQuestion.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Question question = optionalQuestion.get();
+        QuestionResponseMapper.map(question, questionResponse);
+
+        return ResponseEntity.ok(questionResponse);
     }
 
     @ApiOperation("Add a new question")
@@ -53,8 +64,25 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody Question body) {
-        return ResponseEntity.ok(questionService.createQuestion(body, onlineHearingId));
+    public ResponseEntity<CreateQuestionResponse> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
+
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
+        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+
+        if (!savedOnlineHearing.isPresent() || !validate(request)) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        Question question = new Question();
+        QuestionResquestMapper mapper = new QuestionResquestMapper(question, savedOnlineHearing.get(), request);
+        mapper.map();
+        question = questionService.createQuestion(question, onlineHearingId);
+
+        CreateQuestionResponse response = new CreateQuestionResponse();
+        response.setQuestionId(question.getQuestionId());
+
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation("Edit a question")
@@ -67,7 +95,7 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable Long questionId, @RequestBody Question body) {
+    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody Question body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -76,10 +104,11 @@ public class QuestionController {
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 
-        Question question = questionService.retrieveQuestionById(questionId);
-        if(question == null){
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+        if(!optionalQuestion.isPresent()){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
+        Question question = optionalQuestion.get();
 
         if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
@@ -87,5 +116,20 @@ public class QuestionController {
 
         question = questionService.updateQuestion(question, body);
         return ResponseEntity.ok(question);
+    }
+
+    private boolean validate(QuestionRequest request) {
+
+        if (StringUtils.isEmpty(request.getQuestionRound())
+                || StringUtils.isEmpty(request.getQuestionOrdinal())
+                || StringUtils.isEmpty(request.getQuestionHeaderText())
+                || StringUtils.isEmpty(request.getQuestionBodyText())
+                || StringUtils.isEmpty(request.getOwnerReference())
+                ) {
+
+            return false;
+        }
+
+        return true;
     }
 }

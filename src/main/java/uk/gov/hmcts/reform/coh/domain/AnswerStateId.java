@@ -3,11 +3,12 @@ package uk.gov.hmcts.reform.coh.domain;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 public class AnswerStateId implements Serializable {
     @Column(name = "answer_id")
-    private Long answerId;
+    private UUID answerId;
 
     @Column(name = "answer_state_id")
     private int answerStateId;
@@ -16,16 +17,16 @@ public class AnswerStateId implements Serializable {
         //Required for hibernate
     }
 
-    public AnswerStateId(Long answerId, int answerStateId){
+    public AnswerStateId(UUID answerId, int answerStateId){
         this.answerId = answerId;
         this.answerStateId = answerStateId;
     }
 
-    public Long getAnswerId() {
+    public UUID getAnswerId() {
         return answerId;
     }
 
-    public void setAnswerId(Long answerId) {
+    public void setAnswerId(UUID answerId) {
         this.answerId = answerId;
     }
 

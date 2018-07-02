@@ -18,10 +18,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
@@ -44,20 +48,19 @@ public class AnswerSteps extends BaseSteps{
 
     private String endpoint;
 
-    private Long currentQuestionId;
+    private UUID currentQuestionId;
 
-    private Long currentAnswerId;
+    private UUID currentAnswerId;
 
     private Map<String, String> endpoints = new HashMap<String, String>();
 
     private AnswerRequest answerRequest;
 
-    private List<Long> questionIds;
+    private List<UUID> questionIds;
 
-    private List<Long> answerIds;
-    private String onlineHearingExternalRef;
+    private List<UUID> answerIds;
+
     private OnlineHearing onlineHearing;
-    private int httpResponseCode;
 
     @Autowired
     private QuestionService questionService;
@@ -68,8 +71,18 @@ public class AnswerSteps extends BaseSteps{
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
 
+    @Autowired
+    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    private TestContext testContext;
+
+    @Autowired
+    public AnswerSteps(TestContext testContext) {
+        this.testContext = testContext;
+    }
+
     @Before
-    public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    public void setup() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
@@ -79,9 +92,6 @@ public class AnswerSteps extends BaseSteps{
 
         questionIds = new ArrayList<>();
         answerIds = new ArrayList<>();
-
-        OnlineHearing preparedOnlineHearing = (OnlineHearing)JsonUtils.toObjectFromTestName("create_online_hearing", OnlineHearing.class);
-        onlineHearingExternalRef = preparedOnlineHearing.getExternalRef();
     }
 
     @After
@@ -91,15 +101,17 @@ public class AnswerSteps extends BaseSteps{
          * to be deleted after test completion. Delete in reverse order for
          * FK constrains
          */
-        for (Long answerId : answerIds) {
+        for (UUID answerId : answerIds) {
             answerService.deleteAnswer(new Answer().answerId(answerId));
         }
 
-        for (Long questionId : questionIds) {
+        for (UUID questionId : questionIds) {
             questionService.deleteQuestion(new Question().questionId(questionId));
         }
 
         try {
+            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
+            onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
             onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
             System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
@@ -111,30 +123,26 @@ public class AnswerSteps extends BaseSteps{
      */
     @Given("^a valid question$")
     public void an_existing_question() throws IOException {
-        Question question = new Question();
-        question.setSubject("foo");
-        question.setQuestionText("question text");
-        question.setQuestionRound(1);
+        QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
         onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
 
-        question.setOnlineHearing(onlineHearing);
-
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
-        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(question), header);
+        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
-        question = (Question) JsonUtils.toObjectFromJson(json, Question.class);
-        this.currentQuestionId = question.getQuestionId();
-        questionIds.add(question.getQuestionId());
+        CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        this.currentQuestionId = createQuestionResponse.getQuestionId();
+        questionIds.add(createQuestionResponse.getQuestionId());
     }
 
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
-        JsonUtils utils = new JsonUtils();
-        this.answerRequest = (AnswerRequest)utils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
         onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
     }
@@ -156,7 +164,7 @@ public class AnswerSteps extends BaseSteps{
 
     @Given("^an unknown answer identifier$")
     public void an_unknown_answer_identifier$() throws Throwable {
-        currentAnswerId = 0L;
+        currentAnswerId = UUID.randomUUID();
     }
 
     @Given("^the endpoint is for submitting an (.*)$")
@@ -164,7 +172,7 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? "0" : currentQuestionId.toString());
+            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? UUID.randomUUID().toString() : currentQuestionId.toString());
         }
 
         if ("answer".equalsIgnoreCase(entity) && currentAnswerId != null) {
@@ -204,6 +212,7 @@ public class AnswerSteps extends BaseSteps{
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
 
+        int httpResponseCode = 0;
         try {
             if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
@@ -220,19 +229,14 @@ public class AnswerSteps extends BaseSteps{
             }
             httpResponseCode = response.getStatusCodeValue();
 
-
-            Optional<Long> optAnswerId = getAnswerId(response.getBody());
+            Optional<UUID> optAnswerId = getAnswerId(response.getBody());
             if (optAnswerId.isPresent()) {
                 answerIds.add(optAnswerId.get());
             }
         } catch (HttpClientErrorException hcee) {
             httpResponseCode = hcee.getRawStatusCode();
         }
-    }
-
-    @Then("^the response code is (\\d+)$")
-    public void the_response_code_is(int responseCode) throws Throwable {
-        assertEquals("Response status code", responseCode, httpResponseCode);
+        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
     }
 
     @Then("^there are (\\d+) answers$")
@@ -250,13 +254,13 @@ public class AnswerSteps extends BaseSteps{
      * @param json
      * @return
      */
-    private Optional<Long> getAnswerId(String json) throws IOException {
+    private Optional<UUID> getAnswerId(String json) throws IOException {
 
         if (json == null) {
             return Optional.empty();
         }
 
-        Long answerId = null;
+        UUID answerId = null;
         if (json.indexOf("question_id") > 0) {
             Answer answer = (Answer) JsonUtils.toObjectFromJson(json, Answer.class);
             answerId = answer.getAnswerId();

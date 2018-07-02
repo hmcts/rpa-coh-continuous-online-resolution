@@ -6,17 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "answer")
 public class Answer {
 
-    @SequenceGenerator(name="seq_answer_id", sequenceName="seq_answer_id", allocationSize = 1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq_answer_id")
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "answer_id")
-    @JsonProperty("answer_id")
-    private Long answerId;
+    private UUID answerId;
 
     @Column(name = "answer_text")
     @JsonProperty("answer_text")
@@ -38,25 +37,16 @@ public class Answer {
     @JsonIgnore
     private List<AnswerStateHistory> answerStateHistories = new ArrayList<>();
 
-
     public void registerStateChange(){
         AnswerStateHistory answerStateHistory = new AnswerStateHistory(this, answerState);
         answerStateHistories.add(answerStateHistory);
     }
 
-    public List<AnswerStateHistory> getAnswerStateHistories() {
-        return answerStateHistories;
-    }
-
-    public void setAnswerStateHistories(List<AnswerStateHistory> answerStateHistories) {
-        this.answerStateHistories = answerStateHistories;
-    }
-
-    public Long getAnswerId() {
+    public UUID getAnswerId() {
         return answerId;
     }
 
-    public void setAnswerId(Long answerId) {
+    public void setAnswerId(UUID answerId) {
         this.answerId = answerId;
     }
 
@@ -68,7 +58,7 @@ public class Answer {
         this.answerText = answerText;
     }
 
-    public Answer answerId(Long answerId) {
+    public Answer answerId(UUID answerId) {
         this.answerId = answerId;
         return this;
     }
@@ -92,6 +82,14 @@ public class Answer {
 
     public void setAnswerState(AnswerState answerState) {
         this.answerState = answerState;
+    }
+
+    public List<AnswerStateHistory> getAnswerStateHistories() {
+        return answerStateHistories;
+    }
+
+    public void setAnswerStateHistories(List<AnswerStateHistory> answerStateHistories) {
+        this.answerStateHistories = answerStateHistories;
     }
 
     @Override

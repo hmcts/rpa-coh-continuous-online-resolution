@@ -39,10 +39,11 @@ public class QuestionServiceTest {
     private QuestionState issued = new QuestionState("ISSUED");
     private Question question;
 
-    private static final Long ONE = 1L;
+    private static UUID ONE;
 
     @Before
     public void setup() {
+        ONE = UUID.randomUUID();
         questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
@@ -71,9 +72,9 @@ public class QuestionServiceTest {
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
 
-        Question newQuestion = questionService.retrieveQuestionById(ONE);
+        Optional<Question> newQuestion = questionService.retrieveQuestionById(ONE);
         verify(questionRepository, times(1)).findById(ONE);
-        assertEquals(newQuestion, question);
+        assertEquals(question, newQuestion.get());
     }
 
     @Test

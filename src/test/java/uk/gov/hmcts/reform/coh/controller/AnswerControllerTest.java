@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,28 +58,30 @@ public class AnswerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions/1/answers";
+    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions/d9248584-4aa5-4cb0-aba6-d2633ad5a375/answers";
 
     private AnswerRequest request;
 
     private Answer answer;
 
+    private UUID uuid;
     private AnswerState answerState;
 
     @Before
     public void setup() throws IOException, NotFoundException {
         answer = new Answer();
-        answer.answerId(1L).answerText("foo");
+        answer.answerId(UUID.randomUUID()).answerText("foo");
+        uuid = UUID.randomUUID();
+        answer.answerId(uuid).answerText("foo");
 
         answerState = new AnswerState();
         answerState.setState("DRAFTED");
 
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
-        given(questionService.retrieveQuestionById(any(Long.class))).willReturn(new Question());
-        given(answerService.createAnswer(any(Answer.class))).willReturn(answer);
-        given(answerStateService.retrieveAnswerStateByState(any(String.class))).willReturn(Optional.of(answerState));
-        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(answer);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(new Question()));
+        given(answerService.createAnswer(any(Answer.class))).willReturn(new Answer());
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+
     }
 
     @Test
@@ -95,7 +98,7 @@ public class AnswerControllerTest {
     @Test
     public void testEmptyAnswerTextForPatchThrowsRequestError() throws Exception {
 
-        request.setAnswerText(null);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +111,7 @@ public class AnswerControllerTest {
         AnswerRequest request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         request.setAnswerState(null);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT + "/1")
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().is4xxClientError())
@@ -142,18 +145,18 @@ public class AnswerControllerTest {
     @Test
     public void testGetAnswer() throws Exception {
 
-        given(answerService.retrieveAnswerById(any(Long.class))).willReturn(Optional.of(answer));
-        answer.setAnswerState(answerState);
+        given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
+        assertEquals("{\"answerId\":\"" + uuid + "\",\"answerText\":\"foo\"}", response);
         Answer getAnswer = (Answer) JsonUtils.toObjectFromJson(response, Answer.class);
-        assertEquals(1L, getAnswer.getAnswerId().longValue());
+        assertEquals(uuid, getAnswer.getAnswerId());
         assertEquals("foo", getAnswer.getAnswerText());
         assertEquals("DRAFTED", getAnswer.getAnswerState().getState());
     }
@@ -163,12 +166,12 @@ public class AnswerControllerTest {
 
         AnswerState answerState = new AnswerState();
         Question question = new Question();
-        question.setQuestionId(1L);
+        question.setQuestionId(UUID.randomUUID());
         Answer answer = new Answer();
-        answer.answerId(1L).answerText("foo");
-        answer.setAnswerState(answerState);
+        answer.answerId(uuid).answerText("foo");
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
         given(answerService.retrieveAnswersByQuestion(question)).willReturn(answerList);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
@@ -184,23 +187,23 @@ public class AnswerControllerTest {
     @Test
     public void testUpdateAnswers() throws Exception {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
-        given(answerService.retrieveAnswerById(any(Long.class))).willReturn(Optional.of(answer));
+        given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals("{\"answerId\":1}", result.getResponse().getContentAsString());
+        assertEquals("{\"answerId\":\"" + uuid + "\"}", result.getResponse().getContentAsString());
     }
 
     @Test
     public void testUpdateAnswersFail() throws Exception {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
-        given(answerService.retrieveAnswerById(any(Long.class))).willReturn(Optional.empty());
+        given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.empty());
 
-        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().is4xxClientError())
@@ -212,7 +215,7 @@ public class AnswerControllerTest {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.empty());
 
-        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().is4xxClientError())
@@ -224,7 +227,7 @@ public class AnswerControllerTest {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willThrow(NotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/1")
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound())

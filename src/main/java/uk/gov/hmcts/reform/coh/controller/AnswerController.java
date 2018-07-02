@@ -49,20 +49,20 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable Long questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {
             Answer answer = new Answer();
-            Question question = questionService.retrieveQuestionById(questionId);
+            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
 
-            if (question == null) {
-                return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+            if (!optionalQuestion.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
             }
 
             Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
@@ -72,7 +72,7 @@ public class AnswerController {
             }
 
             answer.setAnswerText(request.getAnswerText());
-            answer.setQuestion(question);
+            answer.setQuestion(optionalQuestion.get());
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
         } catch (Exception e) {
@@ -91,11 +91,11 @@ public class AnswerController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Answer> retrieveAnswer(@PathVariable long answerId) {
+    public ResponseEntity<Answer> retrieveAnswer(@PathVariable UUID answerId) {
 
         Optional<Answer> answer = answerService.retrieveAnswerById(answerId);
         if (!answer.isPresent()) {
-            return new ResponseEntity<Answer>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.ok(answer.get());
@@ -109,14 +109,15 @@ public class AnswerController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "")
-    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable Long questionId) {
+    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable UUID questionId) {
 
         // Nothing to return if question doesn't exist
-        Question question = questionService.retrieveQuestionById(questionId);
-        if (question == null) {
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+        if (!optionalQuestion.isPresent()) {
             return new ResponseEntity<List<Answer>>(HttpStatus.FAILED_DEPENDENCY);
         }
 
+        Question question = optionalQuestion.get();
         List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
 
         return ResponseEntity.ok(answers);
@@ -131,7 +132,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable Long questionId, @PathVariable long answerId, @RequestBody AnswerRequest request) {
+    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {

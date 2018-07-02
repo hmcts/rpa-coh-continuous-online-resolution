@@ -4,12 +4,13 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @Embeddable
 public class QuestionStateId implements Serializable {
 
     @Column(name = "question_id")
-    private Long questionId;
+    private UUID questionId;
 
     @Column(name = "question_state_id")
     private int questionStateId;
@@ -18,7 +19,7 @@ public class QuestionStateId implements Serializable {
     // Required for hibernate
     }
 
-    public QuestionStateId(Long questionId, int questionStateId){
+    public QuestionStateId(UUID questionId, int questionStateId){
         this.questionId = questionId;
         this.questionStateId = questionStateId;
     }
@@ -41,11 +42,11 @@ public class QuestionStateId implements Serializable {
     }
 
 
-    public Long getQuestionId() {
+    public UUID getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(Long questionId) {
+    public void setQuestionId(UUID questionId) {
         this.questionId = questionId;
     }
 

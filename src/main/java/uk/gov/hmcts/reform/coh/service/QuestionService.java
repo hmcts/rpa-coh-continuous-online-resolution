@@ -31,8 +31,8 @@ public class QuestionService {
         this.onlineHearingService = onlineHearingService;
     }
 
-    public Question retrieveQuestionById(final Long question_id){
-        return questionRepository.findById(question_id).orElse(null);
+    public Optional<Question> retrieveQuestionById(final UUID question_id){
+        return questionRepository.findById(question_id);
     }
 
     public Question createQuestion(final Question question, UUID onlineHearingId) {
@@ -50,9 +50,14 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public Question editQuestion(Long questionId, Question body) {
-        Question question = retrieveQuestionById(questionId);
+    public Question editQuestion(UUID questionId, Question body) {
+        Optional<Question> optionalQuestion = retrieveQuestionById(questionId);
+        if (!optionalQuestion.isPresent()) {
+            throw new EntityNotFoundException("Question entity not found");
+        }
+        Question question = optionalQuestion.get();
         question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
+
         return questionRepository.save(question);
     }
 

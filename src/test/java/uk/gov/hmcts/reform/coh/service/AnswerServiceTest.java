@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -33,7 +34,7 @@ public class AnswerServiceTest {
 
     private Answer answer;
 
-    private static final Long ONE = 1L;
+    private UUID ONE;
 
     private AnswerState draftedState;
     private AnswerState submittedState;
@@ -43,6 +44,7 @@ public class AnswerServiceTest {
 
     @Before
     public void setup() throws NotFoundException {
+        ONE = UUID.randomUUID();
         answer = new Answer();
         answerService = new AnswerService(answerRepository, answerStateService);
 
