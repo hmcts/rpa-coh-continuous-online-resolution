@@ -76,7 +76,7 @@ Feature: Answers
     Then the response code is 200
     And the answer state is 'DRAFTED'
     When a PATCH request is sent
-    Then the response code is 400
+    Then the response code is 422
 
   Scenario: Try and update an answer state from edited to draft
     Given a standard online hearing is created
@@ -92,7 +92,7 @@ Feature: Answers
     Then the response code is 200
     And the answer state is 'DRAFTED'
     When a PATCH request is sent
-    Then the response code is 400
+    Then the response code is 422
 
   Scenario: Update unknown answer
     Given a standard online hearing is created
