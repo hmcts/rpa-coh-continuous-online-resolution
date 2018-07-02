@@ -3,6 +3,6 @@ version: '2.1'
 
 services:
 
-  rd-pup-postgres-db:
+  rd-coh-postgres-db:
       ports:
       - 5432:5432
