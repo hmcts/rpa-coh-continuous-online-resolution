@@ -36,7 +36,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.LogManager;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
