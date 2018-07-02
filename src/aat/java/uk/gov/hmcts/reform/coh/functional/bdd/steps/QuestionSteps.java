@@ -61,7 +61,7 @@ public class QuestionSteps extends BaseSteps{
     }
 
     @Before
-    public void setup() throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    public void setup() throws Exception {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
