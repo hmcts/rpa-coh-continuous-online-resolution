@@ -40,7 +40,7 @@ public class OnlineHearingService {
     }
 
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
-        onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
+        onlineHearingRepository.delete(onlineHearing);
     }
 
     public void deleteById(UUID id) {

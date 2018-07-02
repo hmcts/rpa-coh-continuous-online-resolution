@@ -76,9 +76,10 @@ public class OnlineHearingServiceTest {
         UUID uuid = UUID.randomUUID();
         createdOnlineHearing.setOnlineHearingId(uuid);
         createdOnlineHearing.setCaseId("foo");
+        UUID onlineHearingId = createdOnlineHearing.getOnlineHearingId();
         doNothing().when(onlineHearingRepository).deleteById(uuid);
         onlineHearingService.deleteOnlineHearing(createdOnlineHearing);
-        verify(onlineHearingRepository, times(1)).deleteById(uuid);
+        verify(onlineHearingRepository, times(1)).deleteById(onlineHearingId);
     }
 
     @Test
