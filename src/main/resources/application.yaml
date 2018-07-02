@@ -87,12 +87,6 @@ info:
 
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-  storage:
-    connection-string: ${AZURE_STORAGE_CONNECTION_STRING:false}
-    file-share-name: ${AZURE_FILE_SHARE_NAME:puprd-test}
-    blob-container-reference: ${AZURE_BLOB_CONTAINER_REFERENCE:storage}
-
-file-storage-client: ${FILE_STORAGE_CLIENT:azureBlobStorageClient}
 
 app-insights:
   dev-mode: off
