@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -93,5 +94,9 @@ public class QuestionService {
         }else{
             System.out.println("Error: Request to jurisdiction was unsuccessful");
         }
+    }
+
+    public Optional<List<Question>> retrieveQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+        return Optional.ofNullable(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing));
     }
 }
