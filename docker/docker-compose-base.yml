@@ -1,0 +1,13 @@
+---
+version: '2.1'
+
+services:
+
+  rd-pup-postgres-db:
+      image: postgres:9.6
+      environment:
+      - POSTGRES_USER=cor
+      - POSTGRES_PASSWORD=cor
+      - POSTGRES_DB=cor
+      ports:
+      - 5432:5432
