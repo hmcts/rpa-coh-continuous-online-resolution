@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -49,6 +50,10 @@ public class QuestionService {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
             throw new EntityNotFoundException();
+        }
+
+        if(!questionRoundService.validateQuestionRound(question, optionalOnlineHearing.get())) {
+            throw new NotAValidUpdateException();
         }
 
         question.setOnlineHearing(optionalOnlineHearing.get());
