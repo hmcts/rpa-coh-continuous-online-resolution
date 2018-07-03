@@ -1,0 +1,13 @@
+---
+version: '2.1'
+
+services:
+
+  rd-coh-postgres-db:
+      image: postgres:9.6
+      environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_DB=coh
+      ports:
+      - 5432:5432
