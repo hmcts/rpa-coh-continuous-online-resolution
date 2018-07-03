@@ -82,10 +82,10 @@ public class ApiSteps extends BaseSteps {
         for (String externalRef : externalRefs) {
             try {
                 OnlineHearing onlineHearing = new OnlineHearing();
-                onlineHearing.setExternalRef(externalRef);
-                onlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
+                onlineHearing.setCaseId(externalRef);
+                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-                onlineHearingService.deleteByExternalRef(externalRef);
+                onlineHearingService.deleteByCaseId(externalRef);
             }catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
