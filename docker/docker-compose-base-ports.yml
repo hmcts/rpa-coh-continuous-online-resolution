@@ -1,8 +1,0 @@
----
-version: '2.1'
-
-services:
-
-  rd-coh-postgres-db:
-      ports:
-      - 5432:5432
