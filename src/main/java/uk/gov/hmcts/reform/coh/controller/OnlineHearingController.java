@@ -29,6 +29,11 @@ import java.util.UUID;
 @RequestMapping("/online-hearings")
 public class OnlineHearingController {
 
+    /**
+     * TODO - Don't hard code the starting state
+     */
+    private static final String STARTING_STATE = "continuous_online_hearing_started";
+
     @Autowired
     private OnlineHearingService onlineHearingService;
 
@@ -92,10 +97,8 @@ public class OnlineHearingController {
                 return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
             }
         }
-        /**
-         * TODO - Don't hard code the starting state
-         */
-        Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState("STARTED");
+
+        Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
         onlineHearing.setOnlineHearingState(onlineHearingState.get());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
