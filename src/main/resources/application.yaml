@@ -75,8 +75,8 @@ auth:
 
 
 authorization:
-  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:solicitor}
-  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,ccd,jui}
+  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:citizen}
+  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,ccd,jui_webapp}
 
 info:
   app:
