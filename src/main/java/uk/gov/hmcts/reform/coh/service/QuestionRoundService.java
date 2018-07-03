@@ -34,7 +34,9 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getQuestionRound(onlineHearing);
 
-        if(currentQuestionRound == targetQuestionRound) {
+        if(currentQuestionRound == 0){
+            return targetQuestionRound == 1;
+        }else if(currentQuestionRound == targetQuestionRound) {
             return true;
         }else if(targetQuestionRound <= maxQuestionRounds && targetQuestionRound == currentQuestionRound + 1){
             return true;
@@ -46,7 +48,7 @@ public class QuestionRoundService {
     protected int getQuestionRound(OnlineHearing onlineHearing){
         List<Question> orderedQuestions = getQuestionsOrderedByRound(onlineHearing);
         if (orderedQuestions.isEmpty()){
-            return 1;
+            return 0;
         }
         return orderedQuestions.get(0).getQuestionRound();
     }

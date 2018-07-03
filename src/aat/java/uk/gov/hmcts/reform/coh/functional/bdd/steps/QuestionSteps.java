@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
+import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.slf4j.Logger;
@@ -15,8 +16,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
@@ -25,6 +29,7 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +46,7 @@ public class QuestionSteps extends BaseSteps{
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
     private Question question;
+    private QuestionRequest questionRequest;
     private List<UUID> questionIds;
 
     @Autowired
@@ -73,38 +79,53 @@ public class QuestionSteps extends BaseSteps{
             questionRepository.deleteById(questionId);
         }
 
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        if (onlineHearing != null) {
-            try {
-                onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-                onlineHearingRepository.deleteByExternalRef(onlineHearing.getExternalRef());
-            } catch(DataIntegrityViolationException e){
-                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
-            }
+        try {
+            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
+            onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
+            onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+        } catch(DataIntegrityViolationException e){
+            log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
     }
 
-    @And("^the draft a question for online_hearing$")
-    public void theDraftAQuestion() throws Throwable {
-
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearing.getExternalRef()).get();
-
-        String jsonBody = JsonUtils.getJsonInput("question/standard_question");
+    @And("^the post request is sent to create the question and the response status is (\\d+)$")
+    public void theDraftAQuestion(int responseCode) throws Throwable {
+        String jsonBody = JsonUtils.toJson(questionRequest);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
 
-        ResponseEntity<Question> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, Question.class);
-        question = response.getBody();
-        questionIds.add(question.getQuestionId());
+        int httpResponseCode = 0;
+        try{
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
+            String json = response.getBody();
+            CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+            questionIds.add(createQuestionResponse.getQuestionId());
+            httpResponseCode = response.getStatusCodeValue();
+        } catch (HttpClientErrorException hsee) {
+            httpResponseCode = hsee.getRawStatusCode();
+        }
+
+        assertEquals(responseCode, httpResponseCode);
+    }
+
+    @Given("^a standard question")
+    public void aStandardQuestionRound() throws IOException{
+        questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
+        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+    }
+
+    @Given("^the question round is ' \"([^\"]*)\" '$")
+    public void theQuestionRoundIs1(String questionRound){
+        questionRequest.setQuestionRound(questionRound);
     }
 
     @Then("^the question state is ' \"([^\"]*)\" '$")
-    public void theQuestionStateIs(String expectedState) throws Throwable {
+    public void theQuestionStateIs(String expectedState) {
        String state = question.getQuestionState().getState();
        assertEquals(expectedState, state);
     }
 
-    @When("^a patch request is sent to ' \"([^\"]*)\" ' and response status is ' \"([^\"]*)\" '")
+    @When("^a patch request is sent to ' \"([^\"]*)\" ' and response status is ' \"([^\"]*)\" '$")
     public void aPatchRequestIsSentToOnlineHearingsOnlineHearingIdQuestionsQuestionId(String endpoint, String expectedStatus) throws Throwable {
 
         endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));

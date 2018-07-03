@@ -55,10 +55,25 @@ public class QuestionRoundServiceTest {
     }
 
     @Test
+    public void testQuestionRoundMustBeZeroIfNoOtherQuestionsAreFound(){
+        OnlineHearing onlineHearing = new OnlineHearing();
+        Jurisdiction jurisdiction = new Jurisdiction();
+        jurisdiction.setMaxQuestionRounds(3);
+        onlineHearing.setJurisdiction(jurisdiction);
+
+        Question question = new Question();
+        question.setQuestionRound(3);
+
+        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(new ArrayList<>());
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
+        assertFalse(valid);
+    }
+
+    @Test
     public void testGetQuestionRoundReturns1IfNoPreviousQuestionsFound(){
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(new ArrayList<>());
         int questionRound = questionRoundService.getQuestionRound(new OnlineHearing());
-        assertEquals(1, questionRound);
+        assertEquals(0, questionRound);
     }
 
     @Test
