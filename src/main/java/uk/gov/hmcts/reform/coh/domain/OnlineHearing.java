@@ -41,6 +41,9 @@ public class OnlineHearing {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
 
+    @Column(name = "owner_reference_id")
+    private String ownerReferenceId;
+
     public String getJurisdictionName() {
         return jurisdictionName;
     }
@@ -96,6 +99,14 @@ public class OnlineHearing {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public String getOwnerReferenceId() {
+        return ownerReferenceId;
+    }
+
+    public void setOwnerReferenceId(String ownerReferenceId) {
+        this.ownerReferenceId = ownerReferenceId;
     }
 
     @Override
