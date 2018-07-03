@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -132,5 +133,28 @@ public class OnlineHearingControllerTest {
 
         CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
         assertEquals(uuid.toString(), response.getOnlineHearingId());
+    }
+
+    @Test
+    public void testCreateOnlineHearingIncorrectJurisdiction() throws Exception {
+
+        given(jurisdictionService.getJurisdictionWithName("foo")).willReturn(java.util.Optional.empty());
+        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        request.setJurisdiction("foo");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings")
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void testCreateOnlineHearingStartingStateNotFound() throws Exception {
+
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.empty());
+        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings")
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
+                .andExpect(status().isUnprocessableEntity());
     }
 }
