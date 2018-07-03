@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -91,7 +90,7 @@ public class OnlineHearingController {
             }
         }
 
-        onlineHearing.setExternalRef(body.getCaseId());
+        onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
 

@@ -29,7 +29,7 @@ public class ScenarioContext {
 
     public void setCurrentOnlineHearing(OnlineHearingRequest onlineHearingRequest) {
         currentOnlineHearing = new OnlineHearing();
-        currentOnlineHearing.setExternalRef(onlineHearingRequest.getCaseId());
+        currentOnlineHearing.setCaseId(onlineHearingRequest.getCaseId());
     }
 
     public Question getCurrentQuestion() {

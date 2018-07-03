@@ -85,13 +85,14 @@ info:
     name: ${PACKAGES_NAME:cor}
 #    version: ${PACKAGES_VERSION:unknown}
 
-#azure:
-#  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-#
-#app-insights:
-#  dev-mode: off
-#  request-component: on
-#  telemetry-component: on
+azure:
+  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+
+app-insights:
+  dev-mode: off
+  request-component: on
+  telemetry-component: on
+
 #
 #toggle:
 #  includeidamhealth: ${ENABLE_IDAM_HEALTH_CHECK:false}

@@ -55,8 +55,7 @@ public class ApiSteps extends BaseSteps {
 
     private CloseableHttpClient httpClient;
 
-    private Set<String> externalRefs;
-    private ArrayList newObjects;
+    private Set<String> caseIds;
 
     private TestContext testContext;
 
@@ -67,25 +66,24 @@ public class ApiSteps extends BaseSteps {
 
     @Before
     public void setup() throws Exception {
-        externalRefs = new HashSet<String>();
+        caseIds = new HashSet<String>();
         httpClient = HttpClientBuilder
                 .create()
                 .setSslcontext(new SSLContextBuilder()
                         .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
                         .build())
                 .build();
-        newObjects = new ArrayList<>();
     }
 
     @After
     public void cleanUp() {
-        for (String externalRef : externalRefs) {
+        for (String caseId : caseIds) {
             try {
                 OnlineHearing onlineHearing = new OnlineHearing();
-                onlineHearing.setExternalRef(externalRef);
-                onlineHearing = onlineHearingService.retrieveOnlineHearingByExternalRef(onlineHearing);
+                onlineHearing.setCaseId(caseId);
+                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-                onlineHearingService.deleteByExternalRef(externalRef);
+                onlineHearingService.deleteByCaseId(caseId);
             }catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
