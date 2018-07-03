@@ -20,9 +20,11 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingRespo
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.File;
@@ -53,6 +55,9 @@ public class OnlineHearingControllerTest {
     private OnlineHearingPanelMemberService onlineHearingPanelMemberService;
 
     @Mock
+    private OnlineHearingStateService onlineHearingStateService;
+
+    @Mock
     private JurisdictionService jurisdictionService;
 
     private static final String ENDPOINT = "/online-hearings";
@@ -63,6 +68,8 @@ public class OnlineHearingControllerTest {
     private UUID uuid;
 
     private OnlineHearing onlineHearing;
+
+    private OnlineHearingState onlineHearingState;
 
     private OnlineHearingPanelMember member;
 
@@ -75,10 +82,15 @@ public class OnlineHearingControllerTest {
         member.setFullName("foo bar");
         onlineHearing.setPanelMembers(Arrays.asList(member));
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
+
+        onlineHearingState = new OnlineHearingState();
+        onlineHearingState.setOnlineHearingStateId(1);
+        onlineHearingState.setState("continuous_online_hearing_started");
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
         given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.ofNullable(onlineHearingState));
     }
 
     @Test
