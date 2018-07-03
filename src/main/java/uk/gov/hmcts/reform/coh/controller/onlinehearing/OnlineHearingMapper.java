@@ -16,7 +16,7 @@ public class OnlineHearingMapper {
 
     public void map() {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId());
-        response.setCaseId(onlineHearing.getExternalRef());
+        response.setCaseId(onlineHearing.getCaseId());
         response.setStartDate(onlineHearing.getStartDate());
         response.setEndDate(onlineHearing.getEndDate());
         response.setPanel(onlineHearing.getPanelMembers()

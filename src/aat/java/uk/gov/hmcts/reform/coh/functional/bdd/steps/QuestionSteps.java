@@ -80,9 +80,9 @@ public class QuestionSteps extends BaseSteps{
         }
 
         try {
-            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
+            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
             onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+            onlineHearingRepository.deleteByCaseId(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
@@ -110,8 +110,8 @@ public class QuestionSteps extends BaseSteps{
     @Given("^a standard question")
     public void aStandardQuestionRound() throws IOException{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
-        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingExternalRef).get();
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")
