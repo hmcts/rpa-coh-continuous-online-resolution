@@ -39,9 +39,12 @@ public class QuestionRoundService {
             return targetQuestionRound == 1;
         }else if(currentQuestionRound == targetQuestionRound) {
             return true;
-        }else if(!maxQuestionRounds.isPresent() || maxQuestionRounds.get()==0 ||targetQuestionRound <= maxQuestionRounds.get() && targetQuestionRound == currentQuestionRound + 1){
-            return true;
         }else{
+            if(targetQuestionRound == currentQuestionRound + 1){
+                if (targetQuestionRound <= maxQuestionRounds.get() || maxQuestionRounds.get()==0 || !maxQuestionRounds.isPresent()) {
+                    return true;
+                }
+            }
             return false;
         }
     }

@@ -16,9 +16,15 @@ Feature: Question round logic
     And the online hearing jurisdiction is ' "Civil directions" '
     And the post request is sent to create the online hearing
     And a standard question
-    Given the question round is ' "3" '
+    Given the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
+    Given the question round is ' "2" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    Given the question round is ' "4" '
+    When the post request is sent to create the question
+    Then the response code is 422
 
   Scenario: Attempt to create the first question as question round 2
     Given a standard online hearing is created
