@@ -11,9 +11,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=cor
       - SPRING_DATASOURCE_PASSWORD=cor
       - IDAM_USER_BASE_URI=http://idam-api:8080
-      - IDAM_S2S_BASE_URI=http://service-auth-provider-app:8489
-      - S2S_SECRET=AAAAAAAAAAAAAAAA
-      - IDAM_SERVICE_NAME=coh-cor
+      - IDAM_S2S_BASE_URI=http://service-auth-provider-api:8080
       # these environment variables are used by java-logging library
       - ROOT_APPENDER=JSON_CONSOLE
       - JSON_CONSOLE_PRETTY_PRINT=false
