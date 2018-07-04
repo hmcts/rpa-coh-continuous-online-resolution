@@ -75,7 +75,7 @@ auth:
 
 
 authorization:
-  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:citizen}
+  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:caseworker-SSCS-judge,citizen}
   s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,ccd,jui_webapp}
 
 info:
