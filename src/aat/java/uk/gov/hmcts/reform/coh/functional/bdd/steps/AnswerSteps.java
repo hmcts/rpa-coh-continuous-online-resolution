@@ -88,8 +88,8 @@ public class AnswerSteps extends BaseSteps{
     @Before
     public void setup() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
-        endpoints.put("answer", "/online-hearings/onlineHearing_id/questions/question_id/answers");
-        endpoints.put("question", "/online-hearings/onlineHearing_id/questions");
+        endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
+        endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
 
         currentQuestionId = null;
         currentAnswerId = null;

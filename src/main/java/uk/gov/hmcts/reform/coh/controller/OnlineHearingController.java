@@ -22,12 +22,11 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/online-hearings")
+@RequestMapping("/continuous-online-hearings")
 public class OnlineHearingController {
 
     /**

@@ -44,7 +44,7 @@ public class QuestionSteps extends BaseSteps{
     private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
     private RestTemplate restTemplate;
-    private String ENDPOINT = "/online-hearings";
+    private String ENDPOINT = "/continuous-online-hearings";
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
     private Question question;

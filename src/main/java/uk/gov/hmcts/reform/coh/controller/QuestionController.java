@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/online-hearings/{onlineHearingId}")
+@RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class QuestionController {
 
     private QuestionService questionService;
