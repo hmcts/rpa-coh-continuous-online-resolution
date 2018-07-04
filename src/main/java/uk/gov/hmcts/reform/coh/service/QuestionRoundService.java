@@ -10,7 +10,9 @@ import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Component
@@ -56,7 +58,7 @@ public class QuestionRoundService {
         for(int questionRoundNumber = 1; questionRoundNumber <= getQuestionRoundNumber(onlineHearing); questionRoundNumber++){
             QuestionRound questionRound = new QuestionRound();
             questionRound.setQuestionRoundNumber(questionRoundNumber);
-            questionRound.setGetQuestionList(questionRepository.findByOnlineHearingAndQuestionRound(onlineHearing, questionRoundNumber));
+            questionRound.setQuestionList(questionRepository.findByOnlineHearingAndQuestionRound(onlineHearing, questionRoundNumber));
 
             questionRounds.add(questionRound);
         }
@@ -64,7 +66,7 @@ public class QuestionRoundService {
         return questionRounds;
     }
 
-    protected Integer getQuestionRoundNumber(OnlineHearing onlineHearing){
+    public Integer getQuestionRoundNumber(OnlineHearing onlineHearing){
         List<Question> orderedQuestions = getQuestionsOrderedByRound(onlineHearing);
         if (orderedQuestions.isEmpty()){
             return 0;

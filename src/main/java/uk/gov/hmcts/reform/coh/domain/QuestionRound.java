@@ -1,16 +1,25 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class QuestionRound {
 
-    @JsonProperty("question_round_number")
     private Integer questionRound;
 
-    @JsonProperty("question_references")
-    public List<Question> getQuestionList;
+    private List<Question> questionList;
+    private QuestionRoundState questionRoundState;
+
+    public void setQuestionRound(Integer questionRound) {
+        this.questionRound = questionRound;
+    }
+
+    public QuestionRoundState getQuestionRoundState() {
+        return questionRoundState;
+    }
+
+    public void setQuestionRoundState(QuestionRoundState questionRoundState) {
+        this.questionRoundState = questionRoundState;
+    }
 
     public Integer getQuestionRound() {
         return questionRound;
@@ -20,11 +29,11 @@ public class QuestionRound {
         this.questionRound = questionRound;
     }
 
-    public List<Question> getGetQuestionList() {
-        return getQuestionList;
+    public List<Question> getQuestionList() {
+        return questionList;
     }
 
-    public void setGetQuestionList(List<Question> getQuestionList) {
-        this.getQuestionList = getQuestionList;
+    public void setQuestionList(List<Question> questionList) {
+        this.questionList = questionList;
     }
 }

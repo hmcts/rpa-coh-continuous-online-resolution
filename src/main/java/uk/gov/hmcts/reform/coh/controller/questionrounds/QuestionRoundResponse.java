@@ -1,29 +1,54 @@
 package uk.gov.hmcts.reform.coh.controller.questionrounds;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.coh.domain.QuestionRound;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.domain.QuestionRoundState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionRoundResponse {
 
-    @JsonProperty(value = "previous_question_round")
-    private Integer previousQuestionRound;
+    @JsonProperty("question_round_number")
+    private String questionRound;
 
-    @JsonProperty(value = "current_question_round")
-    private Integer currentQuestionRound;
+    @JsonProperty("question_references")
+    public List<QuestionResponse> questionList;
 
-    @JsonProperty(value = "next_question_round")
-    private Integer nextQuestionRound;
+    @JsonProperty("question_round_state")
+    private QuestionRoundState questionRoundState;
 
-    @JsonProperty(value = "max_number_of_question_rounds")
-    private Integer maxQuestionRound;
-
-    @JsonProperty(value = "question_rounds")
-    private List<QuestionRound> questionRounds;
-
-
-    public void setQuestionRounds(List<QuestionRound> questionRounds) {
-        this.questionRounds = questionRounds;
+    public QuestionRoundResponse(){
+        questionList = new ArrayList<>();
     }
+
+    public void setQuestionRound(String questionRound) {
+        this.questionRound = questionRound;
+    }
+
+    public String getQuestionRound() {
+        return questionRound;
+    }
+
+    public void setQuestionRoundState(QuestionRoundState questionRoundState){
+        this.questionRoundState = questionRoundState;
+    }
+
+    public QuestionRoundState getQuestionRoundState() {
+        return questionRoundState;
+    }
+
+    public void setQuestionList(List<QuestionResponse> questionList) {
+        this.questionList = questionList;
+    }
+
+    public List<QuestionResponse> getQuestionList(){
+        return questionList;
+    }
+
+    public void addQuestionResponse(QuestionResponse questionResponse){
+        questionList.add(questionResponse);
+    }
+
+
 }

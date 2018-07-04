@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
+import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
+import uk.gov.hmcts.reform.coh.controller.questionrounds.AllQuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
@@ -46,7 +48,7 @@ public class QuestionRoundController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questionrounds")
-    public ResponseEntity<QuestionRoundResponse> getQuestionRounds(@PathVariable UUID onlineHearingId) {
+    public ResponseEntity<AllQuestionRoundsResponse> getQuestionRounds(@PathVariable UUID onlineHearingId) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -57,10 +59,17 @@ public class QuestionRoundController {
 
         onlineHearing = optionalOnlineHearing.get();
         List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
-        QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
 
-        questionRoundResponse.setQuestionRounds(questionRounds);
+        AllQuestionRoundsResponse allQuestionRoundsResponse = new AllQuestionRoundsResponse();
 
-        return ResponseEntity.ok(questionRoundResponse);
+        for(QuestionRound questionRound : questionRounds) {
+            QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
+            QuestionRoundResponseMapper.map(questionRound, questionRoundResponse);
+            allQuestionRoundsResponse.addQuestionRoundResponse(questionRoundResponse);
+        }
+
+        allQuestionRoundsResponse.setCurrentQuestionRound(questionRoundService.getQuestionRoundNumber(onlineHearing));
+        allQuestionRoundsResponse.setMaxQuestionRound(onlineHearing.getJurisdiction().getMaxQuestionRounds().get());
+        return ResponseEntity.ok(allQuestionRoundsResponse);
     }
 }
