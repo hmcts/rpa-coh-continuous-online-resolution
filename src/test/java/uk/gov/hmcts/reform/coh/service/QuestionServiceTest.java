@@ -33,6 +33,9 @@ public class QuestionServiceTest {
     @Mock
     private QuestionNotification questionNotification;
 
+    @Mock
+    private QuestionRoundService questionRoundService;
+
     private QuestionService questionService;
 
     private QuestionState drafted = new QuestionState("DRAFTED");
@@ -44,13 +47,14 @@ public class QuestionServiceTest {
     @Before
     public void setup() {
         ONE = UUID.randomUUID();
-        questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService);
+        questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService, questionRoundService);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
         issuedState.setState("ISSUED");
         given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
         given(questionNotification.notifyQuestionState(any(Question.class))).willReturn(true);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(new OnlineHearing()));
+        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         question = new Question();
     }
 

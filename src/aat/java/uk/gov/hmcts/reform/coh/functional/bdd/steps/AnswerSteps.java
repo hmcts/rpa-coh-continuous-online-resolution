@@ -6,6 +6,8 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,6 +43,8 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration
 @SpringBootTest
 public class AnswerSteps extends BaseSteps{
+    private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
+
 
     private RestTemplate restTemplate;
 
@@ -110,11 +114,11 @@ public class AnswerSteps extends BaseSteps{
         }
 
         try {
-            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
+            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
             onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByExternalRef(onlineHearingExternalRef);
+            onlineHearingRepository.deleteByCaseId(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
-            System.out.println("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
+            log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
     }
 
@@ -125,8 +129,8 @@ public class AnswerSteps extends BaseSteps{
     public void an_existing_question() throws IOException {
         QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
-        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
 
         HttpHeaders header = new HttpHeaders();
@@ -142,8 +146,8 @@ public class AnswerSteps extends BaseSteps{
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
         this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
-        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getExternalRef();
-        onlineHearing = onlineHearingRepository.findByExternalRef(onlineHearingExternalRef).get();
+        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingExternalRef).get();
         updateEndpointWithOnlineHearingId();
     }
 
@@ -195,7 +199,7 @@ public class AnswerSteps extends BaseSteps{
             AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), AnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
-            System.out.println("Exception " + e.getMessage());
+            log.error("Exception " + e.getMessage());
         }
     }
 

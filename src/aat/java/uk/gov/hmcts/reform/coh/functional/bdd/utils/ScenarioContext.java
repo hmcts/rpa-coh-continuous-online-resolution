@@ -3,10 +3,12 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class ScenarioContext {
@@ -19,6 +21,8 @@ public class ScenarioContext {
 
     private List<OnlineHearing> onlineHearings;
 
+    Set<Jurisdiction> jurisdictions;
+
     public OnlineHearing getCurrentOnlineHearing() {
         return currentOnlineHearing;
     }
@@ -29,7 +33,7 @@ public class ScenarioContext {
 
     public void setCurrentOnlineHearing(OnlineHearingRequest onlineHearingRequest) {
         currentOnlineHearing = new OnlineHearing();
-        currentOnlineHearing.setExternalRef(onlineHearingRequest.getCaseId());
+        currentOnlineHearing.setCaseId(onlineHearingRequest.getCaseId());
     }
 
     public Question getCurrentQuestion() {
@@ -54,5 +58,13 @@ public class ScenarioContext {
 
     public void setOnlineHearings(List<OnlineHearing> onlineHearings) {
         this.onlineHearings = onlineHearings;
+    }
+
+    public void setJurisdictions(Set<Jurisdiction> jurisdictions) {
+        this.jurisdictions = jurisdictions;
+    }
+
+    public Set<Jurisdiction> getJurisdictions() {
+        return jurisdictions;
     }
 }
