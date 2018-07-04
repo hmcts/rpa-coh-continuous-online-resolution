@@ -101,8 +101,8 @@ public class QuestionSteps extends BaseSteps{
         }
     }
 
-    @And("^the post request is sent to create the question and the response status is (\\d+)$")
-    public void theDraftAQuestion(int responseCode) throws Throwable {
+    @And("^the post request is sent to create the question$")
+    public void theDraftAQuestion() throws Throwable {
         String jsonBody = JsonUtils.toJson(questionRequest);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
 
@@ -113,11 +113,11 @@ public class QuestionSteps extends BaseSteps{
             CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
             questionIds.add(createQuestionResponse.getQuestionId());
             httpResponseCode = response.getStatusCodeValue();
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             httpResponseCode = hsee.getRawStatusCode();
         }
-
-        assertEquals(responseCode, httpResponseCode);
+        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
     }
 
     @Given("^a standard question")
