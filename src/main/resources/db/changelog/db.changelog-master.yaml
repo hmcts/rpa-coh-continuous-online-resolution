@@ -1,5 +1,8 @@
 databaseChangeLog:
-- runAlways: true
-- include:
-    relativeToChangelogFile: true
-    file: db.changelog-diff-20180704-1146.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: db.changelog-diff-20180704-1508.yaml
+
+  - include:
+      relativeToChangelogFile: true
+      file: db-data-changelog.yaml
