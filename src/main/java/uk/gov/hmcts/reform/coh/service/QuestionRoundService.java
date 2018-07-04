@@ -1,18 +1,3 @@
-    public QuestionRound getQuestionRound(OnlineHearing onlineHearing, Optional<List<Question>> optionalQuestions) throws NotFoundException {
-        if(!optionalJurisdiction.isPresent()){
-        Optional<Jurisdiction> optionalJurisdiction = jurisdictionService.getJurisdictionWithName(onlineHearing.getJurisdictionName());
-            throw new NotFoundException("Error: No jurisdiction assigned to online hearing -" + onlineHearing.getOnlineHearingId());
-        }
-
-        QuestionRound questionRound = new QuestionRound();
-
-        questionRound.setQuestionList(optionalQuestions.get());
-
-        Integer nextQuestionRound = getNextQuestionRound(optionalJurisdiction.get());
-
-        questionRound.setNextQuestionRound();
-
-    }
 package uk.gov.hmcts.reform.coh.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +6,11 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Component
@@ -51,7 +36,7 @@ public class QuestionRoundService {
             return true;
         }
         int targetQuestionRound = question.getQuestionRound();
-        int currentQuestionRound = getQuestionRound(onlineHearing);
+        int currentQuestionRound = getQuestionRoundNumber(onlineHearing);
 
         if(currentQuestionRound == 0){
             return targetQuestionRound == 1;
@@ -64,7 +49,22 @@ public class QuestionRoundService {
         }
     }
 
-    protected int getQuestionRound(OnlineHearing onlineHearing){
+    public List<QuestionRound> getAllQuestionRounds(OnlineHearing onlineHearing){
+
+        List<QuestionRound> questionRounds = new ArrayList<>();
+
+        for(int questionRoundNumber = 1; questionRoundNumber <= getQuestionRoundNumber(onlineHearing); questionRoundNumber++){
+            QuestionRound questionRound = new QuestionRound();
+            questionRound.setQuestionRoundNumber(questionRoundNumber);
+            questionRound.setGetQuestionList(questionRepository.findByOnlineHearingAndQuestionRound(onlineHearing, questionRoundNumber));
+
+            questionRounds.add(questionRound);
+        }
+
+        return questionRounds;
+    }
+
+    protected Integer getQuestionRoundNumber(OnlineHearing onlineHearing){
         List<Question> orderedQuestions = getQuestionsOrderedByRound(onlineHearing);
         if (orderedQuestions.isEmpty()){
             return 0;

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 
 import java.util.Optional;
@@ -22,9 +21,5 @@ public class JurisdictionService {
 
     public Optional<Jurisdiction> getJurisdictionWithName(String jurisdictionName) {
         return jurisdictionRepository.findByJurisdictionName(jurisdictionName);
-    }
-
-    public Integer getNextQuestionRound(OnlineHearing onlineHearing) {
-
     }
 }

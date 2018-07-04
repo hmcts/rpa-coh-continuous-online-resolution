@@ -6,37 +6,25 @@ import java.util.List;
 
 public class QuestionRound {
 
-    @JsonProperty(value = "current_question_round")
-    private Integer currentQuestionRound;
+    @JsonProperty("question_round_number")
+    private Integer questionRound;
 
-    @JsonProperty(value = "next_question_round")
-    private Integer nextQuestionRound;
+    @JsonProperty("question_references")
+    public List<Question> getQuestionList;
 
-    @JsonProperty(value = "question_references")
-    private List<Question> questionList;
-
-    public List<Question> getQuestionList() {
-        return questionList;
+    public Integer getQuestionRound() {
+        return questionRound;
     }
 
-    public void setQuestionList(List<Question> questionList) {
-        this.questionList = questionList;
-        setCurrentQuestionRound(questionList.get(0).getQuestionRound());
+    public void setQuestionRoundNumber(Integer questionRound) {
+        this.questionRound = questionRound;
     }
 
-    public Integer getCurrentQuestionRound() {
-        return currentQuestionRound;
+    public List<Question> getGetQuestionList() {
+        return getQuestionList;
     }
 
-    public void setCurrentQuestionRound(Integer currentQuestionRound) {
-        this.currentQuestionRound = currentQuestionRound;
-    }
-
-    public Integer getNextQuestionRound() {
-        return nextQuestionRound;
-    }
-
-    public void setNextQuestionRound(Integer nextQuestionRound) {
-        this.nextQuestionRound = nextQuestionRound;
+    public void setGetQuestionList(List<Question> getQuestionList) {
+        this.getQuestionList = getQuestionList;
     }
 }

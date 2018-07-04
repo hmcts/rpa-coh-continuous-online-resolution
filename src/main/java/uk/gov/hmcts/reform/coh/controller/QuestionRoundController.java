@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
@@ -45,7 +46,7 @@ public class QuestionRoundController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questionrounds")
-    public ResponseEntity<QuestionRound> getQuestionRound(@PathVariable UUID onlineHearingId) {
+    public ResponseEntity<QuestionRoundResponse> getQuestionRounds(@PathVariable UUID onlineHearingId) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -55,15 +56,11 @@ public class QuestionRoundController {
         }
 
         onlineHearing = optionalOnlineHearing.get();
+        List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
+        QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
 
-        Optional<List<Question>> optionalQuestions = questionService.retrieveQuestionsByOnlineHearing(onlineHearing);
-        if(!optionalQuestions.isPresent()){
-            return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
-        }
+        questionRoundResponse.setQuestionRounds(questionRounds);
 
-        QuestionRound questionRound = questionRoundService.getQuestionRound(onlineHearing, optionalQuestions);
-        System.out.println(optionalQuestions.get().get(0).getQuestionText());
-        questionRound.setQuestionList(optionalQuestions.get());
-        return ResponseEntity.ok(questionRound);
+        return ResponseEntity.ok(questionRoundResponse);
     }
 }
