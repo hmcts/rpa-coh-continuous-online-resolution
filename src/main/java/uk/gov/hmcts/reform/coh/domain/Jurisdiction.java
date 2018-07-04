@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Optional;
 
 @Entity
 @Table(name = "jurisdiction")
@@ -20,7 +21,7 @@ public class Jurisdiction {
     private String url;
 
     @Column(name = "max_question_rounds")
-    private int maxQuestionRounds;
+    private Integer maxQuestionRounds;
 
     public Long getJurisdictionId() {
         return jurisdictionId;
@@ -50,8 +51,8 @@ public class Jurisdiction {
         this.maxQuestionRounds = maxQuestionRounds;
     }
 
-    public int getMaxQuestionRounds() {
-        return maxQuestionRounds;
+    public Optional<Integer> getMaxQuestionRounds() {
+        return Optional.ofNullable(maxQuestionRounds);
     }
 
     @Override

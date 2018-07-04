@@ -21,10 +21,12 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
@@ -51,6 +53,9 @@ public class QuestionSteps extends BaseSteps{
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
+
+    @Autowired
+    private JurisdictionRepository jurisdictionRepository;
 
     @Autowired
     private QuestionRepository questionRepository;
@@ -85,6 +90,14 @@ public class QuestionSteps extends BaseSteps{
             onlineHearingRepository.deleteByCaseId(onlineHearingExternalRef);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
+        }
+
+        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
+            try {
+                jurisdictionRepository.delete(jurisdiction);
+            }catch(DataIntegrityViolationException e){
+                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            }
         }
     }
 

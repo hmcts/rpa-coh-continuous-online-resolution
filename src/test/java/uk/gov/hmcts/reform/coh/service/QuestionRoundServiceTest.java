@@ -77,6 +77,17 @@ public class QuestionRoundServiceTest {
     }
 
     @Test
+    public void testValidateQuestionsRoundWhenNoJurisdictionLimitSet(){
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setJurisdiction( new Jurisdiction());
+
+        Question question = new Question();
+        question.setQuestionRound(4);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
+        assertTrue(valid);
+    }
+
+    @Test
     public void testValidateQuestionRoundHappyPath(){
         OnlineHearing onlineHearing = new OnlineHearing();
         Jurisdiction jurisdiction = new Jurisdiction();
