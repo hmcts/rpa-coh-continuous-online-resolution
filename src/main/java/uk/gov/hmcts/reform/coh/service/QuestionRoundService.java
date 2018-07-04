@@ -77,4 +77,29 @@ public class QuestionRoundService {
     public List<Question> getQuestionsOrderedByRound(OnlineHearing onlineHearing){
         return questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing);
     }
+
+    public Integer getNextQuestionRound(OnlineHearing onlineHearing, Integer currentQuestionRound) {
+        Optional<Integer> maxQuestionRounds = onlineHearing.getJurisdiction().getMaxQuestionRounds();
+
+        if(!maxQuestionRounds.isPresent() || maxQuestionRounds.get() == 0){
+            return currentQuestionRound + 1;
+        }
+
+        if (currentQuestionRound < maxQuestionRounds.get()){
+            return currentQuestionRound + 1;
+        }else{
+            return currentQuestionRound;
+        }
+    }
+
+    public Integer getNextQuestionRound(OnlineHearing onlineHearing) {
+        return getNextQuestionRound(onlineHearing, getQuestionRoundNumber(onlineHearing));
+    }
+
+    public Integer getPreviousQuestionRound(Integer currentQuestionRound){
+        if (currentQuestionRound > 1){
+            return currentQuestionRound - 1;
+        }
+        return currentQuestionRound;
+    }
 }

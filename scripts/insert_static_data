@@ -16,4 +16,4 @@ INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
 		(2, 'continuous_online_hearing_questions_issued'),
 		(3, 'continuous_online_hearing_answers_sent');
 
-insert into jurisdiction(jurisdiction_id, jurisdiction_name, url, max_question_rounds) values (1, 'SSCS', 'http://localhost:8080/SSCS/notifications', 5);
+insert into jurisdiction(jurisdiction_id, jurisdiction_name, url, max_question_rounds) values (1, 'SSCS', 'http://localhost:8080/SSCS/notifications', 2);

@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.coh.controller.questionrounds.AllQuestionRoundsRespon
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
+import uk.gov.hmcts.reform.coh.domain.QuestionRoundState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
@@ -62,14 +63,19 @@ public class QuestionRoundController {
 
         AllQuestionRoundsResponse allQuestionRoundsResponse = new AllQuestionRoundsResponse();
 
+        QuestionRoundState questionRoundState = new QuestionRoundState();
+        questionRoundState.setState("Issued");
         for(QuestionRound questionRound : questionRounds) {
             QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
+            questionRound.setQuestionRoundState(questionRoundState);
             QuestionRoundResponseMapper.map(questionRound, questionRoundResponse);
             allQuestionRoundsResponse.addQuestionRoundResponse(questionRoundResponse);
         }
 
         allQuestionRoundsResponse.setCurrentQuestionRound(questionRoundService.getQuestionRoundNumber(onlineHearing));
+        allQuestionRoundsResponse.setNextQuestionRound(questionRoundService.getNextQuestionRound(onlineHearing, allQuestionRoundsResponse.getCurrentQuestionRound()));
         allQuestionRoundsResponse.setMaxQuestionRound(onlineHearing.getJurisdiction().getMaxQuestionRounds().get());
+        allQuestionRoundsResponse.setPreviousQuestionRound(questionRoundService.getPreviousQuestionRound(allQuestionRoundsResponse.getCurrentQuestionRound()));
         return ResponseEntity.ok(allQuestionRoundsResponse);
     }
 }

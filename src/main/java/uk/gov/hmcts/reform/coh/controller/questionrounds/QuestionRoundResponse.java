@@ -16,7 +16,7 @@ public class QuestionRoundResponse {
     public List<QuestionResponse> questionList;
 
     @JsonProperty("question_round_state")
-    private QuestionRoundState questionRoundState;
+    private QuestionRoundState questionRoundState  = new QuestionRoundState();
 
     public QuestionRoundResponse(){
         questionList = new ArrayList<>();
