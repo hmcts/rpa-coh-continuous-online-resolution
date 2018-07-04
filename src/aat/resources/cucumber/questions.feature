@@ -2,8 +2,9 @@ Feature: Questions feature
 
   Scenario: Submit a question
     Given a standard online hearing is created
-    And a valid question
-    When the response code is 201
+    And a standard question
+    When the post request is sent to create the question
+    Then the response code is 200
 #
 #  Scenario: Create question and assign state to issued
 #    Given a standard online hearing is created

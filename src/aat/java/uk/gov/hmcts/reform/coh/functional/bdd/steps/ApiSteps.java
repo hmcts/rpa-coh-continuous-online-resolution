@@ -28,9 +28,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
@@ -49,15 +51,21 @@ public class ApiSteps extends BaseSteps {
     private OnlineHearingService onlineHearingService;
 
     @Autowired
+    private JurisdictionRepository jurisdictionRepository;
+
+    @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
     private JSONObject json;
 
     private CloseableHttpClient httpClient;
+    private HttpHeaders header;
+    private RestTemplate restTemplate;
 
     private Set<String> caseIds;
-
+    private Set<Jurisdiction> jurisdictions;
     private TestContext testContext;
+    private OnlineHearingRequest onlineHearingRequest;
 
     @Autowired
     public ApiSteps(TestContext testContext) {
@@ -73,6 +81,11 @@ public class ApiSteps extends BaseSteps {
                         .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
                         .build())
                 .build();
+        header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+        jurisdictions = new HashSet<>();
+        testContext.getScenarioContext().setJurisdictions(jurisdictions);
     }
 
     @After
@@ -84,6 +97,14 @@ public class ApiSteps extends BaseSteps {
                 onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByCaseId(caseId);
+            }catch(DataIntegrityViolationException e){
+                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            }
+        }
+
+        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
+            try {
+                jurisdictionRepository.delete(jurisdiction);
             }catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
@@ -127,9 +148,6 @@ public class ApiSteps extends BaseSteps {
 
     @Given("^a standard online hearing is created$")
     public void aStandardOnlineHearingIsCreated() throws Throwable {
-        RestTemplate restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());;
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
 
         OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
@@ -141,6 +159,43 @@ public class ApiSteps extends BaseSteps {
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
+    }
+
+    @Given("^a standard online hearing$")
+    public void aStandardOnlineHearing() throws IOException {
+        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+    }
+
+    @And("^the online hearing jurisdiction is ' \"([^\"]*)\" '$")
+    public void theOnlineHearingJurisdictionIsSCSS(String jurisdictionName){
+        onlineHearingRequest.setJurisdiction(jurisdictionName);
+    }
+
+    @And("^the post request is sent to create the online hearing$")
+    public void thePostRequestIsSentToCreateTheOnlineHearing() throws IOException {
+
+        String jsonBody = JsonUtils.toJson(onlineHearingRequest);
+        HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/online-hearings", HttpMethod.POST, request, String.class);
+        String responseString = response.getBody();
+        testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+
+        CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
+
+    }
+
+    @And("^^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' with url ' \"([^\"]*)\" and max question rounds ' \"(\\d+)\" ' is created$$")
+    public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id, String url, int maxQuestionRounds) {
+        Jurisdiction jurisdiction = new Jurisdiction();
+
+        jurisdiction.setJurisdictionId(id);
+        jurisdiction.setJurisdictionName(jurisdictionName);
+        jurisdiction.setUrl(url);
+        jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
+        jurisdictionRepository.save(jurisdiction);
+        jurisdictions.add(jurisdiction);
     }
 
     @And("^the response contains (\\d+) panel member$")
