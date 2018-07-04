@@ -3,6 +3,7 @@ databaseChangeLog:
       id: insert-static-jurisdictions
       author: johnho
       validCheckSum: ANY
+      runAlways: true
       changes:
         - sqlFile:
             path: sql/jurisdictions.sql
@@ -12,6 +13,7 @@ databaseChangeLog:
       id: insert-static-online-hearing-states
       author: johnho
       validCheckSum: ANY
+      runAlways: true
       changes:
         - sqlFile:
             path: sql/online_hearing_states.sql
@@ -21,6 +23,7 @@ databaseChangeLog:
       id: insert-static-question-states
       author: johnho
       validCheckSum: ANY
+      runAlways: true
       changes:
         - sqlFile:
             path: sql/question_states.sql
@@ -30,6 +33,7 @@ databaseChangeLog:
       id: insert-static-answer-states
       author: johnho
       validCheckSum: ANY
+      runAlways: true
       changes:
         - sqlFile:
             path: sql/answer_states.sql
