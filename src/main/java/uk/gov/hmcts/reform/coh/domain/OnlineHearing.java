@@ -44,6 +44,10 @@ public class OnlineHearing {
     @Column(name = "owner_reference_id")
     private String ownerReferenceId;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "online_hearing_state_id", nullable = false)
+    private OnlineHearingState onlineHearingState;
+
     public String getJurisdictionName() {
         return jurisdictionName;
     }
@@ -99,6 +103,14 @@ public class OnlineHearing {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public OnlineHearingState getOnlineHearingState() {
+        return onlineHearingState;
+    }
+
+    public void setOnlineHearingState(OnlineHearingState onlineHearingState) {
+        this.onlineHearingState = onlineHearingState;
     }
 
     public String getOwnerReferenceId() {

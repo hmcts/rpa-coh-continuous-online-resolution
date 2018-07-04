@@ -16,12 +16,13 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,14 +30,22 @@ import java.util.UUID;
 @RequestMapping("/online-hearings")
 public class OnlineHearingController {
 
+    /**
+     * TODO - Don't hard code the starting state
+     */
+    private static final String STARTING_STATE = "continuous_online_hearing_started";
+
     @Autowired
-    OnlineHearingService onlineHearingService;
+    private OnlineHearingService onlineHearingService;
 
     @Autowired
     private OnlineHearingPanelMemberService onlineHearingPanelMemberService;
 
     @Autowired
-    JurisdictionService jurisdictionService;
+    private OnlineHearingStateService onlineHearingStateService;
+
+    @Autowired
+    private JurisdictionService jurisdictionService;
 
     @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
     @ApiResponses(value = {
@@ -90,6 +99,11 @@ public class OnlineHearingController {
             }
         }
 
+        Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
+        if (!onlineHearingState.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+        onlineHearing.setOnlineHearingState(onlineHearingState.get());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
@@ -97,7 +111,6 @@ public class OnlineHearingController {
         OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
 
-        List<OnlineHearingPanelMember> panelMembers = new ArrayList<>();
         for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
             OnlineHearingPanelMember ohpMember = new OnlineHearingPanelMember();
             ohpMember.setFullName(member.getName());
