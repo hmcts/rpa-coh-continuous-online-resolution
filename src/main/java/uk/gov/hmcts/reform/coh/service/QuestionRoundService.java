@@ -40,7 +40,7 @@ public class QuestionRoundService {
         } else if (currentQuestionRound == targetQuestionRound) {
             return true;
         } else if ((targetQuestionRound == currentQuestionRound + 1)
-                || (!maxQuestionRounds.isPresent() || targetQuestionRound <= maxQuestionRounds.get() || maxQuestionRounds.get() == 0)) {
+                && (targetQuestionRound <= maxQuestionRounds.get() || maxQuestionRounds.get()==0 || !maxQuestionRounds.isPresent())) {
                     return true;
         }
 
