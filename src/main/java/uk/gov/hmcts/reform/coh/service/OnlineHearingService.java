@@ -35,7 +35,8 @@ public class OnlineHearingService {
         onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
     }
 
-    public void deleteByCaseId(String externalRef) {
-        onlineHearingRepository.deleteByCaseId(externalRef);
+    public void deleteByCaseId(String caseId) {
+        onlineHearingRepository.deleteByCaseId(caseId);
     }
+
 }

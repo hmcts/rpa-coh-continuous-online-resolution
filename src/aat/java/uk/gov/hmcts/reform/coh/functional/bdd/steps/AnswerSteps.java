@@ -114,9 +114,9 @@ public class AnswerSteps extends BaseSteps{
         }
 
         try {
-            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+            String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
             onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByCaseId(onlineHearingExternalRef);
+            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
@@ -129,8 +129,8 @@ public class AnswerSteps extends BaseSteps{
     public void an_existing_question() throws IOException {
         QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
-        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingExternalRef).get();
+        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
 
         HttpHeaders header = new HttpHeaders();
@@ -146,8 +146,8 @@ public class AnswerSteps extends BaseSteps{
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
         this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
-        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingExternalRef).get();
+        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
     }
 
