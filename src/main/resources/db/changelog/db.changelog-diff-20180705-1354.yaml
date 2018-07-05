@@ -1,0 +1,377 @@
+databaseChangeLog:
+- changeSet:
+    id: 1530795268201-1
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: answer_state_id
+            type: INT
+        - column:
+            name: state
+            type: VARCHAR(255)
+        tableName: answer_state
+- changeSet:
+    id: 1530795268201-2
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: date_occured
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: answer_answer_id
+            type: UUID
+        - column:
+            constraints:
+              nullable: false
+            name: answerstate_answer_state_id
+            type: INT
+        tableName: answer_state_history
+- changeSet:
+    id: 1530795268201-3
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: jurisdiction_id
+            type: BIGINT
+        - column:
+            name: jurisdiction_name
+            type: VARCHAR(255)
+        - column:
+            name: max_question_rounds
+            type: INT
+        - column:
+            name: url
+            type: VARCHAR(255)
+        tableName: jurisdiction
+- changeSet:
+    id: 1530795268201-4
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: online_hearing_panel_memberPK
+            name: online_hearing_panel_id
+            type: BIGINT
+        - column:
+            name: full_name
+            type: VARCHAR(255)
+        - column:
+            name: identity_reference
+            type: VARCHAR(255)
+        - column:
+            name: online_hearing_id
+            type: UUID
+        tableName: online_hearing_panel_member
+- changeSet:
+    id: 1530795268201-5
+    author: rose (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: online_hearing_state_id
+            type: INT
+        - column:
+            name: state
+            type: VARCHAR(255)
+        tableName: online_hearing_state
+- changeSet:
+    id: 1530795268201-6
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: answer_state_id
+            type: int4
+        tableName: answer
+- changeSet:
+    id: 1530795268201-7
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: author_reference_id
+            type: varchar(255)
+        tableName: question
+- changeSet:
+    id: 1530795268201-8
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: case_id
+            type: varchar(255)
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-9
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: deadline_expiry_date
+            type: timestamp
+        tableName: question
+- changeSet:
+    id: 1530795268201-10
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: end_date
+            type: TIMESTAMP WITH TIME ZONE
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-11
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: jurisdiction_id
+            type: int8
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-12
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: online_hearing_state_id
+            type: int4
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-13
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: owner_reference_id
+            type: varchar(255)
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-14
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: owner_reference_id
+            type: varchar(255)
+        tableName: question
+- changeSet:
+    id: 1530795268201-15
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: question_header_text
+            type: varchar(255)
+        tableName: question
+- changeSet:
+    id: 1530795268201-16
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: question_ordinal
+            type: int4
+        tableName: question
+- changeSet:
+    id: 1530795268201-17
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: question_round
+            type: int4
+        tableName: question
+- changeSet:
+    id: 1530795268201-18
+    author: rose (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: start_date
+            type: TIMESTAMP WITH TIME ZONE
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-19
+    author: rose (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_state_id
+        constraintName: answer_statePK
+        tableName: answer_state
+- changeSet:
+    id: 1530795268201-20
+    author: rose (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: answer_answer_id, answerstate_answer_state_id
+        constraintName: answer_state_historyPK
+        tableName: answer_state_history
+- changeSet:
+    id: 1530795268201-21
+    author: rose (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: jurisdiction_id
+        constraintName: jurisdictionPK
+        tableName: jurisdiction
+- changeSet:
+    id: 1530795268201-22
+    author: rose (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: online_hearing_state_id
+        constraintName: online_hearing_statePK
+        tableName: online_hearing_state
+- changeSet:
+    id: 1530795268201-23
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing_state_id
+        baseTableName: online_hearing
+        constraintName: FK4uwa5feu07f6uneaaxvhwcysn
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_state_id
+        referencedTableName: online_hearing_state
+- changeSet:
+    id: 1530795268201-24
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing_id
+        baseTableName: question
+        constraintName: FK6rdsf7v183stsrc6cun38qiil
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_id
+        referencedTableName: online_hearing
+- changeSet:
+    id: 1530795268201-25
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing_id
+        baseTableName: online_hearing_panel_member
+        constraintName: FKesjwlcsmkmumaioco2m3u9483
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_id
+        referencedTableName: online_hearing
+- changeSet:
+    id: 1530795268201-26
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: jurisdiction_id
+        baseTableName: online_hearing
+        constraintName: FKi7d7eroliuowqqj6l29q75n79
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: jurisdiction_id
+        referencedTableName: jurisdiction
+- changeSet:
+    id: 1530795268201-27
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answerstate_answer_state_id
+        baseTableName: answer_state_history
+        constraintName: FKo7rbsygwtjr0t55i8vrypqijd
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_state_id
+        referencedTableName: answer_state
+- changeSet:
+    id: 1530795268201-28
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answer_state_id
+        baseTableName: answer
+        constraintName: FKr0xo0gmdxmblwklcfjd61h3to
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_state_id
+        referencedTableName: answer_state
+- changeSet:
+    id: 1530795268201-29
+    author: rose (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: answer_answer_id
+        baseTableName: answer_state_history
+        constraintName: FKre7rcxsj4st5vxcvdficgkaq3
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: answer_id
+        referencedTableName: answer
+- changeSet:
+    id: 1530795268201-30
+    author: rose (generated)
+    changes:
+    - dropTable:
+        tableName: question_round
+- changeSet:
+    id: 1530795268201-31
+    author: rose (generated)
+    changes:
+    - dropColumn:
+        columnName: external_ref
+        tableName: online_hearing
+- changeSet:
+    id: 1530795268201-32
+    author: rose (generated)
+    changes:
+    - dropColumn:
+        columnName: question_round_id
+        tableName: question
+- changeSet:
+    id: 1530795268201-33
+    author: rose (generated)
+    changes:
+    - dropColumn:
+        columnName: subject
+        tableName: question
+- changeSet:
+    id: 1530795268201-34
+    author: rose (generated)
+    changes:
+    - dropSequence:
+        sequenceName: seq_answer_id
+
