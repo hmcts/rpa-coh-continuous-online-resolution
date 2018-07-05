@@ -26,7 +26,7 @@ public class SwaggerConfiguration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.regex("/online-hearings(.*)"))
+                .paths(PathSelectors.regex("/continuous-online-hearings(.*)"))
                 .build()
                 .apiInfo(apiInfo());
     }
