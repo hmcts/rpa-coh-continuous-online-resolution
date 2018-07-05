@@ -54,6 +54,10 @@ public class QuestionRoundService {
         return maxQuestionRounds > 0;
     }
 
+    public List<Question> getQuestionsByQuestionRound(OnlineHearing onlineHearing, int questionRoundNumber){
+        return questionRepository.findByOnlineHearingAndQuestionRound(onlineHearing, questionRoundNumber);
+    }
+
     public List<QuestionRound> getAllQuestionRounds(OnlineHearing onlineHearing){
 
         List<QuestionRound> questionRounds = new ArrayList<>();
@@ -61,7 +65,7 @@ public class QuestionRoundService {
         for(int questionRoundNumber = 1; questionRoundNumber <= getCurrentQuestionRoundNumber(onlineHearing); questionRoundNumber++){
             QuestionRound questionRound = new QuestionRound();
             questionRound.setQuestionRoundNumber(questionRoundNumber);
-            questionRound.setQuestionList(questionRepository.findByOnlineHearingAndQuestionRound(onlineHearing, questionRoundNumber));
+            questionRound.setQuestionList(getQuestionsByQuestionRound(onlineHearing, questionRoundNumber));
             questionRound.setQuestionRoundState(retrieveQuestionRoundState(questionRound));
             questionRounds.add(questionRound);
         }
@@ -82,7 +86,8 @@ public class QuestionRoundService {
         for(Question question : questions) {
             if(isState(question, submittedState) || isState(questionRoundState, submittedState)) {
                 questionRoundState.setState(submittedState);
-            } else if(isState(question, draftedState) || isState(questionRoundState, draftedState)) {
+            }
+            if(isState(question, draftedState) || isState(questionRoundState, draftedState)) {
                 questionRoundState.setState(draftedState);
             }
         }

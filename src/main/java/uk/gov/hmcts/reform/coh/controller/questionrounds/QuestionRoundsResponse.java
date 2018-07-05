@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllQuestionRoundsResponse {
+public class QuestionRoundsResponse {
 
     @JsonProperty(value = "previous_question_round")
     private Integer previousQuestionRound;
@@ -22,7 +22,7 @@ public class AllQuestionRoundsResponse {
     @JsonProperty(value = "question_rounds")
     private List<QuestionRoundResponse> questionRounds;
 
-    public AllQuestionRoundsResponse(){
+    public QuestionRoundsResponse(){
         questionRounds = new ArrayList<>();
     }
 
