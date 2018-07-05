@@ -11,6 +11,11 @@ public class QuestionRoundState {
     @JsonIgnore
     private int stateId;
 
+    public void setState(QuestionState questionState){
+        this.state = questionState.getState();
+        this.stateId = questionState.getQuestionStateId();
+    }
+
     public int getStateId() {
         return stateId;
     }

@@ -1,32 +1,39 @@
 package uk.gov.hmcts.reform.coh.service;
 
-        import org.junit.Before;
-        import org.junit.Test;
-        import org.junit.runner.RunWith;
-        import org.mockito.Mock;
-        import org.springframework.test.context.junit4.SpringRunner;
-        import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-        import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-        import uk.gov.hmcts.reform.coh.domain.Question;
-        import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
-        import javax.persistence.EntityNotFoundException;
-        import java.util.ArrayList;
-        import java.util.List;
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
-        import static junit.framework.TestCase.assertEquals;
-        import static junit.framework.TestCase.assertFalse;
-        import static junit.framework.TestCase.assertTrue;
-        import static org.mockito.ArgumentMatchers.any;
-        import static org.mockito.BDDMockito.given;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 public class QuestionRoundServiceTest {
 
     private QuestionRoundService questionRoundService;
     private OnlineHearing onlineHearing;
+    private QuestionState draftedState;
+    private QuestionState submittedState;
+
     @Mock
     private QuestionRepository questionRepository;
+
+    @Mock
+    private QuestionStateService questionStateService;
 
     @Before
     public void setup(){
@@ -39,7 +46,17 @@ public class QuestionRoundServiceTest {
         questions.add(question);
 
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
-        questionRoundService = new QuestionRoundService(questionRepository);
+
+        draftedState = new QuestionState();
+        draftedState.setState("DRAFTED");
+        draftedState.setQuestionStateId(1);
+
+        submittedState = new QuestionState();
+        submittedState.setQuestionStateId(2);
+        submittedState.setState("SUBMITTED");
+
+        given(questionStateService.retrieveQuestionStateById(1)).willReturn(draftedState);
+        questionRoundService = new QuestionRoundService(questionRepository, questionStateService);
 
         onlineHearing = new OnlineHearing();
         Jurisdiction jurisdiction = new Jurisdiction();
@@ -188,8 +205,25 @@ public class QuestionRoundServiceTest {
         question.setQuestionRound(0);
         questionRoundService.validateQuestionRound(question, onlineHearing);
     }
+
     @Test(expected = EntityNotFoundException.class)
     public void testValidateQuestionRoundThrowsErrorIfQuestionRoundIsNull(){
         questionRoundService.validateQuestionRound(new Question(), onlineHearing);
+    }
+
+    @Test
+    public void testQuestionIsStateDraftedIsTrueWhenStateIsDrafted(){
+        Question question = new Question();
+        question.setQuestionState(draftedState);
+        boolean valid = questionRoundService.isState(question, draftedState);
+        assertTrue(valid);
+    }
+
+    @Test
+    public void testQuestionIsStateFalseSubmittedIsTrueWhenStateIsDrafted(){
+        Question question = new Question();
+        question.setQuestionState(submittedState);
+        boolean valid = questionRoundService.isState(question, draftedState);
+        assertFalse(valid);
     }
 }

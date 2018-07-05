@@ -70,7 +70,6 @@ public class QuestionRoundService {
     }
 
     protected QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
-
         List<Question> questions = questionRound.getQuestionList();
 
         QuestionState issuedState = questionStateService.retrieveQuestionStateById(3);
@@ -78,21 +77,15 @@ public class QuestionRoundService {
         QuestionState draftedState = questionStateService.retrieveQuestionStateById(1);
 
         QuestionRoundState questionRoundState = new QuestionRoundState();
-        questionRoundState.setStateId(issuedState.getQuestionStateId());
-        questionRoundState.setState(issuedState.getState());
+        questionRoundState.setState(issuedState);
 
         for(Question question : questions) {
             if(isState(question, submittedState) || isState(questionRoundState, submittedState)) {
-
-                questionRoundState.setStateId(submittedState.getQuestionStateId());
-                questionRoundState.setState(submittedState.getState());
-
+                questionRoundState.setState(submittedState);
             } else if(isState(question, draftedState) || isState(questionRoundState, draftedState)) {
-                questionRoundState.setStateId(draftedState.getQuestionStateId());
-                questionRoundState.setState(draftedState.getState());
+                questionRoundState.setState(draftedState);
             }
         }
-
         return questionRoundState;
     }
 
