@@ -34,9 +34,6 @@ public class QuestionRoundService {
         Jurisdiction jurisdiction = onlineHearing.getJurisdiction();
 
         Optional<Integer> maxQuestionRounds = jurisdiction.getMaxQuestionRounds();
-        if(!maxQuestionRounds.isPresent() || maxQuestionRounds.get()==0){
-            return true;
-        }
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getQuestionRoundNumber(onlineHearing);
 
@@ -44,9 +41,12 @@ public class QuestionRoundService {
             return targetQuestionRound == 1;
         }else if(currentQuestionRound == targetQuestionRound) {
             return true;
-        }else if(targetQuestionRound <= maxQuestionRounds.get() && targetQuestionRound == currentQuestionRound + 1){
-            return true;
         }else{
+            if(targetQuestionRound == currentQuestionRound + 1){
+                if (targetQuestionRound <= maxQuestionRounds.get() || maxQuestionRounds.get()==0 || !maxQuestionRounds.isPresent()) {
+                    return true;
+                }
+            }
             return false;
         }
     }
