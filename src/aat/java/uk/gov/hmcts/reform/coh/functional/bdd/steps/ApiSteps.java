@@ -160,7 +160,7 @@ public class ApiSteps extends BaseSteps {
 
         OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/online-hearings", HttpMethod.POST, request, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
@@ -184,7 +184,7 @@ public class ApiSteps extends BaseSteps {
 
         String jsonBody = JsonUtils.toJson(onlineHearingRequest);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/online-hearings", HttpMethod.POST, request, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);

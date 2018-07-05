@@ -44,7 +44,7 @@ public class QuestionSteps extends BaseSteps{
     private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
     private RestTemplate restTemplate;
-    private String ENDPOINT = "/online-hearings";
+    private String ENDPOINT = "/continuous-online-hearings";
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
     private Question question;
@@ -85,9 +85,9 @@ public class QuestionSteps extends BaseSteps{
         }
 
         try {
-            String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+            String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
             onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByCaseId(onlineHearingExternalRef);
+            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
@@ -123,8 +123,8 @@ public class QuestionSteps extends BaseSteps{
     @Given("^a standard question")
     public void aStandardQuestionRound() throws IOException{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
-        String onlineHearingExternalRef = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingExternalRef).get();
+        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")

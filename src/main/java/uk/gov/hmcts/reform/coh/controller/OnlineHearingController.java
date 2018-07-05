@@ -9,10 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -28,7 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/online-hearings")
+@RequestMapping("/continuous-online-hearings")
 public class OnlineHearingController {
 
     /**
@@ -72,24 +69,26 @@ public class OnlineHearingController {
 
     @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 200, message = "Success", response = OnlineHearingsResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<OnlineHearingResponse> retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds) {
+    public OnlineHearingsResponse retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds) {
 
         List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseId(caseIds);
 
         List<OnlineHearingResponse> responses = new ArrayList<>();
+        OnlineHearingsResponse onlineHearingsResponse = new OnlineHearingsResponse();
+        onlineHearingsResponse.setOnlineHearingResponses(responses);
         for (OnlineHearing onlineHearing : onlineHearings) {
             OnlineHearingResponse response = new OnlineHearingResponse();
             OnlineHearingMapper.map(response, onlineHearing);
             responses.add(response);
         }
 
-        return responses;
+        return onlineHearingsResponse;
     }
 
     @ApiOperation(value = "Create Online Hearing", notes = "A POST request is used to create an online hearing")

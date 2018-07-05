@@ -61,7 +61,7 @@ public class OnlineHearingControllerTest {
     @Mock
     private JurisdictionService jurisdictionService;
 
-    private static final String ENDPOINT = "/online-hearings";
+    private static final String ENDPOINT = "/continuous-online-hearings";
 
     @InjectMocks
     private OnlineHearingController onlineHearingController;
@@ -103,7 +103,7 @@ public class OnlineHearingControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings/")
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(jsonString))
                 .andExpect(status().is2xxSuccessful());
     }
@@ -126,7 +126,7 @@ public class OnlineHearingControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(jsonString))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
@@ -142,7 +142,7 @@ public class OnlineHearingControllerTest {
         OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
         request.setJurisdiction("foo");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings")
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -153,7 +153,7 @@ public class OnlineHearingControllerTest {
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.empty());
         OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/online-hearings")
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity());
     }

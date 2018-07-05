@@ -78,11 +78,11 @@ public class OnlineHearingServiceTest {
     }
 
     @Test
-    public void testDeleteByExternalRef() {
-        String externalRef = "foo";
-        createdOnlineHearing.setCaseId(externalRef);
-        doNothing().when(onlineHearingRepository).deleteByCaseId(externalRef);
-        onlineHearingService.deleteByCaseId(externalRef);
-        verify(onlineHearingRepository, times(1)).deleteByCaseId(externalRef);
+    public void testDeleteByCaseId() {
+        String caseId = "foo";
+        createdOnlineHearing.setCaseId(caseId);
+        doNothing().when(onlineHearingRepository).deleteByCaseId(caseId);
+        onlineHearingService.deleteByCaseId(caseId);
+        verify(onlineHearingRepository, times(1)).deleteByCaseId(caseId);
     }
 }

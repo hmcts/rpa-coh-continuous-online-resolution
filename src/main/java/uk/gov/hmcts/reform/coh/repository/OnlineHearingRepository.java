@@ -17,5 +17,5 @@ public interface OnlineHearingRepository extends CrudRepository<OnlineHearing,UU
     List<OnlineHearing> findAllByCaseIdIn(List<String> caseIds);
 
     @Transactional
-    void deleteByCaseId(String externalRef);
+    void deleteByCaseId(String caseId);
 }
