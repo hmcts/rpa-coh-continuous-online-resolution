@@ -55,7 +55,7 @@ public class QuestionRoundServiceTest {
 
     @Test
     public void testGetQuestionRoundReturnsHighestNumberFromQuestionList(){
-        int questionRound = questionRoundService.getQuestionRoundNumber(new OnlineHearing());
+        int questionRound = questionRoundService.getCurrentQuestionRoundNumber(new OnlineHearing());
         assertEquals(2, questionRound);
     }
 
@@ -72,7 +72,7 @@ public class QuestionRoundServiceTest {
     @Test
     public void testGetQuestionRoundReturns1IfNoPreviousQuestionsFound(){
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(new ArrayList<>());
-        int questionRound = questionRoundService.getQuestionRoundNumber(new OnlineHearing());
+        int questionRound = questionRoundService.getCurrentQuestionRoundNumber(new OnlineHearing());
         assertEquals(0, questionRound);
     }
 
