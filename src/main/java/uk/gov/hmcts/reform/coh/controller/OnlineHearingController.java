@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -68,6 +69,20 @@ public class OnlineHearingController {
         mapper.map();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
+    })
+    @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String retrieveOnlineHearings(@RequestParam("caseId") List<String> caseIds, @RequestParam("online_hearing_state") List<String> states) {
+
+
+        return caseIds.get(0) + caseIds.get(1);
     }
 
     @ApiOperation(value = "Create Online Hearing", notes = "A POST request is used to create an online hearing")
