@@ -8,6 +8,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,6 +57,14 @@ public class OnlineHearingServiceTest {
         when(onlineHearingRepository.findByCaseId(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
         OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(createdOnlineHearing);
         assertEquals(createdOnlineHearing, newOnlineHearing);
+    }
+
+    @Test
+    public void testRetrieveOnlineHearingBCaseIds() {
+        List<String> caseId = Arrays.asList("foo", "bar");
+        when(onlineHearingRepository.findAllByCaseIdIn(caseId)).thenReturn(Arrays.asList(createdOnlineHearing));
+        List<OnlineHearing> newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(caseId);
+        assertEquals(1, newOnlineHearing.size());
     }
 
     @Test

@@ -120,6 +120,14 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
+    @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
+    public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
+        HttpGet request = new HttpGet(baseUrl + endpoint);
+        request.addHeader("content-type", "application/json");
+
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
+    }
+
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
         HttpPost request = new HttpPost(baseUrl + endpoint);

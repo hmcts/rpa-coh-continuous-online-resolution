@@ -6,15 +6,7 @@ import java.util.stream.Collectors;
 
 public class OnlineHearingMapper {
 
-    private OnlineHearingResponse response;
-    private OnlineHearing onlineHearing;
-
-    public OnlineHearingMapper(OnlineHearingResponse response, OnlineHearing onlineHearing) {
-        this.response = response;
-        this.onlineHearing = onlineHearing;
-    }
-
-    public void map() {
+    public static void map(OnlineHearingResponse response, OnlineHearing onlineHearing) {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         response.setCaseId(onlineHearing.getCaseId());
         response.setStartDate(onlineHearing.getStartDate());
