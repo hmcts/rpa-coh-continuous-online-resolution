@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -156,5 +158,16 @@ public class OnlineHearingControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void testFilterOnlineHearingByCaseId() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearingByCaseId(Arrays.asList("case1"))).willReturn(Arrays.asList(onlineHearing));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk());
     }
 }
