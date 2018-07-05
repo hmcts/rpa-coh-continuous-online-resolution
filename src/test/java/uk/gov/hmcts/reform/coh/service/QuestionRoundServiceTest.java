@@ -14,9 +14,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -87,6 +85,36 @@ public class QuestionRoundServiceTest {
         question.setQuestionRound(3);
         boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertTrue(valid);
+    }
+
+    @Test
+    public void testIsIncrementedReturnsTrueWhenOneToTwo(){
+        boolean valid = questionRoundService.isIncremented(2, 1);
+        assertTrue(valid);
+    }
+
+    @Test
+    public void testIsIncrementedReturnsFalseWhenOneToThree(){
+        boolean valid = questionRoundService.isIncremented(3, 1);
+        assertFalse(valid);
+    }
+
+    @Test
+    public void testIsIncrementedReturnsFalseWhenTwoToOne(){
+        boolean valid = questionRoundService.isIncremented(1, 2);
+        assertFalse(valid);
+    }
+
+    @Test
+    public void testIsMaxRoundLimitIsTrueIfValueSetAboveZero() {
+        boolean valid = questionRoundService.isMaxRoundLimit(1);
+        assertTrue(valid);
+    }
+
+    @Test
+    public void testIsMaxRoundLimitIsFalseIfValueSetToZero() {
+        boolean valid = questionRoundService.isMaxRoundLimit(0);
+        assertFalse(valid);
     }
 
     @Test
