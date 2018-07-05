@@ -1,0 +1,10 @@
+databaseChangeLog:
+- changeSet:
+    id: 1530782413501-1
+    author: phill (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: case_id
+        constraintName: UC_ONLINE_HEARINGCASE_ID_COL
+        tableName: online_hearing
+
