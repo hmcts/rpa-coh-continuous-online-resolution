@@ -58,7 +58,7 @@ public class AnswerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String ENDPOINT = "/online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions/d9248584-4aa5-4cb0-aba6-d2633ad5a375/answers";
+    private static final String ENDPOINT = "/continuous-online-hearings/d9248584-4aa5-4cb0-aba6-d2633ad5a375/questions/d9248584-4aa5-4cb0-aba6-d2633ad5a375/answers";
 
     private AnswerRequest request;
 
