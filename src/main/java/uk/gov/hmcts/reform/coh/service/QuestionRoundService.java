@@ -19,13 +19,13 @@ public class QuestionRoundService {
     private QuestionRepository questionRepository;
 
     @Autowired
-    public QuestionRoundService(QuestionRepository questionRepository){
+    public QuestionRoundService(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
     }
 
-    public boolean validateQuestionRound(Question question, OnlineHearing onlineHearing){
+    public boolean validateQuestionRound(Question question, OnlineHearing onlineHearing) {
 
-        if(question.getQuestionRound()==null || question.getQuestionRound()==0){
+        if (question.getQuestionRound() == null || question.getQuestionRound() == 0) {
             throw new EntityNotFoundException();
         }
 
@@ -35,29 +35,27 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getQuestionRound(onlineHearing);
 
-        if(currentQuestionRound == 0){
-            return targetQuestionRound == 1;
-        }else if(currentQuestionRound == targetQuestionRound) {
+        if (currentQuestionRound == 0) {
+            return (targetQuestionRound == 1);
+        } else if (currentQuestionRound == targetQuestionRound) {
             return true;
-        }else{
-            if(targetQuestionRound == currentQuestionRound + 1){
-                if (targetQuestionRound <= maxQuestionRounds.get() || maxQuestionRounds.get()==0 || !maxQuestionRounds.isPresent()) {
+        } else if ((targetQuestionRound == currentQuestionRound + 1)
+                || (!maxQuestionRounds.isPresent() || targetQuestionRound <= maxQuestionRounds.get() || maxQuestionRounds.get() == 0)) {
                     return true;
-                }
-            }
-            return false;
         }
+
+        return false;
     }
 
-    protected int getQuestionRound(OnlineHearing onlineHearing){
+    protected int getQuestionRound(OnlineHearing onlineHearing) {
         List<Question> orderedQuestions = getQuestionsOrderedByRound(onlineHearing);
-        if (orderedQuestions.isEmpty()){
+        if (orderedQuestions.isEmpty()) {
             return 0;
         }
         return orderedQuestions.get(0).getQuestionRound();
     }
 
-    public List<Question> getQuestionsOrderedByRound(OnlineHearing onlineHearing){
+    public List<Question> getQuestionsOrderedByRound(OnlineHearing onlineHearing) {
         return questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing);
     }
 }
