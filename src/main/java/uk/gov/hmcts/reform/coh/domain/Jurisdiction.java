@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Optional;
 
 @Entity
 @Table(name = "jurisdiction")
@@ -51,8 +50,8 @@ public class Jurisdiction {
         this.maxQuestionRounds = maxQuestionRounds;
     }
 
-    public Optional<Integer> getMaxQuestionRounds() {
-        return Optional.ofNullable(maxQuestionRounds);
+    public int getMaxQuestionRounds() {
+        return maxQuestionRounds;
     }
 
     @Override
