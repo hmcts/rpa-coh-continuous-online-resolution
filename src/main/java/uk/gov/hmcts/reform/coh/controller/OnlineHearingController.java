@@ -103,6 +103,7 @@ public class OnlineHearingController {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
         onlineHearing.setOnlineHearingState(onlineHearingState.get());
+        onlineHearing.registerStateChange();
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
@@ -122,4 +123,36 @@ public class OnlineHearingController {
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @ApiOperation(value = "Update Online Hearing State", notes = "A POST request is used to update the state of an online hearing")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
+    })
+    @PatchMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<OnlineHearing> updateOnlineHearingState(@RequestBody OnlineHearing body) {
+
+        OnlineHearing onlineHearing = new OnlineHearing();
+
+        onlineHearing.setCaseId(body.getCaseId());
+        onlineHearing.setOnlineHearingState(body.getOnlineHearingState());
+
+        Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        if(!onlineHearingOptional.isPresent()){
+            return new ResponseEntity<OnlineHearing>(HttpStatus.BAD_REQUEST);
+        }
+
+        //onlineHearing = onlineHearingService
+        //question = questionService.updateQuestion(question, body);
+
+        return ResponseEntity.ok(onlineHearing);
+
+
+    }
+
+
+
+
 }

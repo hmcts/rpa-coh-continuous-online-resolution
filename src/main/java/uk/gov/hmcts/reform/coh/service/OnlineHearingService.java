@@ -37,6 +37,13 @@ public class OnlineHearingService {
 
     public void deleteByCaseId(String caseId) {
         onlineHearingRepository.deleteByCaseId(caseId);
+
     }
+
+//    public OnlineHearing updateOnlineHearingState(UUID id, OnlineHearing body) {
+//        OnlineHearing onlineHearing = retrieveOnlineHearingById(id);
+//        onlineHearing.addState(onlineHearingStateService.retrieveOnlineHearingStateById(OnlineHearingState.CLOSED));
+//        return onlineHearingRepository.save(onlineHearing);
+//    }
 
 }

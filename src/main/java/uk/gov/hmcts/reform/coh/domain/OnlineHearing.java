@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +48,17 @@ public class OnlineHearing {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "online_hearing_state_id", nullable = false)
     private OnlineHearingState onlineHearingState;
+
+    @OneToMany(mappedBy = "onlineHearing",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JsonIgnore
+    public List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
+
+    public void registerStateChange(){
+        OnlineHearingStateHistory onlineHearingStateHistory = new OnlineHearingStateHistory(this, onlineHearingState);
+        onlineHearingStateHistories.add(onlineHearingStateHistory);
+    }
 
     public String getJurisdictionName() {
         return jurisdictionName;
@@ -130,4 +142,16 @@ public class OnlineHearing {
                 ", jurisdictionName='" + jurisdictionName + '\'' +
                 '}';
     }
+
+
+    public void addState(OnlineHearingState state) {
+        this.onlineHearingState = state;
+        OnlineHearingStateHistory stateHistory = new OnlineHearingStateHistory(this, state);
+        onlineHearingStateHistories.add(stateHistory);
+    }
+
+    public List<OnlineHearingStateHistory> getOnlineHearingStateHistories() {
+        return onlineHearingStateHistories;
+    }
+
 }
