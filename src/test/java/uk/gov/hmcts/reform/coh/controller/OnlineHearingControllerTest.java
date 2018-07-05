@@ -170,4 +170,15 @@ public class OnlineHearingControllerTest {
                 .content(""))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testFilterOnlineHearingByCaseIdEmpty() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearingByCaseId(Arrays.asList("case1"))).willReturn(Arrays.asList());
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk());
+    }
 }
