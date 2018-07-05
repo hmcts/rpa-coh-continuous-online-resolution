@@ -56,7 +56,7 @@ Feature: Question round logic
     When the post request is sent to create the question
     Then the response code is 422
 
-  Scenario: Create question round from 5 to 6 is invalid when the max jurisdiction is 5
+  Scenario: Create question round from 1 to 3 is invalid when the max jurisdiction is 2
     Given a standard online hearing
     And a jurisdiction named ' "Civil directions", with id ' "55" ' with url ' "http://localhost:8080/civildirection" and max question rounds ' "2" ' is created
     And the online hearing jurisdiction is ' "Civil directions" '

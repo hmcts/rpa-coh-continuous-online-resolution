@@ -74,7 +74,7 @@ public class QuestionRoundController {
 
         allQuestionRoundsResponse.setCurrentQuestionRound(questionRoundService.getQuestionRoundNumber(onlineHearing));
         allQuestionRoundsResponse.setNextQuestionRound(questionRoundService.getNextQuestionRound(onlineHearing, allQuestionRoundsResponse.getCurrentQuestionRound()));
-        allQuestionRoundsResponse.setMaxQuestionRound(onlineHearing.getJurisdiction().getMaxQuestionRounds().get());
+        allQuestionRoundsResponse.setMaxQuestionRound(onlineHearing.getJurisdiction().getMaxQuestionRounds());
         allQuestionRoundsResponse.setPreviousQuestionRound(questionRoundService.getPreviousQuestionRound(allQuestionRoundsResponse.getCurrentQuestionRound()));
         return ResponseEntity.ok(allQuestionRoundsResponse);
     }
