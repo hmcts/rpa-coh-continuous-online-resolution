@@ -28,11 +28,11 @@ public class OnlineHearingService {
         return onlineHearingRepository.findById(onlineHearing.getOnlineHearingId());
     }
 
-    public OnlineHearing retrieveOnlineHearingByCaseIdIn(final OnlineHearing onlineHearing) {
+    public OnlineHearing retrieveOnlineHearingByCaseId(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.findByCaseId(onlineHearing.getCaseId()).orElse(null);
     }
 
-    public List<OnlineHearing> retrieveOnlineHearingByCaseIdIn(List<String> caseIds) {
+    public List<OnlineHearing> retrieveOnlineHearingByCaseId(List<String> caseIds) {
         return onlineHearingRepository.findAllByCaseIdIn(caseIds);
     }
 

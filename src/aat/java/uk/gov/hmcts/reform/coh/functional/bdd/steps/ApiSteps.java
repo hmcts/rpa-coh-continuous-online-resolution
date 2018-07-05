@@ -94,7 +94,7 @@ public class ApiSteps extends BaseSteps {
             try {
                 OnlineHearing onlineHearing = new OnlineHearing();
                 onlineHearing.setCaseId(caseId);
-                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseIdIn(onlineHearing);
+                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByCaseId(caseId);
             }catch(DataIntegrityViolationException e){
@@ -115,6 +115,14 @@ public class ApiSteps extends BaseSteps {
     public void a_get_request_is_sent_to(String endpoint) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         HttpGet request = new HttpGet(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString());
+        request.addHeader("content-type", "application/json");
+
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
+    }
+
+    @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
+    public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
+        HttpGet request = new HttpGet(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));

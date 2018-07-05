@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/online-hearings")
@@ -71,7 +70,7 @@ public class OnlineHearingController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
+    @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
@@ -81,7 +80,7 @@ public class OnlineHearingController {
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<OnlineHearingResponse> retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds) {
 
-        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseIdIn(caseIds);
+        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseId(caseIds);
 
         List<OnlineHearingResponse> responses = new ArrayList<>();
         for (OnlineHearing onlineHearing : onlineHearings) {

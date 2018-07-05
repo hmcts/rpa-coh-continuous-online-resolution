@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface OnlineHearingRepository extends CrudRepository<OnlineHearing,UUID> {
 
-    Optional<OnlineHearing> findByCaseId(String externalRef);
+    Optional<OnlineHearing> findByCaseId(String caseId);
 
     List<OnlineHearing> findAllByCaseIdIn(List<String> caseIds);
 
