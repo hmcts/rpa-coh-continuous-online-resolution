@@ -22,10 +22,11 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/online-hearings")
@@ -65,8 +66,7 @@ public class OnlineHearingController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         OnlineHearingResponse response = new OnlineHearingResponse();
-        OnlineHearingMapper mapper = new OnlineHearingMapper(response, retrievedOnlineHearing.get());
-        mapper.map();
+        OnlineHearingMapper.map(response, retrievedOnlineHearing.get());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -79,10 +79,18 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String retrieveOnlineHearings(@RequestParam("caseId") List<String> caseIds, @RequestParam("online_hearing_state") List<String> states) {
+    public List<OnlineHearingResponse> retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds) {
 
+        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseIdIn(caseIds);
 
-        return caseIds.get(0) + caseIds.get(1);
+        List<OnlineHearingResponse> responses = new ArrayList<>();
+        for (OnlineHearing onlineHearing : onlineHearings) {
+            OnlineHearingResponse response = new OnlineHearingResponse();
+            OnlineHearingMapper.map(response, onlineHearing);
+            responses.add(response);
+        }
+
+        return responses;
     }
 
     @ApiOperation(value = "Create Online Hearing", notes = "A POST request is used to create an online hearing")

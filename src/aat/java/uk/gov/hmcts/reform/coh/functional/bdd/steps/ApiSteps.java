@@ -94,7 +94,7 @@ public class ApiSteps extends BaseSteps {
             try {
                 OnlineHearing onlineHearing = new OnlineHearing();
                 onlineHearing.setCaseId(caseId);
-                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
+                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseIdIn(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByCaseId(caseId);
             }catch(DataIntegrityViolationException e){

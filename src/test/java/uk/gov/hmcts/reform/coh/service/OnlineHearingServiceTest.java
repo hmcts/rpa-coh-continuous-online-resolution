@@ -53,7 +53,7 @@ public class OnlineHearingServiceTest {
     public void testRetrieveOnlineHearingByExternalRef() {
         createdOnlineHearing.setCaseId("foo");
         when(onlineHearingRepository.findByCaseId(any(String.class))).thenReturn(Optional.of(createdOnlineHearing));
-        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(createdOnlineHearing);
+        OnlineHearing newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseIdIn(createdOnlineHearing);
         assertEquals(createdOnlineHearing, newOnlineHearing);
     }
 

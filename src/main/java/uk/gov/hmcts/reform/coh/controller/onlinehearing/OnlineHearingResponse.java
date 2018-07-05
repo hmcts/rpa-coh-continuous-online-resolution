@@ -17,6 +17,7 @@ public class OnlineHearingResponse implements Serializable {
     private String caseId;
 
     @JsonProperty("start_date")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Date startDate;
 
     @JsonProperty(value = "end_date")
@@ -24,6 +25,7 @@ public class OnlineHearingResponse implements Serializable {
     private Date endDate;
 
     @JsonProperty("panel")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<PanelMember> panel;
 
     public UUID getOnlineHearingId() {
