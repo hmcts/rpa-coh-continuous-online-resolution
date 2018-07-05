@@ -56,8 +56,10 @@ public class QuestionService {
             throw new NotAValidUpdateException();
         }
 
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
         question.setOnlineHearing(optionalOnlineHearing.get());
-        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
 
 
         return questionRepository.save(question);
@@ -69,8 +71,9 @@ public class QuestionService {
             throw new EntityNotFoundException("Question entity not found");
         }
         Question question = optionalQuestion.get();
-        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
-
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
         return questionRepository.save(question);
     }
 
@@ -97,8 +100,9 @@ public class QuestionService {
 
     protected void issueQuestion(Question question) {
         QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-        
-        question.addState(issuedQuestionState);
+
+        question.setQuestionState(issuedQuestionState);
+        question.updateQuestionStateHistory(issuedQuestionState);
         boolean result = questionNotification.notifyQuestionState(question);
         if (result){
             log.info("Successfully issued question round and sent notification to jurisdiction");
