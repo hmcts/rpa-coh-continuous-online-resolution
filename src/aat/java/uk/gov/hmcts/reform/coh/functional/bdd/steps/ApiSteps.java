@@ -64,12 +64,11 @@ public class ApiSteps extends BaseSteps {
 
     private Set<String> caseIds;
     private Set<Jurisdiction> jurisdictions;
-    private TestContext testContext;
     private OnlineHearingRequest onlineHearingRequest;
 
     @Autowired
     public ApiSteps(TestContext testContext) {
-        this.testContext = testContext;
+        super(testContext);
     }
 
     @Before
@@ -167,11 +166,6 @@ public class ApiSteps extends BaseSteps {
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
-    }
-
-    @Given("^a standard online hearing$")
-    public void aStandardOnlineHearing() throws IOException {
-        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
     }
 
     @And("^the online hearing jurisdiction is ' \"([^\"]*)\" '$")
