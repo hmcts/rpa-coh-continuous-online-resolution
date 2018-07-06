@@ -1,4 +1,4 @@
-Feature: Question round logic
+Feature: Question Round Logic
 
   Scenario: Create question round from 1 to 2
     Given a standard online hearing is created

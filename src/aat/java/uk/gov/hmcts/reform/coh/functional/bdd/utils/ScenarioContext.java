@@ -14,6 +14,8 @@ import java.util.Set;
 @Component
 public class ScenarioContext {
 
+    private OnlineHearingRequest currentOnlineHearingRequest;
+
     private OnlineHearing currentOnlineHearing;
 
     private Question currentQuestion;
@@ -23,6 +25,14 @@ public class ScenarioContext {
     private List<String> caseIds;
 
     Set<Jurisdiction> jurisdictions;
+
+    public OnlineHearingRequest getCurrentOnlineHearingRequest() {
+        return currentOnlineHearingRequest;
+    }
+
+    public void setCurrentOnlineHearingRequest(OnlineHearingRequest currentOnlineHearingRequest) {
+        this.currentOnlineHearingRequest = currentOnlineHearingRequest;
+    }
 
     public OnlineHearing getCurrentOnlineHearing() {
         return currentOnlineHearing;

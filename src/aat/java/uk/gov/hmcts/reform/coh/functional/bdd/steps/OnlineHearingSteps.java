@@ -23,8 +23,6 @@ import static junit.framework.TestCase.assertTrue;
 
 public class OnlineHearingSteps extends BaseSteps {
 
-    private OnlineHearingRequest onlineHearingRequest;
-
     @Autowired
     public OnlineHearingSteps(TestContext testContext){
         super(testContext);
@@ -42,12 +40,13 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @Given("^a standard online hearing$")
     public void a_standard_online_hearing() throws IOException {
-        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        testContext.getScenarioContext().setCurrentOnlineHearingRequest(onlineHearingRequest);
     }
 
     @Given("^the case id is '(.*)'")
     public void the_case_id_is(String caseId) {
-        onlineHearingRequest.setCaseId(caseId);
+        testContext.getScenarioContext().getCurrentOnlineHearingRequest().setCaseId(caseId);
     }
 
     @When("^a (.*) request is sent for online hearings$")
@@ -61,7 +60,7 @@ public class OnlineHearingSteps extends BaseSteps {
 
         String endpoint = getEndpoints().get("online hearing");
         try {
-            String json = JsonUtils.toJson(onlineHearingRequest);
+            String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
             if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
             } else if ("POST".equalsIgnoreCase(type)) {
@@ -75,7 +74,7 @@ public class OnlineHearingSteps extends BaseSteps {
                 response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
             }
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
+            testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
 
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hcee.getRawStatusCode());
