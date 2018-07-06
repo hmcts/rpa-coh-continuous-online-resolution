@@ -45,27 +45,20 @@ public class OnlineHearing {
     @Column(name = "owner_reference_id")
     private String ownerReferenceId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "online_hearing_state_id", nullable = false)
+    @JsonProperty("current_online_hearing_state")
     private OnlineHearingState onlineHearingState;
 
     @OneToMany(mappedBy = "onlineHearing",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore
-    public List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
+    private List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
 
     public void registerStateChange(){
         OnlineHearingStateHistory onlineHearingStateHistory = new OnlineHearingStateHistory(this, onlineHearingState);
         onlineHearingStateHistories.add(onlineHearingStateHistory);
-    }
-
-    public String getJurisdictionName() {
-        return jurisdictionName;
-    }
-
-    public void setJurisdictionName(String jurisdictionName) {
-        this.jurisdictionName = jurisdictionName;
     }
 
     public UUID getOnlineHearingId() {
@@ -154,4 +147,11 @@ public class OnlineHearing {
         return onlineHearingStateHistories;
     }
 
+    public void setJurisdictionName(String jurisdictionName) {
+        this.jurisdictionName = jurisdictionName;
+    }
+
+    public String getJurisdictionName() {
+        return this.jurisdictionName;
+    }
 }
