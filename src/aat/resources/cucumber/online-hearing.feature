@@ -16,9 +16,3 @@ Feature: Online hearing
     And the response contains the following text '"case_123" '
     And the response contains 1 panel member
 
-  Scenario: Search for online hearing by case idf
-    Given a standard online hearing is created
-    And the response code is 201
-    When a get request is sent to ' "/continuous-online-hearings?case_id=case_123"' for the online hearing
-    Then the response code is 200
-

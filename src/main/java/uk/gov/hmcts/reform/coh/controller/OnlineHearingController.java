@@ -19,10 +19,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/continuous-online-hearings")
@@ -75,9 +72,10 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public OnlineHearingsResponse retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds) {
+    public OnlineHearingsResponse retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds,
+                                                         @RequestParam("state") Optional<Set<String>> states) {
 
-        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseId(caseIds);
+        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseIds(caseIds, states);
 
         List<OnlineHearingResponse> responses = new ArrayList<>();
         OnlineHearingsResponse onlineHearingsResponse = new OnlineHearingsResponse();

@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,15 +32,14 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollectionOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -163,7 +163,22 @@ public class OnlineHearingControllerTest {
     @Test
     public void testFilterOnlineHearingByCaseId() throws Exception {
 
-        given(onlineHearingService.retrieveOnlineHearingByCaseId(Arrays.asList("case1"))).willReturn(Arrays.asList(onlineHearing));
+        given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case1"), Optional.empty())).willReturn(Arrays.asList(onlineHearing));
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        OnlineHearingsResponse onlineHearingsResponse = (OnlineHearingsResponse)JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingsResponse.class);
+        assertEquals(1, onlineHearingsResponse.getOnlineHearingResponses().size());
+    }
+
+    @Test
+    public void testFilterOnlineHearingByCaseIdEmpty() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case1"))).willReturn(Arrays.asList());
 
         mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -172,11 +187,11 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testFilterOnlineHearingByCaseIdEmpty() throws Exception {
+    public void testFilterOnlineHearingByCaseIdAndState() throws Exception {
 
-        given(onlineHearingService.retrieveOnlineHearingByCaseId(Arrays.asList("case1"))).willReturn(Arrays.asList());
+        given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case1"))).willReturn(Arrays.asList());
 
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1&state=foo")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk());
