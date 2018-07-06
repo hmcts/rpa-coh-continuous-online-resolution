@@ -1,0 +1,12 @@
+{
+  "question_round": "1",
+  "question_ordinal": "1",
+  "question_header_text": "How do you do your shopping?",
+  "question_body_text": "Provide a detailed description of the difficulty you face when doing your shopping",
+  "owner_reference": "owner_idam_reference_123",
+  "question_id": "b312022c-2f5b-4a43-9aa1-de45f075e415",
+  "current_question_state": {
+    "name": "DRAFTED",
+    "datetime": "2018-07-06 11:44:42.526"
+  }
+}
