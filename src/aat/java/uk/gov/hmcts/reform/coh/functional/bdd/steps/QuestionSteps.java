@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
