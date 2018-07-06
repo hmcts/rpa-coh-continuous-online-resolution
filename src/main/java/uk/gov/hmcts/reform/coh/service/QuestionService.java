@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Component
@@ -40,7 +41,14 @@ public class QuestionService {
     }
 
     public Optional<Question> retrieveQuestionById(final UUID question_id){
-        return questionRepository.findById(question_id);
+        Optional<Question> question = questionRepository.findById(question_id);
+
+        question.get().setQuestionStateHistories(
+                question.get().getQuestionStateHistories().stream().sorted(
+                        (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
+                ));
+
+        return question;
     }
 
     public Question createQuestion(final Question question, UUID onlineHearingId) {
