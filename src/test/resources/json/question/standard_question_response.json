@@ -6,7 +6,7 @@
   "owner_reference": "owner_idam_reference_123",
   "question_id": "b312022c-2f5b-4a43-9aa1-de45f075e415",
   "current_question_state": {
-    "name": "DRAFTED",
-    "datetime": "2018-07-06 11:44:42.526"
+    "state_name": "DRAFTED",
+    "state_datetime": "2018-07-06 11:44:42.526"
   }
 }
