@@ -12,25 +12,28 @@ import java.util.Date;
         private OnlineHearingStateId id;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("online_hearing")
+        @MapsId("onlineHearingId")
         private OnlineHearing onlineHearing;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("online_hearing_state_id")
+        @MapsId("onlineHearingStateId")
         private OnlineHearingState onlineHearingState;
 
         @NotNull
         @Temporal(TemporalType.TIMESTAMP)
         @Column(name = "date_occurred")
-        private Date dateOccurred;
+        private Date dateOccurred = new Date();
 
-        public OnlineHearingStateId getId() {
-            return id;
+        public OnlineHearingStateHistory() {
         }
 
-        public void setId(OnlineHearingStateId id) {
-            this.id = id;
-        }
+//        public OnlineHearingStateId getId() {
+//            return id;
+//        }
+
+//        public void setId(OnlineHearingStateId id) {
+//            this.id = id;
+//        }
 
         public OnlineHearing getOnlineHearing() {
             return onlineHearing;
@@ -48,8 +51,6 @@ import java.util.Date;
             this.onlineHearingState = onlineHearingState;
         }
 
-        private OnlineHearingStateHistory() {}
-
         public OnlineHearingStateHistory(OnlineHearing onlineHearing,
                                          OnlineHearingState onlineHearingState) {
             this.onlineHearing = onlineHearing;
@@ -62,6 +63,14 @@ import java.util.Date;
 
         public void setDateOccurred(Date dateOccurred) {
             this.dateOccurred = dateOccurred;
+        }
+
+        public OnlineHearingStateId getId() {
+            return id;
+        }
+
+        public void setId(OnlineHearingStateId id) {
+            this.id = id;
         }
     }
 

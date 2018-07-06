@@ -4,12 +4,13 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @Embeddable
 public class OnlineHearingStateId implements Serializable {
 
     @Column(name = "online_hearing_id")
-    private Long onlineHearingId;
+    private UUID onlineHearingId;
 
     @Column(name = "online_hearing_state_id")
     private int onlineHearingStateId;
@@ -17,35 +18,34 @@ public class OnlineHearingStateId implements Serializable {
 
     public OnlineHearingStateId(){}
 
-    public OnlineHearingStateId(Long onlineHearingId, int onlineHearingStateId){
+    public OnlineHearingStateId(UUID onlineHearingId, int onlineHearingStateId){
         this.onlineHearingId = onlineHearingId;
         this.onlineHearingStateId = onlineHearingStateId;
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//
+//        if (o == null || getClass() != o.getClass())
+//            return false;
+//
+//        OnlineHearingStateId that = (OnlineHearingStateId) o;
+//        return Objects.equals(onlineHearingId, that.onlineHearingId) &&
+//                Objects.equals(onlineHearingStateId, that.onlineHearingStateId);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(onlineHearingId, onlineHearingStateId);
+//    }
 
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        OnlineHearingStateId that = (OnlineHearingStateId) o;
-        return Objects.equals(onlineHearingId, that.onlineHearingId) &&
-                Objects.equals(onlineHearingStateId, that.onlineHearingStateId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(onlineHearingId, onlineHearingStateId);
-    }
-
-
-    public Long getOnlineHearingId() {
+    public UUID getOnlineHearingId() {
         return onlineHearingId;
     }
 
-    public void setOnlineHearingId(Long onlineHearingId) {
+    public void setOnlineHearingId(UUID onlineHearingId) {
         this.onlineHearingId = onlineHearingId;
     }
 
