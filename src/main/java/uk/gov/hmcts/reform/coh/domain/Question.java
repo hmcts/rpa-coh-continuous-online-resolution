@@ -138,10 +138,6 @@ public class Question {
         this.questionState = questionState;
     }
 
-    public QuestionStateHistory getCurrentQuestionState() {
-        return questionStateHistories.get(0);
-    }
-
     public OnlineHearing getOnlineHearing() {
         return onlineHearing;
     }
