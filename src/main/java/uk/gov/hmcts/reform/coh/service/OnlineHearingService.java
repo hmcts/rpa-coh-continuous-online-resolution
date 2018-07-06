@@ -40,6 +40,10 @@ public class OnlineHearingService {
 
     public List<OnlineHearing> retrieveOnlineHearingByCaseIds(List<String> caseIds, Optional<Set<String>> states) {
 
+        /**
+         * Filter to accept a case only if it's in the list of states requested.
+         * This is easier than trying to force JPA to execute a custom SQL
+         */
         List<OnlineHearing> onlineHearings = retrieveOnlineHearingByCaseIds(caseIds);
         if (states.isPresent()) {
             onlineHearings = onlineHearings
