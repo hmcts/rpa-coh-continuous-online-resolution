@@ -163,7 +163,7 @@ public class OnlineHearingControllerTest {
     @Test
     public void testFilterOnlineHearingByCaseId() throws Exception {
 
-        given(onlineHearingService.retrieveOnlineHearingByCaseId(Arrays.asList("case1"))).willReturn(Arrays.asList(onlineHearing));
+        given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case1"))).willReturn(Arrays.asList(onlineHearing));
 
         mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +174,7 @@ public class OnlineHearingControllerTest {
     @Test
     public void testFilterOnlineHearingByCaseIdEmpty() throws Exception {
 
-        given(onlineHearingService.retrieveOnlineHearingByCaseId(Arrays.asList("case1"))).willReturn(Arrays.asList());
+        given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case1"))).willReturn(Arrays.asList());
 
         mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "?case_id=case1")
                 .contentType(MediaType.APPLICATION_JSON)

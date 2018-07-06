@@ -63,7 +63,7 @@ public class OnlineHearingServiceTest {
     public void testRetrieveOnlineHearingBCaseIds() {
         List<String> caseId = Arrays.asList("foo", "bar");
         when(onlineHearingRepository.findAllByCaseIdIn(caseId)).thenReturn(Arrays.asList(createdOnlineHearing));
-        List<OnlineHearing> newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(caseId);
+        List<OnlineHearing> newOnlineHearing = onlineHearingService.retrieveOnlineHearingByCaseIds(caseId);
         assertEquals(1, newOnlineHearing.size());
     }
 

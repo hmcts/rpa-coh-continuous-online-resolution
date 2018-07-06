@@ -8,6 +8,8 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Component
@@ -32,8 +34,21 @@ public class OnlineHearingService {
         return onlineHearingRepository.findByCaseId(onlineHearing.getCaseId()).orElse(null);
     }
 
-    public List<OnlineHearing> retrieveOnlineHearingByCaseId(List<String> caseIds) {
+    public List<OnlineHearing> retrieveOnlineHearingByCaseIds(List<String> caseIds) {
         return onlineHearingRepository.findAllByCaseIdIn(caseIds);
+    }
+
+    public List<OnlineHearing> retrieveOnlineHearingByCaseIds(List<String> caseIds, Optional<Set<String>> states) {
+
+        List<OnlineHearing> onlineHearings = retrieveOnlineHearingByCaseIds(caseIds);
+        if (states.isPresent()) {
+            onlineHearings = onlineHearings
+                    .stream()
+                    .filter(o -> states.get().contains(o.getOnlineHearingState().getState()))
+                    .collect(Collectors.toList());
+        }
+
+        return onlineHearings;
     }
 
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
