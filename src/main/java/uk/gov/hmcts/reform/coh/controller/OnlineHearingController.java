@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -64,7 +62,7 @@ public class OnlineHearingController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id")
+    @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id e.g. case_id=foo&case_id=bar")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = OnlineHearingsResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
@@ -97,6 +95,14 @@ public class OnlineHearingController {
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
+    })
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "case_id", value = "The Case id", required = true),
+            @ApiImplicitParam(name = "jurisdiction", value = "Accepted value is SSCS", required = true),
+            @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true),
+            @ApiImplicitParam(name = "panel", value = "Panel members", required = true),
+            @ApiImplicitParam(name = "panel.identity_token", value = "IDAM Token of Panel Member", required = true),
+            @ApiImplicitParam(name = "panel.name", value = "Name of Panel Member", required = true),
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createOnlineHearing(@RequestBody OnlineHearingRequest body) {
