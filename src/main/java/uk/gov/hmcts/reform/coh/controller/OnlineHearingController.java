@@ -99,28 +99,14 @@ public class OnlineHearingController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateOnlineHearingResponse> createOnlineHearing(@RequestBody OnlineHearingRequest body) {
+    public ResponseEntity createOnlineHearing(@RequestBody OnlineHearingRequest body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
-
-        if (StringUtils.isEmpty(body.getCaseId()) || body.getPanel() == null || body.getPanel().isEmpty()) {
-            return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
-        if (!jurisdiction.isPresent()) {
-            return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
-            if (StringUtils.isEmpty(member.getIdentityToken()) || StringUtils.isEmpty(member.getName())) {
-                return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-        }
-
         Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
-        if (!onlineHearingState.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
+        ValidationResult validationResult = validate(body, onlineHearingState,jurisdiction );
+        if (!validationResult.isValid) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.reason);
         }
         onlineHearing.setOnlineHearingState(onlineHearingState.get());
         onlineHearing.setCaseId(body.getCaseId());
@@ -141,5 +127,56 @@ public class OnlineHearingController {
         response.setOnlineHearingId(createdOnlineHearing.getOnlineHearingId().toString());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
+        ValidationResult result = new ValidationResult();
+        result.setValid(true);
+
+        if (StringUtils.isEmpty(request.getCaseId())) {
+            result.setValid(false);
+            result.setReason("Case id is required");
+        } else if (request.getPanel() == null || request.getPanel().isEmpty()) {
+            result.setValid(false);
+            result.setReason("Panel is required");
+        } else if (!onlineHearingState.isPresent()) {
+            result.setValid(false);
+            result.setReason("Online hearing state is not valid");
+        } else if (!jurisdiction.isPresent()) {
+            result.setValid(false);
+            result.setReason("Jurisdiction is not valid");
+        } else {
+            for (OnlineHearingRequest.PanelMember member : request.getPanel()) {
+                if (StringUtils.isEmpty(member.getIdentityToken()) || StringUtils.isEmpty(member.getName())) {
+                    result.setValid(false);
+                    result.setReason("The panel member identity and name are required");
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private class ValidationResult {
+
+        private boolean isValid;
+        private String reason;
+
+        public boolean isValid() {
+            return isValid;
+        }
+
+        public void setValid(boolean valid) {
+            isValid = valid;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+
+        public void setReason(String reason) {
+            this.reason = reason;
+        }
     }
 }
