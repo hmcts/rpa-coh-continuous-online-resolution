@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -31,15 +28,15 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
-import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollectionOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willReturn;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -76,8 +73,10 @@ public class OnlineHearingControllerTest {
 
     private OnlineHearingPanelMember member;
 
+    private OnlineHearingRequest onlineHearingRequest;
+
     @Before
-    public void setup(){
+    public void setup() throws IOException {
         uuid = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
@@ -94,19 +93,15 @@ public class OnlineHearingControllerTest {
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
         given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.ofNullable(onlineHearingState));
+
+        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
     }
 
     @Test
     public void testCreateOnlineHearingWithJsonFile() throws Exception {
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("json/online_hearing/standard_online_hearing.json")).getFile());
-
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
-
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(jsonString))
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
                 .andExpect(status().is2xxSuccessful());
     }
 
@@ -122,14 +117,8 @@ public class OnlineHearingControllerTest {
     @Test
     public void testCreateOnlineHearing() throws Exception {
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("json/online_hearing/standard_online_hearing.json")).getFile());
-
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonString = mapper.writeValueAsString(mapper.readValue(file, Object.class));
-
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(jsonString))
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
@@ -141,22 +130,69 @@ public class OnlineHearingControllerTest {
     public void testCreateOnlineHearingIncorrectJurisdiction() throws Exception {
 
         given(jurisdictionService.getJurisdictionWithName("foo")).willReturn(java.util.Optional.empty());
-        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-        request.setJurisdiction("foo");
+        onlineHearingRequest.setJurisdiction("foo");
 
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
                 .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void testCreateOnlineHearingCaseIdNotPresent() throws Exception {
+
+        onlineHearingRequest.setCaseId(null);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertEquals("Case id is required", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateOnlineHearingPanelNotPresent() throws Exception {
+
+        onlineHearingRequest.setPanel(null);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertEquals("Panel is required", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateOnlineHearingPanelMemberNameNotPresent() throws Exception {
+
+        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        request.getPanel().get(0).setName(null);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertEquals("The panel member identity and name are required", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateOnlineHearingPanelMemberIdentityTokenNotPresent() throws Exception {
+
+        onlineHearingRequest.getPanel().get(0).setIdentityToken(null);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        assertEquals("The panel member identity and name are required", result.getResponse().getContentAsString());
     }
 
     @Test
     public void testCreateOnlineHearingStartingStateNotFound() throws Exception {
 
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.empty());
-        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
 
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
                 .andExpect(status().isUnprocessableEntity());
     }
 

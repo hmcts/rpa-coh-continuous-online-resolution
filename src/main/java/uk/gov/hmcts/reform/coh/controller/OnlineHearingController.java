@@ -108,6 +108,12 @@ public class OnlineHearingController {
         if (!validationResult.isValid) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.reason);
         }
+
+        // Sonar doesn't understand that these have been tested
+        if (!onlineHearingState.isPresent() || !jurisdiction.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing configuration");
+        }
+
         onlineHearing.setOnlineHearingState(onlineHearingState.get());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
