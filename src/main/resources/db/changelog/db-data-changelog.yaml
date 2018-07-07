@@ -39,3 +39,13 @@ databaseChangeLog:
             path: sql/answer_states.sql
             splitStatements: false
             relativeToChangelogFile: true
+  - changeSet:
+      id: insert-static-decision-states
+      author: johnho
+      validCheckSum: ANY
+      runAlways: true
+      changes:
+        - sqlFile:
+            path: sql/decision_states.sql
+            splitStatements: false
+            relativeToChangelogFile: true
