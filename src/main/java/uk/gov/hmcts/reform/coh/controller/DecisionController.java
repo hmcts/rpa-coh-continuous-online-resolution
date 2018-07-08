@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequestMapper;
+import uk.gov.hmcts.reform.coh.controller.decision.*;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Decision;
@@ -79,5 +79,25 @@ public class DecisionController {
         response.setDecisionId(decision.getDecisionId());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found")
+    })
+    @GetMapping(value = "{decisionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity retrieveDecision(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionId ) {
+
+        Optional<Decision> optionalDecision = decisionService.retrieveByOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+        }
+
+        DecisionResponse decisionResponse = new DecisionResponse();
+        DecisionResponseMapper.map(optionalDecision.get(), decisionResponse);
+        return new ResponseEntity<>(decisionResponse, HttpStatus.OK);
     }
 }

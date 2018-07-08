@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.repository.DecisionRepository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 public class DecisionService {
 
@@ -17,5 +20,9 @@ public class DecisionService {
 
     public Decision createDecision(Decision decision) {
         return decisionRepository.save(decision);
+    }
+
+    public Optional<Decision> retrieveByOnlineHearingIdAndDecisionId(UUID onlineHearingId, UUID decisionId) {
+        return decisionRepository.findByOnlineHearingOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
     }
 }
