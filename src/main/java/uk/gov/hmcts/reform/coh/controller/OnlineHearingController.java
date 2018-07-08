@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
+import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -111,8 +112,8 @@ public class OnlineHearingController {
         Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
         ValidationResult validationResult = validate(body, onlineHearingState,jurisdiction );
-        if (!validationResult.isValid) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.reason);
+        if (!validationResult.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
         }
 
         // Sonar doesn't understand that these have been tested
@@ -168,27 +169,5 @@ public class OnlineHearingController {
         }
 
         return result;
-    }
-
-    private class ValidationResult {
-
-        private boolean isValid;
-        private String reason;
-
-        public boolean isValid() {
-            return isValid;
-        }
-
-        public void setValid(boolean valid) {
-            isValid = valid;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-
-        public void setReason(String reason) {
-            this.reason = reason;
-        }
     }
 }
