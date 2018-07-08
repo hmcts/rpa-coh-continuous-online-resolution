@@ -16,8 +16,10 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequestMapper;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
+import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.util.Optional;
@@ -29,14 +31,19 @@ public class DecisionController {
 
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
+    private static final String STARTING_STATE = "decision_drafted";
+
     private OnlineHearingService onlineHearingService;
 
     private DecisionService decisionService;
 
+    private DecisionStateService decisionStateService;
+
     @Autowired
-    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService) {
+    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService) {
         this.onlineHearingService = onlineHearingService;
         this.decisionService = decisionService;
+        this.decisionStateService = decisionStateService;
     }
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")
@@ -60,8 +67,13 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
 
+        Optional<DecisionState> optionalDecisionState = decisionStateService.retrieveDecisionStateByState(STARTING_STATE);
+        if (!optionalDecisionState.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Unable to retrieve starting state for decision");
+        }
+
         Decision decision = new Decision();
-        DecisionRequestMapper.map(request, decision);
+        DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision = decisionService.createDecision(decision);
         CreateDecisionResponse response = new CreateDecisionResponse();
         response.setDecisionId(decision.getDecisionId());

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionState;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -21,10 +22,11 @@ public enum  DecisionRequestMapper {
         this.setter = setter;
     }
 
-    public static void map(DecisionRequest request, Decision decision) {
+    public static void map(DecisionRequest request, Decision decision, DecisionState state) {
         for (DecisionRequestMapper m : DecisionRequestMapper.class.getEnumConstants()) {
             m.set(request, decision);
         }
+        decision.setDecisionstate(state);
     }
 
     public void set(DecisionRequest request, Decision decision) {

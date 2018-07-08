@@ -30,9 +30,9 @@ public class Decision {
     @Column(name = "decision_award")
     private String decisionAward;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(optional=false)
     @JoinColumn(name = "decision_state_id")
-    private DecisionState decision;
+    private DecisionState decisionstate;
 
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
@@ -93,12 +93,12 @@ public class Decision {
         this.decisionAward = decisionAward;
     }
 
-    public DecisionState getDecision() {
-        return decision;
+    public DecisionState getDecisionstate() {
+        return decisionstate;
     }
 
-    public void setDecision(DecisionState decision) {
-        this.decision = decision;
+    public void setDecisionstate(DecisionState decisionstate) {
+        this.decisionstate = decisionstate;
     }
 
     public Date getDeadlineExpiryDate() {
