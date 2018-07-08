@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +25,10 @@ public class OnlineHearingService {
 
     public OnlineHearing createOnlineHearing(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.save(onlineHearing);
+    }
+
+    public Optional<OnlineHearing> retrieveOnlineHearing(UUID onlineHearingId) {
+        return onlineHearingRepository.findById(onlineHearingId);
     }
 
     public Optional<OnlineHearing> retrieveOnlineHearing(final OnlineHearing onlineHearing) {
