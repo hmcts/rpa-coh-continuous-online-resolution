@@ -1,0 +1,12 @@
+{
+  "decision_id": "35e38b79-17a7-43e8-be32-8e2a5827d883",
+  "online_hearing_id": "4e035112-7cac-4a77-850a-5f9ecfaebeef",
+  "decision_header": "Your benefit appeal has been unsuccessful",
+  "decision_text": "You have not provided sufficient reasons why your application to have your benefits re-instated should be granted",
+  "decision_reason": "The tribunal finds from the evidence you have provided that you are not qualified for disability allowance",
+  "decision_award": "Disability Award - None",
+  "deadline_expiry_date": "2018-07-08 15:07:57.834",
+  "decision_state": {
+    "state_name": "decision_drafted"
+  }
+}

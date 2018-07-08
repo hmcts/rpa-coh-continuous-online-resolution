@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -26,6 +27,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,6 +61,8 @@ public class DecisionControllerTest {
 
     private DecisionRequest request;
 
+    private DecisionResponse response;
+
     private Answer answer;
 
     private UUID uuid;
@@ -69,20 +73,41 @@ public class DecisionControllerTest {
 
     private DecisionState decisionState;
 
+    private UUID decisionUUID;
+
+    private Date expiryDate;
+
     @Before
     public void setup() throws IOException {
         decisionState = new DecisionState();
         decisionState.setState("decision_drafted");
-        decision = new Decision();
         uuid = UUID.randomUUID();
+        decisionUUID = UUID.randomUUID();
+        expiryDate = new Date();
+
         endpoint = "/continuous-online-hearings/" + uuid + "/decisions";
+
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
+
+        request = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
+        response = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
+
+        decision = new Decision();
+        decision.setDecisionId(decisionUUID);
+        decision.setOnlineHearing(onlineHearing);
+        decision.setDecisionHeader(response.getDecisionHeader());
+        decision.setDecisionText(response.getDecisionText());
+        decision.setDecisionReason(response.getDecisionReason());
+        decision.setDecisionAward(response.getDecisionAward());
+        decision.setDeadlineExpiryDate(expiryDate);
+        decision.setDecisionstate(decisionState);
+
         mockMvc = MockMvcBuilders.standaloneSetup(decisionController).build();
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
         given(decisionService.createDecision(any(Decision.class))).willReturn(decision);
         given(decisionStateService.retrieveDecisionStateByState("decision_drafted")).willReturn(Optional.ofNullable(decisionState));
-        request = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
+        given(decisionService.retrieveByOnlineHearingIdAndDecisionId(uuid, decisionUUID)).willReturn(Optional.of(decision));
     }
 
     @Test
@@ -171,4 +196,38 @@ public class DecisionControllerTest {
                 .getResponse()
                 .getContentAsString().equalsIgnoreCase("Decision award is required");
     }
+
+    @Test
+    public void testGetDecision() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/" + decisionUUID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        DecisionResponse expected = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
+        expected.setDecisionId(decisionUUID.toString());
+        expected.setOnlineHearingId(uuid.toString());
+        expected.setDeadlineExpiryDate(expiryDate.toString());
+        DecisionResponse actual = (DecisionResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
+
+        assertEquals(expected.getDecisionId(), actual.getDecisionId());
+        assertEquals(expected.getOnlineHearingId(), actual.getOnlineHearingId());
+        assertEquals(expected.getDecisionHeader(), actual.getDecisionHeader());
+        assertEquals(expected.getDecisionText(), actual.getDecisionText());
+        assertEquals(expected.getDecisionReason(), actual.getDecisionReason());
+        assertEquals(expected.getDecisionAward(), actual.getDecisionAward());
+        assertEquals(expected.getDeadlineExpiryDate(), actual.getDeadlineExpiryDate());
+        assertEquals(expected.getDecisionState().getStateName(), actual.getDecisionState().getStateName());
+    }
+
+    @Test
+    public void testGetDecisionNotFound() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
 }

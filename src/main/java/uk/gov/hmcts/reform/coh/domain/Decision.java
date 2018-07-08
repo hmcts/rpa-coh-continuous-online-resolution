@@ -14,7 +14,7 @@ public class Decision {
     @Column(name = "decision_id")
     private UUID decisionId;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @OneToOne(optional=false)
     @JoinColumn(name = "online_hearing_id")
     private OnlineHearing onlineHearing;
 
