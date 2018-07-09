@@ -1,0 +1,54 @@
+databaseChangeLog:
+- changeSet:
+    id: 1531148575957-1
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: date_occured
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: decision_decision_id
+            type: UUID
+        - column:
+            constraints:
+              nullable: false
+            name: decisionstate_decision_state_id
+            type: INT
+        tableName: decision_state_history
+- changeSet:
+    id: 1531148575957-2
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: decision_decision_id, decisionstate_decision_state_id
+        constraintName: decision_state_historyPK
+        tableName: decision_state_history
+- changeSet:
+    id: 1531148575957-3
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: decision_decision_id
+        baseTableName: decision_state_history
+        constraintName: FK1b5uut0ukdrim1nhklr9b9wtq
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: decision_id
+        referencedTableName: decision
+- changeSet:
+    id: 1531148575957-4
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: decisionstate_decision_state_id
+        baseTableName: decision_state_history
+        constraintName: FK6l5mvsl3wjvam1axhl70i45g
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: decision_state_id
+        referencedTableName: decision_state
+

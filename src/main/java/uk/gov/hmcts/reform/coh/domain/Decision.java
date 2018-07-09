@@ -50,9 +50,7 @@ public class Decision {
     private String ownerReferenceId ;
 
     @OneToMany(mappedBy = "decision",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    @JsonIgnore
+            cascade = CascadeType.ALL)
     private List<DecisionStateHistory> decisionStateHistories = new ArrayList<>();
 
     public UUID getDecisionId() {
@@ -141,5 +139,9 @@ public class Decision {
 
     public void setDecisionStateHistories(List<DecisionStateHistory> decisionStateHistories) {
         this.decisionStateHistories = decisionStateHistories;
+    }
+
+    public boolean addDecisionStateHistory(DecisionState decisionState) {
+       return  decisionStateHistories.add(new DecisionStateHistory(this, decisionState));
     }
 }

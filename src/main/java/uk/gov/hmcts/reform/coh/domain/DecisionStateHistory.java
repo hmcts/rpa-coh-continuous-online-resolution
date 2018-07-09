@@ -17,7 +17,7 @@ public class DecisionStateHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("decisionStateId")
-    private DecisionState decisionState;
+    private DecisionState decisionstate; // JPA cares about the case
 
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
@@ -30,7 +30,7 @@ public class DecisionStateHistory {
 
     public DecisionStateHistory(Decision decision, DecisionState decisionState){
         this.decision = decision;
-        this.decisionState = decisionState;
+        this.decisionstate = decisionState;
         this.id =  new DecisionStateId(decision.getDecisionId(), decisionState.getDecisionStateId());
     }
 
@@ -50,12 +50,12 @@ public class DecisionStateHistory {
         this.decision = decision;
     }
 
-    public DecisionState getDecisionState() {
-        return decisionState;
+    public DecisionState getDecisionstate() {
+        return decisionstate;
     }
 
-    public void setDecisionState(DecisionState decisionState) {
-        this.decisionState = decisionState;
+    public void setDecisionstate(DecisionState decisionstate) {
+        this.decisionstate = decisionstate;
     }
 
     public Date getDateOccured() {
