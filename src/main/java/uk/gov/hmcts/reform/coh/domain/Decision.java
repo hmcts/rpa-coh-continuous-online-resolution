@@ -34,7 +34,7 @@ public class Decision {
     @Column(name = "decision_award")
     private String decisionAward;
 
-    @OneToOne(optional=false)
+    @ManyToOne(optional=false)
     @JoinColumn(name = "decision_state_id")
     private DecisionState decisionstate;
 
