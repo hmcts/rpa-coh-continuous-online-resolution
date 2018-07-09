@@ -12,11 +12,11 @@ import java.util.Date;
         private OnlineHearingStateId id;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("onlineHearingId")
+        @MapsId("online_hearing_id")
         private OnlineHearing onlineHearing;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("onlineHearingStateId")
+        @MapsId("online_hearing_state_id")
         private OnlineHearingState onlineHearingState;
 
         @NotNull
@@ -55,6 +55,7 @@ import java.util.Date;
                                          OnlineHearingState onlineHearingState) {
             this.onlineHearing = onlineHearing;
             this.onlineHearingState = onlineHearingState;
+            this.id = new OnlineHearingStateId(onlineHearing.getOnlineHearingId(), onlineHearingState.getOnlineHearingStateId());
         }
 
         public Date getDateOccurred() {

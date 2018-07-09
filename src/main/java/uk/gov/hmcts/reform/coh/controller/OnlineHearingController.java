@@ -102,13 +102,12 @@ public class OnlineHearingController {
         if (!onlineHearingState.isPresent()) {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
-        onlineHearing.setOnlineHearingState(onlineHearingState.get());
-        onlineHearing.registerStateChange();
+
+        onlineHearing.setOnlineHearingId(UUID.randomUUID());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
 
-        OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
 
         for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
@@ -119,7 +118,10 @@ public class OnlineHearingController {
             onlineHearingPanelMemberService.createOnlineHearing(ohpMember);
         }
 
-        response.setOnlineHearingId(createdOnlineHearing.getOnlineHearingId().toString());
+        response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
+        onlineHearing.setOnlineHearingState(onlineHearingState.get());
+        onlineHearing.registerStateChange();
+        onlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

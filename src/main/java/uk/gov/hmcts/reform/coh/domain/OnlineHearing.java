@@ -15,7 +15,7 @@ import java.util.UUID;
 public class OnlineHearing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    //@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
@@ -46,7 +46,7 @@ public class OnlineHearing {
     private String ownerReferenceId;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "online_hearing_state_id", nullable = false)
+    @JoinColumn(name = "online_hearing_state_id")
     @JsonProperty("current_online_hearing_state")
     private OnlineHearingState onlineHearingState;
 
