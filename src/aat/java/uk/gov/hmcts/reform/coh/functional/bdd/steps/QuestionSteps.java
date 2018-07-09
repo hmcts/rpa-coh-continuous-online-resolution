@@ -19,7 +19,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -123,16 +122,6 @@ public class QuestionSteps extends BaseSteps{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
-    }
-
-    @And("^the question is updated to issued$")
-    public void theQuestionIsUpdatedToIssued() throws Throwable {
-        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
-        String jsonBody = JsonUtils.getJsonInput("question/issue_question");
-        HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-        ResponseEntity<Question> response = restTemplate.exchange(
-                baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId() + "?_method=patch", HttpMethod.POST, request, Question.class);
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")
