@@ -63,10 +63,7 @@ public class QuestionRoundService {
         List<QuestionRound> questionRounds = new ArrayList<>();
 
         for(int questionRoundNumber = 1; questionRoundNumber <= getCurrentQuestionRoundNumber(onlineHearing); questionRoundNumber++){
-            QuestionRound questionRound = new QuestionRound();
-            questionRound.setQuestionRoundNumber(questionRoundNumber);
-            questionRound.setQuestionList(getQuestionsByQuestionRound(onlineHearing, questionRoundNumber));
-            questionRound.setQuestionRoundState(retrieveQuestionRoundState(questionRound));
+            QuestionRound questionRound = getQuestionRoundByRoundId(onlineHearing, questionRoundNumber);
             questionRounds.add(questionRound);
         }
 
@@ -135,5 +132,14 @@ public class QuestionRoundService {
             return currentQuestionRound - 1;
         }
         return currentQuestionRound;
+    }
+
+    public QuestionRound getQuestionRoundByRoundId(OnlineHearing onlineHearing, int roundId) {
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionRoundNumber(roundId);
+        questionRound.setQuestionList(getQuestionsByQuestionRound(onlineHearing, roundId));
+        questionRound.setQuestionRoundState(retrieveQuestionRoundState(questionRound));
+
+        return questionRound;
     }
 }
