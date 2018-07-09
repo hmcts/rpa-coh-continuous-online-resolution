@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/online-hearings/{onlineHearingId}/questions/{questionId}/answers")
+@RequestMapping("/continuous-online-hearings/{onlineHearingId}/questions/{questionId}/answers")
 public class AnswerController {
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
