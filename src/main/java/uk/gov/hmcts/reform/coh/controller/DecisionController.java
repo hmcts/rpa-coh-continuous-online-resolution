@@ -48,11 +48,11 @@ public class DecisionController {
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Success", response = Decision.class),
+            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 409, message = "Duplicate"),
+            @ApiResponse(code = 404, message = "Online hearing not found"),
+            @ApiResponse(code = 409, message = "Online hearing already contains a decision"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -60,7 +60,7 @@ public class DecisionController {
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (optionalDecision.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Online hearing already has a decision");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Online hearing already contains a decision");
         }
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
@@ -81,6 +81,7 @@ public class DecisionController {
         Decision decision = new Decision();
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        decision.addDecisionStateHistory(optionalDecisionState.get());
         decision = decisionService.createDecision(decision);
         CreateDecisionResponse response = new CreateDecisionResponse();
         response.setDecisionId(decision.getDecisionId());

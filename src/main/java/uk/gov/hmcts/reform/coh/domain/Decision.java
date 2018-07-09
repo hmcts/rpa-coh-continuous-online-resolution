@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.coh.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,7 +34,7 @@ public class Decision {
     @Column(name = "decision_award")
     private String decisionAward;
 
-    @OneToOne(optional=false)
+    @ManyToOne(optional=false)
     @JoinColumn(name = "decision_state_id")
     private DecisionState decisionstate;
 
@@ -44,6 +48,10 @@ public class Decision {
 
     @Column(name = "owner_reference_id  ")
     private String ownerReferenceId ;
+
+    @OneToMany(mappedBy = "decision",
+            cascade = CascadeType.ALL)
+    private List<DecisionStateHistory> decisionStateHistories = new ArrayList<>();
 
     public UUID getDecisionId() {
         return decisionId;
@@ -123,5 +131,17 @@ public class Decision {
 
     public void setOwnerReferenceId(String ownerReferenceId) {
         this.ownerReferenceId = ownerReferenceId;
+    }
+
+    public List<DecisionStateHistory> getDecisionStateHistories() {
+        return decisionStateHistories;
+    }
+
+    public void setDecisionStateHistories(List<DecisionStateHistory> decisionStateHistories) {
+        this.decisionStateHistories = decisionStateHistories;
+    }
+
+    public boolean addDecisionStateHistory(DecisionState decisionState) {
+       return  decisionStateHistories.add(new DecisionStateHistory(this, decisionState));
     }
 }
