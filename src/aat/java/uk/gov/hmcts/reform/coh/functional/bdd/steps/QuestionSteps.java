@@ -27,7 +27,6 @@ import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
@@ -46,7 +45,6 @@ import static junit.framework.TestCase.assertTrue;
 public class QuestionSteps extends BaseSteps{
     private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
-    private RestTemplate restTemplate;
     private String ENDPOINT = "/continuous-online-hearings";
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
@@ -66,16 +64,14 @@ public class QuestionSteps extends BaseSteps{
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
-    private TestContext testContext;
-
     @Autowired
     public QuestionSteps(TestContext testContext) {
-        this.testContext = testContext;
+        super(testContext);
     }
 
     @Before
     public void setup() throws Exception {
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+        super.setup();
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         questionIds = new ArrayList<>();

@@ -64,12 +64,10 @@ public class ApiSteps extends BaseSteps {
 
     private Set<String> caseIds;
     private Set<Jurisdiction> jurisdictions;
-    private TestContext testContext;
-    private OnlineHearingRequest onlineHearingRequest;
 
     @Autowired
     public ApiSteps(TestContext testContext) {
-        this.testContext = testContext;
+        super(testContext);
     }
 
     @Before
@@ -120,6 +118,14 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
+    @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
+    public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
+        HttpGet request = new HttpGet(baseUrl + endpoint);
+        request.addHeader("content-type", "application/json");
+
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
+    }
+
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
         HttpPost request = new HttpPost(baseUrl + endpoint);
@@ -161,24 +167,18 @@ public class ApiSteps extends BaseSteps {
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
     }
 
-    @Given("^a standard online hearing$")
-    public void aStandardOnlineHearing() throws IOException {
-        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-    }
-
     @And("^the online hearing jurisdiction is ' \"([^\"]*)\" '$")
     public void theOnlineHearingJurisdictionIsSCSS(String jurisdictionName){
-        onlineHearingRequest.setJurisdiction(jurisdictionName);
+        testContext.getScenarioContext().getCurrentOnlineHearingRequest().setJurisdiction(jurisdictionName);
     }
 
     @And("^the post request is sent to create the online hearing$")
     public void thePostRequestIsSentToCreateTheOnlineHearing() throws IOException {
 
-        String jsonBody = JsonUtils.toJson(onlineHearingRequest);
+        String jsonBody = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
-        testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);

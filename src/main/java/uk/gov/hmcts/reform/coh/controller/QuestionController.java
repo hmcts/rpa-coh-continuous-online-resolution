@@ -75,7 +75,7 @@ public class QuestionController {
         }
 
         Question question = new Question();
-        QuestionResquestMapper mapper = new QuestionResquestMapper(question, savedOnlineHearing.get(), request);
+        QuestionRequestMapper mapper = new QuestionRequestMapper(question, savedOnlineHearing.get(), request);
         mapper.map();
         question = questionService.createQuestion(question, onlineHearingId);
 
