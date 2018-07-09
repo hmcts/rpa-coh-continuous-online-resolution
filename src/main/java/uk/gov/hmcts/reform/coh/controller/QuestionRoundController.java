@@ -6,10 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
@@ -93,4 +90,35 @@ public class QuestionRoundController {
 
         return ResponseEntity.ok(questionRoundResponse);
     }
+
+    @ApiOperation("Issue a question round")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = Question.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @PutMapping("/questionrounds/{roundId}")
+    public ResponseEntity<QuestionRoundResponse> updateQuestionRound(@PathVariable UUID onlineHearingId, @PathVariable int roundId) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        if(!optionalOnlineHearing.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        onlineHearing = optionalOnlineHearing.get();
+        QuestionRound questionRound = questionRoundService.getQuestionRoundByRoundId(onlineHearing, roundId);
+
+        
+
+
+        QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
+        QuestionRoundResponseMapper.map(questionRound, questionRoundResponse);
+
+        return ResponseEntity.ok(questionRoundResponse);
+    }
+
 }
