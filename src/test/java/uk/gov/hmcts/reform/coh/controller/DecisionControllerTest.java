@@ -120,6 +120,17 @@ public class DecisionControllerTest {
     }
 
     @Test
+    public void testCreateDuplicateDecision() throws Exception {
+
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+
+        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     public void testCreateDecisionForNonExistentOnlineHearing() throws Exception {
 
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());

@@ -22,6 +22,10 @@ public class DecisionService {
         return decisionRepository.save(decision);
     }
 
+    public Optional<Decision> findByOnlineHearingId(UUID onlineHearingId) {
+        return decisionRepository.findByOnlineHearingOnlineHearingId(onlineHearingId);
+    }
+
     public Optional<Decision> retrieveByOnlineHearingIdAndDecisionId(UUID onlineHearingId, UUID decisionId) {
         return decisionRepository.findByOnlineHearingOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
     }
