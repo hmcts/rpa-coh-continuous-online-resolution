@@ -86,7 +86,9 @@ public class QuestionService {
 
         if(proposedState.getState().equals("ISSUED")) {
             if (questionState.getQuestionStateId() != QuestionState.ISSUED) {
-                issueQuestion(currentQuestion);
+                QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+                currentQuestion.addState(issuedQuestionState);
+                questionRepository.save(currentQuestion);
             }
         }else{
             // Add code to update question text / body ect here (NOT THIS BRANCH)
