@@ -223,11 +223,9 @@ public class DecisionControllerTest {
 
     @Test
     public void testGetDecisionNotFound() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/" + UUID.randomUUID())
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/" + UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
-                .andExpect(status().isNotFound())
-                .andReturn();
+                .andExpect(status().isNotFound());
     }
-
 }
