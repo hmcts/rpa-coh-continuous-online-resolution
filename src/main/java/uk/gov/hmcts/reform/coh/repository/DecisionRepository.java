@@ -10,5 +10,7 @@ import java.util.UUID;
 @Repository
 public interface DecisionRepository extends CrudRepository<Decision, UUID> {
 
+    Optional<Decision> findByOnlineHearingOnlineHearingId(UUID onlineHearingId);
+
     Optional<Decision> findByOnlineHearingOnlineHearingIdAndDecisionId(UUID onlineHearingId, UUID decisionId);
 }
