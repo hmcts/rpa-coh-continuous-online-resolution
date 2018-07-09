@@ -20,6 +20,7 @@ import java.util.*;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -64,5 +65,19 @@ public class DecisionServiceTest {
     public void testCreateDecision() {
         when(decisionRepository.save(decision)).thenReturn(newDecision);
         assertEquals(newDecision, decisionService.createDecision(decision));
+    }
+
+    @Test
+    public void testFindByOnlineHearingId() {
+        UUID uuid = UUID.randomUUID();
+        when(decisionRepository.findByOnlineHearingOnlineHearingId(uuid)).thenReturn(Optional.ofNullable(decision));
+        assertEquals(decision, decisionService.findByOnlineHearingId(uuid).get());
+    }
+
+    @Test
+    public void testFindByOnlineHearingIdFail() {
+        UUID uuid = UUID.randomUUID();
+        when(decisionRepository.findByOnlineHearingOnlineHearingId(uuid)).thenReturn(Optional.empty());
+        assertFalse(decisionService.findByOnlineHearingId(UUID.randomUUID()).isPresent());
     }
 }

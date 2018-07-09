@@ -33,7 +33,7 @@ public class QuestionController {
 
     @ApiOperation("Get a question")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Question.class),
+            @ApiResponse(code = 200, message = "Success", response = QuestionResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
@@ -56,7 +56,7 @@ public class QuestionController {
 
     @ApiOperation("Add a new question")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created", response = Question.class),
+            @ApiResponse(code = 201, message = "Created", response = CreateQuestionResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
