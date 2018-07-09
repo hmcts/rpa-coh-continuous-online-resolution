@@ -10,8 +10,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public enum QuestionRoundResponseMapper {
-    QUESTION_ROUND((QuestionRound q) -> { return q.getQuestionRound().toString(); }, QuestionRoundResponse::setQuestionRound),
-    QUESTION_ROUND_STATE(q -> {return q.getQuestionRoundState().getState();}, (qr, s) -> { qr.getQuestionRoundState().setState(s);});
+    QUESTION_ROUND((QuestionRound q) -> q.getQuestionRoundNumber().toString(), QuestionRoundResponse::setQuestionRound),
+    QUESTION_ROUND_STATE(q -> q.getQuestionRoundState().getState(), (qr, s) -> qr.getQuestionRoundState().setState(s));
 
     private Function<QuestionRound, String> getter;
     private BiConsumer<QuestionRoundResponse, String> setter;
@@ -27,7 +27,7 @@ public enum QuestionRoundResponseMapper {
         }
 
         List<Question> questions = questionRound.getQuestionList();
-        for(Question question : questions) {
+        for (Question question : questions) {
             QuestionResponse questionResponse = new QuestionResponse();
             QuestionResponseMapper.map(question, questionResponse);
             questionRoundResponse.addQuestionResponse(questionResponse);

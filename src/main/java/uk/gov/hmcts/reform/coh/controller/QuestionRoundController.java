@@ -11,14 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
-import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
-import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +30,6 @@ public class QuestionRoundController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
-
-    @Autowired
-    private QuestionService questionService;
-
 
     @ApiOperation("Get a question round")
     @ApiResponses(value = {
@@ -60,19 +53,14 @@ public class QuestionRoundController {
         onlineHearing = optionalOnlineHearing.get();
         List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
 
-        QuestionRoundsResponse QuestionRoundsResponse = new QuestionRoundsResponse();
+        QuestionRoundsResponse questionRoundsResponse = new QuestionRoundsResponse();
 
-        for(QuestionRound questionRound : questionRounds) {
-            QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
-            QuestionRoundResponseMapper.map(questionRound, questionRoundResponse);
-            QuestionRoundsResponse.addQuestionRoundResponse(questionRoundResponse);
-        }
+        questionRoundsResponse.convertToQuestionRounds(questionRounds);
+        questionRoundsResponse.setCurrentQuestionRound(questionRoundService.getCurrentQuestionRoundNumber(onlineHearing));
+        questionRoundsResponse.setNextQuestionRound(questionRoundService.getNextQuestionRound(onlineHearing, questionRoundsResponse.getCurrentQuestionRound()));
+        questionRoundsResponse.setMaxQuestionRound(onlineHearing.getJurisdiction().getMaxQuestionRounds());
+        questionRoundsResponse.setPreviousQuestionRound(questionRoundService.getPreviousQuestionRound(questionRoundsResponse.getCurrentQuestionRound()));
 
-        QuestionRoundsResponse.setCurrentQuestionRound(questionRoundService.getCurrentQuestionRoundNumber(onlineHearing));
-        QuestionRoundsResponse.setNextQuestionRound(questionRoundService.getNextQuestionRound(onlineHearing, QuestionRoundsResponse.getCurrentQuestionRound()));
-        QuestionRoundsResponse.setMaxQuestionRound(onlineHearing.getJurisdiction().getMaxQuestionRounds());
-        QuestionRoundsResponse.setPreviousQuestionRound(questionRoundService.getPreviousQuestionRound(QuestionRoundsResponse.getCurrentQuestionRound()));
-
-        return ResponseEntity.ok(QuestionRoundsResponse);
+        return ResponseEntity.ok(questionRoundsResponse);
     }
 }

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.questionrounds;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,5 +69,14 @@ public class QuestionRoundsResponse {
 
     public List<QuestionRoundResponse> getQuestionRounds() {
         return questionRounds;
+    }
+
+    public void convertToQuestionRounds(List<QuestionRound> questionRounds){
+
+        for(QuestionRound questionRound : questionRounds) {
+            QuestionRoundResponse questionRoundResponse = new QuestionRoundResponse();
+            QuestionRoundResponseMapper.map(questionRound, questionRoundResponse);
+            addQuestionRoundResponse(questionRoundResponse);
+        }
     }
 }

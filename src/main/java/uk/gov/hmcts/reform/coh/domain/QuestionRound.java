@@ -1,17 +1,14 @@
 package uk.gov.hmcts.reform.coh.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionRound {
 
-    private Integer questionRound;
+    private Integer questionRoundNumber;
 
-    private List<Question> questionList;
+    private List<Question> questionList = new ArrayList<>();
     private QuestionRoundState questionRoundState;
-
-    public void setQuestionRound(Integer questionRound) {
-        this.questionRound = questionRound;
-    }
 
     public QuestionRoundState getQuestionRoundState() {
         return questionRoundState;
@@ -21,12 +18,12 @@ public class QuestionRound {
         this.questionRoundState = questionRoundState;
     }
 
-    public Integer getQuestionRound() {
-        return questionRound;
+    public Integer getQuestionRoundNumber() {
+        return questionRoundNumber;
     }
 
-    public void setQuestionRoundNumber(Integer questionRound) {
-        this.questionRound = questionRound;
+    public void setQuestionRoundNumber(Integer questionRoundNumber) {
+        this.questionRoundNumber = questionRoundNumber;
     }
 
     public List<Question> getQuestionList() {

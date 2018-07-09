@@ -20,11 +20,7 @@ public class Jurisdiction {
     private String url;
 
     @Column(name = "max_question_rounds")
-    private Integer maxQuestionRounds;
-
-    public void setMaxQuestionRounds(Integer maxQuestionRounds) {
-        this.maxQuestionRounds = maxQuestionRounds;
-    }
+    private int maxQuestionRounds;
 
     public Long getJurisdictionId() {
         return jurisdictionId;
