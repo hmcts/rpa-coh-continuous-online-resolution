@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,7 +86,9 @@ public class QuestionService {
 
         if(proposedState.getState().equals("ISSUED")) {
             if (questionState.getQuestionStateId() != QuestionState.ISSUED) {
-                issueQuestion(currentQuestion);
+                QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+                currentQuestion.addState(issuedQuestionState);
+                questionRepository.save(currentQuestion);
             }
         }else{
             // Add code to update question text / body ect here (NOT THIS BRANCH)
@@ -105,5 +108,9 @@ public class QuestionService {
         }else{
             log.error("Error: Request to jurisdiction was unsuccessful");
         }
+    }
+
+    public Optional<List<Question>> retrieveQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+        return Optional.ofNullable(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing));
     }
 }

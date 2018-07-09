@@ -17,8 +17,9 @@ public class QuestionStateService {
         this.questionStateRepository = questionStateRepository;
     }
 
-
     public QuestionState retrieveQuestionStateById(final Integer questionStateId){
         return questionStateRepository.findById(questionStateId).orElse(null);
     }
+
+
 }
