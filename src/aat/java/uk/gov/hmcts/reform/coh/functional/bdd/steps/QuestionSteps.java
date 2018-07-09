@@ -17,7 +17,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
@@ -171,5 +170,50 @@ public class QuestionSteps extends BaseSteps{
         int questionRounds = questionRoundsResponse.getQuestionRounds().size();
 
         assertEquals(expectedQuestionRounds, questionRounds);
+    }
+
+    @And("^the previous question round is ' \"([^\"]*)\" '$")
+    public void thePreviousQuestionRoundIs(int expectedPreviousQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int previousQuestionRound = questionRoundsResponse.getPreviousQuestionRound();
+
+        assertEquals(expectedPreviousQuestionRound, previousQuestionRound);
+    }
+
+    @And("^the current question round is ' \"([^\"]*)\" '$")
+    public void theCurrentQuestionRoundIs(int expectedCurrentQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int currentQuestionRound = questionRoundsResponse.getCurrentQuestionRound();
+
+        assertEquals(expectedCurrentQuestionRound, currentQuestionRound);
+    }
+
+    @And("^the next question round is ' \"([^\"]*)\" '$")
+    public void theNextQuestionRoundIs(int expectedNextQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int nextQuestionRound = questionRoundsResponse.getCurrentQuestionRound();
+
+        assertEquals(expectedNextQuestionRound, nextQuestionRound);
+    }
+
+    @And("^the max question round is ' \"([^\"]*)\" '$")
+    public void theMaxQuestionRoundIs(int expectedMaxQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int maxQuestionRound = questionRoundsResponse.getCurrentQuestionRound();
+
+        assertEquals(expectedMaxQuestionRound, maxQuestionRound);
+    }
+
+    @And("^the number of questions in question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
+    public void theNumberOfQuestionsInQuestionRoundIs(int questionRoundN, int expectedQuestions) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        QuestionRoundResponse questionRound = questionRoundsResponse.getQuestionRounds().get(questionRoundN - 1);
+
+        assertEquals(expectedQuestions, questionRound.getQuestionList().size());
     }
 }
