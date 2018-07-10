@@ -12,11 +12,11 @@ import java.util.Date;
         private OnlinehearingStateId id;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("online_hearing_id")
+        @MapsId("onlinehearingId")
         private Onlinehearing onlinehearing;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("online_hearing_state_id")
+        @MapsId("onlinehearingStateId")
         private Onlinehearingstate onlinehearingstate;
 
         @NotNull
