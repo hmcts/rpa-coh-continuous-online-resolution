@@ -5,10 +5,15 @@ Feature: Question Round Logic
     And a standard question
     Given the question round is ' "1" '
     When the post request is sent to create the question
-    And the response code is 200
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
     Given the question round is ' "2" '
     When the post request is sent to create the question
-    And the response code is 200
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "2" '
+    Then the response code is 200
+
 
   Scenario: If no jurisdiction question round limit is set then validate question round
     Given a standard online hearing
