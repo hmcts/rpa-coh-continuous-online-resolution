@@ -188,6 +188,16 @@ public class QuestionControllerTest {
     }
 
     @Test
+    public void testGetAllQuestionsNone() throws Exception {
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(null));
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testGetAllQuestionsWhenNone() throws Exception {
 
         List<Question> responses = new ArrayList<>();
