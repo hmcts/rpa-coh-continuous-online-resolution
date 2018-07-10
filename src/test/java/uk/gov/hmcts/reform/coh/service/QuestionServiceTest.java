@@ -44,11 +44,15 @@ public class QuestionServiceTest {
     private QuestionState issued = new QuestionState("ISSUED");
     private Question question;
 
+    private OnlineHearing onlineHearing;
     private static UUID ONE;
 
     @Before
     public void setup() {
         ONE = UUID.randomUUID();
+        onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(ONE);
+
         questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService, questionRoundService);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
@@ -75,22 +79,13 @@ public class QuestionServiceTest {
         assertEquals(newQuestion, question);
     }
 
-    @Test(expected = EntityNotFoundException.class)
-    public void testCreateQuestionWithInvalidOnlineHearing() {
-        when(questionRepository.save(question)).thenReturn(question);
-        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
-
-        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
-    }
-
     @Test(expected = NotAValidUpdateException.class)
     public void testCreateQuestionWithInvalidUpdate() {
         when(questionRepository.save(question)).thenReturn(question);
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
         given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(false);
 
-        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+        questionService.createQuestion(question, onlineHearing);
     }
 
     @Test
