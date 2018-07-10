@@ -38,14 +38,11 @@ public class DecisionController {
 
     private DecisionStateService decisionStateService;
 
-    private DecisionStateHistoryService decisionStateHistoryService;
-
     @Autowired
-    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionStateHistoryService decisionStateHistoryService) {
+    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService) {
         this.onlineHearingService = onlineHearingService;
         this.decisionService = decisionService;
         this.decisionStateService = decisionStateService;
-        this.decisionStateHistoryService = decisionStateHistoryService;
     }
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")

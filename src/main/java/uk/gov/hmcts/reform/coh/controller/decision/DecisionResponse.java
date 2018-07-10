@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
