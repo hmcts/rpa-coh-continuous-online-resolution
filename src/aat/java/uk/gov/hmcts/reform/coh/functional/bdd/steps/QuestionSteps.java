@@ -147,11 +147,22 @@ public class QuestionSteps extends BaseSteps{
 
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
     public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN , String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, String.class);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
 
         allQuestionRounds = false;
+    }
+
+    @When("^the put request is sent to issue the question round ' \"([^\"]*)\" '$")
+    public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
+        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
+        HttpEntity<String> request = new HttpEntity<>(json, header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+                HttpMethod.PUT, request, String.class);
+
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 
     @And("^the question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
