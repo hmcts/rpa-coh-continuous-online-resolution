@@ -11,19 +11,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
+import uk.gov.hmcts.reform.coh.domain.DecisionStateHistory;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
+import uk.gov.hmcts.reform.coh.service.DecisionStateHistoryService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}/decisions")
@@ -39,11 +41,14 @@ public class DecisionController {
 
     private DecisionStateService decisionStateService;
 
+    private DecisionStateHistoryService decisionStateHistoryService;
+
     @Autowired
-    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService) {
+    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionStateHistoryService decisionStateHistoryService) {
         this.onlineHearingService = onlineHearingService;
         this.decisionService = decisionService;
         this.decisionStateService = decisionStateService;
+        this.decisionStateHistoryService = decisionStateHistoryService;
     }
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")
@@ -96,10 +101,10 @@ public class DecisionController {
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
     })
-    @GetMapping(value = "{decisionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity retrieveDecision(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionId ) {
+    @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity retrieveDecision(@PathVariable UUID onlineHearingId) {
 
-        Optional<Decision> optionalDecision = decisionService.retrieveByOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
         }

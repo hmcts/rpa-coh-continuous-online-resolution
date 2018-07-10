@@ -96,10 +96,17 @@ public class DecisionResponse {
         getDecisionState().setStateName(stateName);
     }
 
+    public void setDecisionStateDatetime(String stateDatetime) {
+        getDecisionState().setStateDatetime(stateDatetime);
+    }
+
     public static class DecisionState {
 
         @JsonProperty(value = "state_name")
         private String stateName;
+
+        @JsonProperty(value = "state_datetime")
+        private String stateDatetime;
 
         public String getStateName() {
             return stateName;
@@ -107,6 +114,14 @@ public class DecisionResponse {
 
         public void setStateName(String stateName) {
             this.stateName = stateName;
+        }
+
+        public String getStateDatetime() {
+            return stateDatetime;
+        }
+
+        public void setStateDatetime(String stateDatetime) {
+            this.stateDatetime = stateDatetime;
         }
     }
 }

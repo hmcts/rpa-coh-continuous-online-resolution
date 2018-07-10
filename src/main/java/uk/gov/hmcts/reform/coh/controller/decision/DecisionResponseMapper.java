@@ -1,11 +1,16 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionStateHistory;
 
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public enum DecisionResponseMapper {
+
     DECISION_ID(d -> d.getDecisionId().toString(), DecisionResponse::setDecisionId),
     ONLINE_HEARING_ID(d -> d.getOnlineHearing().getOnlineHearingId().toString(), DecisionResponse::setOnlineHearingId),
     DECISION_HEADER(Decision::getDecisionHeader, DecisionResponse::setDecisionHeader),
@@ -13,14 +18,32 @@ public enum DecisionResponseMapper {
     DECISION_REASON(Decision::getDecisionReason, DecisionResponse::setDecisionReason),
     DECISION_AWARD(Decision::getDecisionAward, DecisionResponse::setDecisionAward),
     DEADLINE_EXPIRY_DATE(d -> d.getDeadlineExpiryDate().toString(), DecisionResponse::setDeadlineExpiryDate),
-    DECISION_STATE_NAME(d -> d.getDecisionstate().getState(), DecisionResponse::setDecisionStateName);
+    DECISION_STATE_NAME(d -> d.getDecisionstate().getState(), DecisionResponse::setDecisionStateName),
+    DECISION_STATE_TIMESTAMP(
+            d ->
+            {
+                String date = null;
+                if (d.getDecisionStateHistories() != null && !d.getDecisionStateHistories().isEmpty()) {
+                    date = d.getDecisionStateHistories()
+                            .stream()
+                            .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured))
+                            .findFirst().get().getDateOccured()
+                            .toString();
+                }
 
-    private Function<Decision, String> getter;
+                return date;
+            }
+            , DecisionResponse::setDecisionStateDatetime
+    );
+
+    private Function<Decision, String> decision;
+
+    private Optional<Function<DecisionStateHistory, String>> decisionStateHistory;
 
     private BiConsumer<DecisionResponse, String> setter;
 
-    DecisionResponseMapper(Function<Decision, String> getter, BiConsumer<DecisionResponse, String> setter) {
-        this.getter = getter;
+    DecisionResponseMapper(Function<Decision, String> decision, BiConsumer<DecisionResponse, String> setter) {
+        this.decision = decision;
         this.setter = setter;
     }
 
@@ -31,7 +54,7 @@ public enum DecisionResponseMapper {
     }
 
     public void set(Decision decision, DecisionResponse response) {
-        setter.accept(response, getter.apply(decision));
+        setter.accept(response, this.decision.apply(decision));
     }
 }
 
