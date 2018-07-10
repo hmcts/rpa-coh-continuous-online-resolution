@@ -15,3 +15,4 @@ Feature: Online hearing
     Then the response code is 200
     And the response contains the following text '"case_123" '
     And the response contains 1 panel member
+

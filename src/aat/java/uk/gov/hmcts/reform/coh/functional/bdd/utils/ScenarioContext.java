@@ -7,11 +7,14 @@ import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Component
 public class ScenarioContext {
+
+    private OnlineHearingRequest currentOnlineHearingRequest;
 
     private OnlineHearing currentOnlineHearing;
 
@@ -19,9 +22,17 @@ public class ScenarioContext {
 
     private Answer currentAnswer;
 
-    private List<OnlineHearing> onlineHearings;
+    private List<String> caseIds;
 
     Set<Jurisdiction> jurisdictions;
+
+    public OnlineHearingRequest getCurrentOnlineHearingRequest() {
+        return currentOnlineHearingRequest;
+    }
+
+    public void setCurrentOnlineHearingRequest(OnlineHearingRequest currentOnlineHearingRequest) {
+        this.currentOnlineHearingRequest = currentOnlineHearingRequest;
+    }
 
     public OnlineHearing getCurrentOnlineHearing() {
         return currentOnlineHearing;
@@ -52,12 +63,19 @@ public class ScenarioContext {
         this.currentAnswer = currentAnswer;
     }
 
-    public List<OnlineHearing> getOnlineHearings() {
-        return onlineHearings;
+    public List<String> getCaseIds() {
+        return caseIds;
     }
 
-    public void setOnlineHearings(List<OnlineHearing> onlineHearings) {
-        this.onlineHearings = onlineHearings;
+    public void setCaseIds(List<String> caseId) {
+        this.caseIds = caseId;
+    }
+
+    public void addCaseId(String caseId) {
+        if (caseIds == null) {
+            caseIds = new ArrayList<>();
+        }
+        caseIds.add(caseId);
     }
 
     public void setJurisdictions(Set<Jurisdiction> jurisdictions) {
@@ -66,5 +84,13 @@ public class ScenarioContext {
 
     public Set<Jurisdiction> getJurisdictions() {
         return jurisdictions;
+    }
+
+    public void clear() {
+        currentOnlineHearing = null;
+        currentQuestion = null;
+        currentAnswer = null;
+        caseIds = null;
+        jurisdictions = null;
     }
 }

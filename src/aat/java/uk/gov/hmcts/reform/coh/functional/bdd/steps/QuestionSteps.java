@@ -17,15 +17,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
+import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
+import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
@@ -37,19 +36,20 @@ import java.util.List;
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
 public class QuestionSteps extends BaseSteps{
     private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
-    private RestTemplate restTemplate;
     private String ENDPOINT = "/continuous-online-hearings";
     private OnlineHearing onlineHearing;
     private HttpHeaders header;
     private Question question;
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
+    private boolean allQuestionRounds;
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -63,16 +63,14 @@ public class QuestionSteps extends BaseSteps{
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
-    private TestContext testContext;
-
     @Autowired
     public QuestionSteps(TestContext testContext) {
-        this.testContext = testContext;
+        super(testContext);
     }
 
     @Before
     public void setup() throws Exception {
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+        super.setup();
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         questionIds = new ArrayList<>();
@@ -138,33 +136,106 @@ public class QuestionSteps extends BaseSteps{
        assertEquals(expectedState, state);
     }
 
-    @When("^a patch request is sent to ' \"([^\"]*)\" ' and response status is ' \"([^\"]*)\" '$")
-    public void aPatchRequestIsSentToOnlineHearingsOnlineHearingIdQuestionsQuestionId(String endpoint, String expectedStatus) throws Throwable {
+    @When("^the get request is sent to get all question rounds$")
+    public void theGetRequestIsSentToGetAllQuestionRounds() {
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", String.class);
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
 
-        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
-        endpoint = endpoint.replaceAll("question_id", String.valueOf(question.getQuestionId()));
+        allQuestionRounds = true;
+    }
 
-        /**
-         * This is a workaround for https://jira.spring.io/browse/SPR-15347
-         *
-         **/
-        String jsonBody = JsonUtils.getJsonInput("question/issue_question");
-        HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-        int httpResponseCode = 0;
-        try {
-            ResponseEntity<Question> response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, Question.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                question = response.getBody();
-            }
-            httpResponseCode = response.getStatusCode().value();
-        } catch (HttpServerErrorException hsee) {
-            httpResponseCode = hsee.getRawStatusCode();
+    @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
+    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, String.class);
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
+
+        allQuestionRounds = false;
+    }
+
+    @When("^the put request is sent to issue the question round ' \"([^\"]*)\" '$")
+    public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
+        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
+        HttpEntity<String> request = new HttpEntity<>(json, header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+                HttpMethod.PUT, request, String.class);
+
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
+    }
+
+    @And("^the question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
+    public void theQuestionRoundIs(int questionRoundNumber, String expectedState) throws IOException {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse;
+
+        if(allQuestionRounds) {
+            QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+            questionRoundResponse = questionRoundsResponse.getQuestionRounds().get(questionRoundNumber - 1);
+        }else{
+            questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+
         }
+        assertTrue(questionRoundResponse.getQuestionRoundState().getState().equalsIgnoreCase(expectedState));
+    }
 
-        if(expectedStatus.contains("Successful")){
-            assertEquals(200, httpResponseCode);
-        }else if(expectedStatus.contains("Server error")){
-            assertEquals(500, httpResponseCode);
+    @And("^the number of questions rounds is ' \"([^\"]*)\" '$")
+    public void theNumberOfQuestionsRoundsIs(int expectedQuestionRounds) throws IOException {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int questionRounds = questionRoundsResponse.getQuestionRounds().size();
+
+        assertEquals(expectedQuestionRounds, questionRounds);
+    }
+
+    @And("^the previous question round is ' \"([^\"]*)\" '$")
+    public void thePreviousQuestionRoundIs(int expectedPreviousQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int previousQuestionRound = questionRoundsResponse.getPreviousQuestionRound();
+
+        assertEquals(expectedPreviousQuestionRound, previousQuestionRound);
+    }
+
+    @And("^the current question round is ' \"([^\"]*)\" '$")
+    public void theCurrentQuestionRoundIs(int expectedCurrentQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int currentQuestionRound = questionRoundsResponse.getCurrentQuestionRound();
+
+        assertEquals(expectedCurrentQuestionRound, currentQuestionRound);
+    }
+
+    @And("^the next question round is ' \"([^\"]*)\" '$")
+    public void theNextQuestionRoundIs(int expectedNextQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int nextQuestionRound = questionRoundsResponse.getCurrentQuestionRound();
+
+        assertEquals(expectedNextQuestionRound, nextQuestionRound);
+    }
+
+    @And("^the max question round is ' \"([^\"]*)\" '$")
+    public void theMaxQuestionRoundIs(int expectedMaxQuestionRound) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+        int maxQuestionRound = questionRoundsResponse.getCurrentQuestionRound();
+
+        assertEquals(expectedMaxQuestionRound, maxQuestionRound);
+    }
+
+    @And("^the number of questions in question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
+    public void theNumberOfQuestionsInQuestionRoundIs(int questionRoundN, int expectedQuestions) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRound;
+
+        if (allQuestionRounds) {
+            QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+            questionRound = questionRoundsResponse.getQuestionRounds().get(questionRoundN - 1);
+        }else{
+            questionRound = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
         }
+        assertEquals(expectedQuestions, questionRound.getQuestionList().size());
     }
 }

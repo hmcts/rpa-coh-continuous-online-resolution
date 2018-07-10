@@ -64,4 +64,12 @@ public class QuestionState {
     public void setQuestionStateId(int questionStateId) {
         this.questionStateId = questionStateId;
     }
+
+    @Override
+    public String toString() {
+        return "QuestionState{" +
+                "questionStateId=" + questionStateId +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }
