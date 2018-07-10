@@ -80,18 +80,9 @@ public class QuestionService {
     }
 
     public Question updateQuestion(Question currentQuestion, Question updateToQuestion){
-        QuestionState questionState = currentQuestion.getQuestionState();
-
         QuestionState proposedState = updateToQuestion.getQuestionState();
-
-        if(proposedState.getState().equals("ISSUED")) {
-            if (questionState.getQuestionStateId() != QuestionState.ISSUED) {
-                QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-                currentQuestion.addState(issuedQuestionState);
-                questionRepository.save(currentQuestion);
-            }
-        }else{
-            // Add code to update question text / body ect here (NOT THIS BRANCH)
+        QuestionState issuedState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+        if(!proposedState.equals(issuedState)) {
             questionRepository.save(currentQuestion);
         }
         return currentQuestion;
