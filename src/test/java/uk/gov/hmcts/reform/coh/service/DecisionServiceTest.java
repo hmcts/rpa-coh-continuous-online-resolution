@@ -43,8 +43,13 @@ public class DecisionServiceTest {
 
     private DecisionState decisionState;
 
+    private UUID uuid;
+
     @Before
     public void setup() throws IOException {
+
+        uuid = UUID.randomUUID();
+
         DecisionRequest request = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
 
         decisionState = new DecisionState();
@@ -69,15 +74,32 @@ public class DecisionServiceTest {
 
     @Test
     public void testFindByOnlineHearingId() {
-        UUID uuid = UUID.randomUUID();
         when(decisionRepository.findByOnlineHearingOnlineHearingId(uuid)).thenReturn(Optional.ofNullable(decision));
         assertEquals(decision, decisionService.findByOnlineHearingId(uuid).get());
     }
 
     @Test
     public void testFindByOnlineHearingIdFail() {
-        UUID uuid = UUID.randomUUID();
         when(decisionRepository.findByOnlineHearingOnlineHearingId(uuid)).thenReturn(Optional.empty());
         assertFalse(decisionService.findByOnlineHearingId(UUID.randomUUID()).isPresent());
+    }
+
+    @Test
+    public void testRetrieveByOnlineHearingIdAndDecisionId() {
+        when(decisionRepository.findByOnlineHearingOnlineHearingIdAndDecisionId(uuid, uuid)).thenReturn(Optional.empty());
+        assertFalse(decisionService.retrieveByOnlineHearingIdAndDecisionId(uuid, uuid).isPresent());
+    }
+
+    @Test
+    public void testDeadlineExpiryDate() {
+        Calendar expectedExpiryDate = new GregorianCalendar();
+        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 6);
+        expectedExpiryDate.set(Calendar.HOUR, 23);
+        expectedExpiryDate.set(Calendar.MINUTE, 59);
+        expectedExpiryDate.set(Calendar.SECOND, 59);
+
+        Date expiryDate = decisionService.getDeadlineExpiryDate();
+
+        assertEquals(expectedExpiryDate.getTime(), expiryDate);
     }
 }

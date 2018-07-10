@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DecisionResponse {
@@ -106,6 +108,7 @@ public class DecisionResponse {
         private String stateName;
 
         @JsonProperty(value = "state_datetime")
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         private String stateDatetime;
 
         public String getStateName() {

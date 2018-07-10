@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class DecisionResponseMapperTest {
 
@@ -63,5 +64,40 @@ public class DecisionResponseMapperTest {
 
         // This checks the sorting works
         assertEquals(history2.getDateOccured().toString(), response.getDecisionState().getStateDatetime());
+    }
+
+    @Test
+    public void testMappingsNullDecisionStateHistories() {
+        DecisionState fooState = new DecisionState();
+        fooState.setState("foo");
+
+        UUID onlineHearingUuid = UUID.randomUUID();
+        UUID decisionUuid = UUID.randomUUID();
+
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingUuid);
+
+        Calendar yesterday = new GregorianCalendar();
+        yesterday.add(Calendar.DAY_OF_YEAR, -1);
+
+        Decision decision = new Decision();
+        decision.setDecisionId(decisionUuid);
+        decision.setOnlineHearing(onlineHearing);
+        decision.setDecisionHeader("Decision header");
+        decision.setDecisionText("Decision text");
+        decision.setDecisionReason("Decision reason");
+        decision.setDecisionAward("Decision award");
+        decision.setDeadlineExpiryDate(new Date());
+        decision.setDecisionstate(fooState);
+
+        // Set up the history
+        List<DecisionStateHistory> decisionStateHistories = new ArrayList<>();
+
+        DecisionResponse response = new DecisionResponse();
+        DecisionResponseMapper.map(decision, response);
+
+
+        // This checks the sorting works
+        assertNull(response.getDecisionState().getStateDatetime());
     }
 }
