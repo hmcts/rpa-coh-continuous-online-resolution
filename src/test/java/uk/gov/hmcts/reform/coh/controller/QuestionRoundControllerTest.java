@@ -61,13 +61,14 @@ public class QuestionRoundControllerTest {
 
     private static final String ENDPOINT = "/continuous-online-hearings/";
     private final int ROUNDID = 1;
+    private QuestionRound questionRound;
 
     @Before
     public void setup(){
         mockMvc = MockMvcBuilders.standaloneSetup(questionRoundController).build();
 
         List<QuestionRound> questionRounds = new ArrayList<>();
-        QuestionRound questionRound = new QuestionRound();
+        questionRound = new QuestionRound();
         questionRound.setQuestionRoundNumber(ROUNDID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
@@ -146,61 +147,20 @@ public class QuestionRoundControllerTest {
     }
 
     @Test
-    public void testUpdateQuestionRoundToIssued() throws Exception {
-        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + 2)
+    public void testGetAQuestionRoundWithNoQuestions() throws Exception {
+        questionRound.setQuestionList(new ArrayList<>());
+
+        given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(""))
                 .andExpect(status().isOk())
                 .andReturn();
-    }
 
-    @Test
-    public void testUpdateQuestionRoundWithInvalidOnlineHearing() throws Exception {
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
-        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + 2)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isNotFound())
-                .andReturn();
-    }
-
-    @Test
-    public void testUpdateQuestionRoundWithNotKnownState() throws Exception {
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
-        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + 2)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    @Test
-    public void testUpdateQuestionRoundWithInvalidStateChange() throws Exception {
-        QuestionState questionState = new QuestionState();
-        questionState.setQuestionStateId(1);
-        questionState.setState("SUBMITTED");
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(questionState));
-        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + 2)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    @Test
-    public void testUpdateAnInvalidQuestionRound() throws Exception {
-        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + 1)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isBadRequest())
-                .andReturn();
+        String response = result.getResponse().getContentAsString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
+        assertEquals(0, questionRoundResponse.getQuestionList().size());
+        assertEquals("1", questionRoundResponse.getQuestionRound());
     }
 }
