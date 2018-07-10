@@ -52,7 +52,11 @@ public class QuestionService {
             throw new EntityNotFoundException();
         }
 
-        if(!questionRoundService.validateQuestionRound(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.isQrValidTransition(question, optionalOnlineHearing.get())) {
+            throw new NotAValidUpdateException();
+        }
+
+        if(!questionRoundService.isQrValidState(question, optionalOnlineHearing.get())) {
             throw new NotAValidUpdateException();
         }
 

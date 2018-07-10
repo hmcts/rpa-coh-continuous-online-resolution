@@ -3,12 +3,14 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Component
@@ -23,7 +25,38 @@ public class QuestionRoundService {
         this.questionStateService = questionStateService;
     }
 
-    public boolean validateQuestionRound(Question question, OnlineHearing onlineHearing) {
+
+    protected void mapQuestionStateToQuestionRoundState(QuestionState questionState, QuestionRoundState questionRoundState) {
+        questionRoundState.setState(questionState.getState());
+        questionRoundState.setStateId(questionState.getQuestionStateId());
+    }
+
+    public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
+        int targetQuestionRound = question.getQuestionRound();
+        int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
+
+        QuestionRound currentQr = getQuestionRoundByRoundId(onlineHearing, currentRoundNumber);
+        QuestionRoundState currentQrState = retrieveQuestionRoundState(currentQr);
+        QuestionRoundState issuedQrState = new QuestionRoundState();
+        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName("ISSUED");
+        if(!optionalQuestionState.isPresent()){
+            throw new NotAValidUpdateException();
+        }
+        mapQuestionStateToQuestionRoundState(optionalQuestionState.get(), issuedQrState);
+
+        // Current QR is issued and create new question round
+        if(currentQrState.equals(issuedQrState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+            return true;
+        }
+
+        // Current QR is not issued and question is current question round OR no QR exists yet
+        if(!currentQrState.equals(issuedQrState) && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isQrValidTransition(Question question, OnlineHearing onlineHearing) {
         if (question.getQuestionRound() == null || question.getQuestionRound() == 0) {
             throw new EntityNotFoundException();
         }

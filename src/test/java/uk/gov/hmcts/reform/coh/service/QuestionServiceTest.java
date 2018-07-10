@@ -56,7 +56,7 @@ public class QuestionServiceTest {
         given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
         given(questionNotification.notifyQuestionState(any(Question.class))).willReturn(true);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(new OnlineHearing()));
-        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(true);
+        given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         question = new Question();
     }
 
@@ -86,7 +86,7 @@ public class QuestionServiceTest {
     public void testCreateQuestionWithInvalidUpdate() {
         when(questionRepository.save(question)).thenReturn(question);
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
-        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(false);
+        given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(false);
 
         questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
     }
