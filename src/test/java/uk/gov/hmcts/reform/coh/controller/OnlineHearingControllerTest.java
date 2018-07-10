@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -123,7 +124,12 @@ public class OnlineHearingControllerTest {
                 .andReturn();
 
         CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
-        assertEquals(uuid.toString(), response.getOnlineHearingId());
+        try {
+            UUID.fromString(response.getOnlineHearingId());
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
     }
 
     @Test

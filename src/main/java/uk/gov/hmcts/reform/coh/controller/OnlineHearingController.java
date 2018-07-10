@@ -121,8 +121,8 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing configuration");
         }
 
-        Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
-        if (!onlineHearingState.isPresent()) {
+        Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
+        if (!optOnlineHearingState.isPresent()) {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
@@ -142,7 +142,7 @@ public class OnlineHearingController {
         }
 
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
-        onlineHearing.setOnlineHearingState(onlineHearingState.get());
+        onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
         onlineHearing.registerStateChange();
         onlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
