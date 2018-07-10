@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -53,14 +54,16 @@ public class QuestionRoundControllerTest {
     private UUID cohId;
 
     private static final String ENDPOINT = "/continuous-online-hearings/";
+    private final int ROUNDID = 1;
+    private QuestionRound questionRound;
 
     @Before
     public void setup(){
         mockMvc = MockMvcBuilders.standaloneSetup(questionRoundController).build();
 
         List<QuestionRound> questionRounds = new ArrayList<>();
-        QuestionRound questionRound = new QuestionRound();
-        questionRound.setQuestionRoundNumber(1);
+        questionRound = new QuestionRound();
+        questionRound.setQuestionRoundNumber(ROUNDID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
         QuestionState questionState = new QuestionState();
@@ -72,7 +75,7 @@ public class QuestionRoundControllerTest {
         List<Question> questions = new ArrayList<>();
         Question question = new Question();
         question.setQuestionState(questionState);
-        question.setQuestionRound(1);
+        question.setQuestionRound(ROUNDID);
         questions.add(question);
         question.setQuestionId(UUID.randomUUID());
         questionRound.setQuestionList(questions);
@@ -93,6 +96,7 @@ public class QuestionRoundControllerTest {
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);
         given(questionRoundService.getNextQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(3);
         given(questionRoundService.getPreviousQuestionRound(anyInt())).willReturn(1);
+        given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
     }
 
     @Test
@@ -118,5 +122,37 @@ public class QuestionRoundControllerTest {
                 .content(""))
                 .andExpect(status().isNotFound())
                 .andReturn();
+    }
+
+    @Test
+    public void testGetAQuestionRound() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
+        assertEquals(1, questionRoundResponse.getQuestionList().size());
+        assertEquals("1", questionRoundResponse.getQuestionRound());
+    }
+
+    @Test
+    public void testGetAQuestionRoundWithNoQuestions() throws Exception {
+        questionRound.setQuestionList(new ArrayList<>());
+
+        given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
+        assertEquals(0, questionRoundResponse.getQuestionList().size());
+        assertEquals("1", questionRoundResponse.getQuestionRound());
     }
 }

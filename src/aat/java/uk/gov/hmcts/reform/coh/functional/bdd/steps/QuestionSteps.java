@@ -49,6 +49,7 @@ public class QuestionSteps extends BaseSteps{
     private Question question;
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
+    private boolean allQuestionRounds;
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -140,15 +141,31 @@ public class QuestionSteps extends BaseSteps{
         ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", String.class);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
+
+        allQuestionRounds = true;
+    }
+
+    @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
+    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN , String.class);
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
+
+        allQuestionRounds = false;
     }
 
     @And("^the question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
     public void theQuestionRoundIs(int questionRoundNumber, String expectedState) throws IOException {
         String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse;
 
-        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
-        QuestionRoundResponse questionRoundResponse = questionRoundsResponse.getQuestionRounds().get(questionRoundNumber -1);
+        if(allQuestionRounds) {
+            QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+            questionRoundResponse = questionRoundsResponse.getQuestionRounds().get(questionRoundNumber - 1);
+        }else{
+            questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
 
+        }
         assertTrue(questionRoundResponse.getQuestionRoundState().getState().equalsIgnoreCase(expectedState));
     }
 
@@ -200,9 +217,14 @@ public class QuestionSteps extends BaseSteps{
     @And("^the number of questions in question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
     public void theNumberOfQuestionsInQuestionRoundIs(int questionRoundN, int expectedQuestions) throws Throwable {
         String rawJson = testContext.getHttpContext().getRawResponseString();
-        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
-        QuestionRoundResponse questionRound = questionRoundsResponse.getQuestionRounds().get(questionRoundN - 1);
+        QuestionRoundResponse questionRound;
 
+        if (allQuestionRounds) {
+            QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+            questionRound = questionRoundsResponse.getQuestionRounds().get(questionRoundN - 1);
+        }else{
+            questionRound = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+        }
         assertEquals(expectedQuestions, questionRound.getQuestionList().size());
     }
 }

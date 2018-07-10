@@ -121,3 +121,18 @@ Feature: Question Round Logic
     And the current question round is ' "2" '
     And the next question round is ' "2" '
     And the max question round is ' "2" '
+
+  Scenario: Get a question round for an online hearing
+    Given a standard online hearing is created
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    And a standard question
+    And the question round is ' "1" '
+    Then the response code is 200
+    When the post request is sent to create the question
+    And the get request is sent to get question round ' "1" '
+    Then the response code is 200
+    And the number of questions in question round ' "1" ' is ' "2" '
+    And the question round ' "1" ' is ' "DRAFTED" '
