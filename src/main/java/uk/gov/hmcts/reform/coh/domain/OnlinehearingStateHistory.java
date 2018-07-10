@@ -27,14 +27,6 @@ import java.util.Date;
         public OnlinehearingStateHistory() {
         }
 
-//        public OnlinehearingStateId getId() {
-//            return id;
-//        }
-
-//        public void setId(OnlinehearingStateId id) {
-//            this.id = id;
-//        }
-
         public Onlinehearing getOnlinehearing() {
             return onlinehearing;
         }

@@ -40,10 +40,4 @@ public class OnlinehearingService {
 
     }
 
-//    public Onlinehearing updateOnlinehearingState(UUID id, Onlinehearing body) {
-//        Onlinehearing onlinehearing = retrieveOnlinehearingById(id);
-//        onlinehearing.addState(onlinehearingStateService.retrieveOnlinehearingStateById(Onlinehearingstate.CLOSED));
-//        return onlinehearingRepository.save(onlinehearing);
-//    }
-
 }

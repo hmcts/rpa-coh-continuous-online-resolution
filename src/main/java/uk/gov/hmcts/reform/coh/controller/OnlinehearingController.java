@@ -146,11 +146,7 @@ public class OnlinehearingController {
             return new ResponseEntity<Onlinehearing>(HttpStatus.BAD_REQUEST);
         }
 
-        //onlinehearing = onlinehearingService
-        //question = questionService.updateQuestion(question, body);
-
         return ResponseEntity.ok(onlinehearing);
-
 
     }
 
