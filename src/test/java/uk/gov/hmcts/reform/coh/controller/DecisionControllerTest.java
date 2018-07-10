@@ -107,7 +107,7 @@ public class DecisionControllerTest {
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
         given(decisionService.createDecision(any(Decision.class))).willReturn(decision);
         given(decisionStateService.retrieveDecisionStateByState("decision_drafted")).willReturn(Optional.ofNullable(decisionState));
-        given(decisionService.retrieveByOnlineHearingIdAndDecisionId(uuid, decisionUUID)).willReturn(Optional.of(decision));
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.empty());
     }
 
     @Test
@@ -210,7 +210,8 @@ public class DecisionControllerTest {
 
     @Test
     public void testGetDecision() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/" + decisionUUID)
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -234,7 +235,7 @@ public class DecisionControllerTest {
 
     @Test
     public void testGetDecisionNotFound() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/" + UUID.randomUUID())
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound());

@@ -26,7 +26,7 @@ public enum DecisionResponseMapper {
                 if (d.getDecisionStateHistories() != null && !d.getDecisionStateHistories().isEmpty()) {
                     date = d.getDecisionStateHistories()
                             .stream()
-                            .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured))
+                            .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured).reversed())
                             .findFirst().get().getDateOccured()
                             .toString();
                 }
