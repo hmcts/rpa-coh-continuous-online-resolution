@@ -50,7 +50,7 @@ public class OnlineHearing {
     @JsonProperty("current_online_hearing_state")
     private OnlineHearingState onlineHearingState;
 
-    @OneToMany(mappedBy = "onlineHearing",
+    @OneToMany(mappedBy = "onlinehearing",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore

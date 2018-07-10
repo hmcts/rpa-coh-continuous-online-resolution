@@ -13,11 +13,11 @@ import java.util.Date;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @MapsId("onlineHearingId")
-        private OnlineHearing onlineHearing;
+        private OnlineHearing onlinehearing;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @MapsId("onlineHearingStateId")
-        private OnlineHearingState onlineHearingState;
+        private OnlineHearingState onlinehearingstate;
 
         @NotNull
         @Temporal(TemporalType.TIMESTAMP)
@@ -27,27 +27,27 @@ import java.util.Date;
         public OnlineHearingStateHistory() {
         }
 
-        public OnlineHearing getOnlineHearing() {
-            return onlineHearing;
+        public OnlineHearing getOnlinehearing() {
+            return onlinehearing;
         }
 
-        public void setOnlineHearing(OnlineHearing onlineHearing) {
-            this.onlineHearing = onlineHearing;
+        public void setOnlinehearing(OnlineHearing onlinehearing) {
+            this.onlinehearing = onlinehearing;
         }
 
-        public OnlineHearingState getOnlineHearingState() {
-            return onlineHearingState;
+        public OnlineHearingState getOnlinehearingstate() {
+            return onlinehearingstate;
         }
 
-        public void setOnlineHearingState(OnlineHearingState onlineHearingState) {
-            this.onlineHearingState = onlineHearingState;
+        public void setOnlinehearingstate(OnlineHearingState onlinehearingstate) {
+            this.onlinehearingstate = onlinehearingstate;
         }
 
-        public OnlineHearingStateHistory(OnlineHearing onlineHearing,
-                                         OnlineHearingState onlineHearingState) {
-            this.onlineHearing = onlineHearing;
-            this.onlineHearingState = onlineHearingState;
-            this.id = new OnlineHearingStateId(onlineHearing.getOnlineHearingId(), onlineHearingState.getOnlineHearingStateId());
+        public OnlineHearingStateHistory(OnlineHearing onlinehearing,
+                                         OnlineHearingState onlinehearingstate) {
+            this.onlinehearing = onlinehearing;
+            this.onlinehearingstate = onlinehearingstate;
+            this.id = new OnlineHearingStateId(onlinehearing.getOnlineHearingId(), onlinehearingstate.getOnlineHearingStateId());
         }
 
         public Date getDateOccurred() {
