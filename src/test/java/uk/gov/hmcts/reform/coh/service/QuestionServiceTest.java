@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -155,5 +156,13 @@ public class QuestionServiceTest {
 
         assertTrue(responss.isPresent());
         assertEquals(1, responss.get().size());
+    }
+
+    @Test
+    public void testFinaAllQuestionsByOnlineHearingNone() {
+        given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(null);
+        Optional<List<Question>> responss = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+
+        assertFalse(responss.isPresent());
     }
 }
