@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Component
@@ -23,6 +24,11 @@ public class QuestionRoundService {
         this.questionStateService = questionStateService;
     }
 
+    protected void mapQuestionState(QuestionState questionState, QuestionRoundState questionRoundState) {
+        questionRoundState.setStateId(questionState.getQuestionStateId());
+        questionRoundState.setState(questionState.getState());
+    }
+
     public boolean validateQuestionRound(Question question, OnlineHearing onlineHearing) {
         if (question.getQuestionRound() == null || question.getQuestionRound() == 0) {
             throw new EntityNotFoundException();
@@ -33,14 +39,23 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getCurrentQuestionRoundNumber(onlineHearing);
 
+        QuestionRound questionRound = getQuestionRoundByRoundId(onlineHearing, currentQuestionRound);
+        QuestionRoundState questionRoundState = questionRound.getQuestionRoundState();
+        Optional<QuestionState> issuedOptionalState = questionStateService.retrieveQuestionStateByStateName("ISSUED");
+
+        QuestionRoundState issuedState = new QuestionRoundState();
+        mapQuestionState(issuedOptionalState.get(), issuedState);
+
         if (currentQuestionRound == 0) {
             return (targetQuestionRound == 1);
-        } else if (currentQuestionRound == targetQuestionRound) {
+        } else if (currentQuestionRound == targetQuestionRound && !questionRoundState.equals(issuedState)) {
             return true;
         }
-        if (isIncremented(targetQuestionRound, currentQuestionRound) && !isMaxRoundLimit(maxQuestionRounds)) {
+        if (isIncremented(targetQuestionRound, currentQuestionRound) && !questionRoundState.equals(issuedState)
+                && !isMaxRoundLimit(maxQuestionRounds)) {
             return true;
-        } else if (isIncremented(targetQuestionRound, currentQuestionRound) && targetQuestionRound <= maxQuestionRounds){
+        } else if (isIncremented(targetQuestionRound, currentQuestionRound) && !questionRoundState.equals(issuedState)
+                && targetQuestionRound <= maxQuestionRounds){
             return true;
         }
         return false;

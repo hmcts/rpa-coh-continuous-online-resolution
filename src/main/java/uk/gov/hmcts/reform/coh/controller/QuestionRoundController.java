@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.lang.Integer.parseInt;
-
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class QuestionRoundController {
@@ -108,8 +106,8 @@ public class QuestionRoundController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PutMapping("/questionrounds")
-    public ResponseEntity updateQuestionRound(@PathVariable UUID onlineHearingId,
+    @PutMapping("/questionrounds/{roundId}")
+    public ResponseEntity updateQuestionRound(@PathVariable UUID onlineHearingId, @PathVariable int roundId,
                                                                      @RequestBody QuestionRoundRequest body) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -124,14 +122,13 @@ public class QuestionRoundController {
         }
 
         int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
-        int questionRoundNumber = parseInt(body.getQuestionRoundNumber());
 
-        if(currentQuestionRoundNumber != questionRoundNumber) {
+        if(currentQuestionRoundNumber != roundId) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         onlineHearing = optionalOnlineHearing.get();
-        questionRoundService.updateQuestionRound(onlineHearing, questionStateOptional.get(), questionRoundNumber);
+        questionRoundService.updateQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
