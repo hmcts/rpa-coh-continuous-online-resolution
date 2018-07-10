@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 import static junit.framework.TestCase.assertFalse;
@@ -36,10 +36,10 @@ public class QuestionNotificationTest {
 
         Jurisdiction jurisdiction = new Jurisdiction();
         jurisdiction.setUrl("http://someurl/notreal");
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setJurisdiction(jurisdiction);
+        Onlinehearing onlinehearing = new Onlinehearing();
+        onlinehearing.setJurisdiction(jurisdiction);
         question = new Question();
-        question.setOnlineHearing(onlineHearing);
+        question.setOnlinehearing(onlinehearing);
     }
 
     @Test
@@ -62,10 +62,10 @@ public class QuestionNotificationTest {
     @Test(expected = NullPointerException.class)
     public void testNotifyJurisdictionThrowsNullPointerExceptionWithNoUrl(){
         Jurisdiction jurisdiction = new Jurisdiction();
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setJurisdiction(jurisdiction);
+        Onlinehearing onlinehearing = new Onlinehearing();
+        onlinehearing.setJurisdiction(jurisdiction);
         Question question = new Question();
-        question.setOnlineHearing(onlineHearing);
+        question.setOnlinehearing(onlinehearing);
 
         questionNotification.notifyQuestionState(question);
     }

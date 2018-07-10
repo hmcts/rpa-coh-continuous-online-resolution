@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class OnlineHearingResponse implements Serializable {
+public class OnlinehearingResponse implements Serializable {
 
     @JsonProperty("online_hearing_id")
-    private UUID onlineHearingId;
+    private UUID onlinehearingId;
 
     @JsonProperty("case_id")
     private String caseId;
@@ -26,12 +26,12 @@ public class OnlineHearingResponse implements Serializable {
     @JsonProperty("panel")
     private List<PanelMember> panel;
 
-    public UUID getOnlineHearingId() {
-        return onlineHearingId;
+    public UUID getOnlinehearingId() {
+        return onlinehearingId;
     }
 
-    public void setOnlineHearingId(UUID onlineHearingId) {
-        this.onlineHearingId = onlineHearingId;
+    public void setOnlinehearingId(UUID onlinehearingId) {
+        this.onlinehearingId = onlinehearingId;
     }
 
     public String getCaseId() {

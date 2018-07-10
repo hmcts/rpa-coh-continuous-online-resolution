@@ -18,10 +18,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlinehearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
@@ -45,7 +45,7 @@ public class QuestionControllerTest {
     private QuestionService questionService;
 
     @Mock
-    private OnlineHearingService onlineHearingService;
+    private OnlinehearingService onlinehearingService;
 
     @InjectMocks
     private QuestionController questionController;
@@ -66,12 +66,12 @@ public class QuestionControllerTest {
 
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
 
-        OnlineHearing onlineHearing = new OnlineHearing();
+        Onlinehearing onlinehearing = new Onlinehearing();
         uuid = UUID.randomUUID();
         question = new Question();
         question.setQuestionId(uuid);
         question.setQuestionText("foo");
-        question.setOnlineHearing(onlineHearing);
+        question.setOnlinehearing(onlinehearing);
         question.setQuestionRound(1);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(QuestionState.ISSUED);
@@ -82,7 +82,7 @@ public class QuestionControllerTest {
         given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
         given(questionService.editQuestion(uuid, question)).willReturn(question);
         given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
+        given(onlinehearingService.retrieveOnlinehearing(any(Onlinehearing.class))).willReturn(java.util.Optional.of(onlinehearing));
     }
 
     @Test

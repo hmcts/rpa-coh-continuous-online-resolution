@@ -10,25 +10,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.question.*;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlinehearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/continuous-online-hearings/{onlineHearingId}")
+@RequestMapping("/continuous-online-hearings/{onlinehearingId}")
 public class QuestionController {
 
     private QuestionService questionService;
-    private OnlineHearingService onlineHearingService;
+    private OnlinehearingService onlinehearingService;
 
     @Autowired
-    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService) {
+    public QuestionController(QuestionService questionService, OnlinehearingService onlinehearingService) {
         this.questionService = questionService;
-        this.onlineHearingService = onlineHearingService;
+        this.onlinehearingService = onlinehearingService;
     }
 
     @ApiOperation("Get a question")
@@ -64,20 +64,20 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateQuestionResponse> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
+    public ResponseEntity<CreateQuestionResponse> createQuestion(@PathVariable UUID onlinehearingId, @RequestBody QuestionRequest request) {
 
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
-        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        Onlinehearing onlinehearing = new Onlinehearing();
+        onlinehearing.setOnlinehearingId(onlinehearingId);
+        Optional<Onlinehearing> savedOnlinehearing = onlinehearingService.retrieveOnlinehearing(onlinehearing);
 
-        if (!savedOnlineHearing.isPresent() || !validate(request)) {
+        if (!savedOnlinehearing.isPresent() || !validate(request)) {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         Question question = new Question();
-        QuestionResquestMapper mapper = new QuestionResquestMapper(question, savedOnlineHearing.get(), request);
+        QuestionResquestMapper mapper = new QuestionResquestMapper(question, savedOnlinehearing.get(), request);
         mapper.map();
-        question = questionService.createQuestion(question, onlineHearingId);
+        question = questionService.createQuestion(question, onlinehearingId);
 
         CreateQuestionResponse response = new CreateQuestionResponse();
         response.setQuestionId(question.getQuestionId());
@@ -95,12 +95,12 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody Question body) {
+    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlinehearingId, @PathVariable UUID questionId, @RequestBody Question body) {
 
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
-        Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!onlineHearingOptional.isPresent()){
+        Onlinehearing onlinehearing = new Onlinehearing();
+        onlinehearing.setOnlinehearingId(onlinehearingId);
+        Optional<Onlinehearing> onlinehearingOptional = onlinehearingService.retrieveOnlinehearing(onlinehearing);
+        if(!onlinehearingOptional.isPresent()){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 
@@ -110,7 +110,7 @@ public class QuestionController {
         }
         Question question = optionalQuestion.get();
 
-        if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
+        if(!question.getOnlinehearing().equals(onlinehearingOptional.get())){
             return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
         }
 

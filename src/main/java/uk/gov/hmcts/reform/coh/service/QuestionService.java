@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
@@ -27,15 +27,15 @@ public class QuestionService {
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
     private QuestionNotification questionNotification;
-    private OnlineHearingService onlineHearingService;
+    private OnlinehearingService onlinehearingService;
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
-                           QuestionNotification questionNotification, OnlineHearingService onlineHearingService, QuestionRoundService questionRoundService) {
+                           QuestionNotification questionNotification, OnlinehearingService onlinehearingService, QuestionRoundService questionRoundService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
         this.questionNotification = questionNotification;
-        this.onlineHearingService = onlineHearingService;
+        this.onlinehearingService = onlinehearingService;
         this.questionRoundService = questionRoundService;
     }
 
@@ -43,20 +43,20 @@ public class QuestionService {
         return questionRepository.findById(question_id);
     }
 
-    public Question createQuestion(final Question question, UUID onlineHearingId) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
+    public Question createQuestion(final Question question, UUID onlinehearingId) {
+        Onlinehearing onlinehearing = new Onlinehearing();
+        onlinehearing.setOnlinehearingId(onlinehearingId);
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!optionalOnlineHearing.isPresent()){
+        Optional<Onlinehearing> optionalOnlinehearing = onlinehearingService.retrieveOnlinehearing(onlinehearing);
+        if(!optionalOnlinehearing.isPresent()){
             throw new EntityNotFoundException();
         }
 
-        if(!questionRoundService.validateQuestionRound(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.validateQuestionRound(question, optionalOnlinehearing.get())) {
             throw new NotAValidUpdateException();
         }
 
-        question.setOnlineHearing(optionalOnlineHearing.get());
+        question.setOnlinehearing(optionalOnlinehearing.get());
         question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 
         return questionRepository.save(question);

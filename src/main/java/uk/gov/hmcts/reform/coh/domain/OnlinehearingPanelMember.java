@@ -4,16 +4,16 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "online_hearing_panel_member")
-public class OnlineHearingPanelMember {
+public class OnlinehearingPanelMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "online_hearing_panel_id", nullable = false)
-    private Long onlineHearingPanelId;
+    private Long onlinehearingPanelId;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "online_hearing_id")
-    private OnlineHearing onlineHearing;
+    private Onlinehearing onlinehearing;
 
     @Column(name = "full_name")
     private String fullName;
@@ -21,20 +21,20 @@ public class OnlineHearingPanelMember {
     @Column(name = "identity_reference")
     private String identityToken;
 
-    public Long getOnlineHearingPanelId() {
-        return onlineHearingPanelId;
+    public Long getOnlinehearingPanelId() {
+        return onlinehearingPanelId;
     }
 
-    public void setOnlineHearingPanelId(Long onlineHearingPanelId) {
-        this.onlineHearingPanelId = onlineHearingPanelId;
+    public void setOnlinehearingPanelId(Long onlinehearingPanelId) {
+        this.onlinehearingPanelId = onlinehearingPanelId;
     }
 
-    public OnlineHearing getOnlineHearing() {
-        return onlineHearing;
+    public Onlinehearing getOnlinehearing() {
+        return onlinehearing;
     }
 
-    public void setOnlineHearing(OnlineHearing onlineHearing) {
-        this.onlineHearing = onlineHearing;
+    public void setOnlinehearing(Onlinehearing onlinehearing) {
+        this.onlinehearing = onlinehearing;
     }
 
     public String getFullName() {

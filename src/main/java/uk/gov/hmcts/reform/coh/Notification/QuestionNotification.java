@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.controller.AnswerController;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
@@ -33,10 +32,10 @@ public class QuestionNotification {
     }
 
     private ResponseEntity notifyJurisdiction(Question question){
-        Jurisdiction jurisdiction = question.getOnlineHearing().getJurisdiction();
+        Jurisdiction jurisdiction = question.getOnlinehearing().getJurisdiction();
 
         if(jurisdiction.getUrl()==null || StringUtils.isEmpty(jurisdiction.getUrl())){
-            throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlineHearing().getOnlineHearingId());
+            throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlinehearing().getOnlinehearingId());
         }
 
         log.info("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +

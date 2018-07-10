@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "online_hearing_state")
-public class OnlineHearingState {
+public class Onlinehearingstate {
 
     public static final int CREATED = 1;
     public static final int CLOSED = 2;
@@ -18,24 +18,24 @@ public class OnlineHearingState {
     @Id
     @Column(name = "online_hearing_state_id")
     @JsonIgnore
-    private int onlineHearingStateId;
+    private int onlinehearingStateId;
 
     @Column(name = "state")
     @JsonProperty("state_name")
     private String state;
 
-    public OnlineHearingState() {}
+    public Onlinehearingstate() {}
 
-    public OnlineHearingState(String state) {
+    public Onlinehearingstate(String state) {
         this.state = state;
     }
 
-    public void setOnlineHearingStateId(int onlineHearingStateId) {
-        this.onlineHearingStateId = onlineHearingStateId;
+    public void setOnlinehearingStateId(int onlinehearingStateId) {
+        this.onlinehearingStateId = onlinehearingStateId;
     }
 
-    public int getOnlineHearingStateId() {
-        return onlineHearingStateId;
+    public int getOnlinehearingStateId() {
+        return onlinehearingStateId;
     }
 
     public String getState() {

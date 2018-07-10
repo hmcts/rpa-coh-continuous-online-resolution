@@ -23,12 +23,12 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
+import uk.gov.hmcts.reform.coh.repository.OnlinehearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.OnlinehearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
@@ -64,7 +64,7 @@ public class AnswerSteps extends BaseSteps{
 
     private List<UUID> answerIds;
 
-    private OnlineHearing onlineHearing;
+    private Onlinehearing onlinehearing;
 
     @Autowired
     private QuestionService questionService;
@@ -73,10 +73,10 @@ public class AnswerSteps extends BaseSteps{
     private AnswerService answerService;
 
     @Autowired
-    private OnlineHearingRepository onlineHearingRepository;
+    private OnlinehearingRepository onlinehearingRepository;
 
     @Autowired
-    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+    private OnlinehearingPanelMemberRepository onlinehearingPanelMemberRepository;
 
     private TestContext testContext;
 
@@ -88,8 +88,8 @@ public class AnswerSteps extends BaseSteps{
     @Before
     public void setup() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
-        endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
-        endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
+        endpoints.put("answer", "/continuous-online-hearings/onlinehearing_id/questions/question_id/answers");
+        endpoints.put("question", "/continuous-online-hearings/onlinehearing_id/questions");
 
         currentQuestionId = null;
         currentAnswerId = null;
@@ -114,9 +114,9 @@ public class AnswerSteps extends BaseSteps{
         }
 
         try {
-            String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-            onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
+            String onlinehearingCaseId = testContext.getScenarioContext().getCurrentOnlinehearing().getCaseId();
+            onlinehearingPanelMemberRepository.deleteByOnlinehearing(onlinehearing);
+            onlinehearingRepository.deleteByCaseId(onlinehearingCaseId);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
@@ -129,9 +129,9 @@ public class AnswerSteps extends BaseSteps{
     public void an_existing_question() throws IOException {
         QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
-        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
-        updateEndpointWithOnlineHearingId();
+        String onlinehearingCaseId = testContext.getScenarioContext().getCurrentOnlinehearing().getCaseId();
+        onlinehearing = onlinehearingRepository.findByCaseId(onlinehearingCaseId).get();
+        updateEndpointWithOnlinehearingId();
 
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
@@ -146,9 +146,9 @@ public class AnswerSteps extends BaseSteps{
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
         this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
-        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
-        updateEndpointWithOnlineHearingId();
+        String onlinehearingCaseId = testContext.getScenarioContext().getCurrentOnlinehearing().getCaseId();
+        onlinehearing = onlinehearingRepository.findByCaseId(onlinehearingCaseId).get();
+        updateEndpointWithOnlinehearingId();
     }
 
     @Given("^a valid answer$")
@@ -278,8 +278,8 @@ public class AnswerSteps extends BaseSteps{
         return Optional.ofNullable(answerId);
     }
 
-    private void updateEndpointWithOnlineHearingId(){
-        endpoints.put("question",endpoints.get("question").replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId())));
-        endpoints.put("answer",endpoints.get("answer").replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId())));
+    private void updateEndpointWithOnlinehearingId(){
+        endpoints.put("question",endpoints.get("question").replaceAll("onlinehearing_id", String.valueOf(onlinehearing.getOnlinehearingId())));
+        endpoints.put("answer",endpoints.get("answer").replaceAll("onlinehearing_id", String.valueOf(onlinehearing.getOnlinehearingId())));
     }
 }

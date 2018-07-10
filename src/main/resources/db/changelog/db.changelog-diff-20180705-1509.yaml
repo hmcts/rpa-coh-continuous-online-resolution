@@ -21,12 +21,12 @@ databaseChangeLog:
         - column:
             constraints:
               nullable: false
-            name: onlineHearing_online_hearing_id
+            name: onlinehearing_online_hearing_id
             type: UUID
         - column:
             constraints:
               nullable: false
-            name: onlineHearingState_online_hearing_state_id
+            name: onlinehearingState_online_hearing_state_id
             type: INT
         tableName: online_hearing_state_history
 - changeSet:
@@ -42,7 +42,7 @@ databaseChangeLog:
     author: rose (generated)
     changes:
     - addForeignKeyConstraint:
-        baseColumnNames: onlineHearingState_online_hearing_state_id
+        baseColumnNames: onlinehearingState_online_hearing_state_id
         baseTableName: online_hearing_state_history
         constraintName: FKh3tqsquk8fnf4wjwso54f9s5a
         deferrable: false
@@ -54,7 +54,7 @@ databaseChangeLog:
     author: rose (generated)
     changes:
     - addForeignKeyConstraint:
-        baseColumnNames: onlineHearing_online_hearing_id
+        baseColumnNames: onlinehearing_online_hearing_id
         baseTableName: online_hearing_state_history
         constraintName: FKleg4ik8uqcuvcg0kp8ka06846
         deferrable: false

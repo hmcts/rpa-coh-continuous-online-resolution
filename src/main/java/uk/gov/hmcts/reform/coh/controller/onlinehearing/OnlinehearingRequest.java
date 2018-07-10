@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.List;
 
-public class OnlineHearingRequest {
+public class OnlinehearingRequest {
 
     @JsonProperty("case_id")
     private String caseId;

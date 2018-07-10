@@ -17,7 +17,7 @@ public class Question {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "online_hearing_id")
     @JsonIgnore
-    private OnlineHearing onlineHearing;
+    private Onlinehearing onlinehearing;
 
     @Column(name = "question_ordinal")
     private int questionOrdinal;
@@ -140,12 +140,12 @@ public class Question {
         this.questionState = questionState;
     }
 
-    public OnlineHearing getOnlineHearing() {
-        return onlineHearing;
+    public Onlinehearing getOnlinehearing() {
+        return onlinehearing;
     }
 
-    public void setOnlineHearing(OnlineHearing onlineHearing) {
-        this.onlineHearing = onlineHearing;
+    public void setOnlinehearing(Onlinehearing onlinehearing) {
+        this.onlinehearing = onlinehearing;
     }
 
     @Override
@@ -169,8 +169,8 @@ public class Question {
         return this;
     }
 
-    public Question onlineHearing(OnlineHearing onlineHearing) {
-        this.onlineHearing = onlineHearing;
+    public Question onlinehearing(Onlinehearing onlinehearing) {
+        this.onlinehearing = onlinehearing;
         return this;
     }
 

@@ -22,13 +22,13 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
+import uk.gov.hmcts.reform.coh.repository.OnlinehearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.OnlinehearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
@@ -45,14 +45,14 @@ public class QuestionSteps extends BaseSteps{
 
     private RestTemplate restTemplate;
     private String ENDPOINT = "/continuous-online-hearings";
-    private OnlineHearing onlineHearing;
+    private Onlinehearing onlinehearing;
     private HttpHeaders header;
     private Question question;
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
 
     @Autowired
-    private OnlineHearingRepository onlineHearingRepository;
+    private OnlinehearingRepository onlinehearingRepository;
 
     @Autowired
     private JurisdictionRepository jurisdictionRepository;
@@ -61,7 +61,7 @@ public class QuestionSteps extends BaseSteps{
     private QuestionRepository questionRepository;
 
     @Autowired
-    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+    private OnlinehearingPanelMemberRepository onlinehearingPanelMemberRepository;
 
     private TestContext testContext;
 
@@ -85,9 +85,9 @@ public class QuestionSteps extends BaseSteps{
         }
 
         try {
-            String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-            onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
+            String onlinehearingCaseId = testContext.getScenarioContext().getCurrentOnlinehearing().getCaseId();
+            onlinehearingPanelMemberRepository.deleteByOnlinehearing(onlinehearing);
+            onlinehearingRepository.deleteByCaseId(onlinehearingCaseId);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
@@ -108,7 +108,7 @@ public class QuestionSteps extends BaseSteps{
 
         int httpResponseCode = 0;
         try{
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlinehearing.getOnlinehearingId() + "/questions", HttpMethod.POST, request, String.class);
             String json = response.getBody();
             CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
             questionIds.add(createQuestionResponse.getQuestionId());
@@ -123,8 +123,8 @@ public class QuestionSteps extends BaseSteps{
     @Given("^a standard question")
     public void aStandardQuestionRound() throws IOException{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
-        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
+        String onlinehearingCaseId = testContext.getScenarioContext().getCurrentOnlinehearing().getCaseId();
+        onlinehearing = onlinehearingRepository.findByCaseId(onlinehearingCaseId).get();
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")
@@ -139,9 +139,9 @@ public class QuestionSteps extends BaseSteps{
     }
 
     @When("^a patch request is sent to ' \"([^\"]*)\" ' and response status is ' \"([^\"]*)\" '$")
-    public void aPatchRequestIsSentToOnlineHearingsOnlineHearingIdQuestionsQuestionId(String endpoint, String expectedStatus) throws Throwable {
+    public void aPatchRequestIsSentToOnlinehearingsOnlinehearingIdQuestionsQuestionId(String endpoint, String expectedStatus) throws Throwable {
 
-        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
+        endpoint = endpoint.replaceAll("onlinehearing_id", String.valueOf(onlinehearing.getOnlinehearingId()));
         endpoint = endpoint.replaceAll("question_id", String.valueOf(question.getQuestionId()));
 
         /**
