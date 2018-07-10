@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -103,32 +104,13 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).delete(question);
     }
 
-    @Test
-    public void testIssueQuestion(){
+    @Test(expected = NotAValidUpdateException.class)
+    public void testUserCanNotUpdateQuestionToIssued() {
         Question question = new Question();
-        questionService.issueQuestion(question);
-        assertEquals(3, question.getQuestionState().getQuestionStateId());
-    }
+        question.setQuestionState(drafted);
 
-    @Test
-    public void testUpdateIssuesQuestion(){
-        Question currentQuestion = new Question();
-        currentQuestion.setQuestionState(drafted);
-
-        Question updateBody = new Question();
-        updateBody.setQuestionState(issued);
-        questionService.updateQuestion(currentQuestion, updateBody);
-        assertEquals(3, currentQuestion.getQuestionState().getQuestionStateId());
-    }
-
-    @Test
-    public void testUpdateQuestionDoesNotIssueQuestionWhenStateIsAlreadyIssued(){
-        Question currentQuestion = new Question();
-        currentQuestion.setQuestionState(issued);
-
-        Question updateBody = new Question();
-        updateBody.setQuestionState(issued);
-        questionService.updateQuestion(currentQuestion, updateBody);
-        assertEquals(3, currentQuestion.getQuestionState().getQuestionStateId());
+        Question body = new Question();
+        body.setQuestionState(issued);
+        questionService.updateQuestion(question, body);
     }
 }

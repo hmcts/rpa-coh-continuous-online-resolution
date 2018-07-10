@@ -121,6 +121,10 @@ public class QuestionRoundController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        if (!questionStateOptional.get().getState().equals("ISSUED")){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
 
         if(currentQuestionRoundNumber != roundId) {
@@ -128,7 +132,7 @@ public class QuestionRoundController {
         }
 
         onlineHearing = optionalOnlineHearing.get();
-        questionRoundService.updateQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
+        questionRoundService.issueQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
