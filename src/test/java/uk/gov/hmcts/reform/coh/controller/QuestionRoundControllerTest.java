@@ -55,13 +55,14 @@ public class QuestionRoundControllerTest {
 
     private static final String ENDPOINT = "/continuous-online-hearings/";
     private final int ROUNDID = 1;
+    private QuestionRound questionRound;
 
     @Before
     public void setup(){
         mockMvc = MockMvcBuilders.standaloneSetup(questionRoundController).build();
 
         List<QuestionRound> questionRounds = new ArrayList<>();
-        QuestionRound questionRound = new QuestionRound();
+        questionRound = new QuestionRound();
         questionRound.setQuestionRoundNumber(ROUNDID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
@@ -134,6 +135,24 @@ public class QuestionRoundControllerTest {
         String response = result.getResponse().getContentAsString();
         QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
         assertEquals(1, questionRoundResponse.getQuestionList().size());
+        assertEquals("1", questionRoundResponse.getQuestionRound());
+    }
+
+    @Test
+    public void testGetAQuestionRoundWithNoQuestions() throws Exception {
+        questionRound.setQuestionList(new ArrayList<>());
+
+        given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
+        assertEquals(0, questionRoundResponse.getQuestionList().size());
         assertEquals("1", questionRoundResponse.getQuestionRound());
     }
 }
