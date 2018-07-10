@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -80,37 +79,13 @@ public class QuestionService {
     }
 
     public Question updateQuestion(Question currentQuestion, Question updateToQuestion){
-        QuestionState questionState = currentQuestion.getQuestionState();
-
         QuestionState proposedState = updateToQuestion.getQuestionState();
-
-        if(proposedState.getState().equals("ISSUED")) {
-            if (questionState.getQuestionStateId() != QuestionState.ISSUED) {
-                QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-                currentQuestion.addState(issuedQuestionState);
-                questionRepository.save(currentQuestion);
-            }
-        }else{
-            // Add code to update question text / body ect here (NOT THIS BRANCH)
-            questionRepository.save(currentQuestion);
+        QuestionState issuedState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+        if(proposedState.equals(issuedState)) {
+            throw new NotAValidUpdateException();
         }
+
+        questionRepository.save(currentQuestion);
         return currentQuestion;
-    }
-
-    protected void issueQuestion(Question question) {
-        QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-        
-        question.addState(issuedQuestionState);
-        boolean result = questionNotification.notifyQuestionState(question);
-        if (result){
-            log.info("Successfully issued question round and sent notification to jurisdiction");
-            questionRepository.save(question);
-        }else{
-            log.error("Error: Request to jurisdiction was unsuccessful");
-        }
-    }
-
-    public Optional<List<Question>> retrieveQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
-        return Optional.ofNullable(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing));
     }
 }

@@ -6,11 +6,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,6 +73,24 @@ public class QuestionServiceTest {
         assertEquals(newQuestion, question);
     }
 
+    @Test(expected = EntityNotFoundException.class)
+    public void testCreateQuestionWithInvalidOnlineHearing() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+
+        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+    }
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testCreateQuestionWithInvalidUpdate() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
+        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(false);
+
+        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+    }
+
     @Test
     public void testRetrieveQuestion() {
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
@@ -96,6 +116,18 @@ public class QuestionServiceTest {
         assertEquals("Event logged", 1, newQuestion.getQuestionStateHistories().size());
     }
 
+    @Test(expected = EntityNotFoundException.class)
+    public void testEditQuestionWithInvalidQuestionId() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
+        when(questionStateService.retrieveQuestionStateById(3)).thenReturn(issued);
+        when(questionRepository.findById(ONE)).thenReturn(Optional.empty());
+        /**
+         * This needs to be fixed so that question id is an attribute of question
+         */
+        Question newQuestion = questionService.editQuestion(ONE, question);
+    }
+
     @Test
     public void tesDelete() {
         doNothing().when(questionRepository).delete(question);
@@ -103,32 +135,13 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).delete(question);
     }
 
-    @Test
-    public void testIssueQuestion(){
+    @Test(expected = NotAValidUpdateException.class)
+    public void testUserCanNotUpdateQuestionToIssued() {
         Question question = new Question();
-        questionService.issueQuestion(question);
-        assertEquals(3, question.getQuestionState().getQuestionStateId());
-    }
+        question.setQuestionState(drafted);
 
-    @Test
-    public void testUpdateIssuesQuestion(){
-        Question currentQuestion = new Question();
-        currentQuestion.setQuestionState(drafted);
-
-        Question updateBody = new Question();
-        updateBody.setQuestionState(issued);
-        questionService.updateQuestion(currentQuestion, updateBody);
-        assertEquals(3, currentQuestion.getQuestionState().getQuestionStateId());
-    }
-
-    @Test
-    public void testUpdateQuestionDoesNotIssueQuestionWhenStateIsAlreadyIssued(){
-        Question currentQuestion = new Question();
-        currentQuestion.setQuestionState(issued);
-
-        Question updateBody = new Question();
-        updateBody.setQuestionState(issued);
-        questionService.updateQuestion(currentQuestion, updateBody);
-        assertEquals(3, currentQuestion.getQuestionState().getQuestionStateId());
+        Question body = new Question();
+        body.setQuestionState(issued);
+        questionService.updateQuestion(question, body);
     }
 }
