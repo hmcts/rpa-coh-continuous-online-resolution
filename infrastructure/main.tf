@@ -60,6 +60,7 @@ module "app" {
 
 module "db" {
   source = "git@github.com:hmcts/moj-module-postgres?ref=master"
+  common_tags = "${var.common_tags}"
   product = "${local.app_full_name}-postgres-db"
   location = "${var.location}"
   env = "${var.env}"
@@ -80,6 +81,7 @@ provider "vault" {
 
 module "key_vault" {
   source = "git@github.com:hmcts/moj-module-key-vault?ref=master"
+  common_tags = "${var.common_tags}"
   product = "${local.app_full_name}"
   env = "${var.env}"
   tenant_id = "${var.tenant_id}"
