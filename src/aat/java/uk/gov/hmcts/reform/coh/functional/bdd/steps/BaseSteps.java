@@ -1,9 +1,9 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import org.springframework.beans.factory.annotation.Value;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlinehearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlinehearingResponse;
-import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
+import uk.gov.hmcts.reform.coh.controller.onlineHearing.CreateOnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlineHearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 
 import java.util.UUID;
 
@@ -12,18 +12,18 @@ public class BaseSteps {
     @Value("${base-urls.test-url}")
     String baseUrl;
 
-    Onlinehearing createOnlinehearingFromResponse(CreateOnlinehearingResponse response) {
-        Onlinehearing onlinehearing = new Onlinehearing();
-        onlinehearing.setOnlinehearingId(UUID.fromString(response.getOnlinehearingId()));
+    OnlineHearing createOnlineHearingFromResponse(CreateOnlineHearingResponse response) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.fromString(response.getOnlineHearingId()));
 
-        return onlinehearing;
+        return onlineHearing;
     }
 
-    Onlinehearing createOnlinehearingFromResponse(OnlinehearingResponse response) {
-        Onlinehearing onlinehearing = new Onlinehearing();
-        onlinehearing.setOnlinehearingId(response.getOnlinehearingId());
+    OnlineHearing createOnlineHearingFromResponse(OnlineHearingResponse response) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(response.getOnlineHearingId());
 
-        return onlinehearing;
+        return onlineHearing;
     }
 
 }

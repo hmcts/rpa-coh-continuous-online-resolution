@@ -32,10 +32,10 @@ public class QuestionNotification {
     }
 
     private ResponseEntity notifyJurisdiction(Question question){
-        Jurisdiction jurisdiction = question.getOnlinehearing().getJurisdiction();
+        Jurisdiction jurisdiction = question.getOnlineHearing().getJurisdiction();
 
         if(jurisdiction.getUrl()==null || StringUtils.isEmpty(jurisdiction.getUrl())){
-            throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlinehearing().getOnlinehearingId());
+            throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlineHearing().getOnlineHearingId());
         }
 
         log.info("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +

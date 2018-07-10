@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlinehearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlineHearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 import java.util.List;
@@ -13,27 +13,27 @@ import java.util.Set;
 @Component
 public class ScenarioContext {
 
-    private Onlinehearing currentOnlinehearing;
+    private OnlineHearing currentOnlineHearing;
 
     private Question currentQuestion;
 
     private Answer currentAnswer;
 
-    private List<Onlinehearing> onlinehearings;
+    private List<OnlineHearing> onlineHearings;
 
     Set<Jurisdiction> jurisdictions;
 
-    public Onlinehearing getCurrentOnlinehearing() {
-        return currentOnlinehearing;
+    public OnlineHearing getCurrentOnlineHearing() {
+        return currentOnlineHearing;
     }
 
-    public void setCurrentOnlinehearing(Onlinehearing currentOnlinehearing) {
-        this.currentOnlinehearing = currentOnlinehearing;
+    public void setCurrentOnlineHearing(OnlineHearing currentOnlineHearing) {
+        this.currentOnlineHearing = currentOnlineHearing;
     }
 
-    public void setCurrentOnlinehearing(OnlinehearingRequest onlinehearingRequest) {
-        currentOnlinehearing = new Onlinehearing();
-        currentOnlinehearing.setCaseId(onlinehearingRequest.getCaseId());
+    public void setCurrentOnlineHearing(OnlineHearingRequest onlineHearingRequest) {
+        currentOnlineHearing = new OnlineHearing();
+        currentOnlineHearing.setCaseId(onlineHearingRequest.getCaseId());
     }
 
     public Question getCurrentQuestion() {
@@ -52,12 +52,12 @@ public class ScenarioContext {
         this.currentAnswer = currentAnswer;
     }
 
-    public List<Onlinehearing> getOnlinehearings() {
-        return onlinehearings;
+    public List<OnlineHearing> getOnlineHearings() {
+        return onlineHearings;
     }
 
-    public void setOnlinehearings(List<Onlinehearing> onlinehearings) {
-        this.onlinehearings = onlinehearings;
+    public void setOnlineHearings(List<OnlineHearing> onlineHearings) {
+        this.onlineHearings = onlineHearings;
     }
 
     public void setJurisdictions(Set<Jurisdiction> jurisdictions) {

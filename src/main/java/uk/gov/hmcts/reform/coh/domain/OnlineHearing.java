@@ -12,12 +12,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "online_hearing")
-public class Onlinehearing {
+public class OnlineHearing {
 
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "online_hearing_id")
-    private UUID onlinehearingId;
+    private UUID onlineHearingId;
 
     @Column(name = "case_id")
     @JsonProperty
@@ -27,9 +27,9 @@ public class Onlinehearing {
     @JoinColumn(name = "jurisdiction_id")
     private Jurisdiction jurisdiction;
 
-    @OneToMany(mappedBy = "onlinehearing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "onlineHearing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<OnlinehearingPanelMember> panelMembers;
+    private List<OnlineHearingPanelMember> panelMembers;
 
     @Transient
     private String jurisdictionName;
@@ -48,25 +48,25 @@ public class Onlinehearing {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "online_hearing_state_id")
     @JsonProperty("current_online_hearing_state")
-    private Onlinehearingstate onlinehearingstate;
+    private OnlineHearingState onlineHearingState;
 
-    @OneToMany(mappedBy = "onlinehearing",
+    @OneToMany(mappedBy = "onlineHearing",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore
-    private List<OnlinehearingStateHistory> onlinehearingStateHistories = new ArrayList<>();
+    private List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
 
     public void registerStateChange(){
-        OnlinehearingStateHistory onlinehearingStateHistory = new OnlinehearingStateHistory(this, onlinehearingstate);
-        onlinehearingStateHistories.add(onlinehearingStateHistory);
+        OnlineHearingStateHistory onlineHearingStateHistory = new OnlineHearingStateHistory(this, onlineHearingState);
+        onlineHearingStateHistories.add(onlineHearingStateHistory);
     }
 
-    public UUID getOnlinehearingId() {
-        return onlinehearingId;
+    public UUID getOnlineHearingId() {
+        return onlineHearingId;
     }
 
-    public void setOnlinehearingId(UUID onlinehearingId) {
-        this.onlinehearingId = onlinehearingId;
+    public void setOnlineHearingId(UUID onlineHearingId) {
+        this.onlineHearingId = onlineHearingId;
     }
 
     public String getCaseId() {
@@ -78,11 +78,11 @@ public class Onlinehearing {
     }
 
 
-    public List<OnlinehearingPanelMember> getPanelMembers() {
+    public List<OnlineHearingPanelMember> getPanelMembers() {
         return panelMembers;
     }
 
-    public void setPanelMembers(List<OnlinehearingPanelMember> panelMembers) {
+    public void setPanelMembers(List<OnlineHearingPanelMember> panelMembers) {
         this.panelMembers = panelMembers;
     }
 
@@ -110,12 +110,12 @@ public class Onlinehearing {
         this.endDate = endDate;
     }
 
-    public Onlinehearingstate getOnlinehearingstate() {
-        return onlinehearingstate;
+    public OnlineHearingState getOnlineHearingState() {
+        return onlineHearingState;
     }
 
-    public void setOnlinehearingstate(Onlinehearingstate onlinehearingstate) {
-        this.onlinehearingstate = onlinehearingstate;
+    public void setOnlineHearingState(OnlineHearingState onlineHearingState) {
+        this.onlineHearingState = onlineHearingState;
     }
 
     public String getOwnerReferenceId() {
@@ -128,8 +128,8 @@ public class Onlinehearing {
 
     @Override
     public String toString() {
-        return "Onlinehearing{" +
-                "onlinehearingId=" + onlinehearingId +
+        return "OnlineHearing{" +
+                "onlineHearingId=" + onlineHearingId +
                 ", caseId='" + caseId + '\'' +
                 ", jurisdiction=" + jurisdiction +
                 ", jurisdictionName='" + jurisdictionName + '\'' +
@@ -137,14 +137,14 @@ public class Onlinehearing {
     }
 
 
-    public void addState(Onlinehearingstate state) {
-        this.onlinehearingstate = state;
-        OnlinehearingStateHistory stateHistory = new OnlinehearingStateHistory(this, state);
-        onlinehearingStateHistories.add(stateHistory);
+    public void addState(OnlineHearingState state) {
+        this.onlineHearingState = state;
+        OnlineHearingStateHistory stateHistory = new OnlineHearingStateHistory(this, state);
+        onlineHearingStateHistories.add(stateHistory);
     }
 
-    public List<OnlinehearingStateHistory> getOnlinehearingStateHistories() {
-        return onlinehearingStateHistories;
+    public List<OnlineHearingStateHistory> getOnlineHearingStateHistories() {
+        return onlineHearingStateHistories;
     }
 
     public void setJurisdictionName(String jurisdictionName) {

@@ -6,7 +6,7 @@ package uk.gov.hmcts.reform.coh.service;
         import org.mockito.Mock;
         import org.springframework.test.context.junit4.SpringRunner;
         import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-        import uk.gov.hmcts.reform.coh.domain.Onlinehearing;
+        import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
         import uk.gov.hmcts.reform.coh.domain.Question;
         import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
@@ -24,7 +24,7 @@ package uk.gov.hmcts.reform.coh.service;
 public class QuestionRoundServiceTest {
 
     private QuestionRoundService questionRoundService;
-    private Onlinehearing onlinehearing;
+    private OnlineHearing onlineHearing;
     @Mock
     private QuestionRepository questionRepository;
 
@@ -38,24 +38,24 @@ public class QuestionRoundServiceTest {
         question.setQuestionRound(1);
         questions.add(question);
 
-        given(questionRepository.findAllByOnlinehearingOrderByQuestionRoundDesc(any(Onlinehearing.class))).willReturn(questions);
+        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
         questionRoundService = new QuestionRoundService(questionRepository);
 
-        onlinehearing = new Onlinehearing();
+        onlineHearing = new OnlineHearing();
         Jurisdiction jurisdiction = new Jurisdiction();
         jurisdiction.setMaxQuestionRounds(3);
-        onlinehearing.setJurisdiction(jurisdiction);
+        onlineHearing.setJurisdiction(jurisdiction);
     }
 
     @Test
-    public void testFindQuestionsOfOnlinehearingOrderedByQuestionRoundReturnsPopulatedList(){
-        List<Question> questions = questionRoundService.getQuestionsOrderedByRound(new Onlinehearing());
+    public void testFindQuestionsOfOnlineHearingOrderedByQuestionRoundReturnsPopulatedList(){
+        List<Question> questions = questionRoundService.getQuestionsOrderedByRound(new OnlineHearing());
         assertFalse(questions.isEmpty());
     }
 
     @Test
     public void testGetQuestionRoundReturnsHighestNumberFromQuestionList(){
-        int questionRound = questionRoundService.getQuestionRound(new Onlinehearing());
+        int questionRound = questionRoundService.getQuestionRound(new OnlineHearing());
         assertEquals(2, questionRound);
     }
 
@@ -64,15 +64,15 @@ public class QuestionRoundServiceTest {
         Question question = new Question();
         question.setQuestionRound(3);
 
-        given(questionRepository.findAllByOnlinehearingOrderByQuestionRoundDesc(any(Onlinehearing.class))).willReturn(new ArrayList<>());
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(new ArrayList<>());
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertFalse(valid);
     }
 
     @Test
     public void testGetQuestionRoundReturns1IfNoPreviousQuestionsFound(){
-        given(questionRepository.findAllByOnlinehearingOrderByQuestionRoundDesc(any(Onlinehearing.class))).willReturn(new ArrayList<>());
-        int questionRound = questionRoundService.getQuestionRound(new Onlinehearing());
+        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(new ArrayList<>());
+        int questionRound = questionRoundService.getQuestionRound(new OnlineHearing());
         assertEquals(0, questionRound);
     }
 
@@ -111,11 +111,11 @@ public class QuestionRoundServiceTest {
     public void testValidateQuestionsRoundWhenNoJurisdictionLimitSet(){
         Jurisdiction jurisdiction = new Jurisdiction();
         jurisdiction.setMaxQuestionRounds(0);
-        onlinehearing.setJurisdiction(jurisdiction);
+        onlineHearing.setJurisdiction(jurisdiction);
 
         Question question = new Question();
         question.setQuestionRound(3);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertTrue(valid);
     }
 
@@ -123,7 +123,7 @@ public class QuestionRoundServiceTest {
     public void testValidateQuestionRoundHappyPath(){
         Question question = new Question();
         question.setQuestionRound(3);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertTrue(valid);
     }
 
@@ -134,8 +134,8 @@ public class QuestionRoundServiceTest {
         Question question = new Question();
         question.setQuestionRound(1);
 
-        given(questionRepository.findAllByOnlinehearingOrderByQuestionRoundDesc(any(Onlinehearing.class))).willReturn(questions);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertTrue(valid);
     }
 
@@ -146,15 +146,15 @@ public class QuestionRoundServiceTest {
         Question question = new Question();
         question.setQuestionRound(2);
 
-        given(questionRepository.findAllByOnlinehearingOrderByQuestionRoundDesc(any(Onlinehearing.class))).willReturn(questions);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertFalse(valid);
     }
     @Test
     public void testValidateQuestionRoundFailsWhenExceedingMaxQuestionRounds(){
         Question question = new Question();
         question.setQuestionRound(4);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertFalse(valid);
     }
 
@@ -162,7 +162,7 @@ public class QuestionRoundServiceTest {
     public void testValidateQuestionRoundIsTrueWhenIncrementedByOne(){
         Question question = new Question();
         question.setQuestionRound(3);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertTrue(valid);
     }
 
@@ -170,7 +170,7 @@ public class QuestionRoundServiceTest {
     public void testValidateQuestionRoundIsFalseWhenSettingToPreviousQuestionRound(){
         Question question = new Question();
         question.setQuestionRound(1);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertFalse(valid);
     }
 
@@ -178,7 +178,7 @@ public class QuestionRoundServiceTest {
     public void testValidateQuestionRoundAcceptsSameQuestionRound(){
         Question question = new Question();
         question.setQuestionRound(2);
-        boolean valid = questionRoundService.validateQuestionRound(question, onlinehearing);
+        boolean valid = questionRoundService.validateQuestionRound(question, onlineHearing);
         assertTrue(valid);
     }
 
@@ -186,10 +186,10 @@ public class QuestionRoundServiceTest {
     public void testValidateQuestionRoundThrowsErrorIfQuestionRoundIs0(){
         Question question = new Question();
         question.setQuestionRound(0);
-        questionRoundService.validateQuestionRound(question, onlinehearing);
+        questionRoundService.validateQuestionRound(question, onlineHearing);
     }
     @Test(expected = EntityNotFoundException.class)
     public void testValidateQuestionRoundThrowsErrorIfQuestionRoundIsNull(){
-        questionRoundService.validateQuestionRound(new Question(), onlinehearing);
+        questionRoundService.validateQuestionRound(new Question(), onlineHearing);
     }
 }

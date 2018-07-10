@@ -1,11 +1,11 @@
-package uk.gov.hmcts.reform.coh.controller.onlinehearing;
+package uk.gov.hmcts.reform.coh.controller.onlineHearing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 import java.util.List;
 
-public class OnlinehearingRequest {
+public class OnlineHearingRequest {
 
     @JsonProperty("case_id")
     private String caseId;

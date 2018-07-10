@@ -10,4 +10,4 @@ import org.springframework.test.context.ActiveProfiles;
         format = {"pretty", "html:target/reports/cucumber/html",
                 "json:target/cucumber.json", "usage:target/usage.jsonx", "junit:target/junit.xml"},
         glue = {"uk/gov/hmcts/reform/coh/functional/bdd/steps"})
-public class ContinuousOnlinehearingTests {}
+public class ContinuousOnlineHearingTests {}

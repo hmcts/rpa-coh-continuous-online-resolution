@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.controller.onlinehearing;
+package uk.gov.hmcts.reform.coh.controller.onlineHearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class OnlinehearingResponse implements Serializable {
+public class OnlineHearingResponse implements Serializable {
 
     @JsonProperty("online_hearing_id")
-    private UUID onlinehearingId;
+    private UUID onlineHearingId;
 
     @JsonProperty("case_id")
     private String caseId;
@@ -26,12 +26,12 @@ public class OnlinehearingResponse implements Serializable {
     @JsonProperty("panel")
     private List<PanelMember> panel;
 
-    public UUID getOnlinehearingId() {
-        return onlinehearingId;
+    public UUID getOnlineHearingId() {
+        return onlineHearingId;
     }
 
-    public void setOnlinehearingId(UUID onlinehearingId) {
-        this.onlinehearingId = onlinehearingId;
+    public void setOnlineHearingId(UUID onlineHearingId) {
+        this.onlineHearingId = onlineHearingId;
     }
 
     public String getCaseId() {
