@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.coh.controller.onlineHearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;

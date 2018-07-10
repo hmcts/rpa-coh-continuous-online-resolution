@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import org.springframework.beans.factory.annotation.Value;
-import uk.gov.hmcts.reform.coh.controller.onlineHearing.CreateOnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlineHearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 
 import java.util.UUID;

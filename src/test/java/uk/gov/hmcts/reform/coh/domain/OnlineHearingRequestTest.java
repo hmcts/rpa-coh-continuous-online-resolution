@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import org.junit.Test;
-import uk.gov.hmcts.reform.coh.controller.onlineHearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.time.Instant;

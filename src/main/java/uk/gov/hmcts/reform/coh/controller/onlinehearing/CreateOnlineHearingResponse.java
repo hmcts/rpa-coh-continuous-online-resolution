@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.controller.onlineHearing;
+package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
