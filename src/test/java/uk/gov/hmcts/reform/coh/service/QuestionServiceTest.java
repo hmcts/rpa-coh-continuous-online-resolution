@@ -66,7 +66,9 @@ public class QuestionServiceTest {
         /**
          * This needs to be fixed so that online hearing id is an attribute of question
          */
-        Question newQuestion = questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(ONE);
+        Question newQuestion = questionService.createQuestion(question, onlineHearing);
         verify(questionStateService, times(1)).retrieveQuestionStateById(1);
         assertEquals(newQuestion, question);
     }

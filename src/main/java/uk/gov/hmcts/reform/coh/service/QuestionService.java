@@ -44,20 +44,13 @@ public class QuestionService {
         return questionRepository.findById(question_id);
     }
 
-    public Question createQuestion(final Question question, UUID onlineHearingId) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
+    public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!optionalOnlineHearing.isPresent()){
-            throw new EntityNotFoundException();
-        }
-
-        if(!questionRoundService.validateQuestionRound(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.validateQuestionRound(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
-        question.setOnlineHearing(optionalOnlineHearing.get());
+        question.setOnlineHearing(onlineHearing);
         question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 
         return questionRepository.save(question);

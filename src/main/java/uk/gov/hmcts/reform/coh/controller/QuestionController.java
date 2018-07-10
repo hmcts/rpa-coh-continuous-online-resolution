@@ -33,7 +33,7 @@ public class QuestionController {
         this.onlineHearingService = onlineHearingService;
     }
 
-    @ApiOperation("Get a question")
+    @ApiOperation("Get all questions for an online hearing")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = QuestionResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),
@@ -64,7 +64,7 @@ public class QuestionController {
         return ResponseEntity.ok(responses);
     }
 
-    @ApiOperation("Get all questions for an online hearing")
+    @ApiOperation("Get a question")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = QuestionResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),
@@ -110,7 +110,7 @@ public class QuestionController {
         Question question = new Question();
         QuestionRequestMapper mapper = new QuestionRequestMapper(question, savedOnlineHearing.get(), request);
         mapper.map();
-        question = questionService.createQuestion(question, onlineHearingId);
+        question = questionService.createQuestion(question, savedOnlineHearing.get());
 
         CreateQuestionResponse response = new CreateQuestionResponse();
         response.setQuestionId(question.getQuestionId());

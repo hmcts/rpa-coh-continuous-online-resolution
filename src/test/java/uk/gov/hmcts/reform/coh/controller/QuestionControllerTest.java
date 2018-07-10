@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +28,8 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -79,7 +83,7 @@ public class QuestionControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
-        given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
+        given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
         given(questionService.editQuestion(uuid, question)).willReturn(question);
         given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
@@ -162,6 +166,43 @@ public class QuestionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testGetAllQuestions() throws Exception {
+
+        List<Question> responses = new ArrayList<>();
+        responses.add(question);
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<QuestionResponse> questionResponses = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<QuestionResponse>>(){});
+
+        assertEquals(1, questionResponses.size());
+    }
+
+    @Test
+    public void testGetAllQuestionsWhenNone() throws Exception {
+
+        List<Question> responses = new ArrayList<>();
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<QuestionResponse> questionResponses = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<QuestionResponse>>(){});
+
+        assertEquals(0, questionResponses.size());
     }
 
     @Test
