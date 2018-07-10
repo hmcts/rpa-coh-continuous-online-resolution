@@ -60,7 +60,7 @@ module "app" {
 }
 
 module "db" {
-  source = "git@github.com:hmcts/moj-module-postgres?ref=cnp-449-tactical"
+  source = "git@github.com:hmcts/moj-module-postgres?ref=master"
   common_tags  = "${var.common_tags}"
   product = "${local.app_full_name}-postgres-db"
   location = "${var.location}"
