@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,6 +73,24 @@ public class QuestionServiceTest {
         assertEquals(newQuestion, question);
     }
 
+    @Test(expected = EntityNotFoundException.class)
+    public void testCreateQuestionWithInvalidOnlineHearing() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+
+        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+    }
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testCreateQuestionWithInvalidUpdate() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
+        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(false);
+
+        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+    }
+
     @Test
     public void testRetrieveQuestion() {
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
@@ -95,6 +114,18 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).findById(ONE);
         assertEquals("Correct state", issued, newQuestion.getQuestionState());
         assertEquals("Event logged", 1, newQuestion.getQuestionStateHistories().size());
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testEditQuestionWithInvalidQuestionId() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
+        when(questionStateService.retrieveQuestionStateById(3)).thenReturn(issued);
+        when(questionRepository.findById(ONE)).thenReturn(Optional.empty());
+        /**
+         * This needs to be fixed so that question id is an attribute of question
+         */
+        Question newQuestion = questionService.editQuestion(ONE, question);
     }
 
     @Test

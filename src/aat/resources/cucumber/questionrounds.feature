@@ -148,3 +148,23 @@ Feature: Question Round Logic
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "ISSUED" '
+
+  Scenario: Issue a question round and check all questions are updated
+    Given a standard online hearing is created
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
+    And the get request is sent to get question round ' "1" '
+    Then the response code is 200
+    And the question round ' "1" ' is ' "ISSUED" '
