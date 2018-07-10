@@ -113,4 +113,8 @@ public class QuestionService {
     public Optional<List<Question>> retrieveQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
         return Optional.ofNullable(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing));
     }
+
+    public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+        return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
+    }
 }

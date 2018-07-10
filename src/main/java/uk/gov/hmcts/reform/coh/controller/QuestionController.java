@@ -15,6 +15,8 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +34,37 @@ public class QuestionController {
     }
 
     @ApiOperation("Get a question")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = QuestionResponse.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @GetMapping("/questions")
+    public ResponseEntity<List<QuestionResponse>> getQuestions(@PathVariable UUID onlineHearingId) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
+
+        Optional<List<Question>> optionalQuestions = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+
+        if (!optionalQuestions.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<Question> questions = optionalQuestions.get();
+        List<QuestionResponse> responses = new ArrayList<>();
+        for (Question question : questions) {
+            QuestionResponse questionResponse = new QuestionResponse();
+            QuestionResponseMapper.map(question, questionResponse);
+            responses.add(questionResponse);
+        }
+
+        return ResponseEntity.ok(responses);
+    }
+
+    @ApiOperation("Get all questions for an online hearing")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = QuestionResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),

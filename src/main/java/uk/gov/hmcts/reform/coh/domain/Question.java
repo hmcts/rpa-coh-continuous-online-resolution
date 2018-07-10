@@ -16,6 +16,7 @@ public class Question {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "online_hearing_id")
+    @MapsId("onlineHearingId")
     @JsonIgnore
     private OnlineHearing onlineHearing;
 
