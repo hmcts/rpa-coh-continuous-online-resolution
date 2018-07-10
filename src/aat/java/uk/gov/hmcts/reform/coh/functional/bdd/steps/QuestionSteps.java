@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -19,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -116,6 +119,16 @@ public class QuestionSteps extends BaseSteps{
             httpResponseCode = hsee.getRawStatusCode();
         }
         testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
+    }
+
+    @And("^the get request is sent to retrieve all questions$")
+    public void get_all_questions_for_a_online_hearing() throws Throwable {
+        try{
+            ResponseEntity<String> response = response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
     }
 
     @Given("^a standard question")
@@ -237,5 +250,13 @@ public class QuestionSteps extends BaseSteps{
             questionRound = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
         }
         assertEquals(expectedQuestions, questionRound.getQuestionList().size());
+    }
+
+    @And("^the response contains (\\d) questions$")
+    public void the_response_contains_n_questions(int count) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        ObjectMapper mapper = new ObjectMapper();
+        List<QuestionResponse> questionResponses = mapper.readValue(rawJson, new TypeReference<List<QuestionResponse>>(){});
+        assertEquals(count, questionResponses.size());
     }
 }
