@@ -13,10 +13,13 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -140,5 +143,17 @@ public class QuestionServiceTest {
         Question body = new Question();
         body.setQuestionState(issued);
         questionService.updateQuestion(question, body);
+    }
+
+    @Test
+    public void testFinaAllQuestionsByOnlineHearing() {
+        List<Question> questions = new ArrayList<>();
+        questions.add(question);
+
+        given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(questions);
+        Optional<List<Question>> responss = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+
+        assertTrue(responss.isPresent());
+        assertEquals(1, responss.get().size());
     }
 }
