@@ -20,8 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class QuestionRoundServiceTest {
@@ -417,6 +416,7 @@ public class QuestionRoundServiceTest {
                 .filter(q -> q.getQuestionState().getState().equals("ISSUED"))
                 .collect(Collectors.toList());
         assertEquals(3, issuedQuestions.size());
+        verify(questionRepository, times(3)).save(any(Question.class));
     }
 }
 

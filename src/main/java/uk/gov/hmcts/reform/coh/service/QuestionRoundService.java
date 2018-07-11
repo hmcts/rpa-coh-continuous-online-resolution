@@ -174,7 +174,9 @@ public class QuestionRoundService {
 
     public void issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
-        questions.stream().forEach(q -> q.addState(questionState));
-        questions.stream().forEach(q -> questionRepository.save(q));
+        questions.stream().forEach(q -> {
+            q.addState(questionState);
+            questionRepository.save(q);
+        });
     }
 }
