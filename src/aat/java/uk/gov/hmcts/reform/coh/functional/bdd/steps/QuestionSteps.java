@@ -124,7 +124,8 @@ public class QuestionSteps extends BaseSteps{
 
     @And("^the get request is sent to retrieve all questions$")
     public void get_all_questions_for_a_online_hearing() throws Throwable {
-        try{
+        try {
+            OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             ResponseEntity<String> response = response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
