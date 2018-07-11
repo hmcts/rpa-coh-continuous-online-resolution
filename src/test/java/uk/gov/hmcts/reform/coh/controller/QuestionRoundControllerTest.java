@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundRequest;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -71,15 +70,15 @@ public class QuestionRoundControllerTest {
         questionRound.setQuestionRoundNumber(ROUNDID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
-        QuestionState questionState = new QuestionState();
-        questionState.setState("ISSUED");
-        questionState.setQuestionStateId(3);
+        QuestionState issuedState = new QuestionState();
+        issuedState.setState("ISSUED");
+        issuedState.setQuestionStateId(3);
 
-        questionRoundState.setState(questionState);
+        questionRoundState.setState(issuedState);
 
         List<Question> questions = new ArrayList<>();
         Question question = new Question();
-        question.setQuestionState(questionState);
+        question.setQuestionState(issuedState);
         question.setQuestionRound(ROUNDID);
         questions.add(question);
         question.setQuestionId(UUID.randomUUID());
@@ -96,7 +95,7 @@ public class QuestionRoundControllerTest {
         jurisdiction.setMaxQuestionRounds(3);
         onlineHearing.setJurisdiction(jurisdiction);
 
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(questionState));
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(issuedState));
         willDoNothing().willDoNothing().given(questionRoundService).issueQuestionRound(any(OnlineHearing.class), any(QuestionState.class), anyInt());
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(questionRoundService.getAllQuestionRounds(any(OnlineHearing.class))).willReturn(questionRounds);
@@ -199,9 +198,12 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testUpdateQuestionRoundWithStateOtherThanIssuedThrowsBadRequest() throws Exception {
-        QuestionRoundRequest qrr = new QuestionRoundRequest();
-        qrr.setStateName("SUBMITTED");
-        String json = JsonUtils.toJson(qrr);
+        QuestionState draftedState = new QuestionState();
+        draftedState.setState("DRAFTED");
+        draftedState.setQuestionStateId(1);
+
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(draftedState));
+        String json = JsonUtils.toJson("question_round/issue_question_round");
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
@@ -223,11 +225,17 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testUpdateCurrentQuestionRoundToIssued() throws Exception {
+        QuestionState draftedState = new QuestionState();
+        draftedState.setState("ISSUED");
+        draftedState.setQuestionStateId(1);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(draftedState));
+        given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
+
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 }

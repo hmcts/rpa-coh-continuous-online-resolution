@@ -34,6 +34,11 @@ public class QuestionRoundState {
         this.state = state;
     }
 
+    public void mapQuestionState(QuestionState questionState) {
+        this.state = questionState.getState();
+        this.stateId = questionState.getQuestionStateId();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -45,7 +50,6 @@ public class QuestionRoundState {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(state, stateId);
     }
 

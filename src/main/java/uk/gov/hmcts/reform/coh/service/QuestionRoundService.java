@@ -19,31 +19,27 @@ public class QuestionRoundService {
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
 
+    public QuestionRoundService() {}
+
     @Autowired
     public QuestionRoundService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
     }
 
-
-    protected void mapQuestionStateToQuestionRoundState(QuestionState questionState, QuestionRoundState questionRoundState) {
-        questionRoundState.setState(questionState.getState());
-        questionRoundState.setStateId(questionState.getQuestionStateId());
-    }
-
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        QuestionRound currentQr = getQuestionRoundByRoundId(onlineHearing, currentRoundNumber);
-        QuestionRoundState currentQrState = retrieveQuestionRoundState(currentQr);
-        QuestionRoundState issuedQrState = new QuestionRoundState();
         Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName("ISSUED");
         if(!optionalQuestionState.isPresent()){
             throw new NotAValidUpdateException();
         }
-        mapQuestionStateToQuestionRoundState(optionalQuestionState.get(), issuedQrState);
 
+        QuestionRoundState issuedQrState = new QuestionRoundState();
+        issuedQrState.mapQuestionState(optionalQuestionState.get());
+
+        QuestionRoundState currentQrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
         // Current QR is issued and create new question round
         if(currentQrState.equals(issuedQrState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
             return true;

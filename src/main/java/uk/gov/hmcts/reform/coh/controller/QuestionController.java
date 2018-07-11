@@ -136,17 +136,17 @@ public class QuestionController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if(!optionalQuestion.isPresent()){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Question question = optionalQuestion.get();
 
         if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         question = questionService.updateQuestion(question, body);

@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
@@ -12,15 +13,20 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 @RunWith(SpringRunner.class)
 public class QuestionRoundServiceTest {
 
+    @Spy
     private QuestionRoundService questionRoundService;
     private OnlineHearing onlineHearing;
     private QuestionState draftedState;
@@ -69,10 +75,11 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(issuedState);
         questionRound1Questions.add(question);
 
+        given(questionStateService.retrieveQuestionStateByStateName("ISSUED")).willReturn(Optional.ofNullable(issuedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
         given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questionRound1Questions);
-        given(questionStateService.retrieveQuestionStateByStateName("ISSUED")).willReturn(Optional.ofNullable(issuedState));
-        questionRoundService = new QuestionRoundService(questionRepository, questionStateService);
+        QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService);
+        questionRoundService = spy(questionRoundServiceImpl);
 
         onlineHearing = new OnlineHearing();
         Jurisdiction jurisdiction = new Jurisdiction();
@@ -335,40 +342,81 @@ public class QuestionRoundServiceTest {
     }
 
     @Test
-    public void testCreateNewQuestionRoundNotValidUnlessCurrentQrIssued() {
+    public void testIncrementQrWhenNotIssuedInvalid() {
         Question question = new Question();
         question.setQuestionRound(2);
         question.setQuestionState(draftedState);
 
-        setOnlineHearingCurrentRound(1);
-        setCurrentQuestionRoundState(draftedState);
+        doReturn(2).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+
+        QuestionRoundState issuedQrState = new QuestionRoundState();
+        issuedQrState.mapQuestionState(issuedState);
+        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
         boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
         assertFalse(isValid);
     }
 
     @Test
-    public void testCreateNewQuestionRoundValidWhenCurrentQrIssued() {
+    public void testIncrementQrWhenIssuedIsValid() {
         Question question = new Question();
         question.setQuestionRound(2);
         question.setQuestionState(draftedState);
 
-        setOnlineHearingCurrentRound(1);
-        setCurrentQuestionRoundState(issuedState);
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+
+        QuestionRoundState issuedQrState = new QuestionRoundState();
+        issuedQrState.mapQuestionState(issuedState);
+        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
         boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
         assertTrue(isValid);
     }
 
-    private void setCurrentQuestionRoundState(QuestionState questionState) {
-        List<Question> questions = new ArrayList<>();
+    @Test
+    public void testAddQuestionToCurrentQrWhenNotIssuedIsValid() {
         Question question = new Question();
-        question.setQuestionState(questionState);
-        given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questions);
+        question.setQuestionRound(1);
+        question.setQuestionState(draftedState);
+
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        QuestionRoundState draftedQrState = new QuestionRoundState();
+        draftedQrState.mapQuestionState(draftedState);
+        doReturn(draftedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
+        assertTrue(isValid);
     }
 
-    private void setOnlineHearingCurrentRound(int roundNumber) {
-        List<Question> questions = new ArrayList<>();
+    @Test
+    public void testAddQuestionToCurrentQrWhenIssuedIsInvalid() {
         Question question = new Question();
-        question.setQuestionRound(roundNumber);
-        given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
+        question.setQuestionRound(1);
+        question.setQuestionState(draftedState);
+
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        QuestionRoundState issuedQrState = new QuestionRoundState();
+        issuedQrState.mapQuestionState(issuedState);
+        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void testIssueQuestionRoundChangesAllQuestionStatesAndSavesToDb() {
+        List<Question> questions = new ArrayList<>();
+        questions.add(new Question());
+        questions.add(new Question());
+        questions.add(new Question());
+
+        given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questions);
+
+        questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
+        List<Question> issuedQuestions = questions.stream()
+                .filter(q -> q.getQuestionState().getState().equals("ISSUED"))
+                .collect(Collectors.toList());
+        assertEquals(3, issuedQuestions.size());
     }
 }
+
