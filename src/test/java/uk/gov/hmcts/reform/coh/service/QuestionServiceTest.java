@@ -13,10 +13,14 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -44,11 +48,15 @@ public class QuestionServiceTest {
     private QuestionState issued = new QuestionState("ISSUED");
     private Question question;
 
+    private OnlineHearing onlineHearing;
     private static UUID ONE;
 
     @Before
     public void setup() {
         ONE = UUID.randomUUID();
+        onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(ONE);
+
         questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService, questionRoundService);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
@@ -68,18 +76,11 @@ public class QuestionServiceTest {
         /**
          * This needs to be fixed so that online hearing id is an attribute of question
          */
-        Question newQuestion = questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(ONE);
+        Question newQuestion = questionService.createQuestion(question, onlineHearing);
         verify(questionStateService, times(1)).retrieveQuestionStateById(1);
         assertEquals(newQuestion, question);
-    }
-
-    @Test(expected = EntityNotFoundException.class)
-    public void testCreateQuestionWithInvalidOnlineHearing() {
-        when(questionRepository.save(question)).thenReturn(question);
-        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
-
-        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
     }
 
     @Test(expected = NotAValidUpdateException.class)
@@ -88,7 +89,7 @@ public class QuestionServiceTest {
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
         given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(false);
 
-        questionService.createQuestion(question, UUID.fromString("a1080765-f8f4-46ab-8a33-19306845eb68"));
+        questionService.createQuestion(question, onlineHearing);
     }
 
     @Test
@@ -143,5 +144,25 @@ public class QuestionServiceTest {
         Question body = new Question();
         body.setQuestionState(issued);
         questionService.updateQuestion(question, body);
+    }
+
+    @Test
+    public void testFinaAllQuestionsByOnlineHearing() {
+        List<Question> questions = new ArrayList<>();
+        questions.add(question);
+
+        given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(questions);
+        Optional<List<Question>> responses = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+
+        assertTrue(responses.isPresent());
+        assertEquals(1, responses.get().size());
+    }
+
+    @Test
+    public void testFinaAllQuestionsByOnlineHearingNone() {
+        given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(null);
+        Optional<List<Question>> responss = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+
+        assertFalse(responss.isPresent());
     }
 }
