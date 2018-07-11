@@ -35,7 +35,7 @@ public class QuestionController {
 
     @ApiOperation("Get all questions for an online hearing")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = QuestionResponse.class),
+            @ApiResponse(code = 200, message = "Success", response = AllQuestionsResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
@@ -43,7 +43,7 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questions")
-    public ResponseEntity<List<QuestionResponse>> getQuestions(@PathVariable UUID onlineHearingId) {
+    public ResponseEntity<AllQuestionsResponse> getQuestions(@PathVariable UUID onlineHearingId) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
 
@@ -60,8 +60,10 @@ public class QuestionController {
             QuestionResponseMapper.map(question, questionResponse);
             responses.add(questionResponse);
         }
+        AllQuestionsResponse response = new AllQuestionsResponse();
+        response.setQuestions(responses);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation("Get a question")

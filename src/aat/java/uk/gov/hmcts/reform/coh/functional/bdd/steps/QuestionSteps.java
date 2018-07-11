@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
@@ -256,7 +257,7 @@ public class QuestionSteps extends BaseSteps{
     public void the_response_contains_n_questions(int count) throws Throwable {
         String rawJson = testContext.getHttpContext().getRawResponseString();
         ObjectMapper mapper = new ObjectMapper();
-        List<QuestionResponse> questionResponses = mapper.readValue(rawJson, new TypeReference<List<QuestionResponse>>(){});
-        assertEquals(count, questionResponses.size());
+        AllQuestionsResponse questionResponses = mapper.readValue(rawJson, AllQuestionsResponse.class);
+        assertEquals(count, questionResponses.getQuestions().size());
     }
 }
