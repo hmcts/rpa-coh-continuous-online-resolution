@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,6 +44,9 @@ public class QuestionService {
     public Optional<Question> retrieveQuestionById(final UUID question_id){
         Optional<Question> question = questionRepository.findById(question_id);
 
+        if (!question.isPresent()) {
+            return question;
+        }
         question.get().setQuestionStateHistories(
                 question.get().getQuestionStateHistories().stream().sorted(
                         (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
@@ -51,24 +55,16 @@ public class QuestionService {
         return question;
     }
 
-    public Question createQuestion(final Question question, UUID onlineHearingId) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
+    public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!optionalOnlineHearing.isPresent()){
-            throw new EntityNotFoundException();
-        }
-
-        if(!questionRoundService.validateQuestionRound(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.validateQuestionRound(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
         QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
-        question.setOnlineHearing(optionalOnlineHearing.get());
+        question.setOnlineHearing(onlineHearing);
         question.setQuestionState(state);
         question.updateQuestionStateHistory(state);
-
 
         return questionRepository.save(question);
     }
@@ -91,18 +87,13 @@ public class QuestionService {
     }
 
     public Question updateQuestion(Question currentQuestion, Question updateToQuestion){
-        QuestionState questionState = currentQuestion.getQuestionState();
-
         QuestionState proposedState = updateToQuestion.getQuestionState();
-
-        if(proposedState.getState().equals("ISSUED")) {
-            if (questionState.getQuestionStateId() != QuestionState.ISSUED) {
-                issueQuestion(currentQuestion);
-            }
-        }else{
-            // Add code to update question text / body ect here (NOT THIS BRANCH)
-            questionRepository.save(currentQuestion);
+        QuestionState issuedState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+        if(proposedState.equals(issuedState)) {
+            throw new NotAValidUpdateException();
         }
+
+        questionRepository.save(currentQuestion);
         return currentQuestion;
     }
 
@@ -112,11 +103,15 @@ public class QuestionService {
         question.setQuestionState(issuedQuestionState);
         question.updateQuestionStateHistory(issuedQuestionState);
         boolean result = questionNotification.notifyQuestionState(question);
-        if (result){
+        if (result) {
             log.info("Successfully issued question round and sent notification to jurisdiction");
             questionRepository.save(question);
-        }else{
+        } else {
             log.error("Error: Request to jurisdiction was unsuccessful");
         }
+    }
+
+    public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+        return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
     }
 }

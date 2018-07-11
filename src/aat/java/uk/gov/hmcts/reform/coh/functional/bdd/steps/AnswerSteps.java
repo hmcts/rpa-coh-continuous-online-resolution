@@ -26,16 +26,12 @@ import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -44,9 +40,6 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 public class AnswerSteps extends BaseSteps{
     private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
-
-
-    private RestTemplate restTemplate;
 
     private ResponseEntity<String> response;
 
@@ -78,16 +71,14 @@ public class AnswerSteps extends BaseSteps{
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
-    private TestContext testContext;
-
     @Autowired
     public AnswerSteps(TestContext testContext) {
-        this.testContext = testContext;
+        super(testContext);
     }
 
     @Before
-    public void setup() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+    public void setup() throws Exception {
+        super.setup();
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
 
@@ -172,7 +163,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @Given("^the endpoint is for submitting an (.*)$")
-    public void the_endpoint_is_for_submitting_an_answer(String entity) throws Throwable {
+    public void the_endpoint_is_for_submitting_an_answer(String entity) {
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
@@ -185,7 +176,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @Given("^the endpoint is for submitting all (.*)$")
-    public void the_endpoint_is_for_submitting_all_answer(String entity) throws Throwable {
+    public void the_endpoint_is_for_submitting_all_answer(String entity) {
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
@@ -204,7 +195,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @And("^the answer state is '(.*)'$")
-    public void theAnswerStateIsSUBMITTED(String answerState) throws Throwable {
+    public void theAnswerStateIsSUBMITTED(String answerState) {
         answerRequest.setAnswerState(answerState);
     }
 
@@ -217,6 +208,7 @@ public class AnswerSteps extends BaseSteps{
         header.add("Content-Type", "application/json");
 
         int httpResponseCode = 0;
+        RestTemplate restTemplate = getRestTemplate();
         try {
             if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.getForEntity(baseUrl + endpoint, String.class);

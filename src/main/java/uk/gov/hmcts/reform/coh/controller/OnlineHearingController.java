@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
+import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -19,10 +18,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/continuous-online-hearings")
@@ -67,7 +63,7 @@ public class OnlineHearingController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id")
+    @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id e.g. case_id=foo&case_id=bar")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = OnlineHearingsResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
@@ -75,9 +71,10 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public OnlineHearingsResponse retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds) {
+    public OnlineHearingsResponse retrieveOnlineHearings(@RequestParam("case_id") List<String> caseIds,
+                                                         @RequestParam("state") Optional<Set<String>> states) {
 
-        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseId(caseIds);
+        List<OnlineHearing> onlineHearings = onlineHearingService.retrieveOnlineHearingByCaseIds(caseIds, states);
 
         List<OnlineHearingResponse> responses = new ArrayList<>();
         OnlineHearingsResponse onlineHearingsResponse = new OnlineHearingsResponse();
@@ -100,30 +97,30 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "case_id", value = "The Case id", required = true),
+            @ApiImplicitParam(name = "jurisdiction", value = "Accepted value is SSCS", required = true),
+            @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true),
+            @ApiImplicitParam(name = "panel", value = "Panel members", required = true),
+            @ApiImplicitParam(name = "panel.identity_token", value = "IDAM Token of Panel Member", required = true),
+            @ApiImplicitParam(name = "panel.name", value = "Name of Panel Member", required = true),
+    })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateOnlineHearingResponse> createOnlineHearing(@RequestBody OnlineHearingRequest body) {
+    public ResponseEntity createOnlineHearing(@RequestBody OnlineHearingRequest body) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
-
-        if (StringUtils.isEmpty(body.getCaseId()) || body.getPanel() == null || body.getPanel().isEmpty()) {
-            return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
-        if (!jurisdiction.isPresent()) {
-            return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
-            if (StringUtils.isEmpty(member.getIdentityToken()) || StringUtils.isEmpty(member.getName())) {
-                return new ResponseEntity<>( HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-        }
-
         Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
-        if (!onlineHearingState.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
+        ValidationResult validationResult = validate(body, onlineHearingState,jurisdiction );
+        if (!validationResult.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
         }
+
+        // Sonar doesn't understand that these have been tested
+        if (!onlineHearingState.isPresent() || !jurisdiction.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing configuration");
+        }
+
         onlineHearing.setOnlineHearingState(onlineHearingState.get());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
@@ -143,5 +140,34 @@ public class OnlineHearingController {
         response.setOnlineHearingId(createdOnlineHearing.getOnlineHearingId().toString());
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
+        ValidationResult result = new ValidationResult();
+        result.setValid(true);
+
+        if (StringUtils.isEmpty(request.getCaseId())) {
+            result.setValid(false);
+            result.setReason("Case id is required");
+        } else if (request.getPanel() == null || request.getPanel().isEmpty()) {
+            result.setValid(false);
+            result.setReason("Panel is required");
+        } else if (!onlineHearingState.isPresent()) {
+            result.setValid(false);
+            result.setReason("Online hearing state is not valid");
+        } else if (!jurisdiction.isPresent()) {
+            result.setValid(false);
+            result.setReason("Jurisdiction is not valid");
+        } else {
+            for (OnlineHearingRequest.PanelMember member : request.getPanel()) {
+                if (StringUtils.isEmpty(member.getIdentityToken()) || StringUtils.isEmpty(member.getName())) {
+                    result.setValid(false);
+                    result.setReason("The panel member identity and name are required");
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 }

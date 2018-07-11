@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.coh.controller.question;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
-public class QuestionResquestMapper {
+public class QuestionRequestMapper {
 
     private QuestionRequest questionRequest;
 
@@ -11,7 +11,7 @@ public class QuestionResquestMapper {
 
     private OnlineHearing onlineHearing;
 
-    public QuestionResquestMapper(Question question, OnlineHearing onlineHearing, QuestionRequest questionRequest) {
+    public QuestionRequestMapper(Question question, OnlineHearing onlineHearing, QuestionRequest questionRequest) {
         this.questionRequest = questionRequest;
         this.question = question;
     }

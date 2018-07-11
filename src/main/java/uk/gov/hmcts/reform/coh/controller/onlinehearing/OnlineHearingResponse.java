@@ -72,6 +72,10 @@ public class OnlineHearingResponse implements Serializable {
         @JsonProperty("name")
         private String name;
 
+        public PanelMember() {
+            super();
+        }
+
         public PanelMember(String name) {
             this.name = name;
         }

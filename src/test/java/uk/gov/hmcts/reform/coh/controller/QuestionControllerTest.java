@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
@@ -92,7 +94,7 @@ public class QuestionControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
-        given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
+        given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
         given(questionService.editQuestion(uuid, question)).willReturn(question);
         given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
@@ -181,6 +183,53 @@ public class QuestionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void testGetAllQuestions() throws Exception {
+
+        List<Question> responses = new ArrayList<>();
+        responses.add(question);
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
+
+        assertEquals(1, questionResponses.getQuestions().size());
+    }
+
+    @Test
+    public void testGetAllQuestionsNone() throws Exception {
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(null));
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetAllQuestionsWhenNone() throws Exception {
+
+        List<Question> responses = new ArrayList<>();
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
+
+        assertEquals(0, questionResponses.getQuestions().size());
     }
 
     @Test
