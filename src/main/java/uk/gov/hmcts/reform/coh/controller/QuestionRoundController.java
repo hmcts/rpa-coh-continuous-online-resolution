@@ -116,6 +116,11 @@ public class QuestionRoundController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
+        if(roundId > currentQuestionRoundNumber) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
         if(!questionStateOptional.isPresent()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -125,7 +130,6 @@ public class QuestionRoundController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
 
         if(currentQuestionRoundNumber != roundId) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

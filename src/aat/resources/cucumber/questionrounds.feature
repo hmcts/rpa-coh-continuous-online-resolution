@@ -14,8 +14,7 @@ Feature: Question Round Logic
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
 
-
-  Scenario: If no jurisdiction question round limit is set then validate question round
+  Scenario: If no jurisdiction question round limit is set then still validate question round
     Given a standard online hearing
     And a jurisdiction named ' "Civil directions", with id ' "55" ' with url ' "http://localhost:8080/civildirection" and max question rounds ' "0" ' is created
     And the online hearing jurisdiction is ' "Civil directions" '
@@ -24,8 +23,12 @@ Feature: Question Round Logic
     Given the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
     Given the question round is ' "2" '
     When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
     Given the question round is ' "4" '
     When the post request is sent to create the question
@@ -44,8 +47,12 @@ Feature: Question Round Logic
     Given the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
     Given the question round is ' "2" '
     When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
     Given the question round is ' "1" '
     When the post request is sent to create the question
@@ -57,7 +64,10 @@ Feature: Question Round Logic
     And the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
-    Given the question round is ' "3" '
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
+    Given a standard question
+    And the question round is ' "3" '
     When the post request is sent to create the question
     Then the response code is 422
 
@@ -70,44 +80,40 @@ Feature: Question Round Logic
     And the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
-    Given the question round is ' "2" '
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
+    Given a standard question
+    And the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 200
-    Given the question round is ' "3" '
+    When the put request is sent to issue the question round ' "2" '
+    Then the response code is 200
+    Given a standard question
+    And the question round is ' "3" '
     When the post request is sent to create the question
     Then the response code is 422
 
-
-  Scenario: Get all question rounds for online hearing and check state is drafted if one question is draft
+  Scenario: Get all question rounds for online hearing and check state is ISSUED and DRAFTED
     Given a standard online hearing is created
     And a standard question
     And the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
-    And a standard question
+    Given a standard question
     And the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 200
-    When the get request is sent to get all question rounds
+    When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And the number of questions rounds is ' "1" '
-    And the number of questions in question round ' "1" ' is ' "2" '
-    And the question round ' "1" ' is ' "DRAFTED" '
-
-  Scenario: Get all question rounds for online hearing and each QR has it's own state
-    Given a standard online hearing is created
-    And a standard question
-    And the question round is ' "1" '
-    When the post request is sent to create the question
-    Then the response code is 200
-    And a standard question
+    Given a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 200
     When the get request is sent to get all question rounds
     Then the response code is 200
     And the number of questions rounds is ' "2" '
-    And the question round ' "1" ' is ' "DRAFTED" '
+    And the number of questions in question round ' "1" ' is ' "2" '
+    And the question round ' "1" ' is ' "ISSUED" '
     And the question round ' "2" ' is ' "DRAFTED" '
 
   Scenario: Get all question rounds for online hearing and check the previous, current, next & max QRs are correct
@@ -115,6 +121,8 @@ Feature: Question Round Logic
     And a standard question
     And the question round is ' "1" '
     When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
     And a standard question
     And the question round is ' "2" '
@@ -173,3 +181,27 @@ Feature: Question Round Logic
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "ISSUED" '
+
+  Scenario: Attempt to issue a previous question round
+    Given a standard online hearing is created
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
+    When a standard question
+    And the question round is ' "2" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 400
+
+  Scenario: Attempt to issue a question round which does not exist
+    Given a standard online hearing is created
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "2" '
+    Then the response code is 404

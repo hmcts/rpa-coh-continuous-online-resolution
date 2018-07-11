@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -22,7 +21,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -172,12 +170,16 @@ public class QuestionSteps extends BaseSteps{
     @When("^the put request is sent to issue the question round ' \"([^\"]*)\" '$")
     public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        HttpEntity<String> request = new HttpEntity<>(json, header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
-                HttpMethod.PUT, request, String.class);
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        try{
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+                    HttpMethod.PUT, request, String.class);
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
     }
 
     @And("^the question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")

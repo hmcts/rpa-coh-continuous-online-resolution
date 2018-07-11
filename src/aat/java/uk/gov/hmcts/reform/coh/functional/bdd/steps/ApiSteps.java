@@ -174,7 +174,7 @@ public class ApiSteps extends BaseSteps {
 
     @And("^the post request is sent to create the online hearing$")
     public void thePostRequestIsSentToCreateTheOnlineHearing() throws IOException {
-
+        testContext.getScenarioContext().setCurrentOnlineHearing(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
         String jsonBody = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
@@ -183,7 +183,6 @@ public class ApiSteps extends BaseSteps {
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
-
     }
 
     @And("^^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' with url ' \"([^\"]*)\" and max question rounds ' \"(\\d+)\" ' is created$$")
