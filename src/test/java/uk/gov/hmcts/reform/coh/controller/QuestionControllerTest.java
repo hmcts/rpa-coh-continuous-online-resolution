@@ -21,13 +21,13 @@ import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -59,6 +59,10 @@ public class QuestionControllerTest {
 
     private Question question;
 
+    private QuestionState issuedState;
+
+    private Date today;
+
     private UUID uuid;
 
     @Before
@@ -70,12 +74,21 @@ public class QuestionControllerTest {
         uuid = UUID.randomUUID();
         question = new Question();
         question.setQuestionId(uuid);
-        question.setQuestionText("foo");
+        question.setQuestionHeaderText("foo");
+        question.setQuestionText("bar");
         question.setOnlineHearing(onlineHearing);
         question.setQuestionRound(1);
-        QuestionState issuedState = new QuestionState();
+        question.setQuestionOrdinal(2);
+        issuedState = new QuestionState();
         issuedState.setQuestionStateId(QuestionState.ISSUED);
         question.setQuestionState(issuedState);
+
+        List<QuestionStateHistory> histories = new ArrayList<>();
+        today = new Date();
+        QuestionStateHistory history = new QuestionStateHistory(question, issuedState);
+        history.setDateOccurred(today);
+        histories.add(history);
+        question.setQuestionStateHistories(histories);
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
@@ -96,7 +109,13 @@ public class QuestionControllerTest {
 
         String response = result.getResponse().getContentAsString();
         QuestionResponse responseQuestion = (QuestionResponse)JsonUtils.toObjectFromJson(response, QuestionResponse.class);
-        assertEquals("foo", responseQuestion.getQuestionBodyText());
+        assertEquals(uuid.toString(), responseQuestion.getQuestionId());
+        assertEquals(question.getQuestionHeaderText(), responseQuestion.getQuestionHeaderText());
+        assertEquals(question.getQuestionText(), responseQuestion.getQuestionBodyText());
+        assertEquals(question.getQuestionRound().toString(), responseQuestion.getQuestionRound());
+        assertEquals(Integer.toString(question.getQuestionOrdinal()), responseQuestion.getQuestionOrdinal());
+        assertEquals(issuedState.getState(), responseQuestion.getCurrentState().getName());
+        assertEquals(today.toString(), responseQuestion.getCurrentState().getDatetime());
     }
 
     @Test
@@ -175,6 +194,6 @@ public class QuestionControllerTest {
 
         String response = result.getResponse().getContentAsString();
         Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
-        assertEquals("foo", responseQuestion.getQuestionText());
+        assertEquals(question.getQuestionText(), responseQuestion.getQuestionText());
     }
 }

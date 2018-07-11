@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.coh.controller.question;
 
 import uk.gov.hmcts.reform.coh.domain.Question;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -11,7 +9,7 @@ public enum QuestionResponseMapper {
 
     QUESTION_ID((Question q) -> { return q.getQuestionId().toString(); }, QuestionResponse::setQuestionId),
     QUESTION_ROUND((Question q) -> {return q.getQuestionRound().toString(); }, QuestionResponse::setQuestionRound),
-    QUESTION_ORDINAL((Question q) -> {return q.getQuestionRound().toString(); }, QuestionRequest::setQuestionOrdinal),
+    QUESTION_ORDINAL((Question q) -> {return Integer.toString(q.getQuestionOrdinal()); }, QuestionRequest::setQuestionOrdinal),
     QUESTION_HEADER_TEXT(Question::getQuestionHeaderText, QuestionRequest::setQuestionHeaderText),
     QUESTION_BODY_TEXT(Question::getQuestionText, QuestionRequest::setQuestionBodyText),
     OWNER_REFERENCE(Question::getOwnerReferenceId, QuestionRequest::setOwnerReference),
