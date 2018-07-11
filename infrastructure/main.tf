@@ -9,7 +9,6 @@ locals {
 
 module "app" {
   source = "git@github.com:hmcts/moj-module-webapp?ref=master"
-  common_tags = "${var.common_tags}"
   product = "${local.app_full_name}"
   location = "${var.location}"
   env = "${var.env}"

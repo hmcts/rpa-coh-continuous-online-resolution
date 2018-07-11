@@ -2,10 +2,6 @@ variable "product" {
   type = "string"
 }
 
-variable "common_tags" {
-    type = "map"
-}
-
 variable "component" {
   type = "string"
 }
