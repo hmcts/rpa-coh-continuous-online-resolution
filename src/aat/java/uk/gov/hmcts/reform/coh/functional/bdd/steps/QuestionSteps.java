@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -19,10 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
-import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -260,5 +256,38 @@ public class QuestionSteps extends BaseSteps{
         ObjectMapper mapper = new ObjectMapper();
         AllQuestionsResponse questionResponses = mapper.readValue(rawJson, AllQuestionsResponse.class);
         assertEquals(count, questionResponses.getQuestions().size());
+    }
+
+    @When("^the question body is edited to ' \"([^\"]*)\" '$")
+    public void theQuestionBodyIsEditedToSomeNewText(String questionBody) throws IOException {
+        String json = JsonUtils.getJsonInput("question/update_question");
+
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionText(questionBody);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
+    }
+
+    @When("^the get request is sent to get the question$")
+    public void theGetRequestIsSentToGetTheQuestion() {
+        ResponseEntity<QuestionResponse> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0), QuestionResponse.class);
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getScenarioContext().setQuestionResponse(response.getBody());
+    }
+
+    @When("^the put request to update the question is sent$")
+    public void thePutRequestToUpdateTheQuestionIsSent() throws Throwable {
+        String json = JsonUtils.toJson(testContext.getScenarioContext().getUpdateQuestionRequest());
+        HttpEntity<String> request = new HttpEntity<>(json, header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
+                HttpMethod.PUT, request, String.class);
+
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
+    }
+
+    @And("^the question body is ' \"([^\"]*)\" '$")
+    public void theQuestionBodyIs(String expectedBody) throws Throwable {
+        QuestionResponse questionResponse = testContext.getScenarioContext().getQuestionResponse();
+        assertEquals(expectedBody, questionResponse.getQuestionBodyText());
     }
 }

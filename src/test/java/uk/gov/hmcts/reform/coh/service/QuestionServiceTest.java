@@ -12,15 +12,12 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -69,13 +66,17 @@ public class QuestionServiceTest {
     }
 
     @Test
+    public void updateAQuestion() {
+        when(questionRepository.save(question)).thenReturn(question);
+        questionService.updateQuestion(question);
+        verify(questionRepository, times(1)).save(any(Question.class));
+    }
+
+    @Test
     public void testCreateQuestion() {
         when(questionRepository.save(question)).thenReturn(question);
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
 
-        /**
-         * This needs to be fixed so that online hearing id is an attribute of question
-         */
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
         Question newQuestion = questionService.createQuestion(question, onlineHearing);
@@ -103,47 +104,10 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testEditQuestion() {
-        when(questionRepository.save(question)).thenReturn(question);
-        when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
-        when(questionStateService.retrieveQuestionStateById(3)).thenReturn(issued);
-
-        /**
-         * This needs to be fixed so that question id is an attribute of question
-         */
-        Question newQuestion = questionService.editQuestion(ONE, question);
-        verify(questionRepository, times(1)).findById(ONE);
-        assertEquals("Correct state", issued, newQuestion.getQuestionState());
-        assertEquals("Event logged", 1, newQuestion.getQuestionStateHistories().size());
-    }
-
-    @Test(expected = EntityNotFoundException.class)
-    public void testEditQuestionWithInvalidQuestionId() {
-        when(questionRepository.save(question)).thenReturn(question);
-        when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
-        when(questionStateService.retrieveQuestionStateById(3)).thenReturn(issued);
-        when(questionRepository.findById(ONE)).thenReturn(Optional.empty());
-        /**
-         * This needs to be fixed so that question id is an attribute of question
-         */
-        Question newQuestion = questionService.editQuestion(ONE, question);
-    }
-
-    @Test
-    public void tesDelete() {
+    public void testDelete() {
         doNothing().when(questionRepository).delete(question);
         questionService.deleteQuestion(question);
         verify(questionRepository, times(1)).delete(question);
-    }
-
-    @Test(expected = NotAValidUpdateException.class)
-    public void testUserCanNotUpdateQuestionToIssued() {
-        Question question = new Question();
-        question.setQuestionState(drafted);
-
-        Question body = new Question();
-        body.setQuestionState(issued);
-        questionService.updateQuestion(question, body);
     }
 
     @Test
@@ -159,10 +123,10 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testFinaAllQuestionsByOnlineHearingNone() {
+    public void testFindAllQuestionsByOnlineHearingNone() {
         given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(null);
-        Optional<List<Question>> responss = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+        Optional<List<Question>> responses = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
 
-        assertFalse(responss.isPresent());
+        assertFalse(responses.isPresent());
     }
 }

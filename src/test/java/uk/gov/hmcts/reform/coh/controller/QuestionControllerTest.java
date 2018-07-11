@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -85,8 +85,7 @@ public class QuestionControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
         given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
-        given(questionService.editQuestion(uuid, question)).willReturn(question);
-        given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
+        willDoNothing().given(questionService).updateQuestion(any(Question.class));
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
     }
 
@@ -218,15 +217,10 @@ public class QuestionControllerTest {
 
     @Test
     public void testEditQuestion() throws Exception {
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(question)))
                 .andExpect(status().isOk())
                 .andReturn();
-
-        String response = result.getResponse().getContentAsString();
-        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
-        assertEquals("foo", responseQuestion.getQuestionText());
     }
 }

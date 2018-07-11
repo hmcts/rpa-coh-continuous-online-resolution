@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,17 +51,6 @@ public class QuestionService {
 
         question.setOnlineHearing(onlineHearing);
         question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
-
-        return questionRepository.save(question);
-    }
-
-    public Question editQuestion(UUID questionId, Question body) {
-        Optional<Question> optionalQuestion = retrieveQuestionById(questionId);
-        if (!optionalQuestion.isPresent()) {
-            throw new EntityNotFoundException("Question entity not found");
-        }
-        Question question = optionalQuestion.get();
-        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
 
         return questionRepository.save(question);
     }
