@@ -72,15 +72,8 @@ public class QuestionService {
         questionRepository.delete(question);
     }
 
-    public Question updateQuestion(Question currentQuestion, Question updateToQuestion){
-        QuestionState proposedState = updateToQuestion.getQuestionState();
-        QuestionState issuedState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-        if(proposedState.equals(issuedState)) {
-            throw new NotAValidUpdateException();
-        }
-
-        questionRepository.save(currentQuestion);
-        return currentQuestion;
+    public void updateQuestion(Question question){
+        questionRepository.save(question);
     }
 
     public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {

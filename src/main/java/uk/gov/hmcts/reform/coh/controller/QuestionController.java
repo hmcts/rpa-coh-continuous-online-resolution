@@ -130,8 +130,8 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
-                                                 @RequestBody QuestionRequest request) {
+    public ResponseEntity editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
+                                                 @RequestBody UpdateQuestionRequest request) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -150,12 +150,10 @@ public class QuestionController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        Question question = new Question();
-        QuestionRequestMapper mapper = new QuestionRequestMapper(question, onlineHearingOptional.get(), request);
-        mapper.map();
+        UpdateQuestionRequestMapper.map(savedQuestion, request);
+        questionService.updateQuestion(savedQuestion);
 
-        savedQuestion = questionService.updateQuestion(savedQuestion, question);
-        return ResponseEntity.ok(savedQuestion);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private boolean validate(QuestionRequest request) {
