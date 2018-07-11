@@ -68,6 +68,7 @@ module "db" {
   sku_name = "GP_Gen5_2"
   sku_tier = "GeneralPurpose"
   storage_mb = "51200"
+  common_tags  = "${var.common_tags}"
 }
 
 provider "vault" {
