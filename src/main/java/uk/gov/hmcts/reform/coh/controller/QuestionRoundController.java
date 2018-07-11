@@ -130,7 +130,6 @@ public class QuestionRoundController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-
         if(currentQuestionRoundNumber != roundId) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
