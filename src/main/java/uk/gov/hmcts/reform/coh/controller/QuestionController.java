@@ -129,28 +129,33 @@ public class QuestionController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody Question body) {
+    @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
+                                                 @RequestBody QuestionRequest request) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if(!optionalQuestion.isPresent()){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Question question = optionalQuestion.get();
+        Question savedQuestion = optionalQuestion.get();
 
-        if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+        if(!savedQuestion.getOnlineHearing().equals(onlineHearingOptional.get())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        question = questionService.updateQuestion(question, body);
-        return ResponseEntity.ok(question);
+        Question question = new Question();
+        QuestionRequestMapper mapper = new QuestionRequestMapper(question, onlineHearingOptional.get(), request);
+        mapper.map();
+
+        savedQuestion = questionService.updateQuestion(savedQuestion, question);
+        return ResponseEntity.ok(savedQuestion);
     }
 
     private boolean validate(QuestionRequest request) {
