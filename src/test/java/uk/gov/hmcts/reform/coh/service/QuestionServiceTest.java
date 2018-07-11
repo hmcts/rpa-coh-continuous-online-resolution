@@ -126,8 +126,7 @@ public class QuestionServiceTest {
         /**
          * This needs to be fixed so that question id is an attribute of question
          */
-        Question newQuestion = questionService.editQuestion(ONE, question);
-        System.out.println(newQuestion);
+        questionService.editQuestion(ONE, question);
     }
 
     @Test
