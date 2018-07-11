@@ -152,10 +152,10 @@ public class QuestionServiceTest {
         questions.add(question);
 
         given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(questions);
-        Optional<List<Question>> responss = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+        Optional<List<Question>> responses = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
 
-        assertTrue(responss.isPresent());
-        assertEquals(1, responss.get().size());
+        assertTrue(responses.isPresent());
+        assertEquals(1, responses.get().size());
     }
 
     @Test

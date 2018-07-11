@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
@@ -182,9 +183,9 @@ public class QuestionControllerTest {
                 .andReturn();
 
         ObjectMapper mapper = new ObjectMapper();
-        List<QuestionResponse> questionResponses = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<QuestionResponse>>(){});
+        AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
 
-        assertEquals(1, questionResponses.size());
+        assertEquals(1, questionResponses.getQuestions().size());
     }
 
     @Test
@@ -210,9 +211,9 @@ public class QuestionControllerTest {
                 .andReturn();
 
         ObjectMapper mapper = new ObjectMapper();
-        List<QuestionResponse> questionResponses = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<QuestionResponse>>(){});
+        AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
 
-        assertEquals(0, questionResponses.size());
+        assertEquals(0, questionResponses.getQuestions().size());
     }
 
     @Test
