@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class QuestionResponseMapperTest {
 
@@ -61,5 +62,25 @@ public class QuestionResponseMapperTest {
 
         // This checks the sorting works
         assertEquals(history2.getDateOccurred().toString(), response.getCurrentState().getDatetime());
+    }
+
+    @Test
+    public void testMappingsNullDecisionStateHistories() {
+        QuestionState state = new QuestionState();
+        state.setState("foo");
+        Question question = new Question();
+        question.setQuestionId(questionUuid);
+        question.setQuestionRound(1);
+        question.setQuestionOrdinal(1);
+        question.setQuestionHeaderText("question header");
+        question.setQuestionText("question text");
+        question.setOwnerReferenceId("bar");
+        question.setQuestionState(state);
+
+        QuestionResponse response = new QuestionResponse();
+        QuestionResponseMapper.map(question, response);
+
+        // This checks the sorting works
+        assertNull(response.getCurrentState().getDatetime());
     }
 }
