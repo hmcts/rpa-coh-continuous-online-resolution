@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,24 +44,17 @@ public class QuestionService {
         return questionRepository.findById(question_id);
     }
 
-    public Question createQuestion(final Question question, UUID onlineHearingId) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
+    public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!optionalOnlineHearing.isPresent()){
-            throw new EntityNotFoundException();
-        }
-
-        if(!questionRoundService.isQrValidTransition(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
-        if(!questionRoundService.isQrValidState(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.isQrValidState(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
-        question.setOnlineHearing(optionalOnlineHearing.get());
+        question.setOnlineHearing(onlineHearing);
         question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
 
         return questionRepository.save(question);
@@ -91,5 +85,9 @@ public class QuestionService {
 
         questionRepository.save(currentQuestion);
         return currentQuestion;
+    }
+
+    public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+        return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
     }
 }
