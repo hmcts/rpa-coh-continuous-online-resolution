@@ -15,16 +15,19 @@ public class QuestionResponseMapperTest {
 
     private UUID questionUuid;
 
+    private QuestionState state;
+
+    private Question question;
+
     @Before
     public void setup() {
-        questionUuid = UUID.randomUUID();
-    }
 
-    @Test
-    public void testResponseMappings() {
-        QuestionState state = new QuestionState();
+        state = new QuestionState();
         state.setState("foo");
-        Question question = new Question();
+
+        questionUuid = UUID.randomUUID();
+
+        question = new Question();
         question.setQuestionId(questionUuid);
         question.setQuestionRound(1);
         question.setQuestionOrdinal(1);
@@ -32,6 +35,10 @@ public class QuestionResponseMapperTest {
         question.setQuestionText("question text");
         question.setOwnerReferenceId("bar");
         question.setQuestionState(state);
+    }
+
+    @Test
+    public void testResponseMappings() {
 
         Calendar yesterday = new GregorianCalendar();
         yesterday.add(Calendar.DAY_OF_YEAR, -1);
@@ -66,16 +73,6 @@ public class QuestionResponseMapperTest {
 
     @Test
     public void testMappingsNullDecisionStateHistories() {
-        QuestionState state = new QuestionState();
-        state.setState("foo");
-        Question question = new Question();
-        question.setQuestionId(questionUuid);
-        question.setQuestionRound(1);
-        question.setQuestionOrdinal(1);
-        question.setQuestionHeaderText("question header");
-        question.setQuestionText("question text");
-        question.setOwnerReferenceId("bar");
-        question.setQuestionState(state);
 
         QuestionResponse response = new QuestionResponse();
         QuestionResponseMapper.map(question, response);
