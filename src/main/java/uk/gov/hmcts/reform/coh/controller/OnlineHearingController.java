@@ -174,9 +174,6 @@ public class OnlineHearingController {
     }
 
 
-
-
-
     private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
         ValidationResult result = new ValidationResult();
         result.setValid(true);

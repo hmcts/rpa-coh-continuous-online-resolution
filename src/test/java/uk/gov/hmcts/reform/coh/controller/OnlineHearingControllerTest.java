@@ -238,4 +238,30 @@ public class OnlineHearingControllerTest {
                 .content(""))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testUpdateOnlineHearingGivenOnlineHearingPresent() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearing(onlineHearing)).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk());
+
+        //OnlineHearingsResponse onlineHearingsResponse = (OnlineHearingsResponse)JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingsResponse.class);
+        //assertEquals();
+    }
+
+    @Test
+    public void testUpdateOnlineHearingGivenOnlineHearingNotPresent() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearing(onlineHearing)).willReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isBadRequest());
+
+    }
 }
