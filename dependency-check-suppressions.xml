@@ -72,4 +72,20 @@
         <gav regex="true">.*</gav>
         <cve>CVE-2018-8014</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   relates to CORS
+   ]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2018-1258</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   relates to CORS
+   ]]></notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2018-1257</cve>
+    </suppress>
 </suppressions>
