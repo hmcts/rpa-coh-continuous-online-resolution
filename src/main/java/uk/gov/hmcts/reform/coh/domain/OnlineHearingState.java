@@ -21,7 +21,6 @@ public class OnlineHearingState {
     private int onlineHearingStateId;
 
     @Column(name = "state")
-    @JsonProperty("state_name")
     private String state;
 
     public OnlineHearingState() {}
