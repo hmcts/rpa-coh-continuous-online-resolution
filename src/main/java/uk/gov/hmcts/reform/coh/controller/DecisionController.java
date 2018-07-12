@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import gherkin.lexer.De;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -21,6 +22,7 @@ import uk.gov.hmcts.reform.coh.service.DecisionStateHistoryService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
+import javax.xml.ws.Response;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -91,7 +93,7 @@ public class DecisionController {
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 200, message = "Success", response = DecisionResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
@@ -107,5 +109,24 @@ public class DecisionController {
         DecisionResponse decisionResponse = new DecisionResponse();
         DecisionResponseMapper.map(optionalDecision.get(), decisionResponse);
         return new ResponseEntity<>(decisionResponse, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Update a decision", notes = "A PUT request to update replace a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ok", response = String.class),
+            @ApiResponse(code = 404, message = "Not Found")
+    })
+    @PutMapping(value = "/{decisionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionId, @RequestBody UpdateDecisionRequest request) {
+
+        Optional<Decision> optionalDecision = decisionService.retrieveByOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Decision not found");
+        }
+
+        Decision decision = optionalDecision.get();
+
+
+        return ResponseEntity.ok(request);
     }
 }
