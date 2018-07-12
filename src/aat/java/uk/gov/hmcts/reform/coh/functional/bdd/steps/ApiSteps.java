@@ -25,7 +25,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
@@ -159,17 +158,13 @@ public class ApiSteps extends BaseSteps {
 
         OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
-            String responseString = response.getBody();
-            testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
-            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
+        String responseString = response.getBody();
+        testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
-            CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
-            testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
-        } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
-        }
+        CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
     }
 
     @And("^the online hearing jurisdiction is ' \"([^\"]*)\" '$")
