@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 @RestController
@@ -91,7 +90,6 @@ public class OnlineHearingController {
 
     @ApiOperation(value = "Create Online Hearing", notes = "A POST request is used to create an online hearing")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = CreateOnlineHearingResponse.class),
             @ApiResponse(code = 201, message = "Created", response = CreateOnlineHearingResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
