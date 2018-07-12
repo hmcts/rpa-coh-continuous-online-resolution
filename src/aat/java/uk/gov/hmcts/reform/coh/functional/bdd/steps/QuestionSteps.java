@@ -34,7 +34,10 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,6 +56,8 @@ public class QuestionSteps extends BaseSteps{
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
     private boolean allQuestionRounds;
+
+    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -278,6 +283,18 @@ public class QuestionSteps extends BaseSteps{
     public void the_question_id_matches() throws Throwable {
         QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
         assertEquals(testContext.getScenarioContext().getCurrentQuestion().getQuestionId().toString(), question.getQuestionId());
+    }
+
+    @And("^the question state name is (.*)$")
+    public void the_question_state_name_is(String stateName) throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(stateName, question.getCurrentState().getName());
+    }
+
+    @And("^the question state timestamp is today$")
+    public void the_question_state_timestamp_is_today() throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertTrue(question.getCurrentState().getDatetime().contains(df.format(new Date())));
     }
 
     private Question extractQuestion(CreateQuestionResponse response) {
