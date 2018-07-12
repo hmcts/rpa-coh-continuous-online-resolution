@@ -174,7 +174,6 @@ public class ApiSteps extends BaseSteps {
 
     @And("^the post request is sent to create the online hearing$")
     public void thePostRequestIsSentToCreateTheOnlineHearing() throws IOException {
-        testContext.getScenarioContext().setCurrentOnlineHearing(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
         String jsonBody = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
