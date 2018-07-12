@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 
+import java.util.Optional;
+
 @Service
 @Component
 public class QuestionStateService {
@@ -17,8 +19,11 @@ public class QuestionStateService {
         this.questionStateRepository = questionStateRepository;
     }
 
-
     public QuestionState retrieveQuestionStateById(final Integer questionStateId){
         return questionStateRepository.findById(questionStateId).orElse(null);
+    }
+
+    public Optional<QuestionState> retrieveQuestionStateByStateName(final String stateName){
+        return questionStateRepository.findByState(stateName);
     }
 }

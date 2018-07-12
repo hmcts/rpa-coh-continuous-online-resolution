@@ -10,5 +10,11 @@ import java.util.UUID;
 
 @Repository
 public interface QuestionRepository extends CrudRepository<Question, UUID> {
+
     List<Question> findAllByOnlineHearingOrderByQuestionRoundDesc(OnlineHearing onlineHearing);
+
+    List<Question> findAllByOnlineHearing(OnlineHearing onlineHearing);
+
+    List<Question> findByOnlineHearingAndQuestionRound(OnlineHearing onlineHearing, Integer questionRound);
+
 }

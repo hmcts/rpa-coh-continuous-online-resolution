@@ -1,12 +1,12 @@
 databaseChangeLog:
 - changeSet:
-    id: 1530963140980-1
+    id: 1531326784315-1
     author: johnho (generated)
     changes:
     - createSequence:
         sequenceName: hibernate_sequence
 - changeSet:
-    id: 1530963140980-2
+    id: 1531326784315-2
     author: johnho (generated)
     changes:
     - createTable:
@@ -27,7 +27,7 @@ databaseChangeLog:
             type: UUID
         tableName: answer
 - changeSet:
-    id: 1530963140980-3
+    id: 1531326784315-3
     author: johnho (generated)
     changes:
     - createTable:
@@ -42,7 +42,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: answer_state
 - changeSet:
-    id: 1530963140980-4
+    id: 1531326784315-4
     author: johnho (generated)
     changes:
     - createTable:
@@ -62,7 +62,7 @@ databaseChangeLog:
             type: INT
         tableName: answer_state_history
 - changeSet:
-    id: 1530963140980-5
+    id: 1531326784315-5
     author: johnho (generated)
     changes:
     - createTable:
@@ -94,14 +94,18 @@ databaseChangeLog:
             name: owner_reference_id
             type: VARCHAR(255)
         - column:
+            constraints:
+              nullable: false
             name: decision_state_id
             type: INT
         - column:
+            constraints:
+              nullable: false
             name: online_hearing_id
             type: UUID
         tableName: decision
 - changeSet:
-    id: 1530963140980-6
+    id: 1531326784315-6
     author: johnho (generated)
     changes:
     - createTable:
@@ -116,7 +120,27 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: decision_state
 - changeSet:
-    id: 1530963140980-7
+    id: 1531326784315-7
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: date_occured
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            constraints:
+              nullable: false
+            name: decision_decision_id
+            type: UUID
+        - column:
+            constraints:
+              nullable: false
+            name: decisionstate_decision_state_id
+            type: INT
+        tableName: decision_state_history
+- changeSet:
+    id: 1531326784315-8
     author: johnho (generated)
     changes:
     - createTable:
@@ -137,7 +161,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: jurisdiction
 - changeSet:
-    id: 1530963140980-8
+    id: 1531326784315-9
     author: johnho (generated)
     changes:
     - createTable:
@@ -148,6 +172,8 @@ databaseChangeLog:
             name: online_hearing_id
             type: UUID
         - column:
+            constraints:
+              nullable: false
             name: case_id
             type: VARCHAR(255)
         - column:
@@ -169,7 +195,7 @@ databaseChangeLog:
             type: INT
         tableName: online_hearing
 - changeSet:
-    id: 1530963140980-9
+    id: 1531326784315-10
     author: johnho (generated)
     changes:
     - createTable:
@@ -192,7 +218,7 @@ databaseChangeLog:
             type: UUID
         tableName: online_hearing_panel_member
 - changeSet:
-    id: 1530963140980-10
+    id: 1531326784315-11
     author: johnho (generated)
     changes:
     - createTable:
@@ -207,7 +233,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: online_hearing_state
 - changeSet:
-    id: 1530963140980-11
+    id: 1531326784315-12
     author: johnho (generated)
     changes:
     - createTable:
@@ -246,7 +272,7 @@ databaseChangeLog:
             type: INT
         tableName: question
 - changeSet:
-    id: 1530963140980-12
+    id: 1531326784315-13
     author: johnho (generated)
     changes:
     - createTable:
@@ -261,7 +287,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: question_state
 - changeSet:
-    id: 1530963140980-13
+    id: 1531326784315-14
     author: johnho (generated)
     changes:
     - createTable:
@@ -281,7 +307,7 @@ databaseChangeLog:
             type: INT
         tableName: question_state_history
 - changeSet:
-    id: 1530963140980-14
+    id: 1531326784315-15
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -289,7 +315,7 @@ databaseChangeLog:
         constraintName: answerPK
         tableName: answer
 - changeSet:
-    id: 1530963140980-15
+    id: 1531326784315-16
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -297,7 +323,7 @@ databaseChangeLog:
         constraintName: answer_statePK
         tableName: answer_state
 - changeSet:
-    id: 1530963140980-16
+    id: 1531326784315-17
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -305,7 +331,7 @@ databaseChangeLog:
         constraintName: answer_state_historyPK
         tableName: answer_state_history
 - changeSet:
-    id: 1530963140980-17
+    id: 1531326784315-18
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -313,7 +339,7 @@ databaseChangeLog:
         constraintName: decisionPK
         tableName: decision
 - changeSet:
-    id: 1530963140980-18
+    id: 1531326784315-19
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -321,7 +347,15 @@ databaseChangeLog:
         constraintName: decision_statePK
         tableName: decision_state
 - changeSet:
-    id: 1530963140980-19
+    id: 1531326784315-20
+    author: johnho (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: decision_decision_id, decisionstate_decision_state_id
+        constraintName: decision_state_historyPK
+        tableName: decision_state_history
+- changeSet:
+    id: 1531326784315-21
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -329,7 +363,7 @@ databaseChangeLog:
         constraintName: jurisdictionPK
         tableName: jurisdiction
 - changeSet:
-    id: 1530963140980-20
+    id: 1531326784315-22
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -337,7 +371,7 @@ databaseChangeLog:
         constraintName: online_hearingPK
         tableName: online_hearing
 - changeSet:
-    id: 1530963140980-21
+    id: 1531326784315-23
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -345,7 +379,7 @@ databaseChangeLog:
         constraintName: online_hearing_statePK
         tableName: online_hearing_state
 - changeSet:
-    id: 1530963140980-22
+    id: 1531326784315-24
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -353,7 +387,7 @@ databaseChangeLog:
         constraintName: questionPK
         tableName: question
 - changeSet:
-    id: 1530963140980-23
+    id: 1531326784315-25
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -361,7 +395,7 @@ databaseChangeLog:
         constraintName: question_statePK
         tableName: question_state
 - changeSet:
-    id: 1530963140980-24
+    id: 1531326784315-26
     author: johnho (generated)
     changes:
     - addPrimaryKey:
@@ -369,7 +403,35 @@ databaseChangeLog:
         constraintName: question_state_historyPK
         tableName: question_state_history
 - changeSet:
-    id: 1530963140980-25
+    id: 1531326784315-27
+    author: johnho (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: case_id
+        constraintName: UC_ONLINE_HEARINGCASE_ID_COL
+        tableName: online_hearing
+- changeSet:
+    id: 1531326784315-28
+    author: johnho (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: online_hearing_id
+        constraintName: UK_7mrubkqqigx0ndchupf5g8fft
+        tableName: decision
+- changeSet:
+    id: 1531326784315-29
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: decision_decision_id
+        baseTableName: decision_state_history
+        constraintName: FK1b5uut0ukdrim1nhklr9b9wtq
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: decision_id
+        referencedTableName: decision
+- changeSet:
+    id: 1531326784315-30
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -381,7 +443,19 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_state_id
         referencedTableName: online_hearing_state
 - changeSet:
-    id: 1530963140980-26
+    id: 1531326784315-31
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: decisionstate_decision_state_id
+        baseTableName: decision_state_history
+        constraintName: FK6l5mvsl3wjvam1axhl70i45g
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: decision_state_id
+        referencedTableName: decision_state
+- changeSet:
+    id: 1531326784315-32
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -393,7 +467,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1530963140980-27
+    id: 1531326784315-33
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -405,7 +479,7 @@ databaseChangeLog:
         referencedColumnNames: decision_state_id
         referencedTableName: decision_state
 - changeSet:
-    id: 1530963140980-28
+    id: 1531326784315-34
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -417,7 +491,7 @@ databaseChangeLog:
         referencedColumnNames: question_id
         referencedTableName: question
 - changeSet:
-    id: 1530963140980-29
+    id: 1531326784315-35
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -429,7 +503,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1530963140980-30
+    id: 1531326784315-36
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -441,7 +515,7 @@ databaseChangeLog:
         referencedColumnNames: question_state_id
         referencedTableName: question_state
 - changeSet:
-    id: 1530963140980-31
+    id: 1531326784315-37
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -453,7 +527,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1530963140980-32
+    id: 1531326784315-38
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -465,7 +539,7 @@ databaseChangeLog:
         referencedColumnNames: question_state_id
         referencedTableName: question_state
 - changeSet:
-    id: 1530963140980-33
+    id: 1531326784315-39
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -477,7 +551,7 @@ databaseChangeLog:
         referencedColumnNames: jurisdiction_id
         referencedTableName: jurisdiction
 - changeSet:
-    id: 1530963140980-34
+    id: 1531326784315-40
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -489,7 +563,7 @@ databaseChangeLog:
         referencedColumnNames: question_id
         referencedTableName: question
 - changeSet:
-    id: 1530963140980-35
+    id: 1531326784315-41
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -501,7 +575,7 @@ databaseChangeLog:
         referencedColumnNames: answer_state_id
         referencedTableName: answer_state
 - changeSet:
-    id: 1530963140980-36
+    id: 1531326784315-42
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:
@@ -513,7 +587,7 @@ databaseChangeLog:
         referencedColumnNames: answer_state_id
         referencedTableName: answer_state
 - changeSet:
-    id: 1530963140980-37
+    id: 1531326784315-43
     author: johnho (generated)
     changes:
     - addForeignKeyConstraint:

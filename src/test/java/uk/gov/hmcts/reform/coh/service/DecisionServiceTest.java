@@ -20,6 +20,7 @@ import java.util.*;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -42,8 +43,13 @@ public class DecisionServiceTest {
 
     private DecisionState decisionState;
 
+    private UUID uuid;
+
     @Before
     public void setup() throws IOException {
+
+        uuid = UUID.randomUUID();
+
         DecisionRequest request = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
 
         decisionState = new DecisionState();
@@ -64,5 +70,36 @@ public class DecisionServiceTest {
     public void testCreateDecision() {
         when(decisionRepository.save(decision)).thenReturn(newDecision);
         assertEquals(newDecision, decisionService.createDecision(decision));
+    }
+
+    @Test
+    public void testFindByOnlineHearingId() {
+        when(decisionRepository.findByOnlineHearingOnlineHearingId(uuid)).thenReturn(Optional.ofNullable(decision));
+        assertEquals(decision, decisionService.findByOnlineHearingId(uuid).get());
+    }
+
+    @Test
+    public void testFindByOnlineHearingIdFail() {
+        when(decisionRepository.findByOnlineHearingOnlineHearingId(uuid)).thenReturn(Optional.empty());
+        assertFalse(decisionService.findByOnlineHearingId(UUID.randomUUID()).isPresent());
+    }
+
+    @Test
+    public void testRetrieveByOnlineHearingIdAndDecisionId() {
+        when(decisionRepository.findByOnlineHearingOnlineHearingIdAndDecisionId(uuid, uuid)).thenReturn(Optional.empty());
+        assertFalse(decisionService.retrieveByOnlineHearingIdAndDecisionId(uuid, uuid).isPresent());
+    }
+
+    @Test
+    public void testDeadlineExpiryDate() {
+        Calendar expectedExpiryDate = new GregorianCalendar();
+        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 6);
+        expectedExpiryDate.set(Calendar.HOUR, 23);
+        expectedExpiryDate.set(Calendar.MINUTE, 59);
+        expectedExpiryDate.set(Calendar.SECOND, 59);
+
+        Date expiryDate = decisionService.getDeadlineExpiryDate();
+
+        assertEquals(expectedExpiryDate.getTime(), expiryDate);
     }
 }

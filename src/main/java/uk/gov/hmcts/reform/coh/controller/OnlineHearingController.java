@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
+import javax.validation.ConstraintViolationException;
 import java.util.*;
 
 @RestController
@@ -95,6 +96,7 @@ public class OnlineHearingController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 409, message = "Duplicate case id found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @ApiImplicitParams({
@@ -107,6 +109,10 @@ public class OnlineHearingController {
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createOnlineHearing(@RequestBody OnlineHearingRequest body) {
+
+        if (!onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList(body.getCaseId())).isEmpty()) {
+             return new ResponseEntity<>("Duplicate case found", HttpStatus.CONFLICT);
+        }
 
         OnlineHearing onlineHearing = new OnlineHearing();
         Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
@@ -126,8 +132,8 @@ public class OnlineHearingController {
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
 
-        OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
+        OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
         for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
             OnlineHearingPanelMember ohpMember = new OnlineHearingPanelMember();

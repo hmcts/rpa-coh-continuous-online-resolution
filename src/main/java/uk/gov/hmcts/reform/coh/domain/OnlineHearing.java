@@ -18,7 +18,7 @@ public class OnlineHearing {
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
-    @Column(name = "case_id", unique=true)
+    @Column(name = "case_id", unique = true, nullable = false)
     @JsonProperty
     private String caseId;
 
