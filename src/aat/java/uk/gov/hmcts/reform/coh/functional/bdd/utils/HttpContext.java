@@ -4,7 +4,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 
@@ -23,11 +22,6 @@ public class HttpContext {
     public void setResponseBodyAndStatesForResponse(ResponseEntity<String> responseEntity) throws IOException {
         rawResponseString = responseEntity.getBody();
         httpResponseStatusCode = responseEntity.getStatusCodeValue();
-    }
-
-    public void setResponseBodyAndStatesForException(HttpClientErrorException hcee) {
-        rawResponseString = hcee.getResponseBodyAsString();
-        httpResponseStatusCode = hcee.getRawStatusCode();
     }
 
     public String getRawResponseString() {
