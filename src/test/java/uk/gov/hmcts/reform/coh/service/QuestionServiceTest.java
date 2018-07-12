@@ -130,7 +130,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void tesDelete() {
+    public void testDelete() {
         doNothing().when(questionRepository).delete(question);
         questionService.deleteQuestion(question);
         verify(questionRepository, times(1)).delete(question);
@@ -147,7 +147,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testFinaAllQuestionsByOnlineHearing() {
+    public void testFindAllQuestionsByOnlineHearing() {
         List<Question> questions = new ArrayList<>();
         questions.add(question);
 
@@ -159,7 +159,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testFinaAllQuestionsByOnlineHearingNone() {
+    public void testFindAllQuestionsByOnlineHearingNone() {
         given(questionRepository.findAllByOnlineHearing(onlineHearing)).willReturn(null);
         Optional<List<Question>> responss = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
 

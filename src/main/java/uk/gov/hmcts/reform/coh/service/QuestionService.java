@@ -97,20 +97,6 @@ public class QuestionService {
         return currentQuestion;
     }
 
-    protected void issueQuestion(Question question) {
-        QuestionState issuedQuestionState = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
-
-        question.setQuestionState(issuedQuestionState);
-        question.updateQuestionStateHistory(issuedQuestionState);
-        boolean result = questionNotification.notifyQuestionState(question);
-        if (result) {
-            log.info("Successfully issued question round and sent notification to jurisdiction");
-            questionRepository.save(question);
-        } else {
-            log.error("Error: Request to jurisdiction was unsuccessful");
-        }
-    }
-
     public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
         return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
     }
