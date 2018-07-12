@@ -10,6 +10,16 @@ public class UpdateQuestionRequest {
     @JsonProperty("question_header_text")
     private String questionHeaderText;
 
+    @JsonProperty("question_state")
+    private String questionState;
+
+    public String getQuestionState() {
+        return questionState;
+    }
+
+    public void setQuestionState(String questionState) {
+        this.questionState = questionState;
+    }
 
     public void setQuestionText(String questionText) {
         this.questionText = questionText;

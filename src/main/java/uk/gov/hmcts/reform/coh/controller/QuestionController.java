@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +28,13 @@ public class QuestionController {
 
     private QuestionService questionService;
     private OnlineHearingService onlineHearingService;
+    private QuestionStateService questionStateService;
 
     @Autowired
-    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService) {
+    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService) {
         this.questionService = questionService;
         this.onlineHearingService = onlineHearingService;
+        this.questionStateService = questionStateService;
     }
 
     @ApiOperation("Get all questions for an online hearing")
@@ -137,22 +141,29 @@ public class QuestionController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Online hearing not found", HttpStatus.NOT_FOUND);
         }
 
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if(!optionalQuestion.isPresent()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
         }
         Question savedQuestion = optionalQuestion.get();
 
         if(!savedQuestion.getOnlineHearing().equals(onlineHearingOptional.get())){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Online hearing ID does not match question online hearing ID", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(request.getQuestionState());
+
+        if(request.getQuestionState().equals("ISSUED") || !optionalQuestionState.isPresent()) {
+            return new ResponseEntity<>("Question state not found", HttpStatus.BAD_REQUEST);
         }
 
         UpdateQuestionRequestMapper.map(savedQuestion, request);
-        questionService.updateQuestion(savedQuestion);
+        savedQuestion.setQuestionState(optionalQuestionState.get());
 
+        questionService.updateQuestion(savedQuestion);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
