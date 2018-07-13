@@ -9,6 +9,8 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Component
@@ -16,6 +18,11 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
+    public static final String DRAFTED = "DRAFTED";
+    public static final String SUBMITTED = "SUBMITTED";
+    public static final String ISSUED = "ISSUED";
+
+    public QuestionRoundService() {}
 
     @Autowired
     public QuestionRoundService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
@@ -23,7 +30,31 @@ public class QuestionRoundService {
         this.questionStateService = questionStateService;
     }
 
-    public boolean validateQuestionRound(Question question, OnlineHearing onlineHearing) {
+    public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
+        int targetQuestionRound = question.getQuestionRound();
+        int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
+
+        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
+        if(!optionalQuestionState.isPresent()){
+            throw new NoSuchElementException("Error: Required state not found.");
+        }
+
+        QuestionRoundState issuedQrState = new QuestionRoundState(optionalQuestionState.get());
+
+        QuestionRoundState currentQrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
+        // Current QR is issued and create new question round
+        if(currentQrState.equals(issuedQrState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+            return true;
+        }
+
+        // Current QR is not issued and question is current question round OR no QR exists yet
+        if(!currentQrState.equals(issuedQrState) && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isQrValidTransition(Question question, OnlineHearing onlineHearing) {
         if (question.getQuestionRound() == null || question.getQuestionRound() == 0) {
             throw new EntityNotFoundException();
         }
@@ -72,23 +103,14 @@ public class QuestionRoundService {
 
     protected QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
-
-        QuestionState issuedState = questionStateService.retrieveQuestionStateById(3);
-        QuestionState submittedState = questionStateService.retrieveQuestionStateById(2);
-        QuestionState draftedState = questionStateService.retrieveQuestionStateById(1);
-
-        QuestionRoundState questionRoundState = new QuestionRoundState();
-        questionRoundState.setState(issuedState);
-
-        for(Question question : questions) {
-            if(isState(question, submittedState) || isState(questionRoundState, submittedState)) {
-                questionRoundState.setState(submittedState);
+        if(questions.isEmpty()) {
+            Optional<QuestionState> optionalDraftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED);
+            if(!optionalDraftedState.isPresent()) {
+                throw new NoSuchElementException("Error: Required state not found.");
             }
-            if(isState(question, draftedState) || isState(questionRoundState, draftedState)) {
-                questionRoundState.setState(draftedState);
-            }
+            return new QuestionRoundState(optionalDraftedState.get());
         }
-        return questionRoundState;
+        return new QuestionRoundState(questions.get(0).getQuestionState());
     }
 
     protected boolean isState(Question question, QuestionState questionState) {
@@ -146,8 +168,12 @@ public class QuestionRoundService {
     public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
         List<Question> modifiedQuestion = new ArrayList<>();
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
-        questions.stream().forEach(q -> q.setQuestionState(questionState));
-        questions.stream().forEach(q -> { questionRepository.save(q); modifiedQuestion.add(q);});
+        questions.stream().forEach(q -> {
+            q.setQuestionState(questionState);
+            q.updateQuestionStateHistory(questionState);
+            questionRepository.save(q);
+            modifiedQuestion.add(q);
+        });
 
         return modifiedQuestion;
     }

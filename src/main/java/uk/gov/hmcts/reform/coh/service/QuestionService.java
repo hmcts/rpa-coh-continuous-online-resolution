@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -28,16 +27,13 @@ public class QuestionService {
     private QuestionRoundService questionRoundService;
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
-    private QuestionNotification questionNotification;
-    private OnlineHearingService onlineHearingService;
+
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
-                           QuestionNotification questionNotification, OnlineHearingService onlineHearingService, QuestionRoundService questionRoundService) {
+                           QuestionRoundService questionRoundService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
-        this.questionNotification = questionNotification;
-        this.onlineHearingService = onlineHearingService;
         this.questionRoundService = questionRoundService;
     }
 
@@ -57,7 +53,11 @@ public class QuestionService {
 
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
-        if(!questionRoundService.validateQuestionRound(question, onlineHearing)) {
+        if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
+            throw new NotAValidUpdateException();
+        }
+
+        if(!questionRoundService.isQrValidState(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
