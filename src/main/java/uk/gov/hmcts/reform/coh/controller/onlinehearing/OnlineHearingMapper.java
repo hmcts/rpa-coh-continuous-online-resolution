@@ -11,7 +11,6 @@ public class OnlineHearingMapper {
         response.setCaseId(onlineHearing.getCaseId());
         response.setStartDate(onlineHearing.getStartDate());
         response.setEndDate(onlineHearing.getEndDate());
-        response.setState(onlineHearing.getOnlineHearingState().getState());
         response.setPanel(onlineHearing.getPanelMembers()
                 .stream()
                 .map( p -> new OnlineHearingResponse.PanelMember(p.getFullName()))

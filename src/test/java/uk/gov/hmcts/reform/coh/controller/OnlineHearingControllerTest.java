@@ -134,20 +134,20 @@ public class OnlineHearingControllerTest {
         }
     }
 
-    @Test
-    public void testRegisterStateChange() throws Exception {
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
-
-        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
-
-        assertEquals("continuous_online_hearing_started", response.getState());
-        //assertNotNull(onlineHearing.getOnlineHearingStateHistories());
-
-    }
+//    @Test
+//    public void testRegisterStateChange() throws Exception {
+//
+//        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+//                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+//                .andExpect(status().is2xxSuccessful())
+//                .andReturn();
+//
+//        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
+//
+//        assertEquals("continuous_online_hearing_started", response.getState());
+//        //assertNotNull(onlineHearing.getOnlineHearingStateHistories());
+//
+//    }
 
     @Test
     public void testCreateOnlineHearingIncorrectJurisdiction() throws Exception {
