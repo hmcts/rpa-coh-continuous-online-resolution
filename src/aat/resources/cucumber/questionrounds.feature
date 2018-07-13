@@ -195,7 +195,7 @@ Feature: Question Round Logic
     When the post request is sent to create the question
     Then the response code is 200
     When the put request is sent to issue the question round ' "1" '
-    Then the response code is 400
+    Then the response code is 422
 
   Scenario: Attempt to issue a question round which does not exist
     Given a standard online hearing is created

@@ -131,7 +131,7 @@ public class QuestionRoundController {
         }
 
         if(currentQuestionRoundNumber != roundId) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         onlineHearing = optionalOnlineHearing.get();
