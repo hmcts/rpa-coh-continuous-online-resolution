@@ -105,6 +105,7 @@ public class DecisionControllerTest {
         given(decisionService.createDecision(any(Decision.class))).willReturn(decision);
         given(decisionStateService.retrieveDecisionStateByState("decision_drafted")).willReturn(Optional.ofNullable(decisionState));
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.empty());
+        given(decisionService.retrieveByOnlineHearingIdAndDecisionId(decisionUUID, decisionUUID)).willReturn(Optional.of(decision));
     }
 
     @Test
@@ -236,5 +237,17 @@ public class DecisionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testUpdateNonExistentDecision() throws Exception {
+        given(decisionService.retrieveByOnlineHearingIdAndDecisionId(decisionUUID, decisionUUID)).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Decision not found");
     }
 }
