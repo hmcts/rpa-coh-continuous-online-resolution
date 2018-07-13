@@ -149,6 +149,7 @@ Feature: Question Round Logic
     Then the response code is 200
     And the number of questions in question round ' "1" ' is ' "2" '
     And the question round ' "1" ' is ' "DRAFTED" '
+    And each question in the question round has a history of at least ' "1" ' events
 
   Scenario: Issue a question round
     Given a standard online hearing is created
@@ -161,7 +162,7 @@ Feature: Question Round Logic
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "ISSUED" '
-    And each question in the question round has a history of at least ' "1" ' events
+    And each question in the question round has a history of at least ' "2" ' events
 
   Scenario: Issue a question round and check all questions are updated
     Given a standard online hearing is created

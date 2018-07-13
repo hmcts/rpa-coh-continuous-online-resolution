@@ -126,7 +126,7 @@ public class QuestionRoundController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        if (!questionStateOptional.get().getState().equals(questionRoundService.ISSUED)){
+        if (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
