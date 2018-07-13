@@ -70,7 +70,7 @@ public class QuestionRoundControllerTest {
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
         QuestionState issuedState = new QuestionState();
-        issuedState.setState("ISSUED");
+        issuedState.setState(QuestionRoundService.ISSUED);
         issuedState.setQuestionStateId(3);
 
         questionRoundState.setState(issuedState);
@@ -85,7 +85,6 @@ public class QuestionRoundControllerTest {
 
         questionRound.setQuestionRoundState(questionRoundState);
         questionRounds.add(questionRound);
-
 
         cohId = UUID.randomUUID();
         OnlineHearing onlineHearing = new OnlineHearing();
@@ -224,10 +223,10 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testUpdateCurrentQuestionRoundToIssued() throws Exception {
-        QuestionState draftedState = new QuestionState();
-        draftedState.setState("ISSUED");
-        draftedState.setQuestionStateId(1);
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(draftedState));
+        QuestionState issuedState = new QuestionState();
+        issuedState.setState(QuestionRoundService.ISSUED);
+        issuedState.setQuestionStateId(1);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");

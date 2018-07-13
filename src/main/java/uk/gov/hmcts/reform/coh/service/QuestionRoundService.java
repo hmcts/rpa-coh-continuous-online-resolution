@@ -103,26 +103,14 @@ public class QuestionRoundService {
 
     protected QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
-
-        Optional<QuestionState> issuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
-        Optional<QuestionState> submittedState = questionStateService.retrieveQuestionStateByStateName(SUBMITTED);
-        Optional<QuestionState> draftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED);
-
-        if(!issuedState.isPresent() || !submittedState.isPresent() || !draftedState.isPresent()){
-            throw new NoSuchElementException("Error: Required State missing");
-        }
-
-        QuestionRoundState questionRoundState = new QuestionRoundState(issuedState.get());
-
-        for(Question question : questions) {
-            if(isState(question, submittedState.get()) || isState(questionRoundState, submittedState.get())) {
-                questionRoundState.setState(submittedState.get());
+        if(questions.isEmpty()) {
+            Optional<QuestionState> optionalDraftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED);
+            if(!optionalDraftedState.isPresent()) {
+                throw new NoSuchElementException("Error: Required state not found.");
             }
-            if(isState(question, draftedState.get()) || isState(questionRoundState, draftedState.get())) {
-                questionRoundState.setState(draftedState.get());
-            }
+            return new QuestionRoundState(optionalDraftedState.get());
         }
-        return questionRoundState;
+        return new QuestionRoundState(questions.get(0).getQuestionState());
     }
 
     protected boolean isState(Question question, QuestionState questionState) {

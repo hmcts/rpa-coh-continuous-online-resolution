@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -70,9 +71,9 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(issuedState);
         questionRound1Questions.add(question);
 
-        given(questionStateService.retrieveQuestionStateByStateName("ISSUED")).willReturn(Optional.ofNullable(issuedState));
-        given(questionStateService.retrieveQuestionStateByStateName("DRAFTED")).willReturn(Optional.ofNullable(draftedState));
-        given(questionStateService.retrieveQuestionStateByStateName("SUBMITTED")).willReturn(Optional.ofNullable(submittedState));
+        given(questionStateService.retrieveQuestionStateByStateName("ISSUED")).willReturn(Optional.of(issuedState));
+        given(questionStateService.retrieveQuestionStateByStateName("DRAFTED")).willReturn(Optional.of(draftedState));
+        given(questionStateService.retrieveQuestionStateByStateName("SUBMITTED")).willReturn(Optional.of(submittedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
         given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questionRound1Questions);
         QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService);
@@ -309,34 +310,29 @@ public class QuestionRoundServiceTest {
         assertEquals(2, roundOneQuestions.size());
     }
 
+    @Test(expected = NoSuchElementException.class)
+    public void testRetrieveQuestionRoundThrowsNoSuchElementIfCannotFindDraftedState() {
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(new ArrayList<>());
+        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
+        assertEquals( draftedState.getState(), questionRoundState.getState());
+    }
+
+    @Test
+    public void testRetrieveQuestionRoundReturnsDraftedIfNoQuestionsExist() {
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(new ArrayList<>());
+        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
+        assertEquals( draftedState.getState(), questionRoundState.getState());
+    }
+
     @Test
     public void testRetrieveQuestionRoundStateReturnsStateIfAllQuestionStatesAreIssued() {
         QuestionRound questionRound = new QuestionRound();
         questionRound.setQuestionList(questionRound1Questions);
         QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
         assertEquals( issuedState.getState(), questionRoundState.getState());
-    }
-
-    @Test
-    public void testRetrieveQuestionRoundStateGetsTheNextLowestState() {
-        QuestionRound questionRound = new QuestionRound();
-        Question question = new Question();
-        question.setQuestionState(submittedState);
-        questionRound1Questions.add(question);
-        questionRound.setQuestionList(questionRound1Questions);
-        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
-        assertEquals( submittedState.getState(), questionRoundState.getState());
-    }
-
-    @Test
-    public void testRetrieveQuestionRoundStateGetsTheLowestLevelState() {
-        QuestionRound questionRound = new QuestionRound();
-        Question question = new Question();
-        question.setQuestionState(draftedState);
-        questionRound1Questions.add(question);
-        questionRound.setQuestionList(questionRound1Questions);
-        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
-        assertEquals(draftedState.getState(), questionRoundState.getState());
     }
 
     @Test
