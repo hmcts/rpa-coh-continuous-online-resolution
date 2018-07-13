@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -131,6 +132,21 @@ public class OnlineHearingControllerTest {
         } catch (Exception e) {
             assertTrue(false);
         }
+    }
+
+    @Test
+    public void testRegisterStateChange() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
+
+        assertEquals("continuous_online_hearing_started", response.getState());
+        //assertNotNull(onlineHearing.getOnlineHearingStateHistories());
+
     }
 
     @Test

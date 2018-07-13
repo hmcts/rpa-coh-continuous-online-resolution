@@ -15,12 +15,10 @@ import java.util.UUID;
 public class OnlineHearing {
 
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
     @Column(name = "case_id")
-    @JsonProperty
     private String caseId;
 
     @ManyToOne(targetEntity = Jurisdiction.class, fetch = FetchType.EAGER)
@@ -28,7 +26,6 @@ public class OnlineHearing {
     private Jurisdiction jurisdiction;
 
     @OneToMany(mappedBy = "onlineHearing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<OnlineHearingPanelMember> panelMembers;
 
     @Transient
@@ -47,13 +44,11 @@ public class OnlineHearing {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "online_hearing_state_id")
-    @JsonProperty("current_online_hearing_state")
     private OnlineHearingState onlineHearingState;
 
     @OneToMany(mappedBy = "onlinehearing",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
-    @JsonIgnore
     private List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
 
     public void registerStateChange(){

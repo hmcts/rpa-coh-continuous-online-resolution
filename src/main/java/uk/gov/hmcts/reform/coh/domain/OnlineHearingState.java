@@ -17,7 +17,6 @@ public class OnlineHearingState {
 
     @Id
     @Column(name = "online_hearing_state_id")
-    @JsonIgnore
     private int onlineHearingStateId;
 
     @Column(name = "state")

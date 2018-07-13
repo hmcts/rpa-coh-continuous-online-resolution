@@ -144,7 +144,7 @@ public class OnlineHearingController {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
         onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
         onlineHearing.registerStateChange();
-        onlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
+        onlineHearingService.createOnlineHearing(onlineHearing);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
