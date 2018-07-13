@@ -333,4 +333,11 @@ public class QuestionRoundServiceTest {
         QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
         assertEquals(draftedState.getState(), questionRoundState.getState());
     }
+
+    @Test
+    public void testIssueQuestionRound() {
+        List<Question> questions = questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
+        assertEquals(2, questions.size());
+        questions.stream().forEach(q -> assertEquals(q.getQuestionState().getState(), "ISSUED"));
+    }
 }
