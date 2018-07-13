@@ -114,10 +114,10 @@ public class DecisionController {
             @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 422, message = "Validation Error")
     })
-    @PutMapping(value = "/{decisionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionId, @RequestBody UpdateDecisionRequest request) {
+    @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 
-        Optional<Decision> optionalDecision = decisionService.retrieveByOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Decision not found");
         }

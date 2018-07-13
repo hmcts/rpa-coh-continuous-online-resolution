@@ -88,7 +88,7 @@ public class DecisionSteps extends BaseSteps {
             } else if ("PUT".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
                 String decisionId = testContext.getScenarioContext().getCurrentDecision().getDecisionId().toString();
-                response = restTemplate.exchange(baseUrl + endpoint + "/" + decisionId, HttpMethod.PUT, request, String.class);
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             }
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
