@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,14 +9,17 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class BaseSteps {
@@ -30,6 +34,9 @@ public class BaseSteps {
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    @Autowired
+    private JurisdictionRepository jurisdictionRepository;
 
     @Value("${base-urls.test-url}")
     String baseUrl;
@@ -47,6 +54,14 @@ public class BaseSteps {
         endpoints.put("online hearing", "/continuous-online-hearings");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
+
+        Optional<Jurisdiction> optionalJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS");
+        if(!optionalJurisdiction.isPresent()) {
+            throw new NotFoundException("Test jurisdiction not found");
+        }
+        String url = optionalJurisdiction.get().getUrl();
+        optionalJurisdiction.get().setUrl(url.replace("${base-urls.test-url}", baseUrl));
+        jurisdictionRepository.save(optionalJurisdiction.get());
     }
 
     public void cleanup() {
