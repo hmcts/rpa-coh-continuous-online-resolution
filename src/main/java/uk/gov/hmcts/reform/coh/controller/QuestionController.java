@@ -157,7 +157,7 @@ public class QuestionController {
         Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(request.getQuestionState());
 
         if(request.getQuestionState().equals("ISSUED") || !optionalQuestionState.isPresent()) {
-            return new ResponseEntity<>("Question state not found", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Not allowed to issue single questions", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         UpdateQuestionRequestMapper.map(savedQuestion, request);

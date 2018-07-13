@@ -67,3 +67,12 @@ Feature: Questions feature
     When the get request is sent to retrieve the submitted question
     Then the response code is 200
     And the question state name is SUBMITTED
+
+  Scenario: Attempt to Edit the question state to issued
+    Given a standard online hearing is created
+    And a standard question
+    When the post request is sent to create the question
+    Then the response code is 200
+    Given the question state is edited to ' "ISSUED" '
+    When the put request to update the question is sent
+    Then the response code is 422

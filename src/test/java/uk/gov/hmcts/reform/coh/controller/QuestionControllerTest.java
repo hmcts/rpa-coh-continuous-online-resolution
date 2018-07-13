@@ -279,7 +279,7 @@ public class QuestionControllerTest {
     }
 
     @Test
-    public void testEditQuestionToStateIssuedBadRequest() throws Exception {
+    public void testEditQuestionToStateIssuedUnprocessableEntity() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
         updateQuestionRequest.setQuestionState("ISSUED");
@@ -287,18 +287,18 @@ public class QuestionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
 
     @Test
-    public void testEditQuestionStateNotFoundBadRequest() throws Exception {
+    public void testEditQuestionStateNotValidUnprocessableEntityt() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
 }

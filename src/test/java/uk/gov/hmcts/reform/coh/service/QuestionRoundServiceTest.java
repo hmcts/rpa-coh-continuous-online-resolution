@@ -339,7 +339,7 @@ public class QuestionRoundServiceTest {
     public void testIssueQuestionRound() {
         List<Question> questions = questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
         assertEquals(2, questions.size());
-        questions.stream().forEach(q -> assertEquals(q.getQuestionState().getState(), "ISSUED"));
+        questions.stream().forEach(q -> assertEquals("ISSUED", q.getQuestionState().getState()));
     }
 
     @Test

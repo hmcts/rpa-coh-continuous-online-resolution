@@ -353,12 +353,17 @@ public class QuestionSteps extends BaseSteps{
     @When("^the put request to update the question is sent$")
     public void thePutRequestToUpdateTheQuestionIsSent() throws Throwable {
         String json = JsonUtils.toJson(testContext.getScenarioContext().getUpdateQuestionRequest());
-        HttpEntity<String> request = new HttpEntity<>(json, header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
-                HttpMethod.PUT, request, String.class);
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        try{
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
+                    HttpMethod.PUT, request, String.class);
+
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
     }
 
     @And("^the question body is ' \"([^\"]*)\" '$")
