@@ -91,6 +91,18 @@ public class DecisionServiceTest {
     }
 
     @Test
+    public void testUpdateDecision() {
+        when(decisionRepository.save(decision)).thenReturn(decision);
+        assertEquals(decision, decisionService.updateDecision(decision));
+    }
+
+    @Test
+    public void testDeleteDecisionById() {
+        doNothing().when(decisionRepository).deleteById(uuid);
+        decisionService.deleteDecisionById(uuid);
+    }
+
+    @Test
     public void testDeadlineExpiryDate() {
         Calendar expectedExpiryDate = new GregorianCalendar();
         expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 6);
