@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -31,12 +30,6 @@ public class QuestionServiceTest {
     private QuestionStateService questionStateService;
 
     @Mock
-    private OnlineHearingService onlineHearingService;
-
-    @Mock
-    private QuestionNotification questionNotification;
-
-    @Mock
     private QuestionRoundService questionRoundService;
 
     private QuestionService questionService;
@@ -54,14 +47,13 @@ public class QuestionServiceTest {
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
 
-        questionService = new QuestionService(questionRepository, questionStateService, questionNotification, onlineHearingService, questionRoundService);
+        questionService = new QuestionService(questionRepository, questionStateService, questionRoundService);
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
         issuedState.setState("ISSUED");
         given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
-        given(questionNotification.notifyQuestionState(any(Question.class))).willReturn(true);
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(new OnlineHearing()));
-        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(true);
+        given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
+        given(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         question = new Question();
     }
 
@@ -88,7 +80,7 @@ public class QuestionServiceTest {
     public void testCreateQuestionWithInvalidUpdate() {
         when(questionRepository.save(question)).thenReturn(question);
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
-        given(questionRoundService.validateQuestionRound(any(Question.class), any(OnlineHearing.class))).willReturn(false);
+        given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(false);
 
         questionService.createQuestion(question, onlineHearing);
     }
@@ -111,7 +103,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testFinaAllQuestionsByOnlineHearing() {
+    public void testFindAllQuestionsByOnlineHearing() {
         List<Question> questions = new ArrayList<>();
         questions.add(question);
 

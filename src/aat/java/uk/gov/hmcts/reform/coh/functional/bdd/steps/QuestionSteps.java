@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -31,9 +32,10 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -50,6 +52,8 @@ public class QuestionSteps extends BaseSteps{
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
     private boolean allQuestionRounds;
+
+    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -112,6 +116,7 @@ public class QuestionSteps extends BaseSteps{
             questionIds.add(createQuestionResponse.getQuestionId());
             httpResponseCode = response.getStatusCodeValue();
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            testContext.getScenarioContext().setCurrentQuestion(extractQuestion(createQuestionResponse));
         } catch (HttpClientErrorException hsee) {
             httpResponseCode = hsee.getRawStatusCode();
         }
@@ -123,6 +128,18 @@ public class QuestionSteps extends BaseSteps{
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             ResponseEntity<String> response = response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
+    }
+
+    @And("^the get request is sent to retrieve the submitted question$")
+    public void get_the_submitted_question() throws Throwable {
+        try {
+            OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+            Question question = testContext.getScenarioContext().getCurrentQuestion();
+            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
@@ -168,12 +185,16 @@ public class QuestionSteps extends BaseSteps{
     @When("^the put request is sent to issue the question round ' \"([^\"]*)\" '$")
     public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        HttpEntity<String> request = new HttpEntity<>(json, header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
-                HttpMethod.PUT, request, String.class);
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        try{
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+                    HttpMethod.PUT, request, String.class);
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
     }
 
     @And("^the question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
@@ -258,6 +279,50 @@ public class QuestionSteps extends BaseSteps{
         assertEquals(count, questionResponses.getQuestions().size());
     }
 
+    @And("^the question id matches$")
+    public void the_question_id_matches() throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(testContext.getScenarioContext().getCurrentQuestion().getQuestionId().toString(), question.getQuestionId());
+    }
+
+    @And("^the question state name is (.*)$")
+    public void the_question_state_name_is(String stateName) throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(stateName, question.getCurrentState().getName());
+    }
+
+    @And("^the question state timestamp is today$")
+    public void the_question_state_timestamp_is_today() throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertTrue(question.getCurrentState().getDatetime().contains(df.format(new Date())));
+    }
+
+    private Question extractQuestion(CreateQuestionResponse response) {
+        Question question = new Question();
+        question.setQuestionId(response.getQuestionId());
+
+        return question;
+    }
+
+    @And("^each question in the question round has a history of at least ' \"(\\d)\" ' events$")
+    public void eachQuestionInTheQuestionRoundHasHistory(int histories) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+        List<QuestionResponse> questionResponses = questionRoundResponse.getQuestionList();
+
+        List<UUID> questionUUIDs = questionResponses.stream()
+                .map(q -> UUID.fromString(q.getQuestionId()))
+                .collect(Collectors.toList());
+
+        for (UUID id : questionUUIDs) {
+            Optional<Question> optionalQuestion = questionRepository.findById(id);
+            if (optionalQuestion.isPresent()){
+                List<QuestionStateHistory> questionStateHistories = optionalQuestion.get().getQuestionStateHistories();
+                assertTrue(questionStateHistories.size() >= histories);
+            }
+        }
+    }
+
     @When("^the question body is edited to ' \"([^\"]*)\" '$")
     public void theQuestionBodyIsEditedToSomeNewText(String questionBody) throws IOException {
         String json = JsonUtils.getJsonInput("question/update_question");
@@ -267,11 +332,22 @@ public class QuestionSteps extends BaseSteps{
         testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
     }
 
-    @When("^the get request is sent to get the question$")
-    public void theGetRequestIsSentToGetTheQuestion() {
-        ResponseEntity<QuestionResponse> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0), QuestionResponse.class);
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getScenarioContext().setQuestionResponse(response.getBody());
+    @Given("^the question header is edited to ' \"([^\"]*)\" '$")
+    public void theQuestionHeaderIsEditedTo(String questionHeader) throws Throwable {
+        String json = JsonUtils.getJsonInput("question/update_question");
+
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionHeaderText(questionHeader);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
+    }
+
+    @Given("^the question state is edited to ' \"([^\"]*)\" '$")
+    public void theQuestionStateIsEditedTo(String state) throws Throwable {
+        String json = JsonUtils.getJsonInput("question/update_question");
+
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionState(state);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
     }
 
     @When("^the put request to update the question is sent$")
@@ -286,8 +362,14 @@ public class QuestionSteps extends BaseSteps{
     }
 
     @And("^the question body is ' \"([^\"]*)\" '$")
-    public void theQuestionBodyIs(String expectedBody) throws Throwable {
-        QuestionResponse questionResponse = testContext.getScenarioContext().getQuestionResponse();
-        assertEquals(expectedBody, questionResponse.getQuestionBodyText());
+    public void theQuestionBodyIs(String expectedBody) throws IOException {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(expectedBody, question.getQuestionBodyText());
+    }
+
+    @And("^the question header is ' \"([^\"]*)\" '$")
+    public void theQuestionHeaderIs(String expectedHeader) throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(expectedHeader, question.getQuestionHeaderText());
     }
 }

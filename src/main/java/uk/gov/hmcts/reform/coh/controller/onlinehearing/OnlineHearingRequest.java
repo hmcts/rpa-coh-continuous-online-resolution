@@ -19,6 +19,9 @@ public class OnlineHearingRequest {
     @JsonProperty("panel")
     private List<PanelMember> panel;
 
+    @JsonProperty("state")
+    private String state;
+
     public String getCaseId() {
         return caseId;
     }
@@ -49,6 +52,14 @@ public class OnlineHearingRequest {
 
     public void setPanel(List<PanelMember> panel) {
         this.panel = panel;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public static class PanelMember {

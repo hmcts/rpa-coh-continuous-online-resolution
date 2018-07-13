@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -16,6 +15,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Component
@@ -26,31 +26,44 @@ public class QuestionService {
     private QuestionRoundService questionRoundService;
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
-    private QuestionNotification questionNotification;
-    private OnlineHearingService onlineHearingService;
+
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
-                           QuestionNotification questionNotification, OnlineHearingService onlineHearingService, QuestionRoundService questionRoundService) {
+                           QuestionRoundService questionRoundService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
-        this.questionNotification = questionNotification;
-        this.onlineHearingService = onlineHearingService;
         this.questionRoundService = questionRoundService;
     }
 
     public Optional<Question> retrieveQuestionById(final UUID question_id){
-        return questionRepository.findById(question_id);
+        Optional<Question> question = questionRepository.findById(question_id);
+
+        if (!question.isPresent()) {
+            return question;
+        }
+        question.get().setQuestionStateHistories(
+                question.get().getQuestionStateHistories().stream().sorted(
+                        (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
+                ));
+
+        return question;
     }
 
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
-        if(!questionRoundService.validateQuestionRound(question, onlineHearing)) {
+        if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
+        if(!questionRoundService.isQrValidState(question, onlineHearing)) {
+            throw new NotAValidUpdateException();
+        }
+
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
         question.setOnlineHearing(onlineHearing);
-        question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
 
         return questionRepository.save(question);
     }

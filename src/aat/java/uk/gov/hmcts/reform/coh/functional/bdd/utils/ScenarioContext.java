@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -27,8 +26,6 @@ public class ScenarioContext {
     private List<String> caseIds;
 
     private UpdateQuestionRequest updateQuestionRequest;
-
-    private QuestionResponse questionResponse;
 
     Set<Jurisdiction> jurisdictions;
 
@@ -106,15 +103,6 @@ public class ScenarioContext {
         currentAnswer = null;
         caseIds = null;
         jurisdictions = null;
-        questionResponse = null;
         updateQuestionRequest = null;
-    }
-
-    public void setQuestionResponse(QuestionResponse body) {
-        this.questionResponse = body;
-    }
-
-    public QuestionResponse getQuestionResponse() {
-        return questionResponse;
     }
 }

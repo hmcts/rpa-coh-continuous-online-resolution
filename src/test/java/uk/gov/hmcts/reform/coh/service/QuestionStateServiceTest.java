@@ -10,7 +10,9 @@ import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 
 import java.util.Optional;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -37,5 +39,12 @@ public class QuestionStateServiceTest {
          */
         QuestionState newQuestionState = questionStateService.retrieveQuestionStateById(1);
         assertEquals(questionState, newQuestionState);
+    }
+
+    @Test
+    public void testRetrieveStateByStateName() {
+        when(questionStateRepository.findByState(anyString())).thenReturn(Optional.ofNullable(questionState));
+        Optional<QuestionState> questionState = questionStateService.retrieveQuestionStateByStateName("ISSUED");
+        assertTrue(questionState.isPresent());
     }
 }

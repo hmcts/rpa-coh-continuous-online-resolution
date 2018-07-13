@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -14,12 +15,10 @@ import java.util.UUID;
 public class OnlineHearing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
     @Column(name = "case_id")
-    @JsonProperty
     private String caseId;
 
     @ManyToOne(targetEntity = Jurisdiction.class, fetch = FetchType.EAGER)
@@ -27,7 +26,6 @@ public class OnlineHearing {
     private Jurisdiction jurisdiction;
 
     @OneToMany(mappedBy = "onlineHearing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnore
     private List<OnlineHearingPanelMember> panelMembers;
 
     @Transient
@@ -44,16 +42,18 @@ public class OnlineHearing {
     @Column(name = "owner_reference_id")
     private String ownerReferenceId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "online_hearing_state_id", nullable = false)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "online_hearing_state_id")
     private OnlineHearingState onlineHearingState;
 
-    public String getJurisdictionName() {
-        return jurisdictionName;
-    }
+    @OneToMany(mappedBy = "onlinehearing",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<OnlineHearingStateHistory> onlineHearingStateHistories = new ArrayList<>();
 
-    public void setJurisdictionName(String jurisdictionName) {
-        this.jurisdictionName = jurisdictionName;
+    public void registerStateChange(){
+        OnlineHearingStateHistory onlineHearingStateHistory = new OnlineHearingStateHistory(this, onlineHearingState);
+        onlineHearingStateHistories.add(onlineHearingStateHistory);
     }
 
     public UUID getOnlineHearingId() {
@@ -129,5 +129,24 @@ public class OnlineHearing {
                 ", jurisdiction=" + jurisdiction +
                 ", jurisdictionName='" + jurisdictionName + '\'' +
                 '}';
+    }
+
+
+    public void addState(OnlineHearingState state) {
+        this.onlineHearingState = state;
+        OnlineHearingStateHistory stateHistory = new OnlineHearingStateHistory(this, state);
+        onlineHearingStateHistories.add(stateHistory);
+    }
+
+    public List<OnlineHearingStateHistory> getOnlineHearingStateHistories() {
+        return onlineHearingStateHistories;
+    }
+
+    public void setJurisdictionName(String jurisdictionName) {
+        this.jurisdictionName = jurisdictionName;
+    }
+
+    public String getJurisdictionName() {
+        return this.jurisdictionName;
     }
 }

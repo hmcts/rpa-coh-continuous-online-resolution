@@ -3,7 +3,16 @@ package uk.gov.hmcts.reform.coh.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 public class QuestionRoundState {
+
+    public QuestionRoundState() {}
+
+    public QuestionRoundState(QuestionState questionState) {
+        this.state = questionState.getState();
+        this.stateId = questionState.getQuestionStateId();
+    }
 
     @JsonProperty("state_name")
     private String state;
@@ -30,6 +39,20 @@ public class QuestionRoundState {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuestionRoundState that = (QuestionRoundState) o;
+        return stateId == that.stateId &&
+                Objects.equals(state, that.state);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(state, stateId);
     }
 
     @Override
