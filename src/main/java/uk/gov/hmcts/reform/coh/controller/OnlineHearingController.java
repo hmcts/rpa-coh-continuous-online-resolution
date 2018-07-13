@@ -136,7 +136,6 @@ public class OnlineHearingController {
         onlineHearing.setStartDate(body.getStartDate());
 
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
-        OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
         for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
             OnlineHearingPanelMember ohpMember = new OnlineHearingPanelMember();
