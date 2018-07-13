@@ -66,6 +66,7 @@ public class OnlineHearingService {
 
     public void deleteByCaseId(String caseId) {
         onlineHearingRepository.deleteByCaseId(caseId);
+
     }
 
 }

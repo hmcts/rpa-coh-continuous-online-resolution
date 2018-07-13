@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -39,7 +40,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -187,12 +190,16 @@ public class QuestionSteps extends BaseSteps{
     @When("^the put request is sent to issue the question round ' \"([^\"]*)\" '$")
     public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        HttpEntity<String> request = new HttpEntity<>(json, header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
-                HttpMethod.PUT, request, String.class);
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        try{
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+                    HttpMethod.PUT, request, String.class);
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
     }
 
     @And("^the question round ' \"([^\"]*)\" ' is ' \"([^\"]*)\" '$")
@@ -300,5 +307,24 @@ public class QuestionSteps extends BaseSteps{
         question.setQuestionId(response.getQuestionId());
 
         return question;
+    }
+
+    @And("^each question in the question round has a history of at least ' \"(\\d)\" ' events$")
+    public void eachQuestionInTheQuestionRoundHasHistory(int histories) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+        List<QuestionResponse> questionResponses = questionRoundResponse.getQuestionList();
+
+        List<UUID> questionUUIDs = questionResponses.stream()
+                .map(q -> UUID.fromString(q.getQuestionId()))
+                .collect(Collectors.toList());
+
+        for (UUID id : questionUUIDs) {
+            Optional<Question> optionalQuestion = questionRepository.findById(id);
+            if (optionalQuestion.isPresent()){
+                List<QuestionStateHistory> questionStateHistories = optionalQuestion.get().getQuestionStateHistories();
+                assertTrue(questionStateHistories.size() >= histories);
+            }
+        }
     }
 }

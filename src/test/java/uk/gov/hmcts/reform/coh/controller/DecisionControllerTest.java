@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -324,16 +325,14 @@ public class DecisionControllerTest {
     }
 
     @Test
-    public void testUpdateWithEmptyDecisionAward() throws Exception {
+    public void testUpdateDecisionIssued() throws Exception {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
-        updateDecisionRequest.setDecisionAward(null);
+        given(decisionStateService.retrieveDecisionStateByState("decision_issued")).willReturn(Optional.of(decisionState));
+        updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUED.getStateName());
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn()
-                .getResponse()
-                .getContentAsString().equalsIgnoreCase("Decision award is required");
+                .andExpect(status().isOk());
     }
 }
