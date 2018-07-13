@@ -57,8 +57,6 @@ public class QuestionSteps extends BaseSteps{
     private List<UUID> questionIds;
     private boolean allQuestionRounds;
 
-    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
 

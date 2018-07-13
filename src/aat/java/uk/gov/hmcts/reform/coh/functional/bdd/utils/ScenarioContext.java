@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.domain.Answer;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +19,10 @@ public class ScenarioContext {
     private Question currentQuestion;
 
     private Answer currentAnswer;
+
+    private DecisionRequest currentDecisionRequest;
+
+    private Decision currentDecision;
 
     private List<String> caseIds;
 
@@ -59,8 +61,24 @@ public class ScenarioContext {
         return currentAnswer;
     }
 
+    public DecisionRequest getCurrentDecisionRequest() {
+        return currentDecisionRequest;
+    }
+
+    public void setCurrentDecisionRequest(DecisionRequest currentDecisionRequest) {
+        this.currentDecisionRequest = currentDecisionRequest;
+    }
+
     public void setCurrentAnswer(Answer currentAnswer) {
         this.currentAnswer = currentAnswer;
+    }
+
+    public Decision getCurrentDecision() {
+        return currentDecision;
+    }
+
+    public void setCurrentDecision(Decision currentDecision) {
+        this.currentDecision = currentDecision;
     }
 
     public List<String> getCaseIds() {

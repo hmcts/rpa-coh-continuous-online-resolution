@@ -83,7 +83,6 @@ public class DecisionController {
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision.addDecisionStateHistory(optionalDecisionState.get());
-        decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
         decision = decisionService.createDecision(decision);
         CreateDecisionResponse response = new CreateDecisionResponse();
         response.setDecisionId(decision.getDecisionId());
@@ -93,7 +92,7 @@ public class DecisionController {
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = DecisionResponse.class),
+            @ApiResponse(code = 200, message = "OK", response = DecisionResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
@@ -113,8 +112,10 @@ public class DecisionController {
 
     @ApiOperation(value = "Update a decision", notes = "A PUT request to update replace a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = String.class),
-            @ApiResponse(code = 404, message = "Not Found")
+            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 409, message = "Conflict"),
+            @ApiResponse(code = 422, message = "Validation Error")
     })
     @PutMapping(value = "/{decisionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionId, @RequestBody UpdateDecisionRequest request) {
@@ -125,7 +126,27 @@ public class DecisionController {
         }
 
         Decision decision = optionalDecision.get();
+        if (!decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_DRAFTED.getName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Only draft decisions can be updated");
+        }
 
+        Optional<DecisionState> optionalDecisionState = decisionStateService.retrieveDecisionStateByState(request.getState());
+        if (!optionalDecisionState.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
+        }
+
+        ValidationResult result = DecisionRequestValidator.validate(request);
+        if (!result.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
+        }
+
+        if (decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_ISSUED)) {
+            decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
+        }
+
+        decision.addDecisionStateHistory(optionalDecisionState.get());
+        DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        decisionService.updateDecision(decision);
 
         return ResponseEntity.ok(request);
     }
