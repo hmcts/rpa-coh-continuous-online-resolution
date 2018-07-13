@@ -28,6 +28,9 @@ public class OnlineHearingResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<PanelMember> panel;
 
+    @JsonProperty("state")
+    private String state;
+
     public UUID getOnlineHearingId() {
         return onlineHearingId;
     }
@@ -66,6 +69,14 @@ public class OnlineHearingResponse implements Serializable {
 
     public void setPanel(List<PanelMember> panel) {
         this.panel = panel;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public static class PanelMember {

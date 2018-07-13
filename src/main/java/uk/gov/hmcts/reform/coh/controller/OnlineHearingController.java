@@ -125,13 +125,17 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing configuration");
         }
 
-        onlineHearing.setOnlineHearingState(onlineHearingState.get());
+        Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
+        if (!optOnlineHearingState.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        onlineHearing.setOnlineHearingId(UUID.randomUUID());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
 
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
-        OnlineHearing createdOnlineHearing = onlineHearingService.createOnlineHearing(onlineHearing);
 
         for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
             OnlineHearingPanelMember ohpMember = new OnlineHearingPanelMember();
@@ -141,10 +145,14 @@ public class OnlineHearingController {
             onlineHearingPanelMemberService.createOnlineHearing(ohpMember);
         }
 
-        response.setOnlineHearingId(createdOnlineHearing.getOnlineHearingId().toString());
+        response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
+        onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
+        onlineHearing.registerStateChange();
+        onlineHearingService.createOnlineHearing(onlineHearing);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
 
     private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
         ValidationResult result = new ValidationResult();
