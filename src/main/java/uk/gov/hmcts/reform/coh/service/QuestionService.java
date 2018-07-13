@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Component
@@ -37,7 +38,17 @@ public class QuestionService {
     }
 
     public Optional<Question> retrieveQuestionById(final UUID question_id){
-        return questionRepository.findById(question_id);
+        Optional<Question> question = questionRepository.findById(question_id);
+
+        if (!question.isPresent()) {
+            return question;
+        }
+        question.get().setQuestionStateHistories(
+                question.get().getQuestionStateHistories().stream().sorted(
+                        (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
+                ));
+
+        return question;
     }
 
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
@@ -50,8 +61,10 @@ public class QuestionService {
             throw new NotAValidUpdateException();
         }
 
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
         question.setOnlineHearing(onlineHearing);
-        question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
 
         return questionRepository.save(question);
     }
@@ -62,8 +75,9 @@ public class QuestionService {
             throw new EntityNotFoundException("Question entity not found");
         }
         Question question = optionalQuestion.get();
-        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
-
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
         return questionRepository.save(question);
     }
 

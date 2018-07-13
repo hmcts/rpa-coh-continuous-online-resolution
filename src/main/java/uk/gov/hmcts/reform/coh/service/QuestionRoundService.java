@@ -177,11 +177,16 @@ public class QuestionRoundService {
         return questionRound;
     }
 
-    public void issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
+    public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
+        List<Question> modifiedQuestion = new ArrayList<>();
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
         questions.stream().forEach(q -> {
             q.addState(questionState);
             questionRepository.save(q);
         });
+        questions.stream().forEach(q -> q.setQuestionState(questionState));
+        questions.stream().forEach(q -> { questionRepository.save(q); modifiedQuestion.add(q);});
+
+        return modifiedQuestion;
     }
 }

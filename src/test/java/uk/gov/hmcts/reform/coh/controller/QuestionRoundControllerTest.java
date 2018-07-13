@@ -95,8 +95,8 @@ public class QuestionRoundControllerTest {
         jurisdiction.setMaxQuestionRounds(3);
         onlineHearing.setJurisdiction(jurisdiction);
 
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(issuedState));
-        willDoNothing().willDoNothing().given(questionRoundService).issueQuestionRound(any(OnlineHearing.class), any(QuestionState.class), anyInt());
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(questionState));
+        given(questionRoundService.issueQuestionRound(any(OnlineHearing.class), any(QuestionState.class), anyInt())).willReturn(null);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(questionRoundService.getAllQuestionRounds(any(OnlineHearing.class))).willReturn(questionRounds);
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);

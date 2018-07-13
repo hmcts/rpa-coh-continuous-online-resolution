@@ -340,6 +340,13 @@ public class QuestionRoundServiceTest {
     }
 
     @Test
+    public void testIssueQuestionRound() {
+        List<Question> questions = questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
+        assertEquals(2, questions.size());
+        questions.stream().forEach(q -> assertEquals(q.getQuestionState().getState(), "ISSUED"));
+    }
+
+    @Test
     public void testIncrementQrWhenNotIssuedInvalid() {
         Question question = new Question();
         question.setQuestionRound(2);
