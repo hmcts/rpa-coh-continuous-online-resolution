@@ -141,7 +141,7 @@ public class DecisionController {
         }
 
         // If a decision is issued, then there is a deadline to accept or reject it
-        if (decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_ISSUED)) {
+        if (request.getState().equals(DecisionsStates.DECISION_ISSUED.getStateName())) {
             decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
         }
 

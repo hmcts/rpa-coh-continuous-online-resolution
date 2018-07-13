@@ -38,6 +38,7 @@ Feature: Decisions features
     And a PUT request is sent for a decision
     When a GET request is sent for a decision
     And the decision state name is decision_issued
+    And the decision expiry date is 7 days in the future
 
   Scenario: Update decision state that's already issued
     And a standard decision

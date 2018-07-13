@@ -23,7 +23,9 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -122,6 +124,15 @@ public class DecisionSteps extends BaseSteps {
         DecisionResponse response = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertEquals(stateName, response.getDecisionState().getStateName());
     }
+
+    @And("^the decision expiry date is 7 days in the future")
+    public void the_decision_expiry_date() throws IOException {
+        Calendar expiry = new GregorianCalendar();
+        expiry.add(Calendar.DAY_OF_YEAR, 7);
+        DecisionResponse decision = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
+        assertTrue(decision.getDeadlineExpiryDate().contains(df.format(expiry.getTime())));
+    }
+
 
     @And("^the decision state timestamp is today$")
     public void the_question_state_timestamp_is_today() throws Throwable {
