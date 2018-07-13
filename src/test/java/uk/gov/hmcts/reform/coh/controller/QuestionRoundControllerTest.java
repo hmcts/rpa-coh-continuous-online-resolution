@@ -62,7 +62,7 @@ public class QuestionRoundControllerTest {
     private QuestionRound questionRound;
 
     @Before
-    public void setup(){
+    public void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(questionRoundController).build();
 
         List<QuestionRound> questionRounds = new ArrayList<>();
@@ -219,7 +219,7 @@ public class QuestionRoundControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
 

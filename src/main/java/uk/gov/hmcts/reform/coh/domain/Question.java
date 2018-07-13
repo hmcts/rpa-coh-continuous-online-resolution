@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.util.*;
 
+import static javax.persistence.FetchType.EAGER;
+
 @Entity(name = "Question")
 @Table(name = "question")
 public class Question {
@@ -35,7 +37,7 @@ public class Question {
     @Temporal(TemporalType.TIMESTAMP)
     private Date deadlineExpiryDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "question_state_id")
     private QuestionState questionState;
 
@@ -46,6 +48,7 @@ public class Question {
     private String ownerReferenceId ;
 
     @OneToMany(
+            fetch = EAGER,
             mappedBy = "question",
             cascade = CascadeType.ALL,
             orphanRemoval = true

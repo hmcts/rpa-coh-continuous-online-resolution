@@ -3,13 +3,13 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -18,6 +18,9 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
+    public static final String DRAFTED = "DRAFTED";
+    public static final String SUBMITTED = "SUBMITTED";
+    public static final String ISSUED = "ISSUED";
 
     public QuestionRoundService() {}
 
@@ -31,13 +34,12 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName("ISSUED");
+        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
         if(!optionalQuestionState.isPresent()){
-            throw new NotAValidUpdateException();
+            throw new NoSuchElementException("Error: Required state not found.");
         }
 
-        QuestionRoundState issuedQrState = new QuestionRoundState();
-        issuedQrState.mapQuestionState(optionalQuestionState.get());
+        QuestionRoundState issuedQrState = new QuestionRoundState(optionalQuestionState.get());
 
         QuestionRoundState currentQrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
         // Current QR is issued and create new question round
@@ -102,19 +104,22 @@ public class QuestionRoundService {
     protected QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
 
-        QuestionState issuedState = questionStateService.retrieveQuestionStateById(3);
-        QuestionState submittedState = questionStateService.retrieveQuestionStateById(2);
-        QuestionState draftedState = questionStateService.retrieveQuestionStateById(1);
+        Optional<QuestionState> issuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
+        Optional<QuestionState> submittedState = questionStateService.retrieveQuestionStateByStateName(SUBMITTED);
+        Optional<QuestionState> draftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED);
 
-        QuestionRoundState questionRoundState = new QuestionRoundState();
-        questionRoundState.setState(issuedState);
+        if(!issuedState.isPresent() || !submittedState.isPresent() || !draftedState.isPresent()){
+            throw new NoSuchElementException("Error: Required State missing");
+        }
+
+        QuestionRoundState questionRoundState = new QuestionRoundState(issuedState.get());
 
         for(Question question : questions) {
-            if(isState(question, submittedState) || isState(questionRoundState, submittedState)) {
-                questionRoundState.setState(submittedState);
+            if(isState(question, submittedState.get()) || isState(questionRoundState, submittedState.get())) {
+                questionRoundState.setState(submittedState.get());
             }
-            if(isState(question, draftedState) || isState(questionRoundState, draftedState)) {
-                questionRoundState.setState(draftedState);
+            if(isState(question, draftedState.get()) || isState(questionRoundState, draftedState.get())) {
+                questionRoundState.setState(draftedState.get());
             }
         }
         return questionRoundState;

@@ -7,6 +7,13 @@ import java.util.Objects;
 
 public class QuestionRoundState {
 
+    public QuestionRoundState() {}
+
+    public QuestionRoundState(QuestionState questionState) {
+        this.state = questionState.getState();
+        this.stateId = questionState.getQuestionStateId();
+    }
+
     @JsonProperty("state_name")
     private String state;
 
@@ -32,11 +39,6 @@ public class QuestionRoundState {
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public void mapQuestionState(QuestionState questionState) {
-        this.state = questionState.getState();
-        this.stateId = questionState.getQuestionStateId();
     }
 
     @Override

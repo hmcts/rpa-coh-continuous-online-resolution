@@ -21,11 +21,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
+import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -35,7 +37,9 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -262,5 +266,24 @@ public class QuestionSteps extends BaseSteps{
         ObjectMapper mapper = new ObjectMapper();
         AllQuestionsResponse questionResponses = mapper.readValue(rawJson, AllQuestionsResponse.class);
         assertEquals(count, questionResponses.getQuestions().size());
+    }
+
+    @And("^each question in the question round has a history of at least ' \"(\\d)\" ' events$")
+    public void eachQuestionInTheQuestionRoundHasHistory(int histories) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+        List<QuestionResponse> questionResponses = questionRoundResponse.getQuestionList();
+
+        List<UUID> questionUUIDs = questionResponses.stream()
+                .map(q -> UUID.fromString(q.getQuestionId()))
+                .collect(Collectors.toList());
+
+        for (UUID id : questionUUIDs) {
+            Optional<Question> optionalQuestion = questionRepository.findById(id);
+            if (optionalQuestion.isPresent()){
+                List<QuestionStateHistory> questionStateHistories = optionalQuestion.get().getQuestionStateHistories();
+                assertTrue(questionStateHistories.size() >= histories);
+            }
+        }
     }
 }
