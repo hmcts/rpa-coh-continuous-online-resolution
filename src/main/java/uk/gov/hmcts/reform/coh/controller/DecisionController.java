@@ -134,7 +134,7 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
-        // The remainin validation is same as DecisionRequest for create
+        // The remaining validation is same as DecisionRequest for create
         ValidationResult result = DecisionRequestValidator.validate(request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
