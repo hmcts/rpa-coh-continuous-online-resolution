@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -14,8 +13,10 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Component
@@ -26,38 +27,44 @@ public class QuestionService {
     private QuestionRoundService questionRoundService;
     private QuestionRepository questionRepository;
     private final QuestionStateService questionStateService;
-    private QuestionNotification questionNotification;
-    private OnlineHearingService onlineHearingService;
+
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
-                           QuestionNotification questionNotification, OnlineHearingService onlineHearingService, QuestionRoundService questionRoundService) {
+                           QuestionRoundService questionRoundService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
-        this.questionNotification = questionNotification;
-        this.onlineHearingService = onlineHearingService;
         this.questionRoundService = questionRoundService;
     }
 
     public Optional<Question> retrieveQuestionById(final UUID question_id){
-        return questionRepository.findById(question_id);
+        Optional<Question> question = questionRepository.findById(question_id);
+
+        if (!question.isPresent()) {
+            return question;
+        }
+        question.get().setQuestionStateHistories(
+                question.get().getQuestionStateHistories().stream().sorted(
+                        (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
+                ));
+
+        return question;
     }
 
-    public Question createQuestion(final Question question, UUID onlineHearingId) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
+    public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!optionalOnlineHearing.isPresent()){
-            throw new EntityNotFoundException();
-        }
-
-        if(!questionRoundService.validateQuestionRound(question, optionalOnlineHearing.get())) {
+        if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
             throw new NotAValidUpdateException();
         }
 
-        question.setOnlineHearing(optionalOnlineHearing.get());
-        question.setQuestionState(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED));
+        if(!questionRoundService.isQrValidState(question, onlineHearing)) {
+            throw new NotAValidUpdateException();
+        }
+
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
+        question.setOnlineHearing(onlineHearing);
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
 
         return questionRepository.save(question);
     }
@@ -68,8 +75,9 @@ public class QuestionService {
             throw new EntityNotFoundException("Question entity not found");
         }
         Question question = optionalQuestion.get();
-        question.addState(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED));
-
+        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.ISSUED);
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
         return questionRepository.save(question);
     }
 
@@ -87,5 +95,9 @@ public class QuestionService {
 
         questionRepository.save(currentQuestion);
         return currentQuestion;
+    }
+
+    public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+        return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
     }
 }

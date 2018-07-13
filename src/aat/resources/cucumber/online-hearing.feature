@@ -1,14 +1,19 @@
 Feature: Online hearing
 
-  Scenario: Create online hearing
+  Background:
     Given a standard online hearing is created
     Then the response code is 201
+
+  Scenario: Create online hearing
     And the response contains the following text '"online_hearing_id" '
     And the response contains the online hearing UUID
 
+  Scenario: Create duplicate online hearing
+    And a standard online hearing is created
+    Then the response code is 409
+    Then the response contains the following text '"Duplicate case found" '
+
   Scenario: Retrieve online hearing
-    Given a standard online hearing is created
-    Then the response code is 201
     And the response contains the following text '"online_hearing_id" '
     And the response contains the online hearing UUID
     When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
