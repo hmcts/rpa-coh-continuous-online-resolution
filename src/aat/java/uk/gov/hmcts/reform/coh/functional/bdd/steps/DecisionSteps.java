@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -51,6 +52,17 @@ public class DecisionSteps extends BaseSteps {
         testContext.getScenarioContext().setCurrentDecisionRequest(decisionRequest);
     }
 
+    @Given("^a standard decision for update$")
+    public void a_standard_decision_for_update() throws IOException {
+        UpdateDecisionRequest decisionRequest = (UpdateDecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
+        testContext.getScenarioContext().setUpdateDecisionRequest(decisionRequest);
+    }
+
+    @And("^the update decision state is (.*)$")
+    public void the_update_decision_state_is (String stateName) {
+        testContext.getScenarioContext().getUpdateDecisionRequest().setState(stateName);
+    }
+
     @When("^a (.*) request is sent for a decision$")
     public void send_request(String type) throws Exception {
 
@@ -62,29 +74,25 @@ public class DecisionSteps extends BaseSteps {
 
         String endpoint = getEndpoint();
         try {
-            String json = getPostRequest();
             if ("GET".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>("", header);
-                //response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
             } else if ("POST".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>(json, header);
+                HttpEntity<String> request = new HttpEntity<>(getPostRequest(), header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
 
                 CreateDecisionResponse createDecisionResponse = (CreateDecisionResponse) JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
                 Decision decision = new Decision();
                 decision.setDecisionId(createDecisionResponse.getDecisionId());
                 testContext.getScenarioContext().setCurrentDecision(decision);
-            } else if ("PATCH".equalsIgnoreCase(type)) {
-                /**
-                 This is a workaround for https://jira.spring.io/browse/SPR-15347
-                 **/
-                HttpEntity<String> request = new HttpEntity<>(json, header);
-                response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
+            } else if ("PUT".equalsIgnoreCase(type)) {
+                HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
+                String decisionId = testContext.getScenarioContext().getCurrentDecision().getDecisionId().toString();
+                response = restTemplate.exchange(baseUrl + endpoint + "/" + decisionId, HttpMethod.PUT, request, String.class);
             }
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hcee.getRawStatusCode());
+            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
         }
     }
 
@@ -97,6 +105,10 @@ public class DecisionSteps extends BaseSteps {
 
     public String getPostRequest() throws Exception {
         return  JsonUtils.toJson(testContext.getScenarioContext().getCurrentDecisionRequest());
+    }
+
+    public String getPutRequest() throws Exception {
+        return  JsonUtils.toJson(testContext.getScenarioContext().getUpdateDecisionRequest());
     }
 
     @And("^the decision id matches$")

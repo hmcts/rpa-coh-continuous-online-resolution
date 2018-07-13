@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 
@@ -21,6 +22,8 @@ public class ScenarioContext {
     private Answer currentAnswer;
 
     private DecisionRequest currentDecisionRequest;
+
+    private UpdateDecisionRequest updateDecisionRequest;
 
     private Decision currentDecision;
 
@@ -61,6 +64,10 @@ public class ScenarioContext {
         return currentAnswer;
     }
 
+    public void setCurrentAnswer(Answer currentAnswer) {
+        this.currentAnswer = currentAnswer;
+    }
+
     public DecisionRequest getCurrentDecisionRequest() {
         return currentDecisionRequest;
     }
@@ -69,8 +76,12 @@ public class ScenarioContext {
         this.currentDecisionRequest = currentDecisionRequest;
     }
 
-    public void setCurrentAnswer(Answer currentAnswer) {
-        this.currentAnswer = currentAnswer;
+    public UpdateDecisionRequest getUpdateDecisionRequest() {
+        return updateDecisionRequest;
+    }
+
+    public void setUpdateDecisionRequest(UpdateDecisionRequest updateDecisionRequest) {
+        this.updateDecisionRequest = updateDecisionRequest;
     }
 
     public Decision getCurrentDecision() {

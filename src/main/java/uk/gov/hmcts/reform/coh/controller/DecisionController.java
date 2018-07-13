@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import gherkin.lexer.De;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -18,11 +17,9 @@ import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
-import uk.gov.hmcts.reform.coh.service.DecisionStateHistoryService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
-import javax.xml.ws.Response;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -125,21 +122,25 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Decision not found");
         }
 
+        // Only draft decisions can be updated
         Decision decision = optionalDecision.get();
-        if (!decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_DRAFTED.getName())) {
+        if (!decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_DRAFTED.getStateName())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Only draft decisions can be updated");
         }
 
+        // Check the stated passed in the request
         Optional<DecisionState> optionalDecisionState = decisionStateService.retrieveDecisionStateByState(request.getState());
         if (!optionalDecisionState.isPresent()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
+        // The remainin validation is same as DecisionRequest for create
         ValidationResult result = DecisionRequestValidator.validate(request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
 
+        // If a decision is issued, then there is a deadline to accept or reject it
         if (decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_ISSUED)) {
             decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
         }
@@ -148,6 +149,6 @@ public class DecisionController {
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decisionService.updateDecision(decision);
 
-        return ResponseEntity.ok(request);
+        return ResponseEntity.ok("");
     }
 }
