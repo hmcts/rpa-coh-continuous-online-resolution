@@ -47,8 +47,7 @@ public class Question {
 
     @OneToMany(
             mappedBy = "question",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = CascadeType.ALL
     )
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
@@ -102,18 +101,16 @@ public class Question {
         this.ownerReferenceId = ownerReferenceId;
     }
 
-    public void addState(QuestionState state) {
-        this.questionState = state;
-        QuestionStateHistory stateHistory = new QuestionStateHistory(this, state);
-        questionStateHistories.add(stateHistory);
-    }
-
     public List<QuestionStateHistory> getQuestionStateHistories() {
         return questionStateHistories;
     }
 
     public void setQuestionStateHistories(List<QuestionStateHistory> questionStateHistories) {
         this.questionStateHistories = questionStateHistories;
+    }
+
+    public void updateQuestionStateHistory(QuestionState state) {
+        questionStateHistories.add(new QuestionStateHistory(this, state));
     }
 
     public Integer getQuestionRound() {

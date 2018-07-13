@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -35,7 +34,10 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,6 +56,8 @@ public class QuestionSteps extends BaseSteps{
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
     private boolean allQuestionRounds;
+
+    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -116,6 +120,7 @@ public class QuestionSteps extends BaseSteps{
             questionIds.add(createQuestionResponse.getQuestionId());
             httpResponseCode = response.getStatusCodeValue();
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            testContext.getScenarioContext().setCurrentQuestion(extractQuestion(createQuestionResponse));
         } catch (HttpClientErrorException hsee) {
             httpResponseCode = hsee.getRawStatusCode();
         }
@@ -127,6 +132,18 @@ public class QuestionSteps extends BaseSteps{
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             ResponseEntity<String> response = response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
+    }
+
+    @And("^the get request is sent to retrieve the submitted question$")
+    public void get_the_submitted_question() throws Throwable {
+        try {
+            OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+            Question question = testContext.getScenarioContext().getCurrentQuestion();
+            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
@@ -260,5 +277,30 @@ public class QuestionSteps extends BaseSteps{
         ObjectMapper mapper = new ObjectMapper();
         AllQuestionsResponse questionResponses = mapper.readValue(rawJson, AllQuestionsResponse.class);
         assertEquals(count, questionResponses.getQuestions().size());
+    }
+
+    @And("^the question id matches$")
+    public void the_question_id_matches() throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(testContext.getScenarioContext().getCurrentQuestion().getQuestionId().toString(), question.getQuestionId());
+    }
+
+    @And("^the question state name is (.*)$")
+    public void the_question_state_name_is(String stateName) throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(stateName, question.getCurrentState().getName());
+    }
+
+    @And("^the question state timestamp is today$")
+    public void the_question_state_timestamp_is_today() throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertTrue(question.getCurrentState().getDatetime().contains(df.format(new Date())));
+    }
+
+    private Question extractQuestion(CreateQuestionResponse response) {
+        Question question = new Question();
+        question.setQuestionId(response.getQuestionId());
+
+        return question;
     }
 }
