@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.validators.QuestionValidator;
+import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -27,7 +28,10 @@ import java.util.UUID;
 public class QuestionController {
 
     private QuestionService questionService;
+
     private OnlineHearingService onlineHearingService;
+
+    private Validation validation = new Validation();
 
     @Autowired
     public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService) {
@@ -111,7 +115,7 @@ public class QuestionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
-        ValidationResult result = QuestionValidator.validate(request);
+        ValidationResult result = validation.execute(QuestionValidator.values(), request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }

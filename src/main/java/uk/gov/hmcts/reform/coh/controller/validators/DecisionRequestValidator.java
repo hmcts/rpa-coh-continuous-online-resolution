@@ -5,32 +5,25 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 
 import java.util.function.Predicate;
 
-public enum DecisionRequestValidator {
+public enum DecisionRequestValidator implements Validator<DecisionRequest>{
     DECISION_HEADER( r -> StringUtils.isEmpty(r.getDecisionHeader()), "Decision header is required"),
     DECISION_TEXT( r -> StringUtils.isEmpty(r.getDecisionText()), "Decision text is required"),
     DECISION_REASON( r -> StringUtils.isEmpty(r.getDecisionReason()), "Decision reason is required"),
     DECISION_AWARD( r -> StringUtils.isEmpty(r.getDecisionAward()), "Decision award is required");
 
-    private Predicate<DecisionRequest> tester;
+    private Predicate<DecisionRequest> predicate;
     private String message;
 
     DecisionRequestValidator(Predicate<DecisionRequest> validator, String message) {
-        this.tester = validator;
+        this.predicate = validator;
         this.message = message;
     }
 
-    public static ValidationResult validate(DecisionRequest request) {
-        ValidationResult result = new ValidationResult();
-        result.setValid(true);
+    public Predicate<DecisionRequest> getPredicate() {
+        return predicate;
+    }
 
-        for (DecisionRequestValidator validator : DecisionRequestValidator.class.getEnumConstants()) {
-
-            if (validator.tester.test(request)) {
-                result.setReason(validator.message);
-                result.setValid(false);
-            }
-        }
-
-        return result;
+    public String getMessage() {
+        return message;
     }
 }

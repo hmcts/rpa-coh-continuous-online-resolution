@@ -4,7 +4,7 @@ import org.springframework.util.StringUtils;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import java.util.function.Predicate;
 
-public enum QuestionValidator {
+public enum QuestionValidator implements Validator<QuestionRequest>{
 
     QUESTION_ROUND(qr -> StringUtils.isEmpty(qr.getQuestionRound()), "Question round is required"),
     QUESTION_ORDINAL(qr -> StringUtils.isEmpty(qr.getQuestionOrdinal()), "Question ordinal is required"),
@@ -18,21 +18,6 @@ public enum QuestionValidator {
     QuestionValidator(Predicate<QuestionRequest> predicate, String message) {
         this.predicate = predicate;
         this.message = message;
-    }
-
-    public static ValidationResult validate(QuestionRequest request) {
-        ValidationResult result = new ValidationResult();
-        result.setValid(true);
-
-        for (QuestionValidator validator : QuestionValidator.class.getEnumConstants()) {
-
-            if (validator.getPredicate().test(request)) {
-                result.setReason(validator.getMessage());
-                result.setValid(false);
-            }
-        }
-
-        return result;
     }
 
     public Predicate<QuestionRequest> getPredicate() {
