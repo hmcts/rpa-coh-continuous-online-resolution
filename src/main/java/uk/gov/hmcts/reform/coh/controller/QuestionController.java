@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.question.*;
+import uk.gov.hmcts.reform.coh.controller.validators.QuestionValidator;
+import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -99,14 +101,19 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateQuestionResponse> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
+    public ResponseEntity createQuestion(@PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
-        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
 
-        if (!savedOnlineHearing.isPresent() || !validate(request)) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        if (!savedOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
+        ValidationResult result = QuestionValidator.validate(request);
+        if (!result.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
 
         Question question = new Question();
@@ -151,20 +158,5 @@ public class QuestionController {
 
         question = questionService.updateQuestion(question, body);
         return ResponseEntity.ok(question);
-    }
-
-    private boolean validate(QuestionRequest request) {
-
-        if (StringUtils.isEmpty(request.getQuestionRound())
-                || StringUtils.isEmpty(request.getQuestionOrdinal())
-                || StringUtils.isEmpty(request.getQuestionHeaderText())
-                || StringUtils.isEmpty(request.getQuestionBodyText())
-                || StringUtils.isEmpty(request.getOwnerReference())
-                ) {
-
-            return false;
-        }
-
-        return true;
     }
 }
