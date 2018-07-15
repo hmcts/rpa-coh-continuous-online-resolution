@@ -35,8 +35,8 @@ public class QuestionServiceTest {
 
     private QuestionService questionService;
 
-    private QuestionState drafted = new QuestionState("DRAFTED");
-    private QuestionState issued = new QuestionState("ISSUED");
+    private QuestionState drafted = new QuestionState("question_drafted");
+    private QuestionState issued = new QuestionState("question_issued");
     private Question question;
 
     private OnlineHearing onlineHearing;
@@ -52,7 +52,7 @@ public class QuestionServiceTest {
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
         issuedState.setState("ISSUED");
-        given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(issuedState));
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         given(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         question = new Question();
@@ -61,7 +61,7 @@ public class QuestionServiceTest {
     @Test
     public void testCreateQuestion() {
         when(questionRepository.save(question)).thenReturn(question);
-        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
+        when(questionStateService.retrieveQuestionStateByStateName("question_drafted")).thenReturn(Optional.ofNullable(drafted));
 
         /**
          * This needs to be fixed so that online hearing id is an attribute of question
@@ -69,7 +69,7 @@ public class QuestionServiceTest {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
         Question newQuestion = questionService.createQuestion(question, onlineHearing);
-        verify(questionStateService, times(1)).retrieveQuestionStateById(1);
+        verify(questionStateService, times(1)).retrieveQuestionStateByStateName("question_drafted");
         assertEquals(newQuestion, question);
     }
 
@@ -96,7 +96,7 @@ public class QuestionServiceTest {
     public void testEditQuestion() {
         when(questionRepository.save(question)).thenReturn(question);
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
-        when(questionStateService.retrieveQuestionStateById(3)).thenReturn(issued);
+        when(questionStateService.retrieveQuestionStateByStateName("question_issued")).thenReturn(Optional.ofNullable(issued));
 
         /**
          * This needs to be fixed so that question id is an attribute of question
@@ -128,6 +128,7 @@ public class QuestionServiceTest {
 
     @Test(expected = NotAValidUpdateException.class)
     public void testUserCanNotUpdateQuestionToIssued() {
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issued));
         Question question = new Question();
         question.setQuestionState(drafted);
 

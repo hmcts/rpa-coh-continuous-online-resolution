@@ -26,6 +26,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
@@ -82,7 +83,7 @@ public class QuestionControllerTest {
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
         issuedState = new QuestionState();
-        issuedState.setQuestionStateId(QuestionState.ISSUED);
+        issuedState.setState(QuestionStates.ISSUED.getStateName());
         question.setQuestionState(issuedState);
 
         List<QuestionStateHistory> histories = new ArrayList<>();
