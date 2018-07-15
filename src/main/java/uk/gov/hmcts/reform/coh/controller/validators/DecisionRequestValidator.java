@@ -19,8 +19,8 @@ public enum DecisionRequestValidator implements Validator<DecisionRequest>{
         this.message = message;
     }
 
-    public Predicate<DecisionRequest> getPredicate() {
-        return predicate;
+    public boolean test(DecisionRequest request) {
+        return predicate.test(request);
     }
 
     public String getMessage() {

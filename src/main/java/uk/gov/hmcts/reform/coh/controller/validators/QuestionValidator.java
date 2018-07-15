@@ -20,8 +20,8 @@ public enum QuestionValidator implements Validator<QuestionRequest>{
         this.message = message;
     }
 
-    public Predicate<QuestionRequest> getPredicate() {
-        return predicate;
+    public boolean test(QuestionRequest request) {
+        return predicate.test(request);
     }
 
     public String getMessage() {

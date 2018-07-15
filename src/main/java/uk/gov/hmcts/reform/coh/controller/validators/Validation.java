@@ -7,7 +7,7 @@ public class Validation<T> {
         result.setValid(true);
 
         for (Validator validator : validators) {
-            if (validator.getPredicate().test(t)) {
+            if (validator.test(t)) {
                 result.setValid(false);
                 result.setReason(validator.getMessage());
             }
