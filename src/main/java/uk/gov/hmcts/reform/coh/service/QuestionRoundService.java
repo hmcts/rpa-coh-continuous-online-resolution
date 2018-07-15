@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -18,9 +19,8 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
-    public static final String DRAFTED = "DRAFTED";
-    public static final String SUBMITTED = "SUBMITTED";
-    public static final String ISSUED = "ISSUED";
+    public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
+    public static final String ISSUED = QuestionStates.ISSUED.getStateName();
 
     public QuestionRoundService() {}
 
