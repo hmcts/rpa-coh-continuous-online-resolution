@@ -15,10 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -78,6 +75,8 @@ public class OnlineHearingControllerTest {
 
     private OnlineHearingRequest onlineHearingRequest;
 
+    private UpdateOnlineHearingRequest updateOnlineHearingRequest;
+
     @Before
     public void setup() throws IOException {
         uuid = UUID.randomUUID();
@@ -88,6 +87,9 @@ public class OnlineHearingControllerTest {
         onlineHearing.setPanelMembers(Arrays.asList(member));
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
 
+        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        updateOnlineHearingRequest = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", UpdateOnlineHearingRequest.class);
+
         onlineHearingState = new OnlineHearingState();
         onlineHearingState.setOnlineHearingStateId(1);
         onlineHearingState.setState("continuous_online_hearing_started");
@@ -97,7 +99,6 @@ public class OnlineHearingControllerTest {
         given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.ofNullable(onlineHearingState));
 
-        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
     }
 
     @Test
@@ -250,23 +251,35 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isOk());
     }
 
+//    @Test
+//    public void testUpdateOnlineHearingGivenOnlineHearingPresent() throws Exception {
+//
+//        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+//        request.setState("2");
+//        request.setCaseId("foo");
+//
+//        given(onlineHearingService.retrieveOnlineHearing(onlineHearing)).willReturn(Optional.empty());
+//
+//        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .content(JsonUtils.toJson(request)))
+//                .andExpect(status().isOk())
+//                .andReturn();
+//
+//        OnlineHearingResponse response = (OnlineHearingResponse)JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingResponse.class);
+//        assertEquals("2", response.getState());
+//    }
+
     @Test
-    public void testUpdateOnlineHearingGivenOnlineHearingPresent() throws Exception {
-
-        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-        request.setState("2");
-        request.setCaseId("foo");
-
-        given(onlineHearingService.retrieveOnlineHearing(onlineHearing)).willReturn(Optional.empty());
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+    public void testUpdateNonExistentOnlineHearing() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        OnlineHearingResponse response = (OnlineHearingResponse)JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingResponse.class);
-        assertEquals("2", response.getState());
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing not found");
     }
 
     @Test
