@@ -256,7 +256,7 @@ public class QuestionControllerTest {
     }
 
     @Test
-    public void testEditQuestionWithQuestionNotFound() throws Exception {
+    public void testEditQuestionWhenQuestionNotFound() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
