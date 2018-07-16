@@ -9,14 +9,18 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +31,8 @@ public class BaseSteps {
 
     protected RestTemplate restTemplate;
 
+    protected static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
     private Map<String, String> endpoints = new HashMap<String, String>();
 
     @Autowired
@@ -34,6 +40,9 @@ public class BaseSteps {
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    @Autowired
+    private DecisionService decisionService;
 
     @Autowired
     private JurisdictionRepository jurisdictionRepository;
@@ -52,6 +61,7 @@ public class BaseSteps {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
 
         endpoints.put("online hearing", "/continuous-online-hearings");
+        endpoints.put("decision", "/continuous-online-hearings/onlineHearing_id/decisions");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
 
@@ -65,6 +75,19 @@ public class BaseSteps {
     }
 
     public void cleanup() {
+
+        // Delete all decisions
+        if (testContext.getScenarioContext().getCurrentDecision() != null) {
+            Decision decision = testContext.getScenarioContext().getCurrentDecision();
+            try {
+                decisionService.deleteDecisionById(decision.getDecisionId());
+            }
+            catch (Exception e) {
+                log.debug("Unable to delete decision: " + decision.getDecisionId());
+            }
+        }
+
+        // Delete all online hearing + panel members
         if (testContext.getScenarioContext().getCaseIds() != null) {
             for (String caseId : testContext.getScenarioContext().getCaseIds()) {
                 try {

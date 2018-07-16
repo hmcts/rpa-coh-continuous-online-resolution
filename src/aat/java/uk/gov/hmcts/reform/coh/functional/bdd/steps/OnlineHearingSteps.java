@@ -79,7 +79,6 @@ public class OnlineHearingSteps extends BaseSteps {
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hcee.getRawStatusCode());
         }
-
     }
 
     @Then("^the response contains (\\d) online hearings$")
