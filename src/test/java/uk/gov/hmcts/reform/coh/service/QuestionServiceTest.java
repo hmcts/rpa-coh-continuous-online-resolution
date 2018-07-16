@@ -121,6 +121,14 @@ public class QuestionServiceTest {
     }
 
     @Test(expected = EntityNotFoundException.class)
+    public void testEditQuestionUnknownState() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
+        when(questionStateService.retrieveQuestionStateByStateName(anyString())).thenReturn(Optional.empty());
+        questionService.editQuestion(ONE, question);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
     public void testUpdateWhenStateNotFound() {
 
         // Pretend issued is not a valid state
