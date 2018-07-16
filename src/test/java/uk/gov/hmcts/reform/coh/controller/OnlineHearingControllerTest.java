@@ -83,6 +83,7 @@ public class OnlineHearingControllerTest {
         uuid = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
+
         member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
         onlineHearing.setPanelMembers(Arrays.asList(member));
@@ -91,6 +92,7 @@ public class OnlineHearingControllerTest {
         onlineHearingState = new OnlineHearingState();
         onlineHearingState.setOnlineHearingStateId(1);
         onlineHearingState.setState("continuous_online_hearing_started");
+        onlineHearing.setOnlineHearingState(onlineHearingState);
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
