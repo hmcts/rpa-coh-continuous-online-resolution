@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -117,6 +118,19 @@ public class QuestionServiceTest {
          * This needs to be fixed so that question id is an attribute of question
          */
         questionService.editQuestion(ONE, question);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testUpdateWhenStateNotFound() {
+
+        // Pretend issued is not a valid state
+        when(questionStateService.retrieveQuestionStateByStateName(anyString())).thenReturn(Optional.empty());
+        Question question = new Question();
+        question.setQuestionState(drafted);
+
+        Question body = new Question();
+        body.setQuestionState(issued);
+        questionService.updateQuestion(question, body);
     }
 
     @Test

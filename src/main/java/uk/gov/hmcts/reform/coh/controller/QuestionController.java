@@ -139,17 +139,22 @@ public class QuestionController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
-        if(!optionalQuestion.isPresent()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        Question question = optionalQuestion.get();
+        Question question;
+        synchronized (QuestionController.class) {
+            // This will block on multiple update attempts.
+            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+            if (!optionalQuestion.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            question = optionalQuestion.get();
 
-        if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if (!question.getOnlineHearing().equals(onlineHearingOptional.get())) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            question = questionService.updateQuestion(question, body);
         }
 
-        question = questionService.updateQuestion(question, body);
         return ResponseEntity.ok(question);
     }
 

@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import javax.persistence.Entity;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +99,11 @@ public class QuestionService {
     public Question updateQuestion(Question currentQuestion, Question updateToQuestion){
         QuestionState proposedState = updateToQuestion.getQuestionState();
         Optional<QuestionState> issuedState = questionStateService.retrieveQuestionStateByStateName(QuestionStates.ISSUED.getStateName());
+
+        if (!issuedState.isPresent()) {
+            throw new EntityNotFoundException("Unable to find state '" + QuestionStates.ISSUED.getStateName() + "'");
+        }
+
         if(proposedState.equals(issuedState.get())) {
             throw new NotAValidUpdateException();
         }
