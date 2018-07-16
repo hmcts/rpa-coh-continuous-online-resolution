@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +29,13 @@ public class QuestionController {
 
     private QuestionService questionService;
     private OnlineHearingService onlineHearingService;
+    private QuestionStateService questionStateService;
 
     @Autowired
-    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService) {
+    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService) {
         this.questionService = questionService;
         this.onlineHearingService = onlineHearingService;
+        this.questionStateService = questionStateService;
     }
 
     @ApiOperation("Get all questions for an online hearing")
@@ -129,33 +134,31 @@ public class QuestionController {
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PatchMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Question> editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody Question body) {
-
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
-        Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        Question question;
+    @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
+                                       @RequestBody UpdateQuestionRequest request) {
         synchronized (QuestionController.class) {
             // This will block on multiple update attempts.
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             if (!optionalQuestion.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
             }
-            question = optionalQuestion.get();
+            Question savedQuestion = optionalQuestion.get();
 
-            if (!question.getOnlineHearing().equals(onlineHearingOptional.get())) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            if (!savedQuestion.getOnlineHearing().getOnlineHearingId().equals(onlineHearingId)) {
+                return new ResponseEntity<>("Online hearing ID does not match question online hearing ID", HttpStatus.BAD_REQUEST);
             }
 
-            question = questionService.updateQuestion(question, body);
+            Optional<QuestionState> optionalModifiedState = questionStateService.retrieveQuestionStateByStateName(request.getQuestionState());
+            if (request.getQuestionState().equals(QuestionStates.ISSUED.getStateName()) || !optionalModifiedState.isPresent()) {
+                return new ResponseEntity<>("Not allowed to issue single questions", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+
+            UpdateQuestionRequestMapper.map(savedQuestion, request);
+
+            questionService.updateQuestion(savedQuestion);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-
-        return ResponseEntity.ok(question);
     }
 
     private boolean validate(QuestionRequest request) {

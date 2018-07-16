@@ -344,7 +344,7 @@ public class QuestionRoundServiceTest {
     public void testIssueQuestionRound() {
         List<Question> questions = questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
         assertEquals(2, questions.size());
-        questions.stream().forEach(q -> assertEquals(q.getQuestionState().getState(), issuedStateName));
+        questions.stream().forEach(q -> assertEquals("question_issued", q.getQuestionState().getState()));
     }
 
     @Test
