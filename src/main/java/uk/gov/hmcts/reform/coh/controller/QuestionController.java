@@ -136,26 +136,17 @@ public class QuestionController {
     @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
                                                  @RequestBody UpdateQuestionRequest request) {
-
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
-        Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<>("Online hearing not found", HttpStatus.NOT_FOUND);
-        }
-
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if(!optionalQuestion.isPresent()){
             return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
         }
         Question savedQuestion = optionalQuestion.get();
 
-        if(!savedQuestion.getOnlineHearing().equals(onlineHearingOptional.get())){
+        if(!savedQuestion.getOnlineHearing().getOnlineHearingId().equals(onlineHearingId)){
             return new ResponseEntity<>("Online hearing ID does not match question online hearing ID", HttpStatus.BAD_REQUEST);
         }
 
         Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(request.getQuestionState());
-
         if(request.getQuestionState().equals("ISSUED") || !optionalQuestionState.isPresent()) {
             return new ResponseEntity<>("Not allowed to issue single questions", HttpStatus.UNPROCESSABLE_ENTITY);
         }

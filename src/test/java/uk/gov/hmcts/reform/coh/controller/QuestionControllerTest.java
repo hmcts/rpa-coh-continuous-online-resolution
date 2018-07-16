@@ -72,10 +72,9 @@ public class QuestionControllerTest {
 
     @Before
     public void setup() throws IOException {
-
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
-
         OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.fromString("0c08b113-16d1-4fb5-b41f-a928aa64d39a"));
         uuid = UUID.randomUUID();
         question = new Question();
         question.setQuestionId(uuid);
@@ -246,17 +245,6 @@ public class QuestionControllerTest {
     }
 
     @Test
-    public void testEditQuestionWithOnlineHearingNotFound() throws Exception {
-        String json = JsonUtils.getJsonInput("question/update_question");
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isNotFound())
-                .andReturn();
-    }
-
-    @Test
     public void testEditQuestionWithQuestionNotFound() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
@@ -269,7 +257,9 @@ public class QuestionControllerTest {
 
     @Test
     public void testEditQuestionNotAssignedToOnlineHearingBadRequest() throws Exception {
-        question.setOnlineHearing(new OnlineHearing());
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.randomUUID());
+        question.setOnlineHearing(onlineHearing);
         String json = JsonUtils.getJsonInput("question/update_question");
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -74,6 +74,7 @@ public class QuestionService {
     }
 
     public void updateQuestion(Question question){
+
         questionRepository.save(question);
     }
 
