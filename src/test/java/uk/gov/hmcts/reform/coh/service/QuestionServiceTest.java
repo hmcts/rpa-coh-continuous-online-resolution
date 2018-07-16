@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -35,8 +36,8 @@ public class QuestionServiceTest {
 
     private QuestionService questionService;
 
-    private QuestionState drafted = new QuestionState("DRAFTED");
-    private QuestionState issued = new QuestionState("ISSUED");
+    private QuestionState drafted = new QuestionState("question_drafted");
+    private QuestionState issued = new QuestionState("question_issued");
     private Question question;
 
     private OnlineHearing onlineHearing;
@@ -52,7 +53,7 @@ public class QuestionServiceTest {
         QuestionState issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
         issuedState.setState("ISSUED");
-        given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.ofNullable(issuedState));
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         given(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         question = new Question();
@@ -61,7 +62,7 @@ public class QuestionServiceTest {
     @Test
     public void testCreateQuestion() {
         when(questionRepository.save(question)).thenReturn(question);
-        when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
+        when(questionStateService.retrieveQuestionStateByStateName("question_drafted")).thenReturn(Optional.ofNullable(drafted));
 
         /**
          * This needs to be fixed so that online hearing id is an attribute of question
@@ -69,7 +70,7 @@ public class QuestionServiceTest {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
         Question newQuestion = questionService.createQuestion(question, onlineHearing);
-        verify(questionStateService, times(1)).retrieveQuestionStateById(1);
+        verify(questionStateService, times(1)).retrieveQuestionStateByStateName("question_drafted");
         assertEquals(newQuestion, question);
     }
 
@@ -96,7 +97,7 @@ public class QuestionServiceTest {
     public void testEditQuestion() {
         when(questionRepository.save(question)).thenReturn(question);
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
-        when(questionStateService.retrieveQuestionStateById(3)).thenReturn(issued);
+        when(questionStateService.retrieveQuestionStateByStateName("question_issued")).thenReturn(Optional.ofNullable(issued));
 
         /**
          * This needs to be fixed so that question id is an attribute of question
@@ -119,6 +120,27 @@ public class QuestionServiceTest {
         questionService.editQuestion(ONE, question);
     }
 
+    @Test(expected = EntityNotFoundException.class)
+    public void testEditQuestionUnknownState() {
+        when(questionRepository.save(question)).thenReturn(question);
+        when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));
+        when(questionStateService.retrieveQuestionStateByStateName(anyString())).thenReturn(Optional.empty());
+        questionService.editQuestion(ONE, question);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testUpdateWhenStateNotFound() {
+
+        // Pretend issued is not a valid state
+        when(questionStateService.retrieveQuestionStateByStateName(anyString())).thenReturn(Optional.empty());
+        Question question = new Question();
+        question.setQuestionState(drafted);
+
+        Question body = new Question();
+        body.setQuestionState(issued);
+        questionService.updateQuestion(question, body);
+    }
+
     @Test
     public void testDelete() {
         doNothing().when(questionRepository).delete(question);
@@ -128,6 +150,7 @@ public class QuestionServiceTest {
 
     @Test(expected = NotAValidUpdateException.class)
     public void testUserCanNotUpdateQuestionToIssued() {
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issued));
         Question question = new Question();
         question.setQuestionState(drafted);
 

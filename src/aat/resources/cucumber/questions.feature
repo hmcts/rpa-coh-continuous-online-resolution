@@ -13,7 +13,7 @@ Feature: Questions feature
     When the get request is sent to retrieve the submitted question
     Then the response code is 200
     And the question id matches
-    And the question state name is DRAFTED
+    And the question state name is question_drafted
     And the question state timestamp is today
 
   Scenario: No questions to retrieve for online hearing
