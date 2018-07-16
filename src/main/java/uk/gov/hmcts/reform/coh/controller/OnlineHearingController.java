@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
+import javax.validation.Validation;
 import java.util.*;
 
 @RestController
@@ -153,30 +154,33 @@ public class OnlineHearingController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Update Online Hearing State", notes = "A POST request is used to update the state of an online hearing")
+    @ApiOperation(value = "Update Online Hearing State", notes = "A PUT request is used to update the state of an online hearing")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OnlineHearing> updateOnlineHearingState(@RequestBody OnlineHearing body) {
+    @PutMapping(value = "{onlineHearingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateOnlineHearingState(@PathVariable UUID onlineHearingId, @RequestBody UpdateOnlineHearingRequest request) {
 
-        OnlineHearing onlineHearing = new OnlineHearing();
-
-        onlineHearing.setCaseId(body.getCaseId());
-        onlineHearing.setOnlineHearingState(body.getOnlineHearingState());
-
-        Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<OnlineHearing>(HttpStatus.BAD_REQUEST);
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
-        return ResponseEntity.ok(onlineHearing);
+        Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(request.getState());
+        if (!optionalOnlineHearingState.isPresent()){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
+        }
 
+        OnlineHearing onlineHearing = optionalOnlineHearing.get();
+        onlineHearing.addState(optionalOnlineHearingState.get());
+        onlineHearingService.updateOnlineHearing(onlineHearing);
+
+        return ResponseEntity.ok("Online hearing updated");
     }
 
 
