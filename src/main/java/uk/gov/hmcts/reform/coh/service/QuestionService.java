@@ -74,6 +74,11 @@ public class QuestionService {
     }
 
     public void updateQuestion(Question question){
+        QuestionState draftedState = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
+
+        if(!question.getQuestionState().equals(draftedState)) {
+            throw new NotAValidUpdateException();
+        }
 
         questionRepository.save(question);
     }

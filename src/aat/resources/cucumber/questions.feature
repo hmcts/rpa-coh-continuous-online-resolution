@@ -56,17 +56,15 @@ Feature: Questions feature
     Then the response code is 200
     And the question header is ' "some new header text?" '
 
-  Scenario: Edit the question state to submitted
+  Scenario: Attempt to edit a question which has been issued
     Given a standard online hearing is created
     And a standard question
     When the post request is sent to create the question
     Then the response code is 200
-    Given the question state is edited to ' "SUBMITTED" '
+    When the put request is sent to issue the question round ' "1" '
+    Given the question header is edited to ' "some new header text?" '
     When the put request to update the question is sent
-    Then the response code is 200
-    When the get request is sent to retrieve the submitted question
-    Then the response code is 200
-    And the question state name is SUBMITTED
+    Then the response code is 422
 
   Scenario: Attempt to Edit the question state to issued
     Given a standard online hearing is created

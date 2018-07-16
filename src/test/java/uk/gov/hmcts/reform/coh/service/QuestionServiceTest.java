@@ -48,25 +48,30 @@ public class QuestionServiceTest {
         onlineHearing.setOnlineHearingId(ONE);
 
         questionService = new QuestionService(questionRepository, questionStateService, questionRoundService);
-        QuestionState issuedState = new QuestionState();
-        issuedState.setQuestionStateId(3);
-        issuedState.setState("ISSUED");
-        given(questionStateService.retrieveQuestionStateById(anyInt())).willReturn(issuedState);
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         given(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).willReturn(true);
+
+        given(questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED)).willReturn(drafted);
+        given(questionStateService.retrieveQuestionStateById(QuestionState.ISSUED)).willReturn(issued);
         question = new Question();
+        question.setQuestionState(drafted);
+        when(questionRepository.save(question)).thenReturn(question);
     }
 
     @Test
-    public void updateAQuestion() {
-        when(questionRepository.save(question)).thenReturn(question);
+    public void testUpdateADraftQuestion() {
         questionService.updateQuestion(question);
         verify(questionRepository, times(1)).save(any(Question.class));
     }
 
+    @Test(expected = NotAValidUpdateException.class)
+    public void testUpdateQuestionThrowsNotAValidUpdateIfNotDraftState() {
+        question.setQuestionState(issued);
+        questionService.updateQuestion(question);
+    }
+
     @Test
     public void testCreateQuestion() {
-        when(questionRepository.save(question)).thenReturn(question);
         when(questionStateService.retrieveQuestionStateById(1)).thenReturn(drafted);
 
         OnlineHearing onlineHearing = new OnlineHearing();
