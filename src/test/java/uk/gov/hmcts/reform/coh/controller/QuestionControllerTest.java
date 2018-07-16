@@ -122,6 +122,16 @@ public class QuestionControllerTest {
     }
 
     @Test
+    public void testGetQuestionUnknownQuestionId() throws Exception {
+
+        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testCreateQuestion() throws Exception {
 
         String json = JsonUtils.getJsonInput("question/standard_question");
@@ -245,5 +255,27 @@ public class QuestionControllerTest {
         String response = result.getResponse().getContentAsString();
         Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
         assertEquals(question.getQuestionText(), responseQuestion.getQuestionText());
+    }
+
+    @Test
+    public void testEditQuestionInvalidOnlineHearingId() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(question)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testEditQuestionInvalidQuestionId() throws Exception {
+
+        given(questionService.retrieveQuestionById(question.getQuestionId())).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(question)))
+                .andExpect(status().isBadRequest());
     }
 }
