@@ -9,11 +9,17 @@ public enum QuestionResponseMapper {
 
     QUESTION_ID((Question q) -> { return q.getQuestionId().toString(); }, QuestionResponse::setQuestionId),
     QUESTION_ROUND((Question q) -> {return q.getQuestionRound().toString(); }, QuestionResponse::setQuestionRound),
-    QUESTION_ORDINAL((Question q) -> {return q.getQuestionRound().toString(); }, QuestionRequest::setQuestionOrdinal),
+    QUESTION_ORDINAL((Question q) -> {return Integer.toString(q.getQuestionOrdinal()); }, QuestionRequest::setQuestionOrdinal),
     QUESTION_HEADER_TEXT(Question::getQuestionHeaderText, QuestionRequest::setQuestionHeaderText),
     QUESTION_BODY_TEXT(Question::getQuestionText, QuestionRequest::setQuestionBodyText),
     OWNER_REFERENCE(Question::getOwnerReferenceId, QuestionRequest::setOwnerReference),
-    QUESTION_STATE(q -> {return q.getQuestionState().getState();}, (qr, s) -> { qr.getQuestionState().setState(s);});
+    QUESTION_STATE(q -> {return q.getQuestionState().getState();}, (qr, s) -> { qr.getCurrentState().setName(s);}),
+    STATE_TIME(q -> {
+        if (!q.getQuestionStateHistories().isEmpty()){
+            return q.getQuestionStateHistories().get(q.getQuestionStateHistories().size()-1).getDateOccurred().toString();
+        }
+        return null;
+        }, (qr, s) -> { qr.getCurrentState().setDatetime(s);});
 
     private Function<Question, String> getter;
     private BiConsumer<QuestionResponse, String> setter;

@@ -29,35 +29,4 @@ public class CreateOnlineHearingResponse {
         this.onlineHearingId = onlineHearingId;
     }
 
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getCaseId() {
-        return caseId;
-    }
-
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
-    }
-
-    public String getJurisdiction() {
-        return jurisdiction;
-    }
-
-    public void setJurisdiction(String jurisdiction) {
-        this.jurisdiction = jurisdiction;
-    }
-
-    public List<OnlineHearingRequest.PanelMember> getPanel() {
-        return panel;
-    }
-
-    public void setPanel(List<OnlineHearingRequest.PanelMember> panel) {
-        this.panel = panel;
-    }
 }

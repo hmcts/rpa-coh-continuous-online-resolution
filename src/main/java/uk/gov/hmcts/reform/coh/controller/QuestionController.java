@@ -15,6 +15,8 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +31,39 @@ public class QuestionController {
     public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService) {
         this.questionService = questionService;
         this.onlineHearingService = onlineHearingService;
+    }
+
+    @ApiOperation("Get all questions for an online hearing")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = AllQuestionsResponse.class),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @GetMapping("/questions")
+    public ResponseEntity<AllQuestionsResponse> getQuestions(@PathVariable UUID onlineHearingId) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
+
+        Optional<List<Question>> optionalQuestions = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+
+        if (!optionalQuestions.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<Question> questions = optionalQuestions.get();
+        List<QuestionResponse> responses = new ArrayList<>();
+        for (Question question : questions) {
+            QuestionResponse questionResponse = new QuestionResponse();
+            QuestionResponseMapper.map(question, questionResponse);
+            responses.add(questionResponse);
+        }
+        AllQuestionsResponse response = new AllQuestionsResponse();
+        response.setQuestions(responses);
+
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation("Get a question")
@@ -77,7 +112,7 @@ public class QuestionController {
         Question question = new Question();
         QuestionRequestMapper mapper = new QuestionRequestMapper(question, savedOnlineHearing.get(), request);
         mapper.map();
-        question = questionService.createQuestion(question, onlineHearingId);
+        question = questionService.createQuestion(question, savedOnlineHearing.get());
 
         CreateQuestionResponse response = new CreateQuestionResponse();
         response.setQuestionId(question.getQuestionId());
@@ -101,17 +136,17 @@ public class QuestionController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> onlineHearingOptional = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!onlineHearingOptional.isPresent()){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if(!optionalQuestion.isPresent()){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Question question = optionalQuestion.get();
 
         if(!question.getOnlineHearing().equals(onlineHearingOptional.get())){
-            return new ResponseEntity<Question>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         question = questionService.updateQuestion(question, body);

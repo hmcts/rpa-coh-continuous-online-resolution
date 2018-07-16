@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,19 +16,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -59,6 +61,10 @@ public class QuestionControllerTest {
 
     private Question question;
 
+    private QuestionState issuedState;
+
+    private Date today;
+
     private UUID uuid;
 
     @Before
@@ -70,16 +76,25 @@ public class QuestionControllerTest {
         uuid = UUID.randomUUID();
         question = new Question();
         question.setQuestionId(uuid);
-        question.setQuestionText("foo");
+        question.setQuestionHeaderText("foo");
+        question.setQuestionText("bar");
         question.setOnlineHearing(onlineHearing);
         question.setQuestionRound(1);
-        QuestionState issuedState = new QuestionState();
+        question.setQuestionOrdinal(2);
+        issuedState = new QuestionState();
         issuedState.setQuestionStateId(QuestionState.ISSUED);
         question.setQuestionState(issuedState);
 
+        List<QuestionStateHistory> histories = new ArrayList<>();
+        today = new Date();
+        QuestionStateHistory history = new QuestionStateHistory(question, issuedState);
+        history.setDateOccurred(today);
+        histories.add(history);
+        question.setQuestionStateHistories(histories);
+
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
-        given(questionService.createQuestion(any(Question.class), any(UUID.class))).willReturn(question);
+        given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
         given(questionService.editQuestion(uuid, question)).willReturn(question);
         given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
@@ -96,7 +111,13 @@ public class QuestionControllerTest {
 
         String response = result.getResponse().getContentAsString();
         QuestionResponse responseQuestion = (QuestionResponse)JsonUtils.toObjectFromJson(response, QuestionResponse.class);
-        assertEquals("foo", responseQuestion.getQuestionBodyText());
+        assertEquals(uuid.toString(), responseQuestion.getQuestionId());
+        assertEquals(question.getQuestionHeaderText(), responseQuestion.getQuestionHeaderText());
+        assertEquals(question.getQuestionText(), responseQuestion.getQuestionBodyText());
+        assertEquals(question.getQuestionRound().toString(), responseQuestion.getQuestionRound());
+        assertEquals(Integer.toString(question.getQuestionOrdinal()), responseQuestion.getQuestionOrdinal());
+        assertEquals(issuedState.getState(), responseQuestion.getCurrentState().getName());
+        assertEquals(today.toString(), responseQuestion.getCurrentState().getDatetime());
     }
 
     @Test
@@ -165,6 +186,53 @@ public class QuestionControllerTest {
     }
 
     @Test
+    public void testGetAllQuestions() throws Exception {
+
+        List<Question> responses = new ArrayList<>();
+        responses.add(question);
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
+
+        assertEquals(1, questionResponses.getQuestions().size());
+    }
+
+    @Test
+    public void testGetAllQuestionsNone() throws Exception {
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(null));
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetAllQuestionsWhenNone() throws Exception {
+
+        List<Question> responses = new ArrayList<>();
+
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(questionRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
+
+        assertEquals(0, questionResponses.getQuestions().size());
+    }
+
+    @Test
     public void testEditQuestion() throws Exception {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
@@ -175,6 +243,6 @@ public class QuestionControllerTest {
 
         String response = result.getResponse().getContentAsString();
         Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
-        assertEquals("foo", responseQuestion.getQuestionText());
+        assertEquals(question.getQuestionText(), responseQuestion.getQuestionText());
     }
 }

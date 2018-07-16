@@ -135,18 +135,12 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testRegisterStateChange() throws Exception {
+    public void testCreateOnlineHearingDuplicate() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case_123"))).willReturn(Arrays.asList(onlineHearing));
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
-
-        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
-
-        assertEquals("continuous_online_hearing_started", response.getState());
-        //assertNotNull(onlineHearing.getOnlineHearingStateHistories());
-
+                .andExpect(status().isConflict());
     }
 
     @Test

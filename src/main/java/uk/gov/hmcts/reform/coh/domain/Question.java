@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.util.*;
 
+import static javax.persistence.FetchType.EAGER;
+
 @Entity(name = "Question")
 @Table(name = "question")
 public class Question {
@@ -35,7 +37,7 @@ public class Question {
     @Temporal(TemporalType.TIMESTAMP)
     private Date deadlineExpiryDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "question_state_id")
     private QuestionState questionState;
 
@@ -46,9 +48,9 @@ public class Question {
     private String ownerReferenceId ;
 
     @OneToMany(
+            fetch = EAGER,
             mappedBy = "question",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade = CascadeType.ALL
     )
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
@@ -102,18 +104,16 @@ public class Question {
         this.ownerReferenceId = ownerReferenceId;
     }
 
-    public void addState(QuestionState state) {
-        this.questionState = state;
-        QuestionStateHistory stateHistory = new QuestionStateHistory(this, state);
-        questionStateHistories.add(stateHistory);
-    }
-
     public List<QuestionStateHistory> getQuestionStateHistories() {
         return questionStateHistories;
     }
 
     public void setQuestionStateHistories(List<QuestionStateHistory> questionStateHistories) {
         this.questionStateHistories = questionStateHistories;
+    }
+
+    public void updateQuestionStateHistory(QuestionState state) {
+        questionStateHistories.add(new QuestionStateHistory(this, state));
     }
 
     public Integer getQuestionRound() {
