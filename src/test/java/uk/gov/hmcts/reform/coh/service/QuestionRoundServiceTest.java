@@ -8,6 +8,7 @@ import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -40,19 +41,23 @@ public class QuestionRoundServiceTest {
     @Mock
     private QuestionStateService questionStateService;
 
+
+    private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
+    private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
+
     @Before
     public void setup(){
         draftedState = new QuestionState();
-        draftedState.setState("DRAFTED");
+        draftedState.setState(draftedStateName);
         draftedState.setQuestionStateId(1);
 
         submittedState = new QuestionState();
         submittedState.setQuestionStateId(2);
-        submittedState.setState("SUBMITTED");
+        submittedState.setState("question_submitted");
 
         issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
-        issuedState.setState("ISSUED");
+        issuedState.setState(issuedStateName);
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
@@ -71,9 +76,9 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(issuedState);
         questionRound1Questions.add(question);
 
-        given(questionStateService.retrieveQuestionStateByStateName("ISSUED")).willReturn(Optional.of(issuedState));
-        given(questionStateService.retrieveQuestionStateByStateName("DRAFTED")).willReturn(Optional.of(draftedState));
-        given(questionStateService.retrieveQuestionStateByStateName("SUBMITTED")).willReturn(Optional.of(submittedState));
+        given(questionStateService.retrieveQuestionStateByStateName(issuedStateName)).willReturn(Optional.of(issuedState));
+        given(questionStateService.retrieveQuestionStateByStateName(draftedStateName)).willReturn(Optional.of(draftedState));
+        given(questionStateService.retrieveQuestionStateByStateName("question_submitted")).willReturn(Optional.of(submittedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
         given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questionRound1Questions);
         QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService);
@@ -339,7 +344,7 @@ public class QuestionRoundServiceTest {
     public void testIssueQuestionRound() {
         List<Question> questions = questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
         assertEquals(2, questions.size());
-        questions.stream().forEach(q -> assertEquals("ISSUED", q.getQuestionState().getState()));
+        questions.stream().forEach(q -> assertEquals("question_issued", q.getQuestionState().getState()));
     }
 
     @Test
@@ -411,7 +416,7 @@ public class QuestionRoundServiceTest {
 
         questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
         List<Question> issuedQuestions = questions.stream()
-                .filter(q -> q.getQuestionState().getState().equals("ISSUED"))
+                .filter(q -> q.getQuestionState().getState().equals(issuedStateName))
                 .collect(Collectors.toList());
         assertEquals(3, issuedQuestions.size());
         verify(questionRepository, times(3)).save(any(Question.class));

@@ -11,7 +11,9 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,10 +62,13 @@ public class QuestionService {
             throw new NotAValidUpdateException();
         }
 
-        QuestionState state = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
+        Optional<QuestionState> state = questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName());
+        if (!state.isPresent()) {
+            throw new EntityNotFoundException("Question state not found");
+        }
         question.setOnlineHearing(onlineHearing);
-        question.setQuestionState(state);
-        question.updateQuestionStateHistory(state);
+        question.setQuestionState(state.get());
+        question.updateQuestionStateHistory(state.get());
 
         return questionRepository.save(question);
     }
@@ -74,9 +79,11 @@ public class QuestionService {
     }
 
     public void updateQuestion(Question question){
-        QuestionState draftedState = questionStateService.retrieveQuestionStateById(QuestionState.DRAFTED);
-
-        if(!question.getQuestionState().equals(draftedState)) {
+        Optional<QuestionState> draftedState = questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName());
+        if (!draftedState.isPresent()) {
+            throw new EntityNotFoundException("Question state not found");
+        }
+        if(!question.getQuestionState().equals(draftedState.get())) {
             throw new NotAValidUpdateException();
         }
 

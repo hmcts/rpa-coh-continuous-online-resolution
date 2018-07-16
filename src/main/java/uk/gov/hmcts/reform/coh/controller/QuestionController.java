@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,27 +136,29 @@ public class QuestionController {
     })
     @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
-                                                 @RequestBody UpdateQuestionRequest request) {
-        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
-        if(!optionalQuestion.isPresent()){
-            return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
+                                       @RequestBody UpdateQuestionRequest request) {
+        synchronized (QuestionController.class) {
+            // This will block on multiple update attempts.
+            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+            if (!optionalQuestion.isPresent()) {
+                return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
+            }
+            Question savedQuestion = optionalQuestion.get();
+
+            if (!savedQuestion.getOnlineHearing().getOnlineHearingId().equals(onlineHearingId)) {
+                return new ResponseEntity<>("Online hearing ID does not match question online hearing ID", HttpStatus.BAD_REQUEST);
+            }
+
+            Optional<QuestionState> optionalModifiedState = questionStateService.retrieveQuestionStateByStateName(request.getQuestionState());
+            if (request.getQuestionState().equals(QuestionStates.ISSUED.getStateName()) || !optionalModifiedState.isPresent()) {
+                return new ResponseEntity<>("Not allowed to issue single questions", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+
+            UpdateQuestionRequestMapper.map(savedQuestion, request);
+
+            questionService.updateQuestion(savedQuestion);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        Question savedQuestion = optionalQuestion.get();
-
-        if(!savedQuestion.getOnlineHearing().getOnlineHearingId().equals(onlineHearingId)){
-            return new ResponseEntity<>("Online hearing ID does not match question online hearing ID", HttpStatus.BAD_REQUEST);
-        }
-
-        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(request.getQuestionState());
-        if(request.getQuestionState().equals("ISSUED") || !optionalQuestionState.isPresent()) {
-            return new ResponseEntity<>("Not allowed to issue single questions", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        UpdateQuestionRequestMapper.map(savedQuestion, request);
-        savedQuestion.setQuestionState(optionalQuestionState.get());
-
-        questionService.updateQuestion(savedQuestion);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private boolean validate(QuestionRequest request) {

@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class QuestionControllerTest {
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
         issuedState = new QuestionState();
-        issuedState.setQuestionStateId(QuestionState.ISSUED);
+        issuedState.setState(QuestionStates.ISSUED.getStateName());
         question.setQuestionState(issuedState);
 
         List<QuestionStateHistory> histories = new ArrayList<>();
@@ -120,6 +121,16 @@ public class QuestionControllerTest {
         assertEquals(Integer.toString(question.getQuestionOrdinal()), responseQuestion.getQuestionOrdinal());
         assertEquals(issuedState.getState(), responseQuestion.getCurrentState().getName());
         assertEquals(today.toString(), responseQuestion.getCurrentState().getDatetime());
+    }
+
+    @Test
+    public void testGetQuestionUnknownQuestionId() throws Exception {
+
+        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -193,7 +204,7 @@ public class QuestionControllerTest {
         List<Question> responses = new ArrayList<>();
         responses.add(question);
 
-        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(responses));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
@@ -272,7 +283,7 @@ public class QuestionControllerTest {
     public void testEditQuestionToStateIssuedUnprocessableEntity() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
-        updateQuestionRequest.setQuestionState("ISSUED");
+        updateQuestionRequest.setQuestionState(QuestionStates.ISSUED.getStateName());
         json = JsonUtils.toJson(updateQuestionRequest);
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
