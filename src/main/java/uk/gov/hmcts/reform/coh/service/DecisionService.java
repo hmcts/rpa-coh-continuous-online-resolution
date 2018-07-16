@@ -29,6 +29,14 @@ public class DecisionService {
         return decisionRepository.findByOnlineHearingOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
     }
 
+    public Decision updateDecision(Decision decision) {
+        return decisionRepository.save(decision);
+    }
+
+    public void deleteDecisionById(UUID decisionId) {
+        decisionRepository.deleteById(decisionId);
+    }
+
     /**
      * Hard-coded to 7 days.
      * @return

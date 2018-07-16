@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
-import uk.gov.hmcts.reform.coh.service.DecisionStateHistoryService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
@@ -81,7 +80,6 @@ public class DecisionController {
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision.addDecisionStateHistory(optionalDecisionState.get());
-        decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
         decision = decisionService.createDecision(decision);
         CreateDecisionResponse response = new CreateDecisionResponse();
         response.setDecisionId(decision.getDecisionId());
@@ -91,7 +89,7 @@ public class DecisionController {
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OnlineHearing.class),
+            @ApiResponse(code = 200, message = "OK", response = DecisionResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
@@ -107,5 +105,50 @@ public class DecisionController {
         DecisionResponse decisionResponse = new DecisionResponse();
         DecisionResponseMapper.map(optionalDecision.get(), decisionResponse);
         return new ResponseEntity<>(decisionResponse, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Update a decision", notes = "A PUT request to update replace a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 409, message = "Conflict"),
+            @ApiResponse(code = 422, message = "Validation Error")
+    })
+    @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
+
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Decision not found");
+        }
+
+        // Only draft decisions can be updated
+        Decision decision = optionalDecision.get();
+        if (!decision.getDecisionstate().getState().equals(DecisionsStates.DECISION_DRAFTED.getStateName())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Only draft decisions can be updated");
+        }
+
+        // Check the stated passed in the request
+        Optional<DecisionState> optionalDecisionState = decisionStateService.retrieveDecisionStateByState(request.getState());
+        if (!optionalDecisionState.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
+        }
+
+        // The remaining validation is same as DecisionRequest for create
+        ValidationResult result = DecisionRequestValidator.validate(request);
+        if (!result.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
+        }
+
+        // If a decision is issued, then there is a deadline to accept or reject it
+        if (request.getState().equals(DecisionsStates.DECISION_ISSUED.getStateName())) {
+            decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
+        }
+
+        decision.addDecisionStateHistory(optionalDecisionState.get());
+        DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        decisionService.updateDecision(decision);
+
+        return ResponseEntity.ok("");
     }
 }
