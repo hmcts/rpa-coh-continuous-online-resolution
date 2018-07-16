@@ -15,5 +15,11 @@ public class OnlineHearingMapper {
                 .stream()
                 .map( p -> new OnlineHearingResponse.PanelMember(p.getFullName()))
                 .collect(Collectors.toList()));
+        response.getCurrentState().setName(onlineHearing.getOnlineHearingState().getState());
+        response.getCurrentState().setDatetime
+                (onlineHearing.getOnlineHearingStateHistories().stream().sorted(
+                    (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
+        ).get(onlineHearing.getOnlineHearingStateHistories().size()-1).getDateOccurred().toString());
+
     }
 }
