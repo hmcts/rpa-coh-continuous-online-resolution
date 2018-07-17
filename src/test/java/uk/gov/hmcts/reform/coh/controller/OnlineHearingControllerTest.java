@@ -15,10 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -30,9 +27,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -253,4 +248,20 @@ public class OnlineHearingControllerTest {
                 .content(""))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testOnlineHearingHistoryIsSorted() throws Exception {
+        onlineHearingState.setOnlineHearingStateId(2);
+        onlineHearingState.setState("continuous_online_hearing_questions_issued");
+        onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+        String recentStateTime = onlineHearing.getOnlineHearingStateHistories().get(onlineHearing.getOnlineHearingStateHistories().size()-1).getDateOccurred().toString();
+        onlineHearing.getOnlineHearingStateHistories().get(0).setDateOccurred(new Date(2017,12,31));
+
+        OnlineHearingResponse response = new OnlineHearingResponse();
+        OnlineHearingMapper.map(response, onlineHearing);
+
+        assertEquals(recentStateTime, response.getCurrentState().getDatetime());
+    }
+
 }
