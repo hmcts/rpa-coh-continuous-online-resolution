@@ -93,6 +93,8 @@ public class OnlineHearingControllerTest {
         onlineHearingState.setOnlineHearingStateId(1);
         onlineHearingState.setState("continuous_online_hearing_started");
         onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));

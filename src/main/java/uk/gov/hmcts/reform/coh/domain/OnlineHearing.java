@@ -46,6 +46,10 @@ public class OnlineHearing {
     @JoinColumn(name = "online_hearing_state_id")
     private OnlineHearingState onlineHearingState;
 
+    public void setOnlineHearingStateHistories(List<OnlineHearingStateHistory> onlineHearingStateHistories) {
+        this.onlineHearingStateHistories = onlineHearingStateHistories;
+    }
+
     @OneToMany(mappedBy = "onlinehearing",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
@@ -132,8 +136,7 @@ public class OnlineHearing {
     }
 
 
-    public void addState(OnlineHearingState state) {
-        this.onlineHearingState = state;
+    public void addOnlineHearingStateHistory(OnlineHearingState state) {
         OnlineHearingStateHistory stateHistory = new OnlineHearingStateHistory(this, state);
         onlineHearingStateHistories.add(stateHistory);
     }

@@ -20,7 +20,7 @@ public class OnlineHearingMapper {
         if (!onlineHearing.getOnlineHearingStateHistories().isEmpty()){
             response.getCurrentState().setDatetime
                     (onlineHearing.getOnlineHearingStateHistories().stream().sorted(
-                            (a, b) -> (a.getDateOccurred().compareTo(b.getDateOccurred()))).collect(Collectors.toList()
+                            (a, b) -> (b.getDateOccurred().compareTo(a.getDateOccurred()))).collect(Collectors.toList()
                     ).get(onlineHearing.getOnlineHearingStateHistories().size()-1).getDateOccurred().toString());
         }
 
