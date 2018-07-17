@@ -10,11 +10,6 @@ import java.util.Objects;
 @Table(name = "question_state")
 public class QuestionState {
 
-    public static final int DRAFTED = 1;
-    public static final int SUBMITTED = 2;
-    public static final int ISSUED = 3;
-
-
     @Id
     @Column(name = "question_state_id")
     @JsonIgnore

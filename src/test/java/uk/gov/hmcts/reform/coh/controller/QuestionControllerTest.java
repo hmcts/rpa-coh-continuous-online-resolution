@@ -16,16 +16,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
-import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
@@ -34,7 +33,9 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -48,6 +49,9 @@ public class QuestionControllerTest {
 
     @Mock
     private OnlineHearingService onlineHearingService;
+
+    @Mock
+    private QuestionStateService questionStateService;
 
     @InjectMocks
     private QuestionController questionController;
@@ -63,16 +67,17 @@ public class QuestionControllerTest {
 
     private QuestionState issuedState;
 
+    private QuestionState draftedState;
+
     private Date today;
 
     private UUID uuid;
 
     @Before
     public void setup() throws IOException {
-
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
-
         OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.fromString("0c08b113-16d1-4fb5-b41f-a928aa64d39a"));
         uuid = UUID.randomUUID();
         question = new Question();
         question.setQuestionId(uuid);
@@ -81,8 +86,13 @@ public class QuestionControllerTest {
         question.setOnlineHearing(onlineHearing);
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
+
         issuedState = new QuestionState();
-        issuedState.setQuestionStateId(QuestionState.ISSUED);
+        issuedState.setState(QuestionStates.ISSUED.getStateName());
+
+        draftedState = new QuestionState();
+        draftedState.setState(QuestionStates.DRAFTED.getStateName());
+
         question.setQuestionState(issuedState);
 
         List<QuestionStateHistory> histories = new ArrayList<>();
@@ -95,9 +105,9 @@ public class QuestionControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
         given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
         given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
-        given(questionService.editQuestion(uuid, question)).willReturn(question);
-        given(questionService.updateQuestion(any(Question.class), any(Question.class))).willReturn(question);
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(java.util.Optional.of(onlineHearing));
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
+        willDoNothing().given(questionService).updateQuestion(any(Question.class));
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
     }
 
     @Test
@@ -118,6 +128,16 @@ public class QuestionControllerTest {
         assertEquals(Integer.toString(question.getQuestionOrdinal()), responseQuestion.getQuestionOrdinal());
         assertEquals(issuedState.getState(), responseQuestion.getCurrentState().getName());
         assertEquals(today.toString(), responseQuestion.getCurrentState().getDatetime());
+    }
+
+    @Test
+    public void testGetQuestionUnknownQuestionId() throws Exception {
+
+        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -191,7 +211,7 @@ public class QuestionControllerTest {
         List<Question> responses = new ArrayList<>();
         responses.add(question);
 
-        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(responses));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
@@ -234,15 +254,98 @@ public class QuestionControllerTest {
 
     @Test
     public void testEditQuestion() throws Exception {
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
+        String json = JsonUtils.getJsonInput("question/update_question");
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(question)))
+                .content(json))
                 .andExpect(status().isOk())
                 .andReturn();
+    }
 
-        String response = result.getResponse().getContentAsString();
-        Question responseQuestion = (Question)JsonUtils.toObjectFromJson(response, Question.class);
-        assertEquals(question.getQuestionText(), responseQuestion.getQuestionText());
+    @Test
+    public void testEditQuestionWhenQuestionNotFound() throws Exception {
+        String json = JsonUtils.getJsonInput("question/update_question");
+        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    public void testEditQuestionNotAssignedToOnlineHearingBadRequest() throws Exception {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.randomUUID());
+        question.setOnlineHearing(onlineHearing);
+        String json = JsonUtils.getJsonInput("question/update_question");
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    public void testEditQuestionToStateIssuedUnprocessableEntity() throws Exception {
+        String json = JsonUtils.getJsonInput("question/update_question");
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionState(QuestionStates.ISSUED.getStateName());
+        json = JsonUtils.toJson(updateQuestionRequest);
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+    }
+
+    @Test
+    public void testEditQuestionStateNotValidUnprocessableEntityt() throws Exception {
+        String json = JsonUtils.getJsonInput("question/update_question");
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+    }
+
+    @Test
+    public void testDeleteQuestion() throws Exception {
+        question.setQuestionState(draftedState);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDeleteQuestionNonExistentOnlineHearing() throws Exception {
+        question.setQuestionState(draftedState);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteQuestionNonExistentQuestion() throws Exception {
+        question.setQuestionState(draftedState);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testDeleteQuestionNotInDraftState() throws Exception {
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.ofNullable(question));
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isUnprocessableEntity());
     }
 }
