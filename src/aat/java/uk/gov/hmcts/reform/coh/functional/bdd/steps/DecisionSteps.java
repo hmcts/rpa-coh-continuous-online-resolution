@@ -128,7 +128,7 @@ public class DecisionSteps extends BaseSteps {
     @And("^the decision expiry date is 7 days in the future")
     public void the_decision_expiry_date() throws IOException {
         Calendar expiry = new GregorianCalendar();
-        expiry.add(Calendar.DAY_OF_YEAR, 7);
+        expiry.add(Calendar.DAY_OF_YEAR, 6);
         DecisionResponse decision = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertTrue(decision.getDeadlineExpiryDate().contains(df.format(expiry.getTime())));
     }

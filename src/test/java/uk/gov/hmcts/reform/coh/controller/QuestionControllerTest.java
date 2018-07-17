@@ -67,6 +67,8 @@ public class QuestionControllerTest {
 
     private QuestionState issuedState;
 
+    private QuestionState draftedState;
+
     private Date today;
 
     private UUID uuid;
@@ -84,8 +86,13 @@ public class QuestionControllerTest {
         question.setOnlineHearing(onlineHearing);
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
+
         issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
+
+        draftedState = new QuestionState();
+        draftedState.setState(QuestionStates.DRAFTED.getStateName());
+
         question.setQuestionState(issuedState);
 
         List<QuestionStateHistory> histories = new ArrayList<>();
@@ -301,5 +308,44 @@ public class QuestionControllerTest {
                 .content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
+    }
+
+    @Test
+    public void testDeleteQuestion() throws Exception {
+        question.setQuestionState(draftedState);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDeleteQuestionNonExistentOnlineHearing() throws Exception {
+        question.setQuestionState(draftedState);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteQuestionNonExistentQuestion() throws Exception {
+        question.setQuestionState(draftedState);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testDeleteQuestionNotInDraftState() throws Exception {
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.ofNullable(question));
+        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isUnprocessableEntity());
     }
 }

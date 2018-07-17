@@ -81,7 +81,12 @@ public class QuestionSteps extends BaseSteps{
     @After
     public void cleanUp() {
         for (UUID questionId : questionIds) {
-            questionRepository.deleteById(questionId);
+            try {
+                questionRepository.deleteById(questionId);
+            } catch (Exception e) {
+                // Don't care
+            }
+
         }
 
         try {
@@ -356,6 +361,22 @@ public class QuestionSteps extends BaseSteps{
             HttpEntity<String> request = new HttpEntity<>(json, header);
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
                     HttpMethod.PUT, request, String.class);
+
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
+    }
+
+    @When("^the delete question request is sent$")
+    public void the_delete_question_request_is_sent() {
+
+        try {
+            Question question = testContext.getScenarioContext().getCurrentQuestion();
+            HttpEntity<String> request = new HttpEntity<>("", header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(),
+                    HttpMethod.DELETE, request, String.class);
 
             testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
             testContext.getHttpContext().setRawResponseString(response.getBody());

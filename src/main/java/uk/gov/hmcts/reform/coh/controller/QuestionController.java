@@ -161,6 +161,41 @@ public class QuestionController {
         }
     }
 
+    @ApiOperation("Delete a question")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 204, message = "No Content"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @DeleteMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId) {
+
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
+        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+
+        if (!savedOnlineHearing.isPresent()) {
+            return new ResponseEntity<>("Online hearing not found", HttpStatus.NOT_FOUND);
+        }
+
+        synchronized (QuestionController.class) {
+            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+            if (!optionalQuestion.isPresent()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            Question question = optionalQuestion.get();
+            if (!question.getQuestionState().getState().equals(QuestionStates.DRAFTED.getStateName())) {
+                return new ResponseEntity<>("Only drafted questions can be deleted", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+
+            questionService.deleteQuestion(question);
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
     private boolean validate(QuestionRequest request) {
 
         if (StringUtils.isEmpty(request.getQuestionRound())
