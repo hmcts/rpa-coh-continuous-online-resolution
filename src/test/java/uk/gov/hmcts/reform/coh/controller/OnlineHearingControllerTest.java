@@ -91,8 +91,8 @@ public class OnlineHearingControllerTest {
         updateOnlineHearingRequest = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
 
         onlineHearingState = new OnlineHearingState();
-        onlineHearingState.setOnlineHearingStateId(1);
         onlineHearingState.setState("continuous_online_hearing_started");
+        onlineHearing.addState(onlineHearingState);
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
@@ -254,7 +254,7 @@ public class OnlineHearingControllerTest {
     @Test
     public void testUpdateNonExistentOnlineHearing() throws Exception {
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
-        updateOnlineHearingRequest.setState("continuous_online_hearing_questions_issued");
+        updateOnlineHearingRequest.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -282,8 +282,9 @@ public class OnlineHearingControllerTest {
     @Test
     public void testUpdateOnlineHearing() throws Exception {
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        onlineHearingState.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_questions_issued")).willReturn(Optional.of(onlineHearingState));
-        updateOnlineHearingRequest.setState("continuous_online_hearing_questions_issued");
+        updateOnlineHearingRequest.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -292,6 +293,22 @@ public class OnlineHearingControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString().equalsIgnoreCase("Online hearing updated");
+    }
+
+    @Test
+    public void testUpdateOnlineHearingWithStartedStateFails() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.of(onlineHearingState));
+        updateOnlineHearingRequest.setState(OnlineHearingStates.STARTED.getStateName());
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isConflict())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing state cannot be changed back to started");
+
     }
 
 }
