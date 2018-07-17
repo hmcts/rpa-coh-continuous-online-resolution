@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import cucumber.deps.com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +29,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -82,6 +82,8 @@ public class OnlineHearingControllerTest {
         uuid = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
+        onlineHearing.setStartDate(new Date());
+
         member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
         onlineHearing.setPanelMembers(Arrays.asList(member));
@@ -92,7 +94,9 @@ public class OnlineHearingControllerTest {
 
         onlineHearingState = new OnlineHearingState();
         onlineHearingState.setState("continuous_online_hearing_started");
-        onlineHearing.addState(onlineHearingState);
+        onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
@@ -249,6 +253,22 @@ public class OnlineHearingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testOnlineHearingHistoryIsSorted() throws Exception {
+        onlineHearingState.setOnlineHearingStateId(2);
+        onlineHearingState.setState("continuous_online_hearing_questions_issued");
+        onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+        Date recentStateTime = onlineHearing.getOnlineHearingStateHistories().get(onlineHearing.getOnlineHearingStateHistories().size() - 1).getDateOccurred();
+        onlineHearing.getOnlineHearingStateHistories().get(0).setDateOccurred(new Date(2017, 12, 31));
+
+        OnlineHearingResponse response = new OnlineHearingResponse();
+        OnlineHearingMapper.map(response, onlineHearing);
+
+        ISO8601DateFormat df = new ISO8601DateFormat();
+        assertEquals(df.format(recentStateTime), response.getCurrentState().getDatetime());
     }
 
     @Test

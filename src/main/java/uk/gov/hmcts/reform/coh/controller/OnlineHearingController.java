@@ -183,7 +183,7 @@ public class OnlineHearingController {
         }
 
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
-        onlineHearing.addState(optionalOnlineHearingState.get());
+        onlineHearing.setOnlineHearingState(optionalOnlineHearingState.get());
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.ok("Online hearing updated");
