@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -14,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
 import java.io.IOException;
@@ -22,6 +24,8 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class OnlineHearingSteps extends BaseSteps {
+
+    private UpdateOnlineHearingRequest request;
 
     @Autowired
     public OnlineHearingSteps(TestContext testContext){
@@ -50,7 +54,7 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     @When("^a (.*) request is sent for online hearings$")
-    public void send_request(String type) throws IOException {
+    public void send_request(String type) throws Exception {
 
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
@@ -66,12 +70,10 @@ public class OnlineHearingSteps extends BaseSteps {
             } else if ("POST".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(json, header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-            } else if ("PATCH".equalsIgnoreCase(type)) {
-                /**
-                  This is a workaround for https://jira.spring.io/browse/SPR-15347
-                 **/
-                HttpEntity<String> request = new HttpEntity<>(json, header);
-                response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
+            } else if ("PUT".equalsIgnoreCase(type)) {
+                HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
+                //String onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId().toString();
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             }
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
@@ -79,6 +81,21 @@ public class OnlineHearingSteps extends BaseSteps {
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hcee.getRawStatusCode());
         }
+    }
+
+    public String getPutRequest() throws Exception {
+        return  JsonUtils.toJson(testContext.getScenarioContext().getUpdateDecisionRequest());
+    }
+
+    @Given("^a standard online hearing for update$")
+    public void a_standard_online_hearing_for_update() throws IOException {
+        UpdateOnlineHearingRequest request = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearings/update_online_hearing", UpdateOnlineHearingRequest.class);
+        testContext.getScenarioContext().setUpdateOnlineHearingRequest(request);
+    }
+
+    @And("^the update online hearing state is (.*)$")
+    public void the_update_online_hearing_state_is (String stateName) {
+        testContext.getScenarioContext().getUpdateOnlineHearingRequest().setState(stateName);
     }
 
     @Then("^the response contains (\\d) online hearings$")

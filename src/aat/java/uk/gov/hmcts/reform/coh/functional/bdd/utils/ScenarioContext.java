@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class ScenarioContext {
     private DecisionRequest currentDecisionRequest;
 
     private UpdateDecisionRequest updateDecisionRequest;
+
+    private UpdateOnlineHearingRequest updateOnlineHearingRequest;
 
     private Decision currentDecision;
 
@@ -121,5 +124,13 @@ public class ScenarioContext {
         currentAnswer = null;
         caseIds = null;
         jurisdictions = null;
+    }
+
+    public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
+        return updateOnlineHearingRequest;
+    }
+
+    public void setUpdateOnlineHearingRequest(UpdateOnlineHearingRequest updateOnlineHearingRequest) {
+        this.updateOnlineHearingRequest = updateOnlineHearingRequest;
     }
 }

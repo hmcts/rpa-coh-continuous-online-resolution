@@ -15,3 +15,4 @@ public class UpdateDecisionRequest extends DecisionRequest {
         this.state = state;
     }
 }
+
