@@ -176,7 +176,7 @@ public class QuestionController {
         Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
 
         if (!savedOnlineHearing.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>("Online hearing not found", HttpStatus.NOT_FOUND);
         }
 
         synchronized (QuestionController.class) {
