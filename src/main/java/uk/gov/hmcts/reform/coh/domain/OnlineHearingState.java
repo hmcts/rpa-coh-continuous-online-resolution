@@ -12,9 +12,6 @@ import javax.persistence.Table;
 @Table(name = "online_hearing_state")
 public class OnlineHearingState {
 
-    public static final int CREATED = 1;
-    public static final int CLOSED = 2;
-
     @Id
     @Column(name = "online_hearing_state_id")
     private int onlineHearingStateId;

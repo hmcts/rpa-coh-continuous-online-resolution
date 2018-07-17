@@ -9,3 +9,19 @@ where not exists (select 1 from public.online_hearing_state where online_hearing
 INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
 select 3, 'continuous_online_hearing_answers_sent'
 where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 3);
+
+INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
+select 4, 'continuous_online_hearing_decision_issued'
+where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 4);
+
+INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
+select 5, 'continuous_online_hearing_resolved'
+where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 5);
+
+INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
+select 6, 'continuous_online_hearing_relisted'
+where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 6);
+
+INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
+select 7, 'continuous_online_hearing_closed'
+where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 7);
