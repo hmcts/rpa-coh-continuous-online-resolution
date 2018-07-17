@@ -27,19 +27,19 @@ import java.util.Date;
         public OnlineHearingStateHistory() {
         }
 
-        public OnlineHearing getOnlinehearing() {
+        public OnlineHearing getOnlineHearing() {
             return onlinehearing;
         }
 
-        public void setOnlinehearing(OnlineHearing onlinehearing) {
+        public void setOnlineHearing(OnlineHearing onlinehearing) {
             this.onlinehearing = onlinehearing;
         }
 
-        public OnlineHearingState getOnlinehearingstate() {
+        public OnlineHearingState getOnlineHearingState() {
             return onlinehearingstate;
         }
 
-        public void setOnlinehearingstate(OnlineHearingState onlinehearingstate) {
+        public void setOnlineHearingState(OnlineHearingState onlinehearingstate) {
             this.onlinehearingstate = onlinehearingstate;
         }
 

@@ -28,8 +28,8 @@ public class OnlineHearingResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<PanelMember> panel;
 
-    @JsonProperty("state")
-    private String state;
+    @JsonProperty("current_state")
+    private List<CurrentState> currentState;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -71,12 +71,12 @@ public class OnlineHearingResponse implements Serializable {
         this.panel = panel;
     }
 
-    public String getState() {
-        return state;
+    public List<CurrentState> getCurrentState() {
+        return currentState;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setCurrentState(List<CurrentState> currentState) {
+        this.currentState = currentState;
     }
 
     public static class PanelMember {
@@ -97,6 +97,36 @@ public class OnlineHearingResponse implements Serializable {
 
         public void setName(String name) {
             this.name = name;
+        }
+    }
+
+    public static class CurrentState {
+
+        @JsonProperty("state_name")
+        private String state_name;
+
+        @JsonProperty("state_datetime")
+        private Date datetime;
+
+        public CurrentState(String state, Date datetime) {
+            this.state_name = state;
+            this.datetime = datetime;
+        }
+
+        public String getState_name() {
+            return state_name;
+        }
+
+        public void setState_name(String state_name) {
+            this.state_name = state_name;
+        }
+
+        public Date getDatetime() {
+            return datetime;
+        }
+
+        public void setDatetime(Date datetime) {
+            this.datetime = datetime;
         }
     }
 }
