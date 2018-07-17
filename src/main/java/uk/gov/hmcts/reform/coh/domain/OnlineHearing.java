@@ -138,6 +138,10 @@ public class OnlineHearing {
         onlineHearingStateHistories.add(stateHistory);
     }
 
+    public void setOnlineHearingStateHistories(List<OnlineHearingStateHistory> onlineHearingStateHistories) {
+        this.onlineHearingStateHistories = onlineHearingStateHistories;
+    }
+
     public List<OnlineHearingStateHistory> getOnlineHearingStateHistories() {
         return onlineHearingStateHistories;
     }
