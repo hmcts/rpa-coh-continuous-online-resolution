@@ -281,10 +281,11 @@ public class OnlineHearingControllerTest {
 
     @Test
     public void testUpdateOnlineHearing() throws Exception {
+        String stateName = OnlineHearingStates.RELISTED.getStateName();
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
-        onlineHearingState.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
-        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_questions_issued")).willReturn(Optional.of(onlineHearingState));
-        updateOnlineHearingRequest.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
+        onlineHearingState.setState(stateName);
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(stateName)).willReturn(Optional.of(onlineHearingState));
+        updateOnlineHearingRequest.setState(stateName);
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
