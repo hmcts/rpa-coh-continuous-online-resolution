@@ -1,11 +1,13 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -58,6 +60,10 @@ public class OnlineHearingService {
         }
 
         return onlineHearings;
+    }
+
+    public OnlineHearing updateOnlineHearing(OnlineHearing onlineHearing){
+        return onlineHearingRepository.save(onlineHearing);
     }
 
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {

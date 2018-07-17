@@ -74,3 +74,34 @@ Feature: Questions feature
     Given the question state is edited to ' "ISSUED" '
     When the put request to update the question is sent
     Then the response code is 422
+
+  Scenario: Delete a question
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And the get request is sent to retrieve the submitted question
+    And the response code is 200
+    When the delete question request is sent
+    Then the response code is 200
+
+  Scenario: Delete a deleted a question
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And the get request is sent to retrieve the submitted question
+    And the response code is 200
+    When the delete question request is sent
+    Then the response code is 200
+    When the delete question request is sent
+    Then the response code is 204
+
+  Scenario: Retrieve a deleted a question
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And the get request is sent to retrieve the submitted question
+    And the response code is 200
+    When the delete question request is sent
+    Then the response code is 200
+    When the get request is sent to retrieve the submitted question
+    Then the response code is 404

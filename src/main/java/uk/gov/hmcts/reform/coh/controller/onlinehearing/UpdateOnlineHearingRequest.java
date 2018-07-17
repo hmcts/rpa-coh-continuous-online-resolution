@@ -1,10 +1,10 @@
-package uk.gov.hmcts.reform.coh.controller.decision;
+package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UpdateDecisionRequest extends DecisionRequest {
+public class UpdateOnlineHearingRequest {
 
-    @JsonProperty(value = "decision_state")
+    @JsonProperty(value = "online_hearing_state")
     private String state;
 
     public String getState() {
@@ -15,4 +15,3 @@ public class UpdateDecisionRequest extends DecisionRequest {
         this.state = state;
     }
 }
-
