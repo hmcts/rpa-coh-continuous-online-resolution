@@ -161,6 +161,7 @@ public class OnlineHearingController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PutMapping(value = "{onlineHearingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -176,7 +177,9 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
-        if (!optionalOnlineHearingState"continuous_online_hearing_started")
+        if (optionalOnlineHearingState.get().getState().equals(OnlineHearingStates.STARTED.getStateName())){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Online hearing state cannot be changed back to started");
+        }
 
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
         onlineHearing.addState(optionalOnlineHearingState.get());
