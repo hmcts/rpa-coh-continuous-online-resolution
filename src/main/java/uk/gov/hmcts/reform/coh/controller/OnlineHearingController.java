@@ -173,6 +173,7 @@ public class OnlineHearingController {
         }
 
         Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(request.getState());
+
         if (!optionalOnlineHearingState.isPresent()){
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
