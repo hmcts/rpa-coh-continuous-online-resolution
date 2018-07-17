@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingReque
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -67,16 +68,19 @@ public class OnlineHearingSteps extends BaseSteps {
             String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
             if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+                testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
             } else if ("POST".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(json, header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+                testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
             } else if ("PUT".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
-                //String onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId().toString();
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
+                String onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId().toString();
+                response = restTemplate.exchange(baseUrl + endpoint + "/" + onlineHearingId, HttpMethod.PUT, request, String.class);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             }
-            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
 
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hcee.getRawStatusCode());
@@ -84,12 +88,17 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     public String getPutRequest() throws Exception {
-        return  JsonUtils.toJson(testContext.getScenarioContext().getUpdateDecisionRequest());
+        return  JsonUtils.toJson(testContext.getScenarioContext().getUpdateOnlineHearingRequest());
     }
 
-    @Given("^a standard online hearing for update$")
-    public void a_standard_online_hearing_for_update() throws IOException {
-        UpdateOnlineHearingRequest request = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearings/update_online_hearing", UpdateOnlineHearingRequest.class);
+    @And("^the request contains a random UUID$")
+    public void the_request_contains_a_random_UUID() throws Exception {
+        testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.randomUUID());
+    }
+
+    @Given("^a standard update online hearing request$")
+    public void a_standard_update_online_hearing_request() throws IOException {
+        UpdateOnlineHearingRequest request = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
         testContext.getScenarioContext().setUpdateOnlineHearingRequest(request);
     }
 
