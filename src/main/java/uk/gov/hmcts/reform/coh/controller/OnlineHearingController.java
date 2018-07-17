@@ -176,6 +176,8 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
+        if (!optionalOnlineHearingState"continuous_online_hearing_started")
+
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
         onlineHearing.addState(optionalOnlineHearingState.get());
         onlineHearingService.updateOnlineHearing(onlineHearing);

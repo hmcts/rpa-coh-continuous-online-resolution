@@ -88,7 +88,7 @@ public class OnlineHearingControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
 
         onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-        updateOnlineHearingRequest = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", UpdateOnlineHearingRequest.class);
+        updateOnlineHearingRequest = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
 
         onlineHearingState = new OnlineHearingState();
         onlineHearingState.setOnlineHearingStateId(1);
@@ -251,29 +251,12 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isOk());
     }
 
-//    @Test
-//    public void testUpdateOnlineHearingGivenOnlineHearingPresent() throws Exception {
-//
-//        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-//        request.setState("2");
-//        request.setCaseId("foo");
-//
-//        given(onlineHearingService.retrieveOnlineHearing(onlineHearing)).willReturn(Optional.empty());
-//
-//        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(JsonUtils.toJson(request)))
-//                .andExpect(status().isOk())
-//                .andReturn();
-//
-//        OnlineHearingResponse response = (OnlineHearingResponse)JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingResponse.class);
-//        assertEquals("2", response.getState());
-//    }
-
     @Test
     public void testUpdateNonExistentOnlineHearing() throws Exception {
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT)
+        updateOnlineHearingRequest.setState("continuous_online_hearing_questions_issued");
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateOnlineHearingRequest)))
                 .andExpect(status().isNotFound())
@@ -283,14 +266,32 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testUpdateOnlineHearingGivenOnlineHearingNotPresent() throws Exception {
+    public void testUpdateOnlineHearingWithInvalidState() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        updateOnlineHearingRequest.setState("foo");
 
-        given(onlineHearingService.retrieveOnlineHearing(onlineHearing)).willReturn(null);
-
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isBadRequest());
-
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Invalid state");
     }
+
+    @Test
+    public void testUpdateOnlineHearing() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_questions_issued")).willReturn(Optional.of(onlineHearingState));
+        updateOnlineHearingRequest.setState("continuous_online_hearing_questions_issued");
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing updated");
+    }
+
 }
