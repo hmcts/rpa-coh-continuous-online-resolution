@@ -21,10 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -189,7 +186,8 @@ public class QuestionSteps extends BaseSteps{
     public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
 
-        try{
+        try {
+            OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             HttpEntity<String> request = new HttpEntity<>(json, header);
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
                     HttpMethod.PUT, request, String.class);
