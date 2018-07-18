@@ -91,7 +91,7 @@ public class AnswerController {
             answerResponse.setAnswerId(answer.getAnswerId());
         } catch (Exception e) {
             log.error("Exception in createAnswer: " + e.getMessage());
-            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
         }
 
         return ResponseEntity.ok(answerResponse);
@@ -165,7 +165,7 @@ public class AnswerController {
 
         // Submitted answers cannot be updated
         Answer savedAnswer = optAnswer.get();
-        if(savedAnswer.getAnswerState().equals(AnswerStates.SUBMITTED.getStateName())){
+        if(savedAnswer.getAnswerState().getState().equals(AnswerStates.SUBMITTED.getStateName())){
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Submitted answers cannot be updated");
         }
 
