@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javassist.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,15 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.states.AnswerStates;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +42,17 @@ public class AnswerController {
 
     private QuestionService questionService;
 
+    private OnlineHearingService onlineHearingService;
+
+    private AnswersReceivedTask answersReceivedTask;
+
     @Autowired
-    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService) {
+    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService, OnlineHearingService onlineHearingService, AnswersReceivedTask answersReceivedTask) {
         this.answerService = answerService;
         this.answerStateService = answerStateService;
         this.questionService = questionService;
+        this.onlineHearingService = onlineHearingService;
+        this.answersReceivedTask = answersReceivedTask;
     }
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
@@ -49,25 +61,33 @@ public class AnswerController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 409, message = "Question already contains an answer"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
         }
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {
-            Answer answer = new Answer();
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
-
-            if (!optionalQuestion.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
+            // If a question exists, then it must be in the issues state to be answered
+            if (!optionalQuestion.isPresent()
+                    || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
             }
 
+            // For MVP, there'll only be one answer per question
+            List<Answer> answers = answerService.retrieveAnswersByQuestion(optionalQuestion.get());
+            if (!answers.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Question already has an answer");
+            }
+
+            Answer answer = new Answer();
             Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (answerState.isPresent()) {
                 answer.setAnswerState(answerState.get());
@@ -80,7 +100,7 @@ public class AnswerController {
             answerResponse.setAnswerId(answer.getAnswerId());
         } catch (Exception e) {
             log.error("Exception in createAnswer: " + e.getMessage());
-            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
         }
 
         return ResponseEntity.ok(answerResponse);
@@ -128,29 +148,34 @@ public class AnswerController {
 
     @ApiOperation(value = "Update Answers", notes = "A PATCH request is used to update an answer")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
+    @PutMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
-
-        if(!optAnswer.isPresent()){
-            return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
         }
 
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
         if(!optionalAnswerState.isPresent()){
-            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid answer state");
+        }
+
+        Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
+        if(!optAnswer.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer does not exist");
+        }
+
+        // Submitted answers cannot be updated
+        Answer savedAnswer = optAnswer.get();
+        if(savedAnswer.getAnswerState().getState().equals(AnswerStates.SUBMITTED.getStateName())){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Submitted answers cannot be updated");
         }
 
         Answer body = new Answer();
@@ -161,9 +186,13 @@ public class AnswerController {
             Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
             AnswerResponse answerResponse = new AnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
-            return ResponseEntity.ok(answerResponse);
+
+            OnlineHearing onlineHearing = new OnlineHearing();
+            onlineHearing.setOnlineHearingId(onlineHearingId);
+            answersReceivedTask.execute(onlineHearing);
+            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
         }
     }
 

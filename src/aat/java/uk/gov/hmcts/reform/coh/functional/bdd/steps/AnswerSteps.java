@@ -215,13 +215,13 @@ public class AnswerSteps extends BaseSteps{
             } else if ("POST".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(json, header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-            } else if ("PATCH".equalsIgnoreCase(type)) {
+            } else if ("PUT".equalsIgnoreCase(type)) {
                 /**
                  * This is a workaround for https://jira.spring.io/browse/SPR-15347
                  *
                  **/
                 HttpEntity<String> request = new HttpEntity<>(json, header);
-                response = restTemplate.exchange(baseUrl + endpoint + "?_method=patch", HttpMethod.POST, request, String.class);
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             }
             httpResponseCode = response.getStatusCodeValue();
 
