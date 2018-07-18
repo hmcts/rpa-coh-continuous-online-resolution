@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.coh.controller.events;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Optional;
+
 public class EventRegistrationRequest {
 
     @JsonProperty("event_type")
@@ -46,19 +48,19 @@ public class EventRegistrationRequest {
         this.endpoint = endpoint;
     }
 
-    public String getMaxRetries() {
-        return maxRetries;
-    }
-
-    public void setMaxRetries(String maxRetries) {
-        this.maxRetries = maxRetries;
-    }
-
     public String getActive() {
         return active;
     }
 
     public void setActive(String active) {
         this.active = active;
+    }
+
+    public String getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(String maxRetries) {
+        this.maxRetries = maxRetries;
     }
 }

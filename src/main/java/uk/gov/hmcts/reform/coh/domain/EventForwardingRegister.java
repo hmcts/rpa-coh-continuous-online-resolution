@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "event_forwarding_register")
@@ -22,8 +24,10 @@ public class EventForwardingRegister {
     @Column(name = "forwarding_endpoint")
     private String forwardingEndpoint;
 
+    @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "registration_date")
-    private String registrationDate;
+    private Date registrationDate = new Date();
 
     @Column(name = "maximum_retries")
     private Integer maximumRetries;
@@ -63,14 +67,6 @@ public class EventForwardingRegister {
         this.forwardingEndpoint = forwardingEndpoint;
     }
 
-    public String getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(String registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
     public Integer getMaximumRetries() {
         return maximumRetries;
     }
@@ -85,5 +81,13 @@ public class EventForwardingRegister {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Date getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(Date registrationDate) {
+        this.registrationDate = registrationDate;
     }
 }
