@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
-import javax.validation.Validation;
 import java.util.*;
 
 @RestController
@@ -184,6 +183,7 @@ public class OnlineHearingController {
 
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
         onlineHearing.setOnlineHearingState(optionalOnlineHearingState.get());
+        onlineHearing.registerStateChange();
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.ok("Online hearing updated");

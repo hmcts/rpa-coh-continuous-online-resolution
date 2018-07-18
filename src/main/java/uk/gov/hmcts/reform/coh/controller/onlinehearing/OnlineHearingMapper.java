@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 
 import java.util.stream.Collectors;
@@ -26,5 +27,10 @@ public class OnlineHearingMapper {
                     ).get(onlineHearing.getOnlineHearingStateHistories().size()-1).getDateOccurred()));
         }
 
+        response.setHistories(onlineHearing
+                .getOnlineHearingStateHistories()
+                .stream()
+                .map(h -> { return new StateResponse(h.getOnlinehearingstate().getState(), df.format(h.getDateOccurred())); })
+        .collect(Collectors.toList()));
     }
 }

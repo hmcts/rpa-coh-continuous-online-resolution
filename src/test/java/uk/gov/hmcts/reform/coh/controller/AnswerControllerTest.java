@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
@@ -41,6 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles({"local"})
 public class AnswerControllerTest {
+
+    @Mock
+    private OnlineHearingService onlineHearingService;
 
     @Mock
     private QuestionService questionService;
@@ -67,9 +71,13 @@ public class AnswerControllerTest {
     private Answer answer;
 
     private UUID uuid;
+
+    private OnlineHearing onlineHearing;
+
     private AnswerState answerState;
 
     private Question question;
+
     private QuestionState questionState;
 
     @Before
@@ -89,11 +97,14 @@ public class AnswerControllerTest {
         question = new Question();
         question.setQuestionState(questionState);
 
+        onlineHearing = new OnlineHearing();
+
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.ofNullable(answer));
         given(answerService.createAnswer(any(Answer.class))).willReturn(answer);
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(answer);
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.ofNullable(answerState));
+        given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.ofNullable(onlineHearing));
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
 
     }

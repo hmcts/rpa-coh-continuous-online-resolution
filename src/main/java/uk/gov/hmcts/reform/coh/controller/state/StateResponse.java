@@ -10,6 +10,14 @@ public class StateResponse {
     @JsonProperty(value = "state_datetime")
     private String datetime;
 
+    public StateResponse() {
+    }
+
+    public StateResponse(String name, String datetime) {
+        this.name = name;
+        this.datetime = datetime;
+    }
+
     public String getDatetime() {
         return datetime;
     }

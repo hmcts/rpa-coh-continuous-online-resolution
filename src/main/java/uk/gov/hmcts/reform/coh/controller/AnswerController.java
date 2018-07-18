@@ -157,6 +157,11 @@ public class AnswerController {
     @PutMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
             return ResponseEntity.unprocessableEntity().body(validationResult.reason);
@@ -187,9 +192,7 @@ public class AnswerController {
             AnswerResponse answerResponse = new AnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
-            OnlineHearing onlineHearing = new OnlineHearing();
-            onlineHearing.setOnlineHearingId(onlineHearingId);
-            answersReceivedTask.execute(onlineHearing);
+            answersReceivedTask.execute(optionalOnlineHearing.get());
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
