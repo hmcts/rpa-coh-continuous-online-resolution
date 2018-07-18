@@ -49,13 +49,3 @@ databaseChangeLog:
             path: sql/decision_states.sql
             splitStatements: false
             relativeToChangelogFile: true
-  - changeSet:
-      id: insert-static-event-types
-      author: johnho
-      validCheckSum: ANY
-      runAlways: true
-      changes:
-        - sqlFile:
-            path: sql/event_types.sql
-            splitStatements: false
-            relativeToChangelogFile: true
