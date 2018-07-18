@@ -118,12 +118,12 @@ public class QuestionRoundController {
 
         int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
         if(roundId > currentQuestionRoundNumber) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("No question round found", HttpStatus.NOT_FOUND);
         }
 
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
         if(!questionStateOptional.isPresent()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid question round state", HttpStatus.BAD_REQUEST);
         }
 
         if (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED)){
@@ -131,7 +131,7 @@ public class QuestionRoundController {
         }
 
         if(currentQuestionRoundNumber != roundId) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>("Previous question rounds cannot be issued", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         onlineHearing = optionalOnlineHearing.get();

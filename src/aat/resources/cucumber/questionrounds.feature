@@ -208,3 +208,14 @@ Feature: Question Round Logic
     Then the response code is 200
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 404
+
+  Scenario: Attempt to re-issue the current question round
+    Given a standard online hearing is created
+    And a standard question
+    And the question round is ' "1" '
+    When the post request is sent to create the question
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 200
+    When the put request is sent to issue the question round ' "1" '
+    Then the response code is 422
