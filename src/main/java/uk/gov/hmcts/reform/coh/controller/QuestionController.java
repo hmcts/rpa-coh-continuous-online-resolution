@@ -4,11 +4,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -104,7 +107,7 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreateQuestionResponse> createQuestion(@PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
+    public ResponseEntity<CreateQuestionResponse> createQuestion(UriComponentsBuilder b, @PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -122,7 +125,13 @@ public class QuestionController {
         CreateQuestionResponse response = new CreateQuestionResponse();
         response.setQuestionId(question.getQuestionId());
 
-        return ResponseEntity.ok(response);
+        UriComponents uriComponents =
+                b.path("/continuous-online-hearings/{onlineHearingId}/questions/{id}").buildAndExpand(onlineHearingId, question.getQuestionId());
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setLocation(uriComponents.toUri());
+
+        return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
     }
 
     @ApiOperation("Edit a question")
