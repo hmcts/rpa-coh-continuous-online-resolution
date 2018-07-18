@@ -25,11 +25,6 @@ import java.util.*;
 @RequestMapping("/continuous-online-hearings")
 public class OnlineHearingController {
 
-    /**
-     * TODO - Don't hard code the starting state
-     */
-    private static final String STARTING_STATE = "continuous_online_hearing_started";
-
     @Autowired
     private OnlineHearingService onlineHearingService;
 
@@ -114,7 +109,7 @@ public class OnlineHearingController {
         }
 
         OnlineHearing onlineHearing = new OnlineHearing();
-        Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
+        Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.STARTED.getStateName());
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
         ValidationResult validationResult = validate(body, onlineHearingState,jurisdiction );
         if (!validationResult.isValid()) {
@@ -126,7 +121,7 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing configuration");
         }
 
-        Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
+        Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.STARTED.getStateName());
         if (!optOnlineHearingState.isPresent()) {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
