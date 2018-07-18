@@ -16,6 +16,8 @@ import uk.gov.hmcts.reform.coh.repository.DecisionRepository;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.UUID.randomUUID;
@@ -91,7 +93,20 @@ public class DecisionServiceTest {
     }
 
     @Test
+    public void testUpdateDecision() {
+        when(decisionRepository.save(decision)).thenReturn(decision);
+        assertEquals(decision, decisionService.updateDecision(decision));
+    }
+
+    @Test
+    public void testDeleteDecisionById() {
+        doNothing().when(decisionRepository).deleteById(uuid);
+        decisionService.deleteDecisionById(uuid);
+    }
+
+    @Test
     public void testDeadlineExpiryDate() {
+        DateFormat df = new SimpleDateFormat("yyyyMMDDHHmmss");
         Calendar expectedExpiryDate = new GregorianCalendar();
         expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 6);
         expectedExpiryDate.set(Calendar.HOUR, 23);
@@ -100,6 +115,6 @@ public class DecisionServiceTest {
 
         Date expiryDate = decisionService.getDeadlineExpiryDate();
 
-        assertEquals(expectedExpiryDate.getTime(), expiryDate);
+        assertTrue(df.format(expectedExpiryDate.getTime()).equalsIgnoreCase(df.format(expiryDate)));
     }
 }

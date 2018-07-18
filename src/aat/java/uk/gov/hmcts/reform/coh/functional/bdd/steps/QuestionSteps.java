@@ -18,16 +18,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
-import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -37,11 +31,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
@@ -59,8 +49,6 @@ public class QuestionSteps extends BaseSteps{
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
     private boolean allQuestionRounds;
-
-    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
@@ -90,7 +78,12 @@ public class QuestionSteps extends BaseSteps{
     @After
     public void cleanUp() {
         for (UUID questionId : questionIds) {
-            questionRepository.deleteById(questionId);
+            try {
+                questionRepository.deleteById(questionId);
+            } catch (Exception e) {
+                // Don't care
+            }
+
         }
 
         try {
@@ -193,7 +186,8 @@ public class QuestionSteps extends BaseSteps{
     public void thePutRequestIsSentToQuestionRound(int questionRoundN) throws Throwable {
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
 
-        try{
+        try {
+            OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             HttpEntity<String> request = new HttpEntity<>(json, header);
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
                     HttpMethod.PUT, request, String.class);
@@ -328,5 +322,76 @@ public class QuestionSteps extends BaseSteps{
                 assertTrue(questionStateHistories.size() >= histories);
             }
         }
+    }
+
+    @When("^the question body is edited to ' \"([^\"]*)\" '$")
+    public void theQuestionBodyIsEditedToSomeNewText(String questionBody) throws IOException {
+        String json = JsonUtils.getJsonInput("question/update_question");
+
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionText(questionBody);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
+    }
+
+    @Given("^the question header is edited to ' \"([^\"]*)\" '$")
+    public void theQuestionHeaderIsEditedTo(String questionHeader) throws Throwable {
+        String json = JsonUtils.getJsonInput("question/update_question");
+
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionHeaderText(questionHeader);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
+    }
+
+    @Given("^the question state is edited to ' \"([^\"]*)\" '$")
+    public void theQuestionStateIsEditedTo(String state) throws Throwable {
+        String json = JsonUtils.getJsonInput("question/update_question");
+
+        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        updateQuestionRequest.setQuestionState(state);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
+    }
+
+    @When("^the put request to update the question is sent$")
+    public void thePutRequestToUpdateTheQuestionIsSent() throws Throwable {
+        String json = JsonUtils.toJson(testContext.getScenarioContext().getUpdateQuestionRequest());
+
+        try{
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
+                    HttpMethod.PUT, request, String.class);
+
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
+    }
+
+    @When("^the delete question request is sent$")
+    public void the_delete_question_request_is_sent() {
+
+        try {
+            Question question = testContext.getScenarioContext().getCurrentQuestion();
+            HttpEntity<String> request = new HttpEntity<>("", header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(),
+                    HttpMethod.DELETE, request, String.class);
+
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+            testContext.getHttpContext().setRawResponseString(response.getBody());
+        } catch (HttpClientErrorException hsee) {
+            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        }
+    }
+
+    @And("^the question body is ' \"([^\"]*)\" '$")
+    public void theQuestionBodyIs(String expectedBody) throws IOException {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(expectedBody, question.getQuestionBodyText());
+    }
+
+    @And("^the question header is ' \"([^\"]*)\" '$")
+    public void theQuestionHeaderIs(String expectedHeader) throws Throwable {
+        QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
+        assertEquals(expectedHeader, question.getQuestionHeaderText());
     }
 }

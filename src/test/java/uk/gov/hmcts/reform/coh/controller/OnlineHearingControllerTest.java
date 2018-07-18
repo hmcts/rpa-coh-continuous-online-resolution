@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import cucumber.deps.com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,10 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -30,9 +29,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -78,26 +75,34 @@ public class OnlineHearingControllerTest {
 
     private OnlineHearingRequest onlineHearingRequest;
 
+    private UpdateOnlineHearingRequest updateOnlineHearingRequest;
+
     @Before
     public void setup() throws IOException {
         uuid = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
+        onlineHearing.setStartDate(new Date());
+
         member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
         onlineHearing.setPanelMembers(Arrays.asList(member));
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
 
+        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        updateOnlineHearingRequest = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
+
         onlineHearingState = new OnlineHearingState();
-        onlineHearingState.setOnlineHearingStateId(1);
         onlineHearingState.setState("continuous_online_hearing_started");
+        onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
         given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.ofNullable(onlineHearingState));
 
-        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
     }
 
     @Test
@@ -249,4 +254,82 @@ public class OnlineHearingControllerTest {
                 .content(""))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void testOnlineHearingHistoryIsSorted() throws Exception {
+        onlineHearingState.setOnlineHearingStateId(2);
+        onlineHearingState.setState("continuous_online_hearing_questions_issued");
+        onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+        Date recentStateTime = onlineHearing.getOnlineHearingStateHistories().get(onlineHearing.getOnlineHearingStateHistories().size() - 1).getDateOccurred();
+        onlineHearing.getOnlineHearingStateHistories().get(0).setDateOccurred(new Date(2017, 12, 31));
+
+        OnlineHearingResponse response = new OnlineHearingResponse();
+        OnlineHearingMapper.map(response, onlineHearing);
+
+        ISO8601DateFormat df = new ISO8601DateFormat();
+        assertEquals(df.format(recentStateTime), response.getCurrentState().getDatetime());
+    }
+
+    @Test
+    public void testUpdateNonExistentOnlineHearing() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
+        updateOnlineHearingRequest.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing not found");
+    }
+
+    @Test
+    public void testUpdateOnlineHearingWithInvalidState() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        updateOnlineHearingRequest.setState("foo");
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Invalid state");
+    }
+
+    @Test
+    public void testUpdateOnlineHearing() throws Exception {
+        String stateName = OnlineHearingStates.RELISTED.getStateName();
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        onlineHearingState.setState(stateName);
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(stateName)).willReturn(Optional.of(onlineHearingState));
+        updateOnlineHearingRequest.setState(stateName);
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing updated");
+    }
+
+    @Test
+    public void testUpdateOnlineHearingWithStartedStateFails() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.of(onlineHearingState));
+        updateOnlineHearingRequest.setState(OnlineHearingStates.STARTED.getStateName());
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isConflict())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing state cannot be changed back to started");
+
+    }
+
 }

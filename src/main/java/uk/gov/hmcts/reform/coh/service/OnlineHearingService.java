@@ -60,6 +60,10 @@ public class OnlineHearingService {
         return onlineHearings;
     }
 
+    public OnlineHearing updateOnlineHearing(OnlineHearing onlineHearing){
+        return onlineHearingRepository.save(onlineHearing);
+    }
+
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
         onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
     }

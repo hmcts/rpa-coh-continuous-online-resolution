@@ -15,7 +15,7 @@ public class TestAnswerRequest {
         ObjectMapper mapper = new ObjectMapper();
         AnswerRequest request = mapper.readValue(json, AnswerRequest.class);
 
-        assertEquals("DRAFTED", request.getAnswerState());
+        assertEquals("answer_drafted", request.getAnswerState());
         assertEquals("string", request.getAnswerText());
     }
 }

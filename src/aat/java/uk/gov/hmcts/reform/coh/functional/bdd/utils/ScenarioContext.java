@@ -1,11 +1,12 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.domain.Answer;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,30 @@ public class ScenarioContext {
 
     private Answer currentAnswer;
 
+    private DecisionRequest currentDecisionRequest;
+
+    private UpdateDecisionRequest updateDecisionRequest;
+
+    private UpdateOnlineHearingRequest updateOnlineHearingRequest;
+
+    private Decision currentDecision;
+
     private List<String> caseIds;
+
+    private UpdateQuestionRequest updateQuestionRequest;
 
     Set<Jurisdiction> jurisdictions;
 
     public OnlineHearingRequest getCurrentOnlineHearingRequest() {
         return currentOnlineHearingRequest;
+    }
+
+    public UpdateQuestionRequest getUpdateQuestionRequest() {
+        return updateQuestionRequest;
+    }
+
+    public void setUpdateQuestionRequest(UpdateQuestionRequest updateQuestionRequest) {
+        this.updateQuestionRequest = updateQuestionRequest;
     }
 
     public void setCurrentOnlineHearingRequest(OnlineHearingRequest currentOnlineHearingRequest) {
@@ -63,6 +82,30 @@ public class ScenarioContext {
         this.currentAnswer = currentAnswer;
     }
 
+    public DecisionRequest getCurrentDecisionRequest() {
+        return currentDecisionRequest;
+    }
+
+    public void setCurrentDecisionRequest(DecisionRequest currentDecisionRequest) {
+        this.currentDecisionRequest = currentDecisionRequest;
+    }
+
+    public UpdateDecisionRequest getUpdateDecisionRequest() {
+        return updateDecisionRequest;
+    }
+
+    public void setUpdateDecisionRequest(UpdateDecisionRequest updateDecisionRequest) {
+        this.updateDecisionRequest = updateDecisionRequest;
+    }
+
+    public Decision getCurrentDecision() {
+        return currentDecision;
+    }
+
+    public void setCurrentDecision(Decision currentDecision) {
+        this.currentDecision = currentDecision;
+    }
+
     public List<String> getCaseIds() {
         return caseIds;
     }
@@ -92,5 +135,14 @@ public class ScenarioContext {
         currentAnswer = null;
         caseIds = null;
         jurisdictions = null;
+        updateQuestionRequest = null;
+    }
+
+    public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
+        return updateOnlineHearingRequest;
+    }
+
+    public void setUpdateOnlineHearingRequest(UpdateOnlineHearingRequest updateOnlineHearingRequest) {
+        this.updateOnlineHearingRequest = updateOnlineHearingRequest;
     }
 }

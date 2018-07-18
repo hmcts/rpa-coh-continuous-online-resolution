@@ -3,8 +3,10 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -18,9 +20,8 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
-    public static final String DRAFTED = "DRAFTED";
-    public static final String SUBMITTED = "SUBMITTED";
-    public static final String ISSUED = "ISSUED";
+    public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
+    public static final String ISSUED = QuestionStates.ISSUED.getStateName();
 
     public QuestionRoundService() {}
 
@@ -168,6 +169,12 @@ public class QuestionRoundService {
     public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
         List<Question> modifiedQuestion = new ArrayList<>();
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
+        QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
+
+        if(qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
+            throw new NotAValidUpdateException();
+        }
+
         questions.stream().forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);
