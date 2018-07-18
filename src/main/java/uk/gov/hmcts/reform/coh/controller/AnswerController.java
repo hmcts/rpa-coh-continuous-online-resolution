@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,25 +50,34 @@ public class AnswerController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 409, message = "Question already contains an answer"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
         }
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {
-            Answer answer = new Answer();
-            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
 
-            if (!optionalQuestion.isPresent()) {
-                return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
+            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+            // If a question exists, then it must be in the issues state to be answered
+            if (!optionalQuestion.isPresent()
+                    || optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
             }
 
+            // For MVP, there'll only be one answer per question
+            List<Answer> answers = answerService.retrieveAnswersByQuestion(optionalQuestion.get());
+            if (!answers.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Question already has an answer");
+            }
+
+            Answer answer = new Answer();
             Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (answerState.isPresent()) {
                 answer.setAnswerState(answerState.get());
