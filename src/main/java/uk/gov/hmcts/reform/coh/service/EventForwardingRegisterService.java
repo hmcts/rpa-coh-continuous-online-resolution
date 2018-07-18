@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Component
-public class EventService {
+public class EventForwardingRegisterService {
 
     public boolean registerForEvent(String jurisdiction, String eventType) {
         return true;
