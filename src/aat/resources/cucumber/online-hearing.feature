@@ -7,6 +7,9 @@ Feature: Online hearing
   Scenario: Create online hearing
     And the response contains the following text '"online_hearing_id" '
     And the response contains the online hearing UUID
+    And the response contains the panel information
+    And the response contains the state information
+    And the response contains 1 online hearings
 
   Scenario: Create duplicate online hearing
     And a standard online hearing is created

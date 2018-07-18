@@ -18,4 +18,14 @@ public enum OnlineHearingStates {
         return stateName;
     }
 
+    public boolean isValid(String state) {
+        boolean valid;
+        try {
+            valid = !OnlineHearingStates.contains(OnlineHearingStates.valueOf(state));
+        } catch (IllegalArgumentException e) {
+            valid = false;
+        }
+        return valid;
+    }
+
 }
