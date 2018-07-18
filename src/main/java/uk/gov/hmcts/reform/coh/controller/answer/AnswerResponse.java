@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.coh.controller.answer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public class AnswerResponse {
 
+    @JsonProperty(value = "answer_id")
     private UUID answerId;
 
     public UUID getAnswerId() {

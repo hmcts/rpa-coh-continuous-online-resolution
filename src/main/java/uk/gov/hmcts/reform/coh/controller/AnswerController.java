@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javassist.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.List;
@@ -63,7 +65,6 @@ public class AnswerController {
 
         AnswerResponse answerResponse = new AnswerResponse();
         try {
-
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             // If a question exists, then it must be in the issues state to be answered
             if (!optionalQuestion.isPresent()
@@ -138,29 +139,34 @@ public class AnswerController {
 
     @ApiOperation(value = "Update Answers", notes = "A PATCH request is used to update an answer")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 422, message = "Validation error")
     })
-    @PatchMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnswerResponse> updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
+    @PutMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
-
-        if(!optAnswer.isPresent()){
-            return new ResponseEntity<AnswerResponse>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
         }
 
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
         if(!optionalAnswerState.isPresent()){
-            return new ResponseEntity<AnswerResponse>(HttpStatus.FAILED_DEPENDENCY);
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid answer state");
+        }
+
+        Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
+        if(!optAnswer.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer does not exist");
+        }
+
+        // Submitted answers cannot be updated
+        Answer savedAnswer = optAnswer.get();
+        if(savedAnswer.getAnswerState().equals(AnswerStates.SUBMITTED.getStateName())){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Submitted answers cannot be updated");
         }
 
         Answer body = new Answer();
@@ -171,9 +177,9 @@ public class AnswerController {
             Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
             AnswerResponse answerResponse = new AnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
-            return ResponseEntity.ok(answerResponse);
+            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
-            return new ResponseEntity<AnswerResponse>(HttpStatus.UNPROCESSABLE_ENTITY);
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
         }
     }
 
