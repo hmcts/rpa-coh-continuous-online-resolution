@@ -17,12 +17,15 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +42,17 @@ public class AnswerController {
 
     private QuestionService questionService;
 
+    private OnlineHearingService onlineHearingService;
+
+    private AnswersReceivedTask answersReceivedTask;
+
     @Autowired
-    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService) {
+    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService, OnlineHearingService onlineHearingService, AnswersReceivedTask answersReceivedTask) {
         this.answerService = answerService;
         this.answerStateService = answerStateService;
         this.questionService = questionService;
+        this.onlineHearingService = onlineHearingService;
+        this.answersReceivedTask = answersReceivedTask;
     }
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
@@ -146,7 +155,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PutMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateAnswer(@PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
+    public ResponseEntity updateAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @PathVariable UUID answerId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
@@ -177,6 +186,10 @@ public class AnswerController {
             Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
             AnswerResponse answerResponse = new AnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
+
+            OnlineHearing onlineHearing = new OnlineHearing();
+            onlineHearing.setOnlineHearingId(onlineHearingId);
+            answersReceivedTask.execute(onlineHearing);
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());

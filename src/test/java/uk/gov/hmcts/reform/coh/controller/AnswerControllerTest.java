@@ -17,15 +17,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
-import uk.gov.hmcts.reform.coh.domain.Answer;
-import uk.gov.hmcts.reform.coh.domain.AnswerState;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
@@ -35,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -51,6 +50,9 @@ public class AnswerControllerTest {
 
     @Mock
     private AnswerStateService answerStateService;
+
+    @Mock
+    private AnswersReceivedTask answersReceivedTask;
 
     @InjectMocks
     private AnswerController answerController;
@@ -223,6 +225,7 @@ public class AnswerControllerTest {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
+        doNothing().when(answersReceivedTask).execute(any(OnlineHearing.class));
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
