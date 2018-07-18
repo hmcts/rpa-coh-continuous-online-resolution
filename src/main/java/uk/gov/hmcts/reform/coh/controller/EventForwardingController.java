@@ -11,14 +11,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
+import uk.gov.hmcts.reform.coh.domain.EventForwardingRegister;
+import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.service.EventForwardingRegisterService;
+import uk.gov.hmcts.reform.coh.service.EventTypeService;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/events")
-public class EventController {
+public class EventForwardingController {
 
     @Autowired
     private EventForwardingRegisterService eventForwardingRegisterService;
+
+    @Autowired
+    private EventTypeService eventTypeService;
 
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
     @ApiResponses(value = {
@@ -33,7 +41,11 @@ public class EventController {
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity registerForEventNotifications(@RequestBody EventRegistrationRequest body) {
 
-        eventForwardingRegisterService.registerForEvent(body.getJurisdiction(), body.getEventType());
+        EventForwardingRegister eventForwardingRegister = new EventForwardingRegister();
+
+        //Optional<EventType> eventType = eventTypeService.retrieveEventType(body)
+
+        //eventForwardingRegisterService.createEventForwardingRegister();
 
         return ResponseEntity.ok("Successfully registered for event notifications");
 
