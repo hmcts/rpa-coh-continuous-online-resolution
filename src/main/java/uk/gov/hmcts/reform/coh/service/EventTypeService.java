@@ -20,7 +20,7 @@ public class EventTypeService {
     }
 
     public Optional<EventType> retrieveEventType(String eventType){
-        return eventTypeRepository.findByEventType(eventType);
+        return eventTypeRepository.findByEventTypeName(eventType);
     }
 
 }

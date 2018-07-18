@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface EventTypeRepository extends CrudRepository<EventType, Integer> {
 
-    Optional<EventType> findByEventType(String eventType);
+    Optional<EventType> findByEventTypeName(String eventTypeName);
 }
