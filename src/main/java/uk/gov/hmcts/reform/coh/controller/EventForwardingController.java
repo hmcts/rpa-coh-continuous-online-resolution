@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.service.EventTypeService;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 
 import javax.validation.Validation;
+import java.sql.Date;
 import java.text.ParseException;
 import java.util.Optional;
 
@@ -41,9 +42,6 @@ public class EventForwardingController {
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 400, message = "Bad Request"),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 422, message = "Validation error")
@@ -65,19 +63,29 @@ public class EventForwardingController {
 
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
         if (!jurisdiction.isPresent()){
-            return new ResponseEntity<>("No jurisdiction specified", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Invalid jurisdiction", HttpStatus.NOT_FOUND);
+        }
+
+        Optional<String> maxRetries = Optional.ofNullable(body.getMaxRetries());
+        if (maxRetries.isPresent()) {
+            try {
+                eventForwardingRegister.setMaximumRetries(Integer.parseInt(maxRetries.get()));
+            } catch (Exception e) {
+                return new ResponseEntity<>("Maximum retries must be an integer", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+        } else {
+            eventForwardingRegister.setMaximumRetries(3);
+        }
+
+        try {
+            eventForwardingRegister.setActive(Boolean.valueOf(body.getActive()));
+        } catch (Exception e) {
+            return new ResponseEntity<>("Active must be a boolean value", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
         eventForwardingRegister.setEventType(eventType.get());
         eventForwardingRegister.setJurisdiction(jurisdiction.get());
         eventForwardingRegister.setForwardingEndpoint(body.getEndpoint());
-
-        //if (body.getMaxRetries())
-        try  {
-            eventForwardingRegister.setMaximumRetries(Integer.parseInt(body.getMaxRetries()));
-        } catch (Exception e) {
-            return new ResponseEntity<>("Maximum retries must be an integer", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
 
         eventForwardingRegisterService.createEventForwardingRegister(eventForwardingRegister);
 
@@ -98,6 +106,9 @@ public class EventForwardingController {
         } else if (StringUtils.isEmpty(request.getEndpoint())) {
             result.setValid(false);
             result.setReason("Forwarding endpoint is required");
+        } else if (StringUtils.isEmpty(request.getActive())) {
+            result.setValid(false);
+            result.setReason("Active is a required field");
         }
 
         return result;
