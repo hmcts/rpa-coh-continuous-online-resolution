@@ -20,17 +20,21 @@ public class OnlineHearingMapper {
                 .collect(Collectors.toList()));
         response.getCurrentState().setName(onlineHearing.getOnlineHearingState().getState());
 
-        if (!onlineHearing.getOnlineHearingStateHistories().isEmpty()){
+        if (onlineHearing.getOnlineHearingStateHistories() != null && !onlineHearing.getOnlineHearingStateHistories().isEmpty()){
             response.getCurrentState().setDatetime
                     (df.format(onlineHearing.getOnlineHearingStateHistories().stream().sorted(
                             (a, b) -> (b.getDateOccurred().compareTo(a.getDateOccurred()))).collect(Collectors.toList()
                     ).get(onlineHearing.getOnlineHearingStateHistories().size()-1).getDateOccurred()));
         }
 
-        response.setHistories(onlineHearing
-                .getOnlineHearingStateHistories()
-                .stream()
-                .map(h -> { return new StateResponse(h.getOnlinehearingstate().getState(), df.format(h.getDateOccurred())); })
-        .collect(Collectors.toList()));
+        if (onlineHearing.getOnlineHearingStateHistories() != null && !onlineHearing.getOnlineHearingStateHistories().isEmpty()) {
+            response.setHistories(onlineHearing
+                    .getOnlineHearingStateHistories()
+                    .stream()
+                    .map(h -> {
+                        return new StateResponse(h.getOnlinehearingstate().getState(), df.format(h.getDateOccurred()));
+                    })
+                    .collect(Collectors.toList()));
+        }
     }
 }
