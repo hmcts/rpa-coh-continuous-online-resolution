@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
@@ -168,6 +169,12 @@ public class QuestionRoundService {
     public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
         List<Question> modifiedQuestion = new ArrayList<>();
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
+        QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
+
+        if(qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
+            throw new NotAValidUpdateException();
+        }
+
         questions.stream().forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);

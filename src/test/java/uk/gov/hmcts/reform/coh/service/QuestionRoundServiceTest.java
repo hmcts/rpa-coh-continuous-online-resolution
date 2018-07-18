@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
@@ -108,8 +109,7 @@ public class QuestionRoundServiceTest {
         question.setQuestionRound(3);
 
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(new ArrayList<>());
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
@@ -122,32 +122,27 @@ public class QuestionRoundServiceTest {
 
     @Test
     public void testIsIncrementedReturnsTrueWhenOneToTwo(){
-        boolean valid = questionRoundService.isIncremented(2, 1);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isIncremented(2, 1));
     }
 
     @Test
     public void testIsIncrementedReturnsFalseWhenOneToThree(){
-        boolean valid = questionRoundService.isIncremented(3, 1);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isIncremented(3, 1));
     }
 
     @Test
     public void testIsIncrementedReturnsFalseWhenTwoToOne(){
-        boolean valid = questionRoundService.isIncremented(1, 2);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isIncremented(1, 2));
     }
 
     @Test
     public void testIsMaxRoundLimitIsTrueIfValueSetAboveZero() {
-        boolean valid = questionRoundService.isMaxRoundLimit(1);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isMaxRoundLimit(1));
     }
 
     @Test
     public void testIsMaxRoundLimitIsFalseIfValueSetToZero() {
-        boolean valid = questionRoundService.isMaxRoundLimit(0);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isMaxRoundLimit(0));
     }
 
     @Test
@@ -158,16 +153,14 @@ public class QuestionRoundServiceTest {
 
         Question question = new Question();
         question.setQuestionRound(3);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
     public void testValidateQuestionRoundHappyPath(){
         Question question = new Question();
         question.setQuestionRound(3);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
@@ -178,8 +171,7 @@ public class QuestionRoundServiceTest {
         question.setQuestionRound(1);
 
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
@@ -190,40 +182,35 @@ public class QuestionRoundServiceTest {
         question.setQuestionRound(2);
 
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
     public void testValidateQuestionRoundFailsWhenExceedingMaxQuestionRounds(){
         Question question = new Question();
         question.setQuestionRound(4);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
     public void testValidateQuestionRoundIsTrueWhenIncrementedByOne(){
         Question question = new Question();
         question.setQuestionRound(3);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
     public void testValidateQuestionRoundIsFalseWhenSettingToPreviousQuestionRound(){
         Question question = new Question();
         question.setQuestionRound(1);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test
     public void testValidateQuestionRoundAcceptsSameQuestionRound(){
         Question question = new Question();
         question.setQuestionRound(2);
-        boolean valid = questionRoundService.isQrValidTransition(question, onlineHearing);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isQrValidTransition(question, onlineHearing));
     }
 
     @Test(expected = EntityNotFoundException.class)
@@ -242,32 +229,28 @@ public class QuestionRoundServiceTest {
     public void testQuestionIsStateDraftedIsTrueWhenStateIsDrafted(){
         Question question = new Question();
         question.setQuestionState(draftedState);
-        boolean valid = questionRoundService.isState(question, draftedState);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isState(question, draftedState));
     }
 
     @Test
     public void testQuestionIsStateFalseSubmittedIsTrueWhenStateIsDrafted(){
         Question question = new Question();
         question.setQuestionState(submittedState);
-        boolean valid = questionRoundService.isState(question, draftedState);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isState(question, draftedState));
     }
 
     @Test
     public void testQuestionRoundIsStateDraftedIsTrueWhenStateIsDrafted(){
         QuestionRoundState questionRoundState = new QuestionRoundState();
         questionRoundState.setState(draftedState);
-        boolean valid = questionRoundService.isState(questionRoundState, draftedState);
-        assertTrue(valid);
+        assertTrue(questionRoundService.isState(questionRoundState, draftedState));
     }
 
     @Test
     public void testQuestionRoundIsStateFalseSubmittedIsTrueWhenStateIsDrafted(){
         QuestionRoundState questionRoundState = new QuestionRoundState();
         questionRoundState.setState(submittedState);
-        boolean valid = questionRoundService.isState(questionRoundState, draftedState);
-        assertFalse(valid);
+        assertFalse(questionRoundService.isState(questionRoundState, draftedState));
     }
 
     @Test
@@ -320,31 +303,29 @@ public class QuestionRoundServiceTest {
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
         QuestionRound questionRound = new QuestionRound();
         questionRound.setQuestionList(new ArrayList<>());
-        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
-        assertEquals( draftedState.getState(), questionRoundState.getState());
+        assertEquals(draftedState.getState(), questionRoundService.retrieveQuestionRoundState(questionRound));
     }
 
     @Test
     public void testRetrieveQuestionRoundReturnsDraftedIfNoQuestionsExist() {
         QuestionRound questionRound = new QuestionRound();
         questionRound.setQuestionList(new ArrayList<>());
-        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
-        assertEquals( draftedState.getState(), questionRoundState.getState());
+        assertEquals(draftedState.getState(), questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 
     @Test
     public void testRetrieveQuestionRoundStateReturnsStateIfAllQuestionStatesAreIssued() {
         QuestionRound questionRound = new QuestionRound();
         questionRound.setQuestionList(questionRound1Questions);
-        QuestionRoundState questionRoundState = questionRoundService.retrieveQuestionRoundState(questionRound);
-        assertEquals( issuedState.getState(), questionRoundState.getState());
+        assertEquals(issuedState.getState(), questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 
     @Test
     public void testIssueQuestionRound() {
+        doReturn(new QuestionRoundState(draftedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
         List<Question> questions = questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
         assertEquals(2, questions.size());
-        questions.stream().forEach(q -> assertEquals("question_issued", q.getQuestionState().getState()));
+        questions.stream().forEach(q -> assertEquals(issuedState.getState(), q.getQuestionState().getState()));
     }
 
     @Test
@@ -358,8 +339,7 @@ public class QuestionRoundServiceTest {
         QuestionRoundState issuedQrState = new QuestionRoundState(issuedState);
         doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
-        assertFalse(isValid);
+        assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
     }
 
     @Test
@@ -369,12 +349,9 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(draftedState);
 
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        QuestionRoundState issuedQrState = new QuestionRoundState(issuedState);
-        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
-
-        boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
-        assertTrue(isValid);
+        assertTrue(questionRoundService.isQrValidState(question, onlineHearing));
     }
 
     @Test
@@ -384,11 +361,9 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(draftedState);
 
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
-        QuestionRoundState draftedQrState = new QuestionRoundState(draftedState);
-        doReturn(draftedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+        doReturn(new QuestionRoundState(draftedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
-        assertTrue(isValid);
+        assertTrue(questionRoundService.isQrValidState(question, onlineHearing));
     }
 
     @Test
@@ -398,11 +373,9 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(draftedState);
 
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
-        QuestionRoundState issuedQrState = new QuestionRoundState(issuedState);
-        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        boolean isValid = questionRoundService.isQrValidState(question, onlineHearing);
-        assertFalse(isValid);
+        assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
     }
 
     @Test
@@ -413,13 +386,20 @@ public class QuestionRoundServiceTest {
         questions.add(new Question());
 
         given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questions);
-
+        doReturn(new QuestionRoundState(draftedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
         questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
         List<Question> issuedQuestions = questions.stream()
                 .filter(q -> q.getQuestionState().getState().equals(issuedStateName))
                 .collect(Collectors.toList());
         assertEquals(3, issuedQuestions.size());
         verify(questionRepository, times(3)).save(any(Question.class));
+    }
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() {
+        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
     }
 }
 
