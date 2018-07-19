@@ -43,7 +43,7 @@ public class DecisionService {
      */
     public Date getDeadlineExpiryDate() {
         Calendar calendar = new GregorianCalendar();
-        calendar.add(Calendar.DAY_OF_YEAR, 6);
+        calendar.add(Calendar.DAY_OF_YEAR, 7);
         calendar.set(Calendar.HOUR, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
