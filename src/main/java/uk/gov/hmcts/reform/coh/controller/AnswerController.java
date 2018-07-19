@@ -70,7 +70,7 @@ public class AnswerController {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
+            return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
         AnswerResponse answerResponse = new AnswerResponse();
@@ -165,7 +165,7 @@ public class AnswerController {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
+            return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());

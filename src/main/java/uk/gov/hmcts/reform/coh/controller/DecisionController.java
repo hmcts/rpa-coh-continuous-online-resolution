@@ -138,7 +138,7 @@ public class DecisionController {
         }
 
         // The remaining validation is same as DecisionRequest for create
-        ValidationResult result = DecisionRequestValidator.validate(request);
+        ValidationResult result = validation.execute(DecisionRequestValidator.values(), request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }

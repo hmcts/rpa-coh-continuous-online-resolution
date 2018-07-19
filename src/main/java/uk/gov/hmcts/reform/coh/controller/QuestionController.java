@@ -148,6 +148,15 @@ public class QuestionController {
     @PutMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
                                        @RequestBody UpdateQuestionRequest request) {
+
+        ValidationResult result = validation.execute(QuestionValidator.values(), request);
+        if (!result.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
+        }
+        else if (StringUtils.isEmpty(request.getQuestionState())) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Question state is required");
+        }
+
         synchronized (QuestionController.class) {
             // This will block on multiple update attempts.
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
