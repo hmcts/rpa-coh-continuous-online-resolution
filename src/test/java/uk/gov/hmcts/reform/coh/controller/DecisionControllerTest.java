@@ -28,11 +28,15 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -114,12 +118,22 @@ public class DecisionControllerTest {
     }
 
     @Test
-    public void testCreateDecision() throws Exception {
+    public void testCreateDecisionAndCheckHeaderForLocation() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String returnedUrl = result.getResponse().getHeader("Location");
+        try {
+            URL u = new URL(returnedUrl); // this would check for the protocol
+            u.toURI(); // does the extra checking required for validation of URI
+            assertTrue(true);
+        }catch(MalformedURLException e){
+            fail();
+        }
     }
 
     @Test

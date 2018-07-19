@@ -161,7 +161,7 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testCreateAnswer() throws Exception {
+    public void testCreateAnswerAndCheckHeaderForLocation() throws Exception {
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
 

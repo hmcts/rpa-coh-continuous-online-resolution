@@ -9,6 +9,9 @@ Feature: Decisions features
     When a POST request is sent for a decision
     Then the response code is 201
     And the response contains the decision UUID
+    And the response headers contains a location to the created entity
+    And send get request to the location
+    And the response code is 200
 
   Scenario: Retrieve a decision
     And a standard decision
