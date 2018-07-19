@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javassist.NotFoundException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -65,7 +66,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createAnswer(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity createAnswer(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
@@ -103,7 +104,10 @@ public class AnswerController {
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
         }
 
-        return ResponseEntity.ok(answerResponse);
+        UriComponents uriComponents =
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/questions/{questionId}/answers/{answerId}").buildAndExpand(onlineHearingId, questionId, answerResponse.getAnswerId());
+
+        return ResponseEntity.created(uriComponents.toUri()).body(answerResponse);
     }
 
     @ApiOperation(value = "Get Answer", notes = "A GET request with a request body is used to retrieve an answer")

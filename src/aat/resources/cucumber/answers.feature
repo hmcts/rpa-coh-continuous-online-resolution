@@ -14,7 +14,10 @@ Feature: Answers
     And a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
-    Then the response code is 200
+    Then the response code is 201
+    And the response headers contains a location to the created entity
+    And send get request to the location
+    And the response code is 200
 
   Scenario: Submit an answer with no answer text
     Given a standard online hearing is created
@@ -34,7 +37,7 @@ Feature: Answers
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
     And a POST request is sent
-    And the response code is 200
+    And the response code is 201
     And an update to the answer is required
     And the answer text is 'bar'
     When a PUT request is sent
@@ -49,7 +52,7 @@ Feature: Answers
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
     And a POST request is sent
-    And the response code is 200
+    And the response code is 201
     And an update to the answer is required
     And the answer state is 'answer_submitted'
     When a PUT request is sent
@@ -63,7 +66,7 @@ Feature: Answers
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
     And a POST request is sent
-    And the response code is 200
+    And the response code is 201
     And an update to the answer is required
     And the answer state is 'answer_submitted'
     When a PUT request is sent
