@@ -108,7 +108,7 @@ public class DecisionServiceTest {
     public void testDeadlineExpiryDate() {
         DateFormat df = new SimpleDateFormat("yyyyMMDDHHmmss");
         Calendar expectedExpiryDate = new GregorianCalendar();
-        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 6);
+        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 7);
         expectedExpiryDate.set(Calendar.HOUR, 23);
         expectedExpiryDate.set(Calendar.MINUTE, 59);
         expectedExpiryDate.set(Calendar.SECOND, 59);
