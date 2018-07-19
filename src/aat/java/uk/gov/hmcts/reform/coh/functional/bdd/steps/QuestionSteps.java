@@ -330,7 +330,7 @@ public class QuestionSteps extends BaseSteps{
         String json = JsonUtils.getJsonInput("question/update_question");
 
         UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
-        updateQuestionRequest.setQuestionText(questionBody);
+        updateQuestionRequest.setQuestionBodyText(questionBody);
         testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
     }
 

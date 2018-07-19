@@ -166,6 +166,18 @@ public class QuestionControllerTest {
     }
 
     @Test
+    public void testCreateQuestionInvalidOnlineHearing() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+
+        String json = JsonUtils.getJsonInput("question/standard_question");
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testValidateQuestionRound() throws Exception {
 
         questionRequest.setQuestionRound(null);

@@ -7,8 +7,8 @@ public class UpdateQuestionRequestMapper {
     private UpdateQuestionRequestMapper() {}
 
     public static void map(Question question, UpdateQuestionRequest updateQuestionRequest) {
-        question.setQuestionText(updateQuestionRequest.getQuestionText());
+        question.setQuestionText(updateQuestionRequest.getQuestionBodyText());
         question.setQuestionHeaderText(updateQuestionRequest.getQuestionHeaderText());
-        question.setQuestionOrdinal(updateQuestionRequest.getQuestionOrdinal());
+        question.setQuestionOrdinal(Integer.parseInt(updateQuestionRequest.getQuestionRound()));
     }
 }
