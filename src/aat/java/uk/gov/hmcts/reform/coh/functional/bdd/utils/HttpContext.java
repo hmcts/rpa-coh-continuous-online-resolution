@@ -12,8 +12,12 @@ import java.io.IOException;
 public class HttpContext {
 
     private String rawResponseString;
-
     private int httpResponseStatusCode;
+    private ResponseEntity responseEntity;
+
+    public ResponseEntity getResponseEntity() {
+        return responseEntity;
+    }
 
     public void setResponseBodyAndStatesForResponse(HttpResponse httpResponse) throws IOException {
         rawResponseString = new BasicResponseHandler().handleResponse(httpResponse);
@@ -21,6 +25,7 @@ public class HttpContext {
     }
 
     public void setResponseBodyAndStatesForResponse(ResponseEntity<String> responseEntity) throws IOException {
+        this.responseEntity = responseEntity;
         rawResponseString = responseEntity.getBody();
         httpResponseStatusCode = responseEntity.getStatusCodeValue();
     }

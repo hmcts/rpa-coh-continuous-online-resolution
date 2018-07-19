@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.validators.QuestionValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
@@ -110,7 +112,7 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createQuestion(@PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
+    public ResponseEntity createQuestion(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
@@ -133,7 +135,10 @@ public class QuestionController {
         CreateQuestionResponse response = new CreateQuestionResponse();
         response.setQuestionId(question.getQuestionId());
 
-        return ResponseEntity.ok(response);
+        UriComponents uriComponents =
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/questions/{id}").buildAndExpand(onlineHearingId, question.getQuestionId());
+
+        return ResponseEntity.created(uriComponents.toUri()).body(response);
     }
 
     @ApiOperation("Edit a question")

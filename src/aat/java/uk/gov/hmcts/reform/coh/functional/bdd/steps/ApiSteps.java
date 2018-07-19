@@ -40,6 +40,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import java.io.IOException;
 import java.util.*;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -211,5 +212,24 @@ public class ApiSteps extends BaseSteps {
 
         List<String> map1 = (List<String>) map.get("panel");
         assertEquals(count, map1.size());
+    }
+
+    @And("^the response headers contains a location to the created entity$")
+    public void theHeaderContainsLocationOfCreatedQuestion() {
+        ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
+        HttpHeaders headers = responseEntity.getHeaders();
+        assertFalse(headers.get("Location").isEmpty());
+    }
+
+    @And("^send get request to the location$")
+    public void sendGetRequestToTheLocation() {
+        ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
+        HttpHeaders headers = responseEntity.getHeaders();
+        String urlToLocation = headers.get("Location").get(0);
+
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(urlToLocation, HttpMethod.GET, request, String.class);
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 }

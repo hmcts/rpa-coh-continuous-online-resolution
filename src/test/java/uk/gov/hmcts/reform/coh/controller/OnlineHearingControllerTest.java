@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import cucumber.deps.com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +28,16 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -106,11 +110,21 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testCreateOnlineHearingWithJsonFile() throws Exception {
+    public void testCreateOnlineHearingWithJsonFileAndCheckLocationHeader() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result =mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().is2xxSuccessful());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String returnedUrl = result.getResponse().getHeader("Location");
+        try {
+            URL u = new URL(returnedUrl); // this would check for the protocol
+            u.toURI(); // does the extra checking required for validation of URI
+            assertTrue(true);
+        }catch(MalformedURLException e){
+            fail();
+        }
     }
 
     @Test
@@ -123,11 +137,10 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testCreateOnlineHearing() throws Exception {
-
+    public void testCreateOnlineHearingAndCheckLocationHeader() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().is2xxSuccessful())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
@@ -136,6 +149,15 @@ public class OnlineHearingControllerTest {
             assertTrue(true);
         } catch (Exception e) {
             assertTrue(false);
+        }
+
+        String returnedUrl = result.getResponse().getHeader("Location");
+        try {
+            URL u = new URL(returnedUrl); // this would check for the protocol
+            u.toURI(); // does the extra checking required for validation of URI
+            assertTrue(true);
+        }catch(MalformedURLException e){
+            fail();
         }
     }
 

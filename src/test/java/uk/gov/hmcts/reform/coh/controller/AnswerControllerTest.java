@@ -28,9 +28,13 @@ import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -157,14 +161,24 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testCreateAnswer() throws Exception {
+    public void testCreateAnswerAndCheckHeaderForLocation() throws Exception {
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
 
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String returnedUrl = result.getResponse().getHeader("Location");
+        try {
+            URL u = new URL(returnedUrl); // this would check for the protocol
+            u.toURI(); // does the extra checking required for validation of URI
+            assertTrue(true);
+        }catch(MalformedURLException e){
+            fail();
+        }
     }
 
     @Test

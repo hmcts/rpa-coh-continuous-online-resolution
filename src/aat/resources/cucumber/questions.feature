@@ -4,7 +4,10 @@ Feature: Questions feature
     Given a standard online hearing is created
     And a standard question
     When the post request is sent to create the question
-    Then the response code is 200
+    Then the response code is 201
+    And the response headers contains a location to the created entity
+    And send get request to the location
+    And the response code is 200
 
   Scenario: Retrieve a question
     Given a standard online hearing is created
@@ -36,7 +39,7 @@ Feature: Questions feature
     Given a standard online hearing is created
     And a standard question
     When the post request is sent to create the question
-    Then the response code is 200
+    Then the response code is 201
     Given the question body is edited to ' "some new question text?" '
     When the put request to update the question is sent
     Then the response code is 200
@@ -48,7 +51,7 @@ Feature: Questions feature
     Given a standard online hearing is created
     And a standard question
     When the post request is sent to create the question
-    Then the response code is 200
+    Then the response code is 201
     Given the question header is edited to ' "some new header text?" '
     When the put request to update the question is sent
     Then the response code is 200
@@ -60,7 +63,7 @@ Feature: Questions feature
     Given a standard online hearing is created
     And a standard question
     When the post request is sent to create the question
-    Then the response code is 200
+    Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Given the question header is edited to ' "some new header text?" '
     When the put request to update the question is sent
@@ -70,7 +73,7 @@ Feature: Questions feature
     Given a standard online hearing is created
     And a standard question
     When the post request is sent to create the question
-    Then the response code is 200
+    Then the response code is 201
     Given the question state is edited to ' "ISSUED" '
     When the put request to update the question is sent
     Then the response code is 422

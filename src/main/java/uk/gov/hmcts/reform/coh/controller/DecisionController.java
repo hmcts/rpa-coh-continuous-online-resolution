@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
@@ -57,7 +59,7 @@ public class DecisionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createDecision(@PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
+    public ResponseEntity createDecision(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (optionalDecision.isPresent()) {
@@ -87,7 +89,10 @@ public class DecisionController {
         CreateDecisionResponse response = new CreateDecisionResponse();
         response.setDecisionId(decision.getDecisionId());
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        UriComponents uriComponents =
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisions").buildAndExpand(onlineHearingId);
+
+        return ResponseEntity.created(uriComponents.toUri()).body(response);
     }
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
@@ -117,6 +122,7 @@ public class DecisionController {
             @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 422, message = "Validation Error")
     })
+
     @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 

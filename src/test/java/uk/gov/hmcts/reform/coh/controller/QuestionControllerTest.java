@@ -28,10 +28,11 @@ import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -141,18 +142,27 @@ public class QuestionControllerTest {
     }
 
     @Test
-    public void testCreateQuestion() throws Exception {
+    public void testCreateQuestionAndCheckLocationIsReturnedInHeader() throws Exception {
 
         String json = JsonUtils.getJsonInput("question/standard_question");
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
         CreateQuestionResponse responseQuestion = (CreateQuestionResponse) JsonUtils.toObjectFromJson(response, CreateQuestionResponse.class);
         assertNotNull(responseQuestion.getQuestionId());
+
+        String returnedUrl = result.getResponse().getHeader("Location");
+        try {
+            URL u = new URL(returnedUrl); // this would check for the protocol
+            u.toURI(); // does the extra checking required for validation of URI
+            assertTrue(true);
+        }catch(MalformedURLException e){
+            fail();
+        }
     }
 
     @Test
