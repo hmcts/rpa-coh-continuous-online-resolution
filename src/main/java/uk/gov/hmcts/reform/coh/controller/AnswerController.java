@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -120,14 +121,17 @@ public class AnswerController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Answer> retrieveAnswer(@PathVariable UUID answerId) {
+    public ResponseEntity retrieveAnswer(@PathVariable UUID answerId) {
 
         Optional<Answer> answer = answerService.retrieveAnswerById(answerId);
         if (!answer.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer not found");
         }
+        System.out.println("State: " + answer.get().getAnswerState());
+        AnswerResponse response = new AnswerResponse();
+        AnswerResponseMapper.map(answer.get(), response);
 
-        return ResponseEntity.ok(answer.get());
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation(value = "Get Answers", notes = "A GET request without a body is used to retrieve all answers to a question")

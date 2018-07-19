@@ -12,7 +12,7 @@ public class AnswerResponse {
     private String answerText;
 
     @JsonProperty("current_answer_state")
-    private StateResponse stateResponse;
+    private StateResponse stateResponse = new StateResponse();
 
     public String getAnswerId() {
         return answerId;
