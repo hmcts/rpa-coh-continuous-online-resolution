@@ -21,7 +21,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -29,12 +32,11 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
@@ -393,5 +395,23 @@ public class QuestionSteps extends BaseSteps{
     public void theQuestionHeaderIs(String expectedHeader) throws Throwable {
         QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
         assertEquals(expectedHeader, question.getQuestionHeaderText());
+    }
+
+    @And("^the header contains location of created question$")
+    public void theHeaderContainsLocationOfCreatedQuestion() {
+        ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
+        HttpHeaders headers = responseEntity.getHeaders();
+        assertFalse(headers.get("Location").isEmpty());
+    }
+
+    @And("^send get request to the location$")
+    public void sendGetRequestToTheLocation() {
+        ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
+        HttpHeaders headers = responseEntity.getHeaders();
+        String urlToQuestion = headers.get("Location").get(0);
+        ResponseEntity<String> response = restTemplate.getForEntity(urlToQuestion, String.class);
+
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 }
