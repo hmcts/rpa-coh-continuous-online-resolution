@@ -36,7 +36,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
@@ -395,23 +394,5 @@ public class QuestionSteps extends BaseSteps{
     public void theQuestionHeaderIs(String expectedHeader) throws Throwable {
         QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
         assertEquals(expectedHeader, question.getQuestionHeaderText());
-    }
-
-    @And("^the header contains location of created question$")
-    public void theHeaderContainsLocationOfCreatedQuestion() {
-        ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
-        HttpHeaders headers = responseEntity.getHeaders();
-        assertFalse(headers.get("Location").isEmpty());
-    }
-
-    @And("^send get request to the location$")
-    public void sendGetRequestToTheLocation() {
-        ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
-        HttpHeaders headers = responseEntity.getHeaders();
-        String urlToQuestion = headers.get("Location").get(0);
-        ResponseEntity<String> response = restTemplate.getForEntity(urlToQuestion, String.class);
-
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 }

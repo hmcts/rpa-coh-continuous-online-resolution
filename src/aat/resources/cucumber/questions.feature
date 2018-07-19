@@ -5,7 +5,7 @@ Feature: Questions feature
     And a standard question
     When the post request is sent to create the question
     Then the response code is 201
-    And the header contains location of created question
+    And the response headers contains a location to the created entity
     And send get request to the location
     And the response code is 200
 

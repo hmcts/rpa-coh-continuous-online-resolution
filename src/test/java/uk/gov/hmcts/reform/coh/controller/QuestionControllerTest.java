@@ -142,7 +142,7 @@ public class QuestionControllerTest {
     }
 
     @Test
-    public void testCreateQuestion() throws Exception {
+    public void testCreateQuestionAndCheckLocationIsReturnedInHeader() throws Exception {
 
         String json = JsonUtils.getJsonInput("question/standard_question");
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)

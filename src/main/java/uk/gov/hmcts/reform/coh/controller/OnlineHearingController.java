@@ -7,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -60,7 +62,7 @@ public class OnlineHearingController {
         OnlineHearingResponse response = new OnlineHearingResponse();
         OnlineHearingMapper.map(response, retrievedOnlineHearing.get());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation(value = "Filter for Online Hearings", notes = "A GET request with query string containing one or more instances of case_id e.g. case_id=foo&case_id=bar")
@@ -106,7 +108,7 @@ public class OnlineHearingController {
             @ApiImplicitParam(name = "panel.name", value = "Name of Panel Member", required = true),
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createOnlineHearing(@RequestBody OnlineHearingRequest body) {
+    public ResponseEntity createOnlineHearing(UriComponentsBuilder uriBuilder, @RequestBody OnlineHearingRequest body) {
 
         if (!onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList(body.getCaseId())).isEmpty()) {
              return new ResponseEntity<>("Duplicate case found", HttpStatus.CONFLICT);
@@ -150,7 +152,10 @@ public class OnlineHearingController {
         onlineHearing.registerStateChange();
         onlineHearingService.createOnlineHearing(onlineHearing);
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        UriComponents uriComponents =
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}").buildAndExpand(response.getOnlineHearingId());
+
+        return ResponseEntity.created(uriComponents.toUri()).body(response);
     }
 
     @ApiOperation(value = "Update Online Hearing State", notes = "A PUT request is used to update the state of an online hearing")
