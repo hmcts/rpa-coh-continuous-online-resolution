@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -69,7 +70,7 @@ public class AnswerController {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
+            return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
         AnswerResponse answerResponse = new AnswerResponse();
@@ -164,7 +165,7 @@ public class AnswerController {
 
         ValidationResult validationResult = validate(request);
         if (!validationResult.isValid()) {
-            return ResponseEntity.unprocessableEntity().body(validationResult.reason);
+            return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
@@ -217,27 +218,5 @@ public class AnswerController {
             }
         }
         return result;
-    }
-
-    private class ValidationResult {
-
-        private boolean isValid;
-        private String reason;
-
-        public boolean isValid() {
-            return isValid;
-        }
-
-        public void setValid(boolean valid) {
-            isValid = valid;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-
-        public void setReason(String reason) {
-            this.reason = reason;
-        }
     }
 }

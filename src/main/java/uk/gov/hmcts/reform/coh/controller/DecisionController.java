@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
+import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -36,6 +37,8 @@ public class DecisionController {
     private DecisionService decisionService;
 
     private DecisionStateService decisionStateService;
+
+    private Validation validation = new Validation();
 
     @Autowired
     public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService) {
@@ -66,7 +69,7 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
-        ValidationResult result = DecisionRequestValidator.validate(request);
+        ValidationResult result = validation.execute(DecisionRequestValidator.values(), request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
@@ -135,7 +138,7 @@ public class DecisionController {
         }
 
         // The remaining validation is same as DecisionRequest for create
-        ValidationResult result = DecisionRequestValidator.validate(request);
+        ValidationResult result = validation.execute(DecisionRequestValidator.values(), request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
