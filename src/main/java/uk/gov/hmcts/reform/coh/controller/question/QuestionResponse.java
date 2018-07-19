@@ -2,7 +2,10 @@ package uk.gov.hmcts.reform.coh.controller.question;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
+
+import java.util.Date;
 
 public class QuestionResponse extends QuestionRequest {
 
@@ -20,8 +23,10 @@ public class QuestionResponse extends QuestionRequest {
         return deadlineExpiryDate;
     }
 
-    public void setDeadlineExpiryDate(String deadlineExpiryDate) {
-        this.deadlineExpiryDate = deadlineExpiryDate;
+    public void setDeadlineExpiryDate(Date deadlineExpiryDate) {
+        ISO8601DateFormat formatter = new ISO8601DateFormat();
+        String res = formatter.format(deadlineExpiryDate);
+        this.deadlineExpiryDate = res;
     }
 
     public String getQuestionId() {

@@ -13,12 +13,6 @@ public enum QuestionResponseMapper {
     QUESTION_HEADER_TEXT(Question::getQuestionHeaderText, QuestionRequest::setQuestionHeaderText),
     QUESTION_BODY_TEXT(Question::getQuestionText, QuestionRequest::setQuestionBodyText),
     OWNER_REFERENCE(Question::getOwnerReferenceId, QuestionRequest::setOwnerReference),
-    DEADLINE_EXPIRY_DATE((Question q) -> {
-        if(q.getDeadlineExpiryDate()!=null) {
-            return q.getDeadlineExpiryDate().toString();
-        }
-        return null;
-    }, QuestionResponse::setDeadlineExpiryDate),
     QUESTION_STATE(q -> {return q.getQuestionState().getState();}, (qr, s) -> { qr.getCurrentState().setName(s);}),
     STATE_TIME(q -> {
         if (!q.getQuestionStateHistories().isEmpty()){
@@ -38,6 +32,9 @@ public enum QuestionResponseMapper {
     public static void map(Question question, QuestionResponse response) {
         for (QuestionResponseMapper m : QuestionResponseMapper.class.getEnumConstants()) {
             m.set(question, response);
+        }
+        if(question.getDeadlineExpiryDate()!=null) {
+            response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
         }
     }
 
