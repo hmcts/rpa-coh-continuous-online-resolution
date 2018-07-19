@@ -19,7 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
-import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -187,7 +187,7 @@ public class AnswerSteps extends BaseSteps{
     @Given("^an update to the answer is required$")
     public void an_update_to_the_answer_is_required() {
         try {
-            AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), AnswerResponse.class);
+            CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
             log.error("Exception " + e.getMessage());
@@ -262,7 +262,7 @@ public class AnswerSteps extends BaseSteps{
             answerId = answer.getAnswerId();
         } else {
             if (!json.startsWith("[")) {
-                AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+                CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
                 answerId = answerResponse.getAnswerId();
             }
         }

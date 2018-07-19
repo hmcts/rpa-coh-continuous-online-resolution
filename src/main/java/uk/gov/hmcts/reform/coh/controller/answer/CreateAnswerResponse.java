@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
 
-public class AnswerResponse {
+public class CreateAnswerResponse {
 
     @JsonProperty(value = "answer_id")
     private UUID answerId;

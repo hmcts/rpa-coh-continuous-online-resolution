@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
-import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
@@ -59,7 +59,7 @@ public class AnswerController {
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
+            @ApiResponse(code = 200, message = "Success", response = CreateAnswerResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
@@ -74,7 +74,7 @@ public class AnswerController {
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
-        AnswerResponse answerResponse = new AnswerResponse();
+        CreateAnswerResponse answerResponse = new CreateAnswerResponse();
         try {
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             // If a question exists, then it must be in the issues state to be answered
@@ -194,7 +194,7 @@ public class AnswerController {
 
         try {
             Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
-            AnswerResponse answerResponse = new AnswerResponse();
+            CreateAnswerResponse answerResponse = new CreateAnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
             answersReceivedTask.execute(optionalOnlineHearing.get());
