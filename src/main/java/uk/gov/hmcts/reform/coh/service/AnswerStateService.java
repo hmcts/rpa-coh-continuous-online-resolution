@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.repository.AnswerStateRepository;
+import uk.gov.hmcts.reform.coh.states.AnswerStates;
 
 import java.util.Optional;
 
@@ -27,24 +28,17 @@ public class AnswerStateService {
 
     public boolean validateStateTransition(AnswerState sourceState, AnswerState targetState) throws NotFoundException {
 
-        Optional<AnswerState> submittedAnswerState = retrieveAnswerStateByState("SUBMITTED");
+        Optional<AnswerState> submittedAnswerState = retrieveAnswerStateByState(AnswerStates.SUBMITTED.getStateName());
         if(!submittedAnswerState.isPresent()){
             throw new NotFoundException("Submitted state not found");
         }
-        Optional<AnswerState> draftedAnswerState = retrieveAnswerStateByState("DRAFTED");
+
+        Optional<AnswerState> draftedAnswerState = retrieveAnswerStateByState(AnswerStates.DRAFTED.getStateName());
         if(!draftedAnswerState.isPresent()){
-            throw new NotFoundException("DRAFTED state not found");
-        }
-        Optional<AnswerState> editedAnswerState = retrieveAnswerStateByState("answer_edited");
-        if(!editedAnswerState.isPresent()){
-            throw new NotFoundException("answer_edited state not found");
+            throw new NotFoundException("Drafted state not found");
         }
 
-        if (sourceState.equals(submittedAnswerState.get()) && targetState.equals(draftedAnswerState.get())){
-            throw new NotAValidUpdateException();
-        }
-
-        if (sourceState.equals(editedAnswerState.get()) && targetState.equals(draftedAnswerState.get())){
+        if (sourceState.equals(submittedAnswerState.get())) {
             throw new NotAValidUpdateException();
         }
 

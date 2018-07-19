@@ -52,11 +52,12 @@ public class AnswerService {
     public Answer updateAnswer(Answer source, Answer target) throws NotFoundException {
         source.setAnswerText(target.getAnswerText());
 
-        if(answerStateService.validateStateTransition(source.getAnswerState(), target.getAnswerState())) {
+        if (answerStateService.validateStateTransition(source.getAnswerState(), target.getAnswerState())) {
             source.setAnswerState(target.getAnswerState());
             source.registerStateChange();
             answerRepository.save(source);
         }
+
         return source;
     }
 
