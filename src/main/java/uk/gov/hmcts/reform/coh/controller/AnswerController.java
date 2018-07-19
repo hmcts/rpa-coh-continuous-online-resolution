@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -113,7 +114,7 @@ public class AnswerController {
 
     @ApiOperation(value = "Get Answer", notes = "A GET request with a request body is used to retrieve an answer")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
