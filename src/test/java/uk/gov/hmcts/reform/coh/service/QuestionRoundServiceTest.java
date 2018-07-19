@@ -393,6 +393,7 @@ public class QuestionRoundServiceTest {
                 .collect(Collectors.toList());
         assertEquals(3, issuedQuestions.size());
         verify(questionRepository, times(3)).save(any(Question.class));
+        assertTrue(issuedQuestions.stream().allMatch(q -> q.getDeadlineExpiryDate() != null));
     }
 
     @Test(expected = NotAValidUpdateException.class)

@@ -13,6 +13,12 @@ public enum QuestionResponseMapper {
     QUESTION_HEADER_TEXT(Question::getQuestionHeaderText, QuestionRequest::setQuestionHeaderText),
     QUESTION_BODY_TEXT(Question::getQuestionText, QuestionRequest::setQuestionBodyText),
     OWNER_REFERENCE(Question::getOwnerReferenceId, QuestionRequest::setOwnerReference),
+    DEADLINE_EXPIRY_DATE((Question q) -> {
+        if(q.getDeadlineExpiryDate()!=null) {
+            return q.getDeadlineExpiryDate().toString();
+        }
+        return null;
+    }, QuestionResponse::setDeadlineExpiryDate),
     QUESTION_STATE(q -> {return q.getQuestionState().getState();}, (qr, s) -> { qr.getCurrentState().setName(s);}),
     STATE_TIME(q -> {
         if (!q.getQuestionStateHistories().isEmpty()){

@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -151,7 +152,7 @@ public class DecisionController {
 
         // If a decision is issued, then there is a deadline to accept or reject it
         if (request.getState().equals(DecisionsStates.DECISION_ISSUED.getStateName())) {
-            decision.setDeadlineExpiryDate(decisionService.getDeadlineExpiryDate());
+            decision.setDeadlineExpiryDate(ExpiryCalendar.getDeadlineExpiryDate());
         }
 
         decision.addDecisionStateHistory(optionalDecisionState.get());

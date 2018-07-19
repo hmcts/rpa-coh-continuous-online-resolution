@@ -1,16 +1,28 @@
 package uk.gov.hmcts.reform.coh.controller.question;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
-import uk.gov.hmcts.reform.coh.domain.QuestionState;
 
 public class QuestionResponse extends QuestionRequest {
 
     @JsonProperty(value = "question_id")
     private String questionId;
 
+    @JsonProperty(value = "deadline_expiry_date")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String deadlineExpiryDate;
+
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
+
+    public String getDeadlineExpiryDate() {
+        return deadlineExpiryDate;
+    }
+
+    public void setDeadlineExpiryDate(String deadlineExpiryDate) {
+        this.deadlineExpiryDate = deadlineExpiryDate;
+    }
 
     public String getQuestionId() {
         return questionId;
@@ -27,4 +39,5 @@ public class QuestionResponse extends QuestionRequest {
     public void setCurrentState(StateResponse currentState) {
         this.currentState = currentState;
     }
+
 }
