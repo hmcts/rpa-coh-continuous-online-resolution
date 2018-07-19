@@ -19,6 +19,19 @@ Feature: Answers
     And send get request to the location
     And the response code is 200
 
+  Scenario: Retrieve an answer for a question
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And a standard answer
+    And the endpoint is for submitting an answer
+    And a POST request is sent
+    And the response code is 201
+    And the endpoint is for retrieving an answer
+    When a GET request is sent
+    And the response code is 200
+    And the answer response answer text is 'string'
+
   Scenario: Submit an answer with no answer text
     Given a standard online hearing is created
     And a valid question

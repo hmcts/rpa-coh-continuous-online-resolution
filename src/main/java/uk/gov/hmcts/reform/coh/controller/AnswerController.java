@@ -31,9 +31,11 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}/questions/{questionId}/answers")
@@ -127,7 +129,7 @@ public class AnswerController {
         if (!answer.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer not found");
         }
-        System.out.println("State: " + answer.get().getAnswerState());
+
         AnswerResponse response = new AnswerResponse();
         AnswerResponseMapper.map(answer.get(), response);
 
@@ -136,24 +138,34 @@ public class AnswerController {
 
     @ApiOperation(value = "Get Answers", notes = "A GET request without a body is used to retrieve all answers to a question")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "")
-    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable UUID questionId) {
+    public ResponseEntity retrieveAnswers(@PathVariable UUID questionId) {
 
         // Nothing to return if question doesn't exist
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if (!optionalQuestion.isPresent()) {
-            return new ResponseEntity<List<Answer>>(HttpStatus.FAILED_DEPENDENCY);
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Question not found");
         }
 
         Question question = optionalQuestion.get();
         List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+        List<AnswerResponse> responses = answers
+                .stream()
+                .map(a ->
+                        {
+                            AnswerResponse response = new AnswerResponse();
+                            AnswerResponseMapper.map(a, response);
+                            return response;
+                        }
+                    )
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(answers);
+        return ResponseEntity.ok(responses);
     }
 
     @ApiOperation(value = "Update Answers", notes = "A PATCH request is used to update an answer")
