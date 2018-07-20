@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import java.util.Optional;
 
 @Service
-@Component
 public class QuestionRoundSentTask implements ContinuousOnlineResolutionTask<OnlineHearing> {
 
     private static final Logger log = LoggerFactory.getLogger(QuestionRoundSentTask.class);
