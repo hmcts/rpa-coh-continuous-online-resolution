@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -284,7 +285,8 @@ public class AnswerSteps extends BaseSteps{
         AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         try {
-            LocalDateTime.parse(response.getStateResponse().getDatetime());
+            ISO8601DateFormat df = new ISO8601DateFormat();
+            df.parse(response.getStateResponse().getDatetime());
             assertTrue(true);
         }
         catch (Exception e) {
