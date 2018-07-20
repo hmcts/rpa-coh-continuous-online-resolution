@@ -42,6 +42,9 @@ public class QuestionRoundServiceTest {
     @Mock
     private QuestionStateService questionStateService;
 
+    @Mock
+    private NotificationService notificationService;
+
 
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
@@ -82,7 +85,7 @@ public class QuestionRoundServiceTest {
         given(questionStateService.retrieveQuestionStateByStateName("question_submitted")).willReturn(Optional.of(submittedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
         given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questionRound1Questions);
-        QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService);
+        QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService, notificationService);
         questionRoundService = spy(questionRoundServiceImpl);
 
         onlineHearing = new OnlineHearing();
@@ -401,6 +404,15 @@ public class QuestionRoundServiceTest {
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
+    }
+
+    @Test
+    public void testIssuingQuestionRoundCallsNotificationService() {
+        given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(new ArrayList<>());
+        doReturn(new QuestionRoundState(draftedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+        questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
+
+        verify(notificationService, times(1)).notifyIssuedQuestionRound(any(OnlineHearing.class));
     }
 }
 

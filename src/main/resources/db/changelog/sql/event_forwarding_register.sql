@@ -1,0 +1,2 @@
+INSERT INTO event_forwarding_register(event_forwarding_register_id, forwarding_endpoint, maximum_retries, event_type_id, jurisdiction_id)
+values (1, 'http://localhost:8080/SSCS/notifications', 3, 1, 1);

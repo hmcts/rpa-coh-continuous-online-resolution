@@ -18,15 +18,18 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
+    private NotificationService notificationService;
+
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
 
     public QuestionRoundService() {}
 
     @Autowired
-    public QuestionRoundService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
+    public QuestionRoundService(QuestionRepository questionRepository, QuestionStateService questionStateService, NotificationService notificationService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
+        this.notificationService = notificationService;
     }
 
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
@@ -181,6 +184,8 @@ public class QuestionRoundService {
             questionRepository.save(q);
             modifiedQuestion.add(q);
         });
+
+        notificationService.notifyIssuedQuestionRound(onlineHearing);
 
         return modifiedQuestion;
     }
