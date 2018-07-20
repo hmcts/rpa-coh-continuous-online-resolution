@@ -56,7 +56,7 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questions")
-    public ResponseEntity<> getQuestions(@PathVariable UUID onlineHearingId) {
+    public ResponseEntity getQuestions(@PathVariable UUID onlineHearingId) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
 
