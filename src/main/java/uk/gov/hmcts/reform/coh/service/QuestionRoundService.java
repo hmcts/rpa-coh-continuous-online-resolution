@@ -172,7 +172,7 @@ public class QuestionRoundService {
         QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
 
         if(qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
-            throw new NotAValidUpdateException("Question round is already Issued state");
+            throw new NotAValidUpdateException("Question round has already been issued");
         }
 
         questions.stream().forEach(q -> {
