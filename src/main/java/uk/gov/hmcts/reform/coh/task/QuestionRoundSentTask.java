@@ -33,7 +33,7 @@ public class QuestionRoundSentTask implements ContinuousOnlineResolutionTask<Onl
 
         Optional<OnlineHearingState> optState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
         if (!optState.isPresent()) {
-            log.debug("Unable to find online hearing state: " + optState.get().getState());
+            log.debug("Unable to find online hearing state: " + OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
             return;
         }
 
