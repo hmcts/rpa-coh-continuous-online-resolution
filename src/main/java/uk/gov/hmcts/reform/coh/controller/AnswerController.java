@@ -16,6 +16,8 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
+import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
@@ -29,9 +31,11 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}/questions/{questionId}/answers")
@@ -59,7 +63,7 @@ public class AnswerController {
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
+            @ApiResponse(code = 200, message = "Success", response = CreateAnswerResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
@@ -74,7 +78,7 @@ public class AnswerController {
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
-        AnswerResponse answerResponse = new AnswerResponse();
+        CreateAnswerResponse answerResponse = new CreateAnswerResponse();
         try {
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             // If a question exists, then it must be in the issues state to be answered
@@ -113,42 +117,55 @@ public class AnswerController {
 
     @ApiOperation(value = "Get Answer", notes = "A GET request with a request body is used to retrieve an answer")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "{answerId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Answer> retrieveAnswer(@PathVariable UUID answerId) {
+    public ResponseEntity retrieveAnswer(@PathVariable UUID answerId) {
 
         Optional<Answer> answer = answerService.retrieveAnswerById(answerId);
         if (!answer.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer not found");
         }
 
-        return ResponseEntity.ok(answer.get());
+        AnswerResponse response = new AnswerResponse();
+        AnswerResponseMapper.map(answer.get(), response);
+
+        return ResponseEntity.ok(response);
     }
 
     @ApiOperation(value = "Get Answers", notes = "A GET request without a body is used to retrieve all answers to a question")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Answer.class),
+            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "")
-    public ResponseEntity<List<Answer>> retrieveAnswers(@PathVariable UUID questionId) {
+    public ResponseEntity retrieveAnswers(@PathVariable UUID questionId) {
 
         // Nothing to return if question doesn't exist
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if (!optionalQuestion.isPresent()) {
-            return new ResponseEntity<List<Answer>>(HttpStatus.FAILED_DEPENDENCY);
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Question not found");
         }
 
         Question question = optionalQuestion.get();
         List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+        List<AnswerResponse> responses = answers
+                .stream()
+                .map(a ->
+                        {
+                            AnswerResponse response = new AnswerResponse();
+                            AnswerResponseMapper.map(a, response);
+                            return response;
+                        }
+                    )
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(answers);
+        return ResponseEntity.ok(responses);
     }
 
     @ApiOperation(value = "Update Answers", notes = "A PATCH request is used to update an answer")
@@ -194,7 +211,7 @@ public class AnswerController {
 
         try {
             Answer updatedAnswer = answerService.updateAnswer(optAnswer.get(), body);
-            AnswerResponse answerResponse = new AnswerResponse();
+            CreateAnswerResponse answerResponse = new CreateAnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
             answersReceivedTask.execute(optionalOnlineHearing.get());

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.state;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StateResponse {
@@ -8,6 +9,7 @@ public class StateResponse {
     private String name;
 
     @JsonProperty(value = "state_datetime")
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private String datetime;
 
     public StateResponse() {
