@@ -78,8 +78,14 @@ public class AnswerController {
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
         CreateAnswerResponse answerResponse = new CreateAnswerResponse();
         try {
+
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             // If a question exists, then it must be in the issues state to be answered
             if (!optionalQuestion.isPresent()
@@ -104,6 +110,7 @@ public class AnswerController {
             answer.setQuestion(optionalQuestion.get());
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
+            answersReceivedTask.execute(optionalOnlineHearing.get());
         } catch (Exception e) {
             log.error("Exception in createAnswer: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
