@@ -395,4 +395,17 @@ public class QuestionSteps extends BaseSteps{
         QuestionResponse question = (QuestionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), QuestionResponse.class);
         assertEquals(expectedHeader, question.getQuestionHeaderText());
     }
+
+    @And("^each question in the question round has a deadline expiry date$")
+    public void eachQuestionInTheQuestionRoundHasADeadlineExpiryDate() throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+        List<QuestionResponse> questionResponses = questionRoundResponse.getQuestionList();
+
+        List<QuestionResponse> questionsWithNullExpiry = questionResponses.stream()
+                .filter(q -> q.getDeadlineExpiryDate() == null )
+                .collect(Collectors.toList());
+
+        assertEquals(0, questionsWithNullExpiry.size());
+    }
 }

@@ -36,18 +36,4 @@ public class DecisionService {
     public void deleteDecisionById(UUID decisionId) {
         decisionRepository.deleteById(decisionId);
     }
-
-    /**
-     * Hard-coded to 7 days.
-     * @return
-     */
-    public Date getDeadlineExpiryDate() {
-        Calendar calendar = new GregorianCalendar();
-        calendar.add(Calendar.DAY_OF_YEAR, 7);
-        calendar.set(Calendar.HOUR, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-
-        return calendar.getTime();
-    }
 }
