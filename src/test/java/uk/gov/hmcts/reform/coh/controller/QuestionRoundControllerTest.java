@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.UUID;
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -50,6 +52,9 @@ public class QuestionRoundControllerTest {
 
     @Mock
     private QuestionStateService questionStateService;
+
+    @Mock
+    private QuestionRoundSentTask questionSentTask;
 
     @InjectMocks
     private QuestionRoundController questionRoundController;
@@ -228,6 +233,7 @@ public class QuestionRoundControllerTest {
         issuedState.setQuestionStateId(1);
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
+        doNothing().when(questionSentTask).execute(any(OnlineHearing.class));
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)

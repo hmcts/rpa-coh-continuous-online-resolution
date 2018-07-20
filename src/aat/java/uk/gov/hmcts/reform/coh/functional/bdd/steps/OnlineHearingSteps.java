@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
@@ -117,5 +118,12 @@ public class OnlineHearingSteps extends BaseSteps {
     public void the_response_contains_online_hearing_with_case(String caseId) throws IOException {
         OnlineHearingsResponse response = (OnlineHearingsResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
         assertTrue(response.getOnlineHearingResponses().stream().anyMatch(o -> caseId.equalsIgnoreCase(o.getCaseId())));
+    }
+
+
+    @Then("^the online hearing state is '(.*)'$")
+    public void the_online_hearing_state_is (String state) throws IOException {
+        OnlineHearingResponse response = (OnlineHearingResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
+        assertEquals(state, response.getCurrentState().getName());
     }
 }
