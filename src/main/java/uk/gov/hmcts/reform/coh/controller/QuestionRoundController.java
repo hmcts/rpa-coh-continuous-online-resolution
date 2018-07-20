@@ -18,7 +18,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.task.QuestionSentTask;
+import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class QuestionRoundController {
     private OnlineHearingService onlineHearingService;
 
     @Autowired
-    private QuestionSentTask questionSentTask;
+    private QuestionRoundSentTask questionSentTask;
 
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {

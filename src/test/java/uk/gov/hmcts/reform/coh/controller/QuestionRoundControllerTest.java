@@ -21,7 +21,7 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.task.QuestionSentTask;
+import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class QuestionRoundControllerTest {
     private QuestionStateService questionStateService;
 
     @Mock
-    private QuestionSentTask questionSentTask;
+    private QuestionRoundSentTask questionSentTask;
 
     @InjectMocks
     private QuestionRoundController questionRoundController;

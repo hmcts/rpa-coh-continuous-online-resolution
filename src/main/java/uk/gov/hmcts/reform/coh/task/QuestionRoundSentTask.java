@@ -15,30 +15,31 @@ import java.util.Optional;
 
 @Service
 @Component
-public class QuestionSentTask implements ContinuousOnlineResolutionTask<OnlineHearing> {
+public class QuestionRoundSentTask implements ContinuousOnlineResolutionTask<OnlineHearing> {
 
-    private static final Logger log = LoggerFactory.getLogger(QuestionSentTask.class);
+    private static final Logger log = LoggerFactory.getLogger(QuestionRoundSentTask.class);
 
     private OnlineHearingService onlineHearingService;
 
     private OnlineHearingStateService onlineHearingStateService;
 
-    private OnlineHearingState questionSentState;
 
     @Autowired
-    public QuestionSentTask(OnlineHearingService onlineHearingService, OnlineHearingStateService onlineHearingStateService) {
+    public QuestionRoundSentTask(OnlineHearingService onlineHearingService, OnlineHearingStateService onlineHearingStateService) {
         this.onlineHearingService = onlineHearingService;
         this.onlineHearingStateService = onlineHearingStateService;
-
-        Optional<OnlineHearingState> optState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
-        if (optState.isPresent()) {
-            questionSentState = optState.get();
-        }
     }
 
     @Override
     public void execute(OnlineHearing onlineHearing) {
 
+        Optional<OnlineHearingState> optState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
+        if (!optState.isPresent()) {
+            log.debug("Unable to find online hearing state: " + optState.get().getState());
+            return;
+        }
+
+        OnlineHearingState questionSentState = optState.get();
         onlineHearing.setOnlineHearingState(questionSentState);
         onlineHearing.registerStateChange();
         onlineHearingService.updateOnlineHearing(onlineHearing);
