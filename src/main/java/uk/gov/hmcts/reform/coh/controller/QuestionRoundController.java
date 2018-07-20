@@ -46,13 +46,13 @@ public class QuestionRoundController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questionrounds")
-    public ResponseEntity<QuestionRoundsResponse> getQuestionRounds(@PathVariable UUID onlineHearingId) {
+    public ResponseEntity getQuestionRounds(@PathVariable UUID onlineHearingId) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
         onlineHearing = optionalOnlineHearing.get();
@@ -80,12 +80,12 @@ public class QuestionRoundController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questionrounds/{roundId}")
-    public ResponseEntity<QuestionRoundResponse> getQuestionRound(@PathVariable UUID onlineHearingId, @PathVariable int roundId) {
+    public ResponseEntity getQuestionRound(@PathVariable UUID onlineHearingId, @PathVariable int roundId) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
         onlineHearing = optionalOnlineHearing.get();
@@ -113,25 +113,21 @@ public class QuestionRoundController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
         int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
         if(roundId > currentQuestionRoundNumber) {
-            return new ResponseEntity<>("No question round found", HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question round not found");
         }
 
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
-        if(!questionStateOptional.isPresent()){
-            return new ResponseEntity<>("Invalid question round state", HttpStatus.BAD_REQUEST);
-        }
-
-        if (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED)){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED))) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid question round state");
         }
 
         if(currentQuestionRoundNumber != roundId) {
-            return new ResponseEntity<>("Previous question rounds cannot be issued", HttpStatus.UNPROCESSABLE_ENTITY);
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Previous question rounds cannot be issued");
         }
 
         onlineHearing = optionalOnlineHearing.get();

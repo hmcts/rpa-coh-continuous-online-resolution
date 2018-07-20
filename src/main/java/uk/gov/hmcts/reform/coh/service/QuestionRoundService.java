@@ -170,7 +170,7 @@ public class QuestionRoundService {
         QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
 
         if(qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
-            throw new NotAValidUpdateException();
+            throw new NotAValidUpdateException("Question round has already been issued");
         }
 
         Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
