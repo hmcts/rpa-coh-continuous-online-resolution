@@ -31,6 +31,8 @@ Feature: Answers
     When a GET request is sent
     And the response code is 200
     And the answer response answer text is 'string'
+    And the answer response answer state is 'answer_drafted'
+    And the answer response answer state datetime is a valid ISO8601 date
 
   Scenario: Submit an answer with no answer text
     Given a standard online hearing is created

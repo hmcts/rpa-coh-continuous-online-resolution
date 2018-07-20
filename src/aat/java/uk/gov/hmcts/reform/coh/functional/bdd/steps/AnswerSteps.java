@@ -33,9 +33,11 @@ import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
@@ -260,11 +262,34 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @Then("^the answer response answer text is '(.*)'$")
-    public void there_are_count_answers(String text) throws Throwable {
+    public void the_answer_text_is(String text) throws Throwable {
         String json = response.getBody();
         AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
-        assertEquals("Response status code", text, response.getAnswerText());
+        assertEquals("Answer text", text, response.getAnswerText());
+    }
+
+    @Then("^the answer response answer state is '(.*)'$")
+    public void the_answer_state_is(String text) throws Throwable {
+        String json = response.getBody();
+        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+
+        assertEquals("Answer state name", text, response.getStateResponse().getName());
+    }
+
+
+    @Then("^the answer response answer state datetime is a valid ISO8601 date$")
+    public void the_answer_state_datetime_is_iso8601() throws Throwable {
+        String json = response.getBody();
+        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+
+        try {
+            LocalDateTime.parse(response.getStateResponse().getDatetime());
+            assertTrue(true);
+        }
+        catch (Exception e) {
+            assertTrue(false);
+        }
     }
 
     /**
