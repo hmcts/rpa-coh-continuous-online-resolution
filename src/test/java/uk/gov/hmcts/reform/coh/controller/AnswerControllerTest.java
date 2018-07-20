@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.AnswerStateService;
@@ -215,21 +216,21 @@ public class AnswerControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"answerId\":\"" + uuid +"\",\"answer_text\":\"foo\",\"current_answer_state\":{\"state_name\":\"answer_drafted\"}}", response);
-        Answer getAnswer = (Answer) JsonUtils.toObjectFromJson(response, Answer.class);
-        assertEquals(uuid, getAnswer.getAnswerId());
+        assertEquals("{\"answer_id\":\"" + uuid +"\",\"answer_text\":\"foo\",\"current_answer_state\":{\"state_name\":\"answer_drafted\"}}", response);
+        AnswerResponse getAnswer = (AnswerResponse) JsonUtils.toObjectFromJson(response, AnswerResponse.class);
+        assertEquals(uuid.toString(), getAnswer.getAnswerId());
         assertEquals("foo", getAnswer.getAnswerText());
-        assertEquals("answer_drafted", getAnswer.getAnswerState().getState());
+        assertEquals("answer_drafted", getAnswer.getStateResponse().getName());
     }
 
     @Test
     public void testGetAnswers() throws Exception {
 
-        AnswerState answerState = new AnswerState();
         Question question = new Question();
         question.setQuestionId(UUID.randomUUID());
         Answer answer = new Answer();
         answer.answerId(uuid).answerText("foo");
+        answer.setAnswerState(answerState);
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
@@ -241,7 +242,7 @@ public class AnswerControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        Answer [] answers = (Answer[]) JsonUtils.toObjectFromJson(response, Answer[].class);
+        AnswerResponse[] answers = (AnswerResponse[]) JsonUtils.toObjectFromJson(response, AnswerResponse[].class);
         assertEquals(1, answers.length);
     }
 

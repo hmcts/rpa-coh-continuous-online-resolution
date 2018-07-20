@@ -6,13 +6,11 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Component
@@ -172,12 +170,14 @@ public class QuestionRoundService {
         QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
 
         if(qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
-            throw new NotAValidUpdateException();
+            throw new NotAValidUpdateException("Question round has already been issued");
         }
 
+        Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
         questions.stream().forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);
+            q.setDeadlineExpiryDate(expiryDate);
             questionRepository.save(q);
             modifiedQuestion.add(q);
         });

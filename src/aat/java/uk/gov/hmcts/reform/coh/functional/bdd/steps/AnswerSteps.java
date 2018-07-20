@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -20,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -32,9 +34,11 @@ import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
@@ -175,6 +179,20 @@ public class AnswerSteps extends BaseSteps{
         }
     }
 
+    @Given("^the endpoint is for retrieving an (.*)$")
+    public void the_endpoint_is_for_retrieving_an_answer(String entity) {
+        if (endpoints.containsKey(entity)) {
+            // See if we need to fix the endpoint
+            this.endpoint = endpoints.get(entity);
+            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? UUID.randomUUID().toString() : currentQuestionId.toString());
+        }
+
+        if ("answer".equalsIgnoreCase(entity)) {
+            UUID currentAnswerId = answerIds.get(answerIds.size() - 1);
+            endpoint += "/" + currentAnswerId;
+        }
+    }
+
     @Given("^the endpoint is for submitting all (.*)$")
     public void the_endpoint_is_for_submitting_all_answer(String entity) {
         if (endpoints.containsKey(entity)) {
@@ -187,7 +205,7 @@ public class AnswerSteps extends BaseSteps{
     @Given("^an update to the answer is required$")
     public void an_update_to_the_answer_is_required() {
         try {
-            AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), AnswerResponse.class);
+            CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
             log.error("Exception " + e.getMessage());
@@ -211,7 +229,8 @@ public class AnswerSteps extends BaseSteps{
         RestTemplate restTemplate = getRestTemplate();
         try {
             if ("GET".equalsIgnoreCase(type)) {
-                response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
+                HttpEntity<String> request = new HttpEntity<>("", header);
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
             } else if ("POST".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(json, header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
@@ -243,6 +262,38 @@ public class AnswerSteps extends BaseSteps{
         assertEquals("Response status code", myObjects.length, count);
     }
 
+    @Then("^the answer response answer text is '(.*)'$")
+    public void the_answer_text_is(String text) throws Throwable {
+        String json = response.getBody();
+        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+
+        assertEquals("Answer text", text, response.getAnswerText());
+    }
+
+    @Then("^the answer response answer state is '(.*)'$")
+    public void the_answer_state_is(String text) throws Throwable {
+        String json = response.getBody();
+        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+
+        assertEquals("Answer state name", text, response.getStateResponse().getName());
+    }
+
+
+    @Then("^the answer response answer state datetime is a valid ISO8601 date$")
+    public void the_answer_state_datetime_is_iso8601() throws Throwable {
+        String json = response.getBody();
+        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+
+        try {
+            ISO8601DateFormat df = new ISO8601DateFormat();
+            df.parse(response.getStateResponse().getDatetime());
+            assertTrue(true);
+        }
+        catch (Exception e) {
+            assertTrue(false);
+        }
+    }
+
     /**
      * This will work out which type of entity has been returned and get the
      * answer id from it
@@ -257,12 +308,13 @@ public class AnswerSteps extends BaseSteps{
         }
 
         UUID answerId = null;
-        if (json.indexOf("question_id") > 0) {
-            Answer answer = (Answer) JsonUtils.toObjectFromJson(json, Answer.class);
-            answerId = answer.getAnswerId();
+        if ((json.indexOf("question_id") > 0) || json.contains("current_answer_state")) {
+            AnswerResponse answer = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+            answerId = UUID.fromString(answer.getAnswerId());
         } else {
+
             if (!json.startsWith("[")) {
-                AnswerResponse answerResponse = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+                CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
                 answerId = answerResponse.getAnswerId();
             }
         }
