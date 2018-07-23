@@ -2,9 +2,11 @@ package uk.gov.hmcts.reform.coh.Notification;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotificationException;
 import uk.gov.hmcts.reform.coh.domain.EventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
@@ -22,11 +24,16 @@ public class Notifier {
         this.restTemplate = new RestTemplate();
     }
 
-    public void notifyQuestionsIssued(EventForwardingRegister eventForwardingRegister, OnlineHearing onlineHearing) throws HttpClientErrorException, IllegalArgumentException{
+    public boolean notifyQuestionsIssued(EventForwardingRegister eventForwardingRegister, OnlineHearing onlineHearing) throws HttpClientErrorException, IllegalArgumentException{
         NotificationRequest notificationRequest = constructNotification(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED);
         try {
             log.info("Notification request successful: " + notificationRequest.toString());
-            restTemplate.postForEntity(eventForwardingRegister.getForwardingEndpoint(), notificationRequest, NotificationRequest.class);
+            ResponseEntity responseEntity = restTemplate.postForEntity(eventForwardingRegister.getForwardingEndpoint(), notificationRequest, NotificationRequest.class);
+            if(responseEntity.getStatusCode().is2xxSuccessful()) {
+                return true;
+            }else{
+                throw new NotificationException("Bad response from request: " + responseEntity.getStatusCodeValue());
+            }
         }catch(HttpClientErrorException|IllegalArgumentException hcee){
             log.error("Notification request failed: " + notificationRequest.toString() + ":" + hcee);
             throw hcee;
