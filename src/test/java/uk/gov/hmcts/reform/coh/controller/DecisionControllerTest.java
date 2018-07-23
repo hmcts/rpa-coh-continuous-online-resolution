@@ -25,6 +25,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,6 +57,9 @@ public class DecisionControllerTest {
 
     @Mock
     private DecisionStateService decisionStateService;
+
+    @Mock
+    private DecisionIssuedTask decisionIssuedTask;
 
     @InjectMocks
     private DecisionController decisionController;
@@ -341,6 +346,7 @@ public class DecisionControllerTest {
     @Test
     public void testUpdateDecisionIssued() throws Exception {
 
+        doNothing().when(decisionIssuedTask).execute(decision);
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         given(decisionStateService.retrieveDecisionStateByState("decision_issued")).willReturn(Optional.of(decisionState));
         updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUED.getStateName());

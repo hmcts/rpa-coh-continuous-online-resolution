@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
+import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -41,13 +42,16 @@ public class DecisionController {
 
     private DecisionStateService decisionStateService;
 
+    private DecisionIssuedTask decisionIssuedTask;
+
     private Validation validation = new Validation();
 
     @Autowired
-    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService) {
+    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionIssuedTask decisionIssuedTask) {
         this.onlineHearingService = onlineHearingService;
         this.decisionService = decisionService;
         this.decisionStateService = decisionStateService;
+        this.decisionIssuedTask = decisionIssuedTask;
     }
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")
@@ -158,6 +162,7 @@ public class DecisionController {
         decision.addDecisionStateHistory(optionalDecisionState.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decisionService.updateDecision(decision);
+        decisionIssuedTask.execute(decision);
 
         return ResponseEntity.ok("");
     }

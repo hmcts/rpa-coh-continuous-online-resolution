@@ -11,8 +11,7 @@ public enum EventTypes {
     ANSWERS_SUBMITTED("answers_submitted"),
     DECISION_REJECTED("decision_rejected"),
     DECISION_ISSUED("decision_issued");
-
-
+    
     private String stateName;
 
     EventTypes(String stateName) {
