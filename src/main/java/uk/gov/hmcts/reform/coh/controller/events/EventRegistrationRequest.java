@@ -3,24 +3,33 @@ package uk.gov.hmcts.reform.coh.controller.events;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Optional;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
 
 public class EventRegistrationRequest {
 
+    @NotNull
     @JsonProperty("event_type")
     private String eventType;
 
+    @NotNull
     @JsonProperty("jurisdiction")
     private String jurisdiction;
 
+    @NotNull
     @JsonProperty("endpoint")
     private String endpoint;
 
+    @PositiveOrZero @Max(5)
     @JsonProperty("maximum_retries")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String maxRetries;
+    private Integer maxRetries = 3;
 
+    @NotNull
     @JsonProperty("active")
+    @Pattern(regexp = "(?i:true|false)")
     private String active;
 
     public String getEventType() {
@@ -56,11 +65,11 @@ public class EventRegistrationRequest {
         this.active = active;
     }
 
-    public String getMaxRetries() {
+    public Integer getMaxRetries() {
         return maxRetries;
     }
 
-    public void setMaxRetries(String maxRetries) {
+    public void setMaxRetries(Integer maxRetries) {
         this.maxRetries = maxRetries;
     }
 }

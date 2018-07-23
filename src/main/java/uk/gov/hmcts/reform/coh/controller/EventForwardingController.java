@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.coh.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.EventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
@@ -21,23 +20,27 @@ import uk.gov.hmcts.reform.coh.service.EventForwardingRegisterService;
 import uk.gov.hmcts.reform.coh.service.EventTypeService;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 
-import javax.validation.Validation;
-import java.sql.Date;
-import java.text.ParseException;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/events")
 public class EventForwardingController {
+    private static final Logger log = LoggerFactory.getLogger(EventForwardingController.class);
+
+
+    private final EventForwardingRegisterService eventForwardingRegisterService;
+
+    private final EventTypeService eventTypeService;
+
+    private final JurisdictionService jurisdictionService;
 
     @Autowired
-    private EventForwardingRegisterService eventForwardingRegisterService;
-
-    @Autowired
-    private EventTypeService eventTypeService;
-
-    @Autowired
-    private JurisdictionService jurisdictionService;
+    public EventForwardingController(EventForwardingRegisterService eventForwardingRegisterService, EventTypeService eventTypeService, JurisdictionService jurisdictionService) {
+        this.eventForwardingRegisterService = eventForwardingRegisterService;
+        this.eventTypeService = eventTypeService;
+        this.jurisdictionService = jurisdictionService;
+    }
 
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
     @ApiResponses(value = {
@@ -47,44 +50,20 @@ public class EventForwardingController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity registerForEventNotifications(@RequestBody EventRegistrationRequest body) {
+    public ResponseEntity registerForEventNotifications(@Valid @RequestBody EventRegistrationRequest body) {
 
         EventForwardingRegister eventForwardingRegister = new EventForwardingRegister();
 
-        ValidationResult validationResult = validate(body);
-        if (!validationResult.isValid()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
-        }
-
         Optional<EventType> eventType = eventTypeService.retrieveEventType(body.getEventType());
-        if (!eventType.isPresent()){
-            return new ResponseEntity<>("Invalid event type", HttpStatus.NOT_FOUND);
-        }
+        eventType.ifPresent(eventForwardingRegister::setEventType);
 
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
-        if (!jurisdiction.isPresent()){
-            return new ResponseEntity<>("Invalid jurisdiction", HttpStatus.NOT_FOUND);
-        }
+        jurisdiction.ifPresent(eventForwardingRegister::setJurisdiction);
 
-        Optional<String> maxRetries = Optional.ofNullable(body.getMaxRetries());
-        if (maxRetries.isPresent()) {
-            try {
-                eventForwardingRegister.setMaximumRetries(Integer.parseInt(maxRetries.get()));
-            } catch (Exception e) {
-                return new ResponseEntity<>("Maximum retries must be an integer", HttpStatus.UNPROCESSABLE_ENTITY);
-            }
-        } else {
-            eventForwardingRegister.setMaximumRetries(3);
-        }
+        Optional<Integer> maxRetries = Optional.ofNullable(body.getMaxRetries());
+        maxRetries.ifPresent(eventForwardingRegister::setMaximumRetries);
 
-        try {
-            eventForwardingRegister.setActive(Boolean.valueOf(body.getActive()));
-        } catch (Exception e) {
-            return new ResponseEntity<>("Active must be a boolean value", HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
-        eventForwardingRegister.setEventType(eventType.get());
-        eventForwardingRegister.setJurisdiction(jurisdiction.get());
+        eventForwardingRegister.setActive(Boolean.valueOf(body.getActive()));
         eventForwardingRegister.setForwardingEndpoint(body.getEndpoint());
 
         eventForwardingRegisterService.createEventForwardingRegister(eventForwardingRegister);
@@ -92,27 +71,5 @@ public class EventForwardingController {
         return ResponseEntity.ok("Successfully registered for event notifications");
 
     }
-
-    private ValidationResult validate(EventRegistrationRequest request){
-        ValidationResult result = new ValidationResult();
-        result.setValid(true);
-
-        if (StringUtils.isEmpty(request.getEventType())) {
-            result.setValid(false);
-            result.setReason("Event type is required");
-        } else if (StringUtils.isEmpty(request.getJurisdiction())) {
-            result.setValid(false);
-            result.setReason("Jurisdiction is required");
-        } else if (StringUtils.isEmpty(request.getEndpoint())) {
-            result.setValid(false);
-            result.setReason("Forwarding endpoint is required");
-        } else if (StringUtils.isEmpty(request.getActive())) {
-            result.setValid(false);
-            result.setReason("Active is a required field");
-        }
-
-        return result;
-    }
-
 
 }
