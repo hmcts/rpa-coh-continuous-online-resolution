@@ -46,6 +46,7 @@ public class QuestionRoundServiceTest {
     private NotificationService notificationService;
 
 
+
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
 
@@ -80,6 +81,7 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(issuedState);
         questionRound1Questions.add(question);
 
+        given(notificationService.notifyIssuedQuestionRound(any(OnlineHearing.class))).willReturn(true);
         given(questionStateService.retrieveQuestionStateByStateName(issuedStateName)).willReturn(Optional.of(issuedState));
         given(questionStateService.retrieveQuestionStateByStateName(draftedStateName)).willReturn(Optional.of(draftedState));
         given(questionStateService.retrieveQuestionStateByStateName("question_submitted")).willReturn(Optional.of(submittedState));

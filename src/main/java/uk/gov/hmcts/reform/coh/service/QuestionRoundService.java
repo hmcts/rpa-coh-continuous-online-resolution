@@ -177,7 +177,6 @@ public class QuestionRoundService {
         }
 
         boolean success = notificationService.notifyIssuedQuestionRound(onlineHearing);
-
         if(success) {
             Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
             questions.stream().forEach(q -> {

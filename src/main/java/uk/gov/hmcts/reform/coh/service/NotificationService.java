@@ -45,10 +45,12 @@ public class NotificationService {
 
         log.info("Event forwarding register: " + optEventForwardingRegister.get().toString());
 
-        boolean success = notifier.notifyQuestionsIssued(optEventForwardingRegister.get(), onlineHearing);
-        if(!success) {
-            throw new NotificationException("Failed to notify: " + optEventForwardingRegister.get().getForwardingEndpoint());
+        try {
+            notifier.notifyQuestionsIssued(optEventForwardingRegister.get(), onlineHearing);
+            return true;
+        }catch (Exception e) {
+            log.error("Exception when notifying: " + optEventForwardingRegister.get().toString() + ":" + e);
+            throw new NotificationException("Failed to notify: " + optEventForwardingRegister.get().getForwardingEndpoint() + ":" + e);
         }
-        return success;
     }
 }

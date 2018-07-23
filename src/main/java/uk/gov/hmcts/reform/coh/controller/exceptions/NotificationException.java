@@ -8,6 +8,4 @@ public class NotificationException extends RuntimeException {
     public NotificationException(String exception) {
         super(exception);
     }
-    public NotificationException() {
-    }
 }
