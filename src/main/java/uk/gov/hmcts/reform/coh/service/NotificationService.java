@@ -26,14 +26,13 @@ public class NotificationService {
     }
 
     public void notifyIssuedQuestionRound(OnlineHearing onlineHearing) {
-        Optional<EventType> optionalEventType = eventTypeRespository.findByEventTypeName(EventTypes.QUESTION_ROUND_ISSUED.getStateName());
+        Optional<EventType> optionIssuedEventType = eventTypeRespository.findByEventTypeName(EventTypes.QUESTION_ROUND_ISSUED.getStateName());
 
-        if(!optionalEventType.isPresent()) {
+        if(!optionIssuedEventType.isPresent()) {
             throw new NoSuchElementException("Error: Required event type not found.");
         }
 
-        Long jurisdictionId = onlineHearing.getJurisdiction().getJurisdictionId();
-        Optional<EventForwardingRegister> optEventForwardingRegister = eventForwardingRegisterRepository.findByJurisdictionIdAndEventTypeId(jurisdictionId, optionalEventType.get().getEventTypeId());
+        Optional<EventForwardingRegister> optEventForwardingRegister = eventForwardingRegisterRepository.findByJurisdictionAndEventType(onlineHearing.getJurisdiction(), optionIssuedEventType.get());
 
         if(!optEventForwardingRegister.isPresent()) {
             throw new NoSuchElementException("Error: No record for notification");
