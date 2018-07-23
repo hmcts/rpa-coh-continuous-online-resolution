@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
+import uk.gov.hmcts.reform.coh.Notification.Notifier;
 import uk.gov.hmcts.reform.coh.domain.EventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -16,15 +18,17 @@ import java.util.Optional;
 @Service
 public class NotificationService {
 
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
     private EventForwardingRegisterRepository eventForwardingRegisterRepository;
     private EventTypeRespository eventTypeRespository;
-    private QuestionNotification questionNotification;
+    private Notifier notifier;
 
     @Autowired
-    public NotificationService(EventForwardingRegisterRepository eventForwardingRegisterRepository, EventTypeRespository eventTypeRespository, QuestionNotification questionNotification) {
+    public NotificationService(EventForwardingRegisterRepository eventForwardingRegisterRepository, EventTypeRespository eventTypeRespository, Notifier notifier) {
         this.eventForwardingRegisterRepository = eventForwardingRegisterRepository;
         this.eventTypeRespository = eventTypeRespository;
-        this.questionNotification = questionNotification;
+        this.notifier = notifier;
     }
 
     public void notifyIssuedQuestionRound(OnlineHearing onlineHearing) {
@@ -40,6 +44,8 @@ public class NotificationService {
             throw new NoSuchElementException("Error: No record for notification");
         }
 
-        questionNotification.notifyQuestionState(optEventForwardingRegister.get(), onlineHearing);
+
+        log.info("Event forwarding register: " + optEventForwardingRegister.get().toString());
+        notifier.notifyQuestionsIssued(optEventForwardingRegister.get(), onlineHearing);
     }
 }

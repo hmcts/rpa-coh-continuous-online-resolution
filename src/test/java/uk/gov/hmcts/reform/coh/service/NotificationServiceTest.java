@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.Notification.QuestionNotification;
+import uk.gov.hmcts.reform.coh.Notification.Notifier;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.EventForwardingRegisterRepository;
@@ -22,11 +22,11 @@ public class NotificationServiceTest {
     private EventTypeRespository eventTypeRespository;
 
     @Autowired
-    private QuestionNotification questionNotification;
+    private Notifier notifier;
 
     @Test
     public void testSendRequestToEndPoint() {
-        NotificationService notificationService = new NotificationService(eventForwardingRegisterRepository, eventTypeRespository, questionNotification);
+        NotificationService notificationService = new NotificationService(eventForwardingRegisterRepository, eventTypeRespository, notifier);
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.fromString("1d604071-72af-4e54-94a8-d26590da97a1"));

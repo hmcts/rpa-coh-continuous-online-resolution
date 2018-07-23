@@ -96,4 +96,17 @@ public class EventForwardingRegister {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    @Override
+    public String toString() {
+        return "EventForwardingRegister{" +
+                "id=" + id +
+                ", eventType=" + eventType +
+                ", jurisdiction=" + jurisdiction +
+                ", forwardingEndpoint='" + forwardingEndpoint + '\'' +
+                ", registrationDate='" + registrationDate + '\'' +
+                ", maximumRetries=" + maximumRetries +
+                ", active=" + active +
+                '}';
+    }
 }
