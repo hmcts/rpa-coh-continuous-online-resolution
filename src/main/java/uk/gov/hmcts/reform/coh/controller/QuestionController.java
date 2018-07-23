@@ -56,14 +56,14 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questions")
-    public ResponseEntity<AllQuestionsResponse> getQuestions(@PathVariable UUID onlineHearingId) {
+    public ResponseEntity getQuestions(@PathVariable UUID onlineHearingId) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
 
-        Optional<List<Question>> optionalQuestions = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+        Optional<List<Question>> optionalQuestions = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
 
         if (!optionalQuestions.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
         }
 
         List<Question> questions = optionalQuestions.get();
@@ -89,11 +89,11 @@ public class QuestionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping("/questions/{questionId}")
-    public ResponseEntity<QuestionResponse> getQuestion(@PathVariable UUID questionId) {
+    public ResponseEntity getQuestion(@PathVariable UUID questionId) {
         QuestionResponse questionResponse = new QuestionResponse();
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if (!optionalQuestion.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
         }
 
         Question question = optionalQuestion.get();

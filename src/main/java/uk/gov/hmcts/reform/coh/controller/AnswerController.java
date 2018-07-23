@@ -87,7 +87,7 @@ public class AnswerController {
         try {
 
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
-            // If a question exists, then it must be in the issues state to be answered
+            // If a question exists, then it must be in the issued state to be answered
             if (!optionalQuestion.isPresent()
                     || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
@@ -175,7 +175,7 @@ public class AnswerController {
         return ResponseEntity.ok(responses);
     }
 
-    @ApiOperation(value = "Update Answers", notes = "A PATCH request is used to update an answer")
+    @ApiOperation(value = "Update Answers", notes = "A PUT request is used to update an answer")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorised"),

@@ -233,7 +233,7 @@ public class QuestionControllerTest {
         List<Question> responses = new ArrayList<>();
         responses.add(question);
 
-        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(responses));
+        given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(responses));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
@@ -249,7 +249,7 @@ public class QuestionControllerTest {
     @Test
     public void testGetAllQuestionsNone() throws Exception {
 
-        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(null));
+        given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(null));
         mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
@@ -261,7 +261,7 @@ public class QuestionControllerTest {
 
         List<Question> responses = new ArrayList<>();
 
-        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
+        given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
