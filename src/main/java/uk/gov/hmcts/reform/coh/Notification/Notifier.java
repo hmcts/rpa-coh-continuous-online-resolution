@@ -24,22 +24,23 @@ public class Notifier {
 
     public boolean notifyQuestionsIssued(EventForwardingRegister eventForwardingRegister, OnlineHearing onlineHearing){
         NotificationRequest notificationRequest = constructNotification(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED);
-
         ResponseEntity responseEntity = restTemplate.postForEntity(eventForwardingRegister.getForwardingEndpoint(), notificationRequest, NotificationRequest.class);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()){
             return true;
         }else {
+            log.error("Notification request failed: " + notificationRequest.toString());
             return false;
         }
     }
 
-    public NotificationRequest constructNotification(OnlineHearing onlineHearing, EventTypes eventType) {
+    private NotificationRequest constructNotification(OnlineHearing onlineHearing, EventTypes eventType) {
         NotificationRequest notificationRequest = new NotificationRequest();
         notificationRequest.setCaseId(onlineHearing.getCaseId());
         notificationRequest.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         notificationRequest.setEventType(eventType.getStateName());
 
+        log.info(notificationRequest.toString());
         return notificationRequest;
     }
 }

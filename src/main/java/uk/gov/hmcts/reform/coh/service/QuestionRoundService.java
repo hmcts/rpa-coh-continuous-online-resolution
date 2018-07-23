@@ -176,16 +176,18 @@ public class QuestionRoundService {
             throw new NotAValidUpdateException("Question round has already been issued");
         }
 
-        Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
+        boolean success = notificationService.notifyIssuedQuestionRound(onlineHearing);
 
-        questions.stream().forEach(q -> {
-            q.setQuestionState(questionState);
-            q.updateQuestionStateHistory(questionState);
-            q.setDeadlineExpiryDate(expiryDate);
-            questionRepository.save(q);
-            modifiedQuestion.add(q);
-        });
-
+        if(success) {
+            Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
+            questions.stream().forEach(q -> {
+                q.setQuestionState(questionState);
+                q.updateQuestionStateHistory(questionState);
+                q.setDeadlineExpiryDate(expiryDate);
+                questionRepository.save(q);
+                modifiedQuestion.add(q);
+            });
+        }
         return modifiedQuestion;
     }
 }

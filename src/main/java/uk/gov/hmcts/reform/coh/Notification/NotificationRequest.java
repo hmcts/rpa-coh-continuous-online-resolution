@@ -38,4 +38,13 @@ public class NotificationRequest {
     public void setEventType(String eventType) {
         this.eventType = eventType;
     }
+
+    @Override
+    public String toString() {
+        return "NotificationRequest{" +
+                "caseId='" + caseId + '\'' +
+                ", onlineHearingId=" + onlineHearingId +
+                ", eventType='" + eventType + '\'' +
+                '}';
+    }
 }

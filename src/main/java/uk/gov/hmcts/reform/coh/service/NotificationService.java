@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.Notification.Notifier;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotificationException;
 import uk.gov.hmcts.reform.coh.domain.EventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -31,21 +32,23 @@ public class NotificationService {
         this.notifier = notifier;
     }
 
-    public void notifyIssuedQuestionRound(OnlineHearing onlineHearing) {
+    public boolean notifyIssuedQuestionRound(OnlineHearing onlineHearing) {
         Optional<EventType> optionIssuedEventType = eventTypeRespository.findByEventTypeName(EventTypes.QUESTION_ROUND_ISSUED.getStateName());
-
         if(!optionIssuedEventType.isPresent()) {
             throw new NoSuchElementException("Error: Required event type not found.");
         }
 
         Optional<EventForwardingRegister> optEventForwardingRegister = eventForwardingRegisterRepository.findByJurisdictionAndEventType(onlineHearing.getJurisdiction(), optionIssuedEventType.get());
-
         if(!optEventForwardingRegister.isPresent()) {
             throw new NoSuchElementException("Error: No record for notification");
         }
 
-
         log.info("Event forwarding register: " + optEventForwardingRegister.get().toString());
-        notifier.notifyQuestionsIssued(optEventForwardingRegister.get(), onlineHearing);
+
+        boolean success = notifier.notifyQuestionsIssued(optEventForwardingRegister.get(), onlineHearing);
+        if(!success) {
+            throw new NotificationException("Failed to notify: " + optEventForwardingRegister.get().getForwardingEndpoint());
+        }
+        return success;
     }
 }
