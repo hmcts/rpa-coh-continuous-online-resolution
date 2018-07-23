@@ -44,7 +44,7 @@ public class AnswersReceivedTask implements ContinuousOnlineResolutionTask<Onlin
     public void execute(OnlineHearing onlineHearing) {
 
         log.debug("AnswersReceivedTask.execute(). For online hearing: " + onlineHearing.getOnlineHearingId());
-        Optional<List<Question>> questions = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+        Optional<List<Question>> questions = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
         log.debug("AnswersReceivedTask.execute(). OnlineHearing has questions: " + (questions.isPresent() ? questions.get().size() : "0"));
         if (!questions.isPresent()) {
             return;

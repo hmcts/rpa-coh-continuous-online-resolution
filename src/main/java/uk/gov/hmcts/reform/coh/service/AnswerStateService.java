@@ -39,7 +39,7 @@ public class AnswerStateService {
         }
 
         if (sourceState.equals(submittedAnswerState.get())) {
-            throw new NotAValidUpdateException();
+            throw new NotAValidUpdateException("Invalid state transition");
         }
 
         return true;

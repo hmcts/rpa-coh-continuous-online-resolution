@@ -67,15 +67,15 @@ public class AnswersReceivedTaskTest {
         answer = new Answer();
         answer.setAnswerState(answerState);
         given(onlineHearingStateService.retrieveOnlineHearingStateByState( OnlineHearingStates.ANSWERS_SENT.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
-        given(questionService.finaAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(Arrays.asList(question)));
+        given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(Arrays.asList(question)));
         given(answerService.retrieveAnswersByQuestion(question)).willReturn(Arrays.asList(answer));
     }
 
     @Test
     public void testOnlineHearingContainsNoQuestions() {
-        given(questionService.finaAllQuestionsByOnlineHearing(onlineHearing)).willReturn(Optional.empty());
+        given(questionService.findAllQuestionsByOnlineHearing(onlineHearing)).willReturn(Optional.empty());
         answersReceivedTask.execute(onlineHearing);
-        verify(questionService, times(1)).finaAllQuestionsByOnlineHearing(onlineHearing);
+        verify(questionService, times(1)).findAllQuestionsByOnlineHearing(onlineHearing);
     }
 
     @Test
