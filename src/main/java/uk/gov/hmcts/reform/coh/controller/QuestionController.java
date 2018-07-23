@@ -60,7 +60,7 @@ public class QuestionController {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
 
-        Optional<List<Question>> optionalQuestions = questionService.finaAllQuestionsByOnlineHearing(onlineHearing);
+        Optional<List<Question>> optionalQuestions = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
 
         if (!optionalQuestions.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
