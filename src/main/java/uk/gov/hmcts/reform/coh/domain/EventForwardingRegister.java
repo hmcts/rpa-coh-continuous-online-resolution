@@ -31,13 +31,15 @@ public class EventForwardingRegister {
     @Column(name = "active")
     private Boolean active;
 
+    public EventForwardingRegister() {
+    }
+
     public EventForwardingRegister(Jurisdiction jurisdiction,
                                    EventType eventType) {
         this.jurisdiction = jurisdiction;
         this.eventType = eventType;
         this.id = new EventForwardingRegisterId(jurisdiction.getJurisdictionId(), eventType.getEventTypeId());
     }
-
 
     public EventForwardingRegisterId getEventForwardingRegisterId() {
         return id;

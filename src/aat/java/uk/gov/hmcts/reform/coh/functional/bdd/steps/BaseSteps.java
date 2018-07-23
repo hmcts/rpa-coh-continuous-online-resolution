@@ -9,11 +9,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.domain.Decision;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.EventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
@@ -47,6 +46,9 @@ public class BaseSteps {
     @Autowired
     private JurisdictionRepository jurisdictionRepository;
 
+    @Autowired
+    private EventForwardingRegisterRepository eventForwardingRegisterRepository;
+
     @Value("${base-urls.test-url}")
     String baseUrl;
 
@@ -72,6 +74,11 @@ public class BaseSteps {
         String url = optionalJurisdiction.get().getUrl();
         optionalJurisdiction.get().setUrl(url.replace("${base-urls.test-url}", baseUrl));
         jurisdictionRepository.save(optionalJurisdiction.get());
+
+        EventForwardingRegisterId eventForwardingRegisterId = new EventForwardingRegisterId(1L, 1);
+        Optional<EventForwardingRegister> optionalTestForwardingRegister = eventForwardingRegisterRepository.findById(eventForwardingRegisterId);
+        optionalTestForwardingRegister.get().setForwardingEndpoint(url.replace("${base-urls.test-url}", baseUrl));
+        eventForwardingRegisterRepository.save(optionalTestForwardingRegister.get());
     }
 
     public void cleanup() {

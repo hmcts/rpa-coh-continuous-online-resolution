@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
+import uk.gov.hmcts.reform.coh.service.NotificationService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
@@ -21,11 +22,14 @@ public class QuestionRoundSentTask implements ContinuousOnlineResolutionTask<Onl
 
     private OnlineHearingStateService onlineHearingStateService;
 
+    private NotificationService notificationService;
 
     @Autowired
-    public QuestionRoundSentTask(OnlineHearingService onlineHearingService, OnlineHearingStateService onlineHearingStateService) {
+    public QuestionRoundSentTask(OnlineHearingService onlineHearingService, OnlineHearingStateService onlineHearingStateService,
+                                 NotificationService notificationService) {
         this.onlineHearingService = onlineHearingService;
         this.onlineHearingStateService = onlineHearingStateService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -43,5 +47,7 @@ public class QuestionRoundSentTask implements ContinuousOnlineResolutionTask<Onl
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         log.debug("QuestionSentTask.execute(). Online Hearing state update state updated to " + questionSentState.getState());
+
+        notificationService.notifyIssuedQuestionRound(onlineHearing);
     }
 }

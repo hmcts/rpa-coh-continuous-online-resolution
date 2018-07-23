@@ -177,6 +177,7 @@ public class QuestionRoundService {
         }
 
         Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
+
         questions.stream().forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);
@@ -184,8 +185,6 @@ public class QuestionRoundService {
             questionRepository.save(q);
             modifiedQuestion.add(q);
         });
-
-        notificationService.notifyIssuedQuestionRound(onlineHearing);
 
         return modifiedQuestion;
     }
