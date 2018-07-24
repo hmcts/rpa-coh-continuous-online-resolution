@@ -104,7 +104,7 @@ public class QuestionRoundService {
     }
 
     @Transactional
-    protected QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
+    public QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
         if(questions.isEmpty()) {
             Optional<QuestionState> optionalDraftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED);
