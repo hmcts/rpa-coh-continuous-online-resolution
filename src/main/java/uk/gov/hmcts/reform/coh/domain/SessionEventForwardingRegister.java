@@ -38,7 +38,7 @@ public class SessionEventForwardingRegister {
         this.sessionEventType = sessionEventType;
         this.id = new SessionEventForwardingRegisterId(jurisdiction.getJurisdictionId(), sessionEventType.getEventTypeId());
     }
-    
+
     public SessionEventForwardingRegisterId getEventForwardingRegisterId() {
         return id;
     }

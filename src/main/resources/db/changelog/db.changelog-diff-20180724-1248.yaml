@@ -1,12 +1,12 @@
 databaseChangeLog:
 - changeSet:
-    id: 1532430844048-1
+    id: 1532432901426-1
     author: phill (generated)
     changes:
     - createSequence:
         sequenceName: hibernate_sequence
 - changeSet:
-    id: 1532430844048-2
+    id: 1532432901426-2
     author: phill (generated)
     changes:
     - createTable:
@@ -27,7 +27,7 @@ databaseChangeLog:
             type: UUID
         tableName: answer
 - changeSet:
-    id: 1532430844048-3
+    id: 1532432901426-3
     author: phill (generated)
     changes:
     - createTable:
@@ -42,7 +42,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: answer_state
 - changeSet:
-    id: 1532430844048-4
+    id: 1532432901426-4
     author: phill (generated)
     changes:
     - createTable:
@@ -62,7 +62,7 @@ databaseChangeLog:
             type: INT
         tableName: answer_state_history
 - changeSet:
-    id: 1532430844048-5
+    id: 1532432901426-5
     author: phill (generated)
     changes:
     - createTable:
@@ -105,7 +105,7 @@ databaseChangeLog:
             type: UUID
         tableName: decision
 - changeSet:
-    id: 1532430844048-6
+    id: 1532432901426-6
     author: phill (generated)
     changes:
     - createTable:
@@ -120,7 +120,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: decision_state
 - changeSet:
-    id: 1532430844048-7
+    id: 1532432901426-7
     author: phill (generated)
     changes:
     - createTable:
@@ -140,7 +140,7 @@ databaseChangeLog:
             type: INT
         tableName: decision_state_history
 - changeSet:
-    id: 1532430844048-8
+    id: 1532432901426-8
     author: phill (generated)
     changes:
     - createTable:
@@ -161,7 +161,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: jurisdiction
 - changeSet:
-    id: 1532430844048-9
+    id: 1532432901426-9
     author: phill (generated)
     changes:
     - createTable:
@@ -191,7 +191,7 @@ databaseChangeLog:
             type: INT
         tableName: online_hearing
 - changeSet:
-    id: 1532430844048-10
+    id: 1532432901426-10
     author: phill (generated)
     changes:
     - createTable:
@@ -214,7 +214,7 @@ databaseChangeLog:
             type: UUID
         tableName: online_hearing_panel_member
 - changeSet:
-    id: 1532430844048-11
+    id: 1532432901426-11
     author: phill (generated)
     changes:
     - createTable:
@@ -229,7 +229,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: online_hearing_state
 - changeSet:
-    id: 1532430844048-12
+    id: 1532432901426-12
     author: phill (generated)
     changes:
     - createTable:
@@ -249,7 +249,7 @@ databaseChangeLog:
             type: INT
         tableName: online_hearing_state_history
 - changeSet:
-    id: 1532430844048-13
+    id: 1532432901426-13
     author: phill (generated)
     changes:
     - createTable:
@@ -288,7 +288,7 @@ databaseChangeLog:
             type: INT
         tableName: question
 - changeSet:
-    id: 1532430844048-14
+    id: 1532432901426-14
     author: phill (generated)
     changes:
     - createTable:
@@ -303,7 +303,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: question_state
 - changeSet:
-    id: 1532430844048-15
+    id: 1532432901426-15
     author: phill (generated)
     changes:
     - createTable:
@@ -323,7 +323,7 @@ databaseChangeLog:
             type: INT
         tableName: question_state_history
 - changeSet:
-    id: 1532430844048-16
+    id: 1532432901426-16
     author: phill (generated)
     changes:
     - createTable:
@@ -350,7 +350,7 @@ databaseChangeLog:
             type: INT
         tableName: session_event
 - changeSet:
-    id: 1532430844048-17
+    id: 1532432901426-17
     author: phill (generated)
     changes:
     - createTable:
@@ -376,10 +376,10 @@ databaseChangeLog:
             type: INT
         - column:
             name: registration_date
-            type: VARCHAR(255)
+            type: TIMESTAMP WITHOUT TIME ZONE
         tableName: session_event_forwarding_register
 - changeSet:
-    id: 1532430844048-18
+    id: 1532432901426-18
     author: phill (generated)
     changes:
     - createTable:
@@ -396,7 +396,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: session_event_forwarding_state
 - changeSet:
-    id: 1532430844048-19
+    id: 1532432901426-19
     author: phill (generated)
     changes:
     - createTable:
@@ -413,7 +413,7 @@ databaseChangeLog:
             type: VARCHAR(255)
         tableName: session_event_type
 - changeSet:
-    id: 1532430844048-20
+    id: 1532432901426-20
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -421,7 +421,7 @@ databaseChangeLog:
         constraintName: answerPK
         tableName: answer
 - changeSet:
-    id: 1532430844048-21
+    id: 1532432901426-21
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -429,7 +429,7 @@ databaseChangeLog:
         constraintName: answer_statePK
         tableName: answer_state
 - changeSet:
-    id: 1532430844048-22
+    id: 1532432901426-22
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -437,7 +437,7 @@ databaseChangeLog:
         constraintName: answer_state_historyPK
         tableName: answer_state_history
 - changeSet:
-    id: 1532430844048-23
+    id: 1532432901426-23
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -445,7 +445,7 @@ databaseChangeLog:
         constraintName: decisionPK
         tableName: decision
 - changeSet:
-    id: 1532430844048-24
+    id: 1532432901426-24
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -453,7 +453,7 @@ databaseChangeLog:
         constraintName: decision_statePK
         tableName: decision_state
 - changeSet:
-    id: 1532430844048-25
+    id: 1532432901426-25
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -461,7 +461,7 @@ databaseChangeLog:
         constraintName: decision_state_historyPK
         tableName: decision_state_history
 - changeSet:
-    id: 1532430844048-26
+    id: 1532432901426-26
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -469,7 +469,7 @@ databaseChangeLog:
         constraintName: jurisdictionPK
         tableName: jurisdiction
 - changeSet:
-    id: 1532430844048-27
+    id: 1532432901426-27
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -477,7 +477,7 @@ databaseChangeLog:
         constraintName: online_hearingPK
         tableName: online_hearing
 - changeSet:
-    id: 1532430844048-28
+    id: 1532432901426-28
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -485,7 +485,7 @@ databaseChangeLog:
         constraintName: online_hearing_statePK
         tableName: online_hearing_state
 - changeSet:
-    id: 1532430844048-29
+    id: 1532432901426-29
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -493,7 +493,7 @@ databaseChangeLog:
         constraintName: online_hearing_state_historyPK
         tableName: online_hearing_state_history
 - changeSet:
-    id: 1532430844048-30
+    id: 1532432901426-30
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -501,7 +501,7 @@ databaseChangeLog:
         constraintName: questionPK
         tableName: question
 - changeSet:
-    id: 1532430844048-31
+    id: 1532432901426-31
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -509,7 +509,7 @@ databaseChangeLog:
         constraintName: question_statePK
         tableName: question_state
 - changeSet:
-    id: 1532430844048-32
+    id: 1532432901426-32
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -517,7 +517,7 @@ databaseChangeLog:
         constraintName: question_state_historyPK
         tableName: question_state_history
 - changeSet:
-    id: 1532430844048-33
+    id: 1532432901426-33
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -525,7 +525,7 @@ databaseChangeLog:
         constraintName: session_eventPK
         tableName: session_event
 - changeSet:
-    id: 1532430844048-34
+    id: 1532432901426-34
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -533,7 +533,7 @@ databaseChangeLog:
         constraintName: session_event_forwarding_registerPK
         tableName: session_event_forwarding_register
 - changeSet:
-    id: 1532430844048-35
+    id: 1532432901426-35
     author: phill (generated)
     changes:
     - addUniqueConstraint:
@@ -541,7 +541,7 @@ databaseChangeLog:
         constraintName: UK_7mrubkqqigx0ndchupf5g8fft
         tableName: decision
 - changeSet:
-    id: 1532430844048-36
+    id: 1532432901426-36
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -553,7 +553,7 @@ databaseChangeLog:
         referencedColumnNames: event_type_id
         referencedTableName: session_event_type
 - changeSet:
-    id: 1532430844048-37
+    id: 1532432901426-37
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -565,7 +565,7 @@ databaseChangeLog:
         referencedColumnNames: decision_id
         referencedTableName: decision
 - changeSet:
-    id: 1532430844048-38
+    id: 1532432901426-38
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -577,7 +577,7 @@ databaseChangeLog:
         referencedColumnNames: forwarding_state_id
         referencedTableName: session_event_forwarding_state
 - changeSet:
-    id: 1532430844048-39
+    id: 1532432901426-39
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -589,7 +589,7 @@ databaseChangeLog:
         referencedColumnNames: jurisdiction_id
         referencedTableName: jurisdiction
 - changeSet:
-    id: 1532430844048-40
+    id: 1532432901426-40
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -601,7 +601,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_state_id
         referencedTableName: online_hearing_state
 - changeSet:
-    id: 1532430844048-41
+    id: 1532432901426-41
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -613,7 +613,7 @@ databaseChangeLog:
         referencedColumnNames: decision_state_id
         referencedTableName: decision_state
 - changeSet:
-    id: 1532430844048-42
+    id: 1532432901426-42
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -625,7 +625,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1532430844048-43
+    id: 1532432901426-43
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -637,7 +637,7 @@ databaseChangeLog:
         referencedColumnNames: event_type_id,jurisdiction_id
         referencedTableName: session_event_forwarding_register
 - changeSet:
-    id: 1532430844048-44
+    id: 1532432901426-44
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -649,7 +649,7 @@ databaseChangeLog:
         referencedColumnNames: decision_state_id
         referencedTableName: decision_state
 - changeSet:
-    id: 1532430844048-45
+    id: 1532432901426-45
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -661,7 +661,7 @@ databaseChangeLog:
         referencedColumnNames: question_id
         referencedTableName: question
 - changeSet:
-    id: 1532430844048-46
+    id: 1532432901426-46
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -673,7 +673,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1532430844048-47
+    id: 1532432901426-47
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -685,7 +685,7 @@ databaseChangeLog:
         referencedColumnNames: question_state_id
         referencedTableName: question_state
 - changeSet:
-    id: 1532430844048-48
+    id: 1532432901426-48
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -697,7 +697,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1532430844048-49
+    id: 1532432901426-49
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -709,7 +709,7 @@ databaseChangeLog:
         referencedColumnNames: question_state_id
         referencedTableName: question_state
 - changeSet:
-    id: 1532430844048-50
+    id: 1532432901426-50
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -721,7 +721,7 @@ databaseChangeLog:
         referencedColumnNames: jurisdiction_id
         referencedTableName: jurisdiction
 - changeSet:
-    id: 1532430844048-51
+    id: 1532432901426-51
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -733,7 +733,7 @@ databaseChangeLog:
         referencedColumnNames: question_id
         referencedTableName: question
 - changeSet:
-    id: 1532430844048-52
+    id: 1532432901426-52
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -745,7 +745,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_id
         referencedTableName: online_hearing
 - changeSet:
-    id: 1532430844048-53
+    id: 1532432901426-53
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -757,7 +757,7 @@ databaseChangeLog:
         referencedColumnNames: answer_state_id
         referencedTableName: answer_state
 - changeSet:
-    id: 1532430844048-54
+    id: 1532432901426-54
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -769,7 +769,7 @@ databaseChangeLog:
         referencedColumnNames: online_hearing_state_id
         referencedTableName: online_hearing_state
 - changeSet:
-    id: 1532430844048-55
+    id: 1532432901426-55
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -781,7 +781,7 @@ databaseChangeLog:
         referencedColumnNames: answer_state_id
         referencedTableName: answer_state
 - changeSet:
-    id: 1532430844048-56
+    id: 1532432901426-56
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
@@ -793,7 +793,7 @@ databaseChangeLog:
         referencedColumnNames: answer_id
         referencedTableName: answer
 - changeSet:
-    id: 1532430844048-57
+    id: 1532432901426-57
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:
