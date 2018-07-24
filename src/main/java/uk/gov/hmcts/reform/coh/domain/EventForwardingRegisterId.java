@@ -11,7 +11,7 @@ public class EventForwardingRegisterId implements Serializable {
     private Long jurisdictionId;
 
     @Column(name = "event_type_id")
-    private int eventTypeId;
+    private Integer eventTypeId;
 
     public EventForwardingRegisterId() {
     }
@@ -29,11 +29,11 @@ public class EventForwardingRegisterId implements Serializable {
         this.jurisdictionId = jurisdictionId;
     }
 
-    public int getEventTypeId() {
+    public Integer getEventTypeId() {
         return eventTypeId;
     }
 
-    public void setEventTypeId(int eventTypeId) {
+    public void setEventTypeId(Integer eventTypeId) {
         this.eventTypeId = eventTypeId;
     }
 }
