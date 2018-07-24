@@ -32,6 +32,8 @@ public class SessionEventForwardingRegister {
     @Column(name = "active")
     private Boolean active;
 
+    public SessionEventForwardingRegister() {}
+
     public SessionEventForwardingRegister(Jurisdiction jurisdiction,
                                           SessionEventType sessionEventType) {
         this.jurisdiction = jurisdiction;

@@ -41,21 +41,21 @@ public class SessionEventService {
 
     public SessionEvent createSessionEvent(OnlineHearing onlineHearing, SessionEventType sessionEventType) {
 
-        Optional<SessionEventForwardingState> optionalForwardingState = sessionEventForwardingStateRepository.findByForwardingStateName(STARTING_STATE);
-        if (!optionalForwardingState.isPresent()) {
+        Optional<SessionEventForwardingState> optForwardingState = sessionEventForwardingStateRepository.findByForwardingStateName(STARTING_STATE);
+        if (!optForwardingState.isPresent()) {
             throw new EntityNotFoundException("Session Event Forwarding State '" + STARTING_STATE + "' not found");
         }
 
-
-        Optional<SessionEventForwardingRegister> optRegister =  sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(onlineHearing.getJurisdiction(), sessionEventType);
+        Optional<SessionEventForwardingRegister> optRegister = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(onlineHearing.getJurisdiction(), sessionEventType);
         if (!optRegister.isPresent()) {
-            throw new EntityNotFoundException("Session event regist entry not found");
+            throw new EntityNotFoundException("Session event registry entry not found for jurisdiction '" + onlineHearing.getJurisdiction().getJurisdictionName() + "', session event type '" + sessionEventType.getEventTypeName() + "'");
         }
 
         SessionEvent sessionEvent = new SessionEvent();
         sessionEvent.setOnlineHearing(onlineHearing);
-        sessionEvent.setSessionEventForwardingState(optionalForwardingState.get());
+        sessionEvent.setSessionEventForwardingRegister(optRegister.get());
+        sessionEvent.setSessionEventForwardingState(optForwardingState.get());
 
-        return sessionEventRepository.save(null);
+        return sessionEventRepository.save(sessionEvent);
     }
 }
