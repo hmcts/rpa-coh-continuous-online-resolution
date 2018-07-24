@@ -45,7 +45,7 @@ public class Notifier {
         NotificationRequest notificationRequest = new NotificationRequest();
         notificationRequest.setCaseId(onlineHearing.getCaseId());
         notificationRequest.setOnlineHearingId(onlineHearing.getOnlineHearingId());
-        notificationRequest.setEventType(eventType.getStateName());
+        notificationRequest.setEventType(eventType);
 
         log.info(notificationRequest.toString());
         return notificationRequest;

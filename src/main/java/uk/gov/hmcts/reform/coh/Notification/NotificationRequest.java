@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.coh.Notification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.coh.domain.EventType;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class NotificationRequest {
@@ -13,7 +16,16 @@ public class NotificationRequest {
     private UUID onlineHearingId;
 
     @JsonProperty("event_type")
-    private String eventType;
+    private EventTypes eventType;
+
+    @JsonProperty("expiry_date")
+    private Date expiryDate;
+
+    @JsonProperty("reason")
+    private String reason;
+
+    public NotificationRequest() {
+    }
 
     public String getCaseId() {
         return caseId;
@@ -31,14 +43,6 @@ public class NotificationRequest {
         this.onlineHearingId = onlineHearingId;
     }
 
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
     @Override
     public String toString() {
         return "NotificationRequest{" +
@@ -46,5 +50,25 @@ public class NotificationRequest {
                 ", onlineHearingId=" + onlineHearingId +
                 ", eventType='" + eventType + '\'' +
                 '}';
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public void setEventType(EventTypes eventType) {
+        this.eventType = eventType;
     }
 }
