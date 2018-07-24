@@ -45,17 +45,14 @@ public class DecisionController {
 
     private DecisionIssuedTask decisionIssuedTask;
 
-    private SessionEventService sessionEventService;
-
     private Validation validation = new Validation();
 
     @Autowired
-    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionIssuedTask decisionIssuedTask, SessionEventService sessionEventService) {
+    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionIssuedTask decisionIssuedTask) {
         this.onlineHearingService = onlineHearingService;
         this.decisionService = decisionService;
         this.decisionStateService = decisionStateService;
         this.decisionIssuedTask = decisionIssuedTask;
-        this.sessionEventService = sessionEventService;
     }
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")

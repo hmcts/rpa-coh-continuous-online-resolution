@@ -56,7 +56,7 @@ public class SessionEventServiceTest {
     private Jurisdiction jurisdiction;
 
     @Before
-    public void setup() {
+    public void setUp() {
 
         jurisdiction = new Jurisdiction();
         jurisdiction.setJurisdictionName("foo");
@@ -114,7 +114,7 @@ public class SessionEventServiceTest {
 
     @Test(expected = EntityNotFoundException.class)
     public void testCreateSessionEventWithInvalidJurisdictionAndSessionEventType() {
-        given(sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(onlineHearing.getJurisdiction(), sessionEventType)).willReturn(Optional.empty());
+        given(sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(jurisdiction, sessionEventType)).willReturn(Optional.empty());
         sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
     }
 }
