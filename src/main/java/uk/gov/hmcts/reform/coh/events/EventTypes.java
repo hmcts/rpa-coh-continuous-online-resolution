@@ -12,13 +12,13 @@ public enum EventTypes {
     DECISION_REJECTED("decision_rejected"),
     DECISION_ISSUED("decision_issued");
     
-    private String stateName;
+    private String eventType;
 
-    EventTypes(String stateName) {
-        this.stateName = stateName;
+    EventTypes(String eventType) {
+        this.eventType = eventType;
     }
 
-    public String getStateName() {
-        return stateName;
+    public String getEventType() {
+        return eventType;
     }
 }
