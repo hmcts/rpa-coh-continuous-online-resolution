@@ -6,17 +6,17 @@ import javax.persistence.*;
 @Table(name = "event_forwarding_register")
 public class EventForwardingRegister {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "event_forwarding_register_id")
-    private int eventForwardingRegisterId;
+    @EmbeddedId
+    private EventForwardingRegisterId id;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "event_type_id")
+    @MapsId("eventTypeId")
     private EventType eventType;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "jurisdiction_id")
+    @MapsId("jurisdictionId")
     private Jurisdiction jurisdiction;
 
     @Column(name = "forwarding_endpoint")
@@ -31,12 +31,20 @@ public class EventForwardingRegister {
     @Column(name = "active")
     private Boolean active;
 
-    public int getEventForwardingRegisterId() {
-        return eventForwardingRegisterId;
+    public EventForwardingRegister(Jurisdiction jurisdiction,
+                                   EventType eventType) {
+        this.jurisdiction = jurisdiction;
+        this.eventType = eventType;
+        this.id = new EventForwardingRegisterId(jurisdiction.getJurisdictionId(), eventType.getEventTypeId());
     }
 
-    public void setEventForwardingRegisterId(int eventForwardingRegisterId) {
-        this.eventForwardingRegisterId = eventForwardingRegisterId;
+
+    public EventForwardingRegisterId getEventForwardingRegisterId() {
+        return id;
+    }
+
+    public void setEventForwardingRegisterId(EventForwardingRegisterId eventForwardingRegisterId) {
+        this.id = eventForwardingRegisterId;
     }
 
     public EventType getEventType() {
