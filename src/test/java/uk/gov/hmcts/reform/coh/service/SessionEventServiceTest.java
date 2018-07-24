@@ -45,10 +45,6 @@ public class SessionEventServiceTest {
 
     private SessionEventType sessionEventType;
 
-    private SessionEventForwardingState forwardingState;
-
-    private SessionEventForwardingRegister sessionEventForwardingRegister;
-
     private SessionEvent sessionEvent;
 
     private OnlineHearing onlineHearing;
@@ -67,10 +63,10 @@ public class SessionEventServiceTest {
         sessionEventType = new SessionEventType();
         sessionEventType.setEventTypeName(sessionEventTypeName);
 
-        forwardingState = new SessionEventForwardingState();
+        SessionEventForwardingState forwardingState = new SessionEventForwardingState();
         forwardingState.setForwardingStateName(forwardingStateName);
 
-        sessionEventForwardingRegister = new SessionEventForwardingRegister();
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister();
         sessionEventForwardingRegister.setJurisdiction(jurisdiction);
         sessionEventForwardingRegister.setForwardingEndpoint("http://google.com");
         sessionEventForwardingRegister.setMaximumRetries(3);

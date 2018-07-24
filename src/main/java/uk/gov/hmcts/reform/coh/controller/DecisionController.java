@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
 
