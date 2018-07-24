@@ -20,6 +20,7 @@ public class Notifier {
     public Notifier(RestTemplate restTemplate){
         this.restTemplate = restTemplate;
     }
+
     public Notifier(){
         this.restTemplate = new RestTemplate();
     }
@@ -34,7 +35,7 @@ public class Notifier {
             }else{
                 throw new NotificationException("Bad response from request: " + responseEntity.getStatusCodeValue());
             }
-        }catch(HttpClientErrorException|IllegalArgumentException hcee){
+        } catch(HttpClientErrorException|IllegalArgumentException hcee){
             log.error("Notification request failed: " + notificationRequest.toString() + ":" + hcee);
             throw hcee;
         }
