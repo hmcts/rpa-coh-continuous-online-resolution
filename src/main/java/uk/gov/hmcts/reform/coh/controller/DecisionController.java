@@ -34,7 +34,7 @@ public class DecisionController {
 
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
-    private static final String STARTING_STATE = "decision_drafted";
+    private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
     private OnlineHearingService onlineHearingService;
 
