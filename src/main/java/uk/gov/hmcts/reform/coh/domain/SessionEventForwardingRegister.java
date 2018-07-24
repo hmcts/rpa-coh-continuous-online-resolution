@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.coh.domain;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "event_forwarding_register")
-public class EventForwardingRegister {
+@Table(name = "session_event_forwarding_register")
+public class SessionEventForwardingRegister {
 
     @EmbeddedId
     private EventForwardingRegisterId id;
@@ -12,7 +12,7 @@ public class EventForwardingRegister {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "event_type_id")
     @MapsId("eventTypeId")
-    private EventType eventType;
+    private SessionEventType sessionEventType;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "jurisdiction_id")
@@ -31,11 +31,11 @@ public class EventForwardingRegister {
     @Column(name = "active")
     private Boolean active;
 
-    public EventForwardingRegister(Jurisdiction jurisdiction,
-                                   EventType eventType) {
+    public SessionEventForwardingRegister(Jurisdiction jurisdiction,
+                                          SessionEventType sessionEventType) {
         this.jurisdiction = jurisdiction;
-        this.eventType = eventType;
-        this.id = new EventForwardingRegisterId(jurisdiction.getJurisdictionId(), eventType.getEventTypeId());
+        this.sessionEventType = sessionEventType;
+        this.id = new EventForwardingRegisterId(jurisdiction.getJurisdictionId(), sessionEventType.getEventTypeId());
     }
 
 
@@ -47,12 +47,12 @@ public class EventForwardingRegister {
         this.id = eventForwardingRegisterId;
     }
 
-    public EventType getEventType() {
-        return eventType;
+    public SessionEventType getSessionEventType() {
+        return sessionEventType;
     }
 
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
+    public void setSessionEventType(SessionEventType sessionEventType) {
+        this.sessionEventType = sessionEventType;
     }
 
     public Jurisdiction getJurisdiction() {
