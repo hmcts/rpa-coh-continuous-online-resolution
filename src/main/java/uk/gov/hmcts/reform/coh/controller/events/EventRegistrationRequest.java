@@ -10,15 +10,15 @@ import javax.validation.constraints.PositiveOrZero;
 
 public class EventRegistrationRequest {
 
-    @NotNull(message = "Required Field")
+    @NotNull(message = "EventType Required")
     @JsonProperty("event_type")
     private String eventType;
 
-    @NotNull(message = "Required Field")
+    @NotNull(message = "Jurisdiction Required")
     @JsonProperty("jurisdiction")
     private String jurisdiction;
 
-    @NotNull(message = "Required Field")
+    @NotNull(message = "Endpoint Required")
     @JsonProperty("endpoint")
     private String endpoint;
 
@@ -27,9 +27,9 @@ public class EventRegistrationRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer maxRetries = 3;
 
-    @NotNull(message = "Required Field")
+    @NotNull(message = "Active Required")
     @JsonProperty("active")
-    @Pattern(regexp = "(?i:true|false)")
+    @Pattern(regexp = "(?i:true|false)", message = "Active field must be true or false")
     private String active;
 
     public String getEventType() {
