@@ -1,18 +1,19 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
-@Table(name = "event_forwarding_register")
-public class EventForwardingRegister {
+@Table(name = "session_event_forwarding_register")
+public class SessionEventForwardingRegister {
 
     @EmbeddedId
-    private EventForwardingRegisterId id;
+    private SessionEventForwardingRegisterId id;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "event_type_id")
     @MapsId("eventTypeId")
-    private EventType eventType;
+    private SessionEventType sessionEventType;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "jurisdiction_id")
@@ -23,7 +24,7 @@ public class EventForwardingRegister {
     private String forwardingEndpoint;
 
     @Column(name = "registration_date")
-    private String registrationDate;
+    private Date registrationDate;
 
     @Column(name = "maximum_retries")
     private Integer maximumRetries;
@@ -31,28 +32,27 @@ public class EventForwardingRegister {
     @Column(name = "active")
     private Boolean active;
 
-    public EventForwardingRegister(Jurisdiction jurisdiction,
-                                   EventType eventType) {
+    public SessionEventForwardingRegister(Jurisdiction jurisdiction,
+                                          SessionEventType sessionEventType) {
         this.jurisdiction = jurisdiction;
-        this.eventType = eventType;
-        this.id = new EventForwardingRegisterId(jurisdiction.getJurisdictionId(), eventType.getEventTypeId());
+        this.sessionEventType = sessionEventType;
+        this.id = new SessionEventForwardingRegisterId(jurisdiction.getJurisdictionId(), sessionEventType.getEventTypeId());
     }
 
-
-    public EventForwardingRegisterId getEventForwardingRegisterId() {
+    public SessionEventForwardingRegisterId getEventForwardingRegisterId() {
         return id;
     }
 
-    public void setEventForwardingRegisterId(EventForwardingRegisterId eventForwardingRegisterId) {
-        this.id = eventForwardingRegisterId;
+    public void setEventForwardingRegisterId(SessionEventForwardingRegisterId sessionEventForwardingRegisterId) {
+        this.id = sessionEventForwardingRegisterId;
     }
 
-    public EventType getEventType() {
-        return eventType;
+    public SessionEventType getSessionEventType() {
+        return sessionEventType;
     }
 
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
+    public void setSessionEventType(SessionEventType sessionEventType) {
+        this.sessionEventType = sessionEventType;
     }
 
     public Jurisdiction getJurisdiction() {
@@ -71,11 +71,11 @@ public class EventForwardingRegister {
         this.forwardingEndpoint = forwardingEndpoint;
     }
 
-    public String getRegistrationDate() {
+    public Date getRegistrationDate() {
         return registrationDate;
     }
 
-    public void setRegistrationDate(String registrationDate) {
+    public void setRegistrationDate(Date registrationDate) {
         this.registrationDate = registrationDate;
     }
 

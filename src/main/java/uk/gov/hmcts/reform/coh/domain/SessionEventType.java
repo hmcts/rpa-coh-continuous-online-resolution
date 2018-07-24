@@ -3,8 +3,8 @@ package uk.gov.hmcts.reform.coh.domain;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "event_type")
-public class EventType {
+@Table(name = "session_event_type")
+public class SessionEventType {
 
     @Id
     @GeneratedValue

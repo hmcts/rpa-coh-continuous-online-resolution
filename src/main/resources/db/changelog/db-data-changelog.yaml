@@ -56,6 +56,6 @@ databaseChangeLog:
       runAlways: true
       changes:
         - sqlFile:
-            path: sql/event_types.sql
+            path: sql/session_event_types.sql
             splitStatements: false
             relativeToChangelogFile: true
