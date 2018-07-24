@@ -102,9 +102,21 @@ public class SessionEventServiceTest {
     }
 
     @Test
-    public void testCreateSessionEventWitSessionEventType() {
+    public void testCreateSessionEventWithSessionEventType() {
         given(sessionEventRepository.save(any(SessionEvent.class))).willReturn(sessionEvent);
         SessionEvent sessionEvent = sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
         assertEquals(onlineHearing, sessionEvent.getOnlineHearing());
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testCreateSessionEventWithInvalidForwardingStateName() {
+        given(sessionEventForwardingStateRepository.findByForwardingStateName(forwardingStateName)).willReturn(Optional.empty());
+        sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testCreateSessionEventWithInvalidJurisdictionAndSessionEventType() {
+        given(sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(onlineHearing.getJurisdiction(), sessionEventType)).willReturn(Optional.empty());
+        sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
     }
 }
