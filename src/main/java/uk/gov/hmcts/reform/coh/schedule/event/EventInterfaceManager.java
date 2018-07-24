@@ -12,27 +12,27 @@ import java.util.Map;
 public class EventInterfaceManager {
 
 /**
- * Utility class to manage all the interceptors in the app 
+ * Utility class to manage all the interfaces in the app 
  */
 
     @Autowired
-    private Map<String, EventInterface> interceptors = new HashMap<String, EventInterface>();
+    private Map<String, EventInterface> eventInterfaces = new HashMap<String, EventInterface>();
 
     /**
-     * Add all the Spring managed interceptors to an internal map
+     * Add all the Spring managed interfaces to an internal map
      * @param iter
      */
-    public void setInterceptors(List<EventInterface> iter) {
-        for (EventInterface interceptor : iter) {
-            interceptors.put(interceptor.getName(), interceptor);
+    public void setInterfaces(List<EventInterface> iter) {
+        for (EventInterface eventInterface : iter) {
+            eventInterfaces.put(eventInterface.getName(), eventInterface);
         }
     }
 
-    public EventInterface getInterceptor(String key) {
-        return interceptors.get(key);
+    public EventInterface getInterface(String key) {
+        return eventInterfaces.get(key);
     }
 
-    public Map<String, EventInterface> getInterceptors() {
-        return Collections.unmodifiableMap(this.interceptors);
+    public Map<String, EventInterface> getInterfaces() {
+        return Collections.unmodifiableMap(this.eventInterfaces);
     }
 }
