@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 
@@ -23,6 +24,7 @@ public class OnlineHearingService {
         this.onlineHearingRepository = onlineHearingRepository;
     }
 
+    @Transactional
     public OnlineHearing createOnlineHearing(final OnlineHearing onlineHearing) {
         return onlineHearingRepository.save(onlineHearing);
     }
@@ -60,17 +62,19 @@ public class OnlineHearingService {
         return onlineHearings;
     }
 
+    @Transactional
     public OnlineHearing updateOnlineHearing(OnlineHearing onlineHearing){
         return onlineHearingRepository.save(onlineHearing);
     }
 
+    @Transactional
     public void deleteOnlineHearing(final OnlineHearing onlineHearing) {
         onlineHearingRepository.deleteById(onlineHearing.getOnlineHearingId());
     }
 
+    @Transactional
     public void deleteByCaseId(String caseId) {
         onlineHearingRepository.deleteByCaseId(caseId);
 
     }
-
 }

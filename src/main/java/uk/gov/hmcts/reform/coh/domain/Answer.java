@@ -17,8 +17,9 @@ public class Answer {
     @Column(name = "answer_id")
     private UUID answerId;
 
-    @Column(name = "answer_text")
+    @Column(name = "answer_text", columnDefinition="CLOB NOT NULL")
     @JsonProperty("answer_text")
+    @Lob
     private String answerText;
 
     @ManyToOne(fetch=FetchType.LAZY)

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.repository.DecisionRepository;
 
@@ -17,10 +18,12 @@ public class DecisionService {
         this.decisionRepository = decisionRepository;
     }
 
+    @Transactional
     public Decision createDecision(Decision decision) {
         return decisionRepository.save(decision);
     }
 
+    @Transactional
     public Optional<Decision> findByOnlineHearingId(UUID onlineHearingId) {
         return decisionRepository.findByOnlineHearingOnlineHearingId(onlineHearingId);
     }
@@ -29,10 +32,12 @@ public class DecisionService {
         return decisionRepository.findByOnlineHearingOnlineHearingIdAndDecisionId(onlineHearingId, decisionId);
     }
 
+    @Transactional
     public Decision updateDecision(Decision decision) {
         return decisionRepository.save(decision);
     }
 
+    @Transactional
     public void deleteDecisionById(UUID decisionId) {
         decisionRepository.deleteById(decisionId);
     }
