@@ -19,9 +19,11 @@ import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.SessionEvent;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
 
@@ -34,7 +36,7 @@ public class DecisionController {
 
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
-    private static final String STARTING_STATE = "decision_drafted";
+    private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
     private OnlineHearingService onlineHearingService;
 
@@ -44,14 +46,17 @@ public class DecisionController {
 
     private DecisionIssuedTask decisionIssuedTask;
 
+    private SessionEventService sessionEventService;
+
     private Validation validation = new Validation();
 
     @Autowired
-    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionIssuedTask decisionIssuedTask) {
+    public DecisionController(OnlineHearingService onlineHearingService, DecisionService decisionService, DecisionStateService decisionStateService, DecisionIssuedTask decisionIssuedTask, SessionEventService sessionEventService) {
         this.onlineHearingService = onlineHearingService;
         this.decisionService = decisionService;
         this.decisionStateService = decisionStateService;
         this.decisionIssuedTask = decisionIssuedTask;
+        this.sessionEventService = sessionEventService;
     }
 
     @ApiOperation(value = "Create decision", notes = "A POST request is used to create a decision")
