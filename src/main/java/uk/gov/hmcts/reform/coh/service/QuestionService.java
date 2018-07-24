@@ -38,6 +38,7 @@ public class QuestionService {
         this.questionRoundService = questionRoundService;
     }
 
+    @Transactional
     public Optional<Question> retrieveQuestionById(final UUID question_id){
         Optional<Question> question = questionRepository.findById(question_id);
 
@@ -52,6 +53,7 @@ public class QuestionService {
         return question;
     }
 
+    @Transactional
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
         if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
@@ -78,6 +80,7 @@ public class QuestionService {
         questionRepository.delete(question);
     }
 
+    @Transactional
     public void updateQuestion(Question question){
         Optional<QuestionState> draftedState = questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName());
         if (!draftedState.isPresent()) {
@@ -90,6 +93,7 @@ public class QuestionService {
         questionRepository.save(question);
     }
 
+    @Transactional
     public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
         return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
     }

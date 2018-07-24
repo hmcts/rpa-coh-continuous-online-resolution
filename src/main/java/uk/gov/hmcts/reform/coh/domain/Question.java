@@ -24,10 +24,11 @@ public class Question {
     @Column(name = "question_ordinal")
     private int questionOrdinal;
 
-    @Column(name = "question_header_text")
+    @Column(name = "question_header_text", length = 5000)
     private String questionHeaderText;
 
-    @Column(name = "question_text")
+    @Column(name = "question_text", columnDefinition="CLOB NOT NULL")
+    @Lob
     private String questionText;
 
     @Column(name = "question_round")

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
@@ -84,10 +85,12 @@ public class QuestionRoundService {
         return maxQuestionRounds > 0;
     }
 
+    @Transactional
     public List<Question> getQuestionsByQuestionRound(OnlineHearing onlineHearing, int questionRoundNumber){
         return questionRepository.findByOnlineHearingAndQuestionRound(onlineHearing, questionRoundNumber);
     }
 
+    @Transactional
     public List<QuestionRound> getAllQuestionRounds(OnlineHearing onlineHearing){
 
         List<QuestionRound> questionRounds = new ArrayList<>();
@@ -100,6 +103,7 @@ public class QuestionRoundService {
         return questionRounds;
     }
 
+    @Transactional
     protected QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
         if(questions.isEmpty()) {
@@ -122,6 +126,7 @@ public class QuestionRoundService {
         return questionRoundStateId == questionState.getQuestionStateId();
     }
 
+    @Transactional
     public Integer getCurrentQuestionRoundNumber(OnlineHearing onlineHearing){
         List<Question> orderedQuestions = getQuestionsOrderedByRound(onlineHearing);
         if (orderedQuestions.isEmpty()) {
@@ -130,6 +135,7 @@ public class QuestionRoundService {
         return orderedQuestions.get(0).getQuestionRound();
     }
 
+    @Transactional
     public List<Question> getQuestionsOrderedByRound(OnlineHearing onlineHearing) {
         return questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(onlineHearing);
     }
@@ -155,6 +161,7 @@ public class QuestionRoundService {
         return currentQuestionRound;
     }
 
+    @Transactional
     public QuestionRound getQuestionRoundByRoundId(OnlineHearing onlineHearing, int roundId) {
         QuestionRound questionRound = new QuestionRound();
         questionRound.setQuestionRoundNumber(roundId);
@@ -164,6 +171,7 @@ public class QuestionRoundService {
         return questionRound;
     }
 
+    @Transactional
     public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
         List<Question> modifiedQuestion = new ArrayList<>();
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);

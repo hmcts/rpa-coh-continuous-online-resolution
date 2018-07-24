@@ -28,18 +28,22 @@ public class AnswerService {
         this.answerStateService = answerStateService;
     }
 
+    @Transactional
     public Answer createAnswer(Answer answer) {
         return answerRepository.save(answer);
     }
 
+    @Transactional
     public Optional<Answer> retrieveAnswerById(UUID answerId) {
         return answerRepository.findById(answerId);
     }
 
+    @Transactional
     public List<Answer> retrieveAnswersByQuestion(Question question) {
         return answerRepository.findByQuestion(question);
     }
 
+    @Transactional
     public Answer updateAnswerById(Answer answer) throws EntityNotFoundException {
 
         if (answerRepository.existsById(answer.getAnswerId())) {
@@ -49,6 +53,7 @@ public class AnswerService {
         throw new EntityNotFoundException("Could not find the entity with id = " + answer.getAnswerId());
     }
 
+    @Transactional
     public Answer updateAnswer(Answer source, Answer target) throws NotFoundException {
         source.setAnswerText(target.getAnswerText());
 
