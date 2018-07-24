@@ -1,0 +1,48 @@
+databaseChangeLog:
+- changeSet:
+    id: 1532424968964-1
+    author: rose (generated)
+    changes:
+    - createIndex:
+        columns:
+        - column:
+            name: event_type_id
+        - column:
+            name: jurisdiction_id
+        indexName: IX_event_forwarding_registerPK
+        tableName: event_forwarding_register
+        unique: true
+- changeSet:
+    id: 1532424968964-2
+    author: rose (generated)
+    changes:
+    - dropColumn:
+        columnName: event_forwarding_register_id
+        tableName: event_forwarding_register
+- changeSet:
+    id: 1532424968964-3
+    author: rose (generated)
+    changes:
+    - addNotNullConstraint:
+        columnDataType: int
+        columnName: event_type_id
+        tableName: event_forwarding_register
+- changeSet:
+    id: 1532424968964-4
+    author: rose (generated)
+    changes:
+    - addNotNullConstraint:
+        columnDataType: bigint
+        columnName: jurisdiction_id
+        tableName: event_forwarding_register
+- changeSet:
+    id: 1532424968964-5
+    author: rose (generated)
+    changes:
+    - dropPrimaryKey:
+        tableName: event_forwarding_register
+    - addPrimaryKey:
+        columnNames: event_type_id, jurisdiction_id
+        constraintName: event_forwarding_registerPK
+        tableName: event_forwarding_register
+
