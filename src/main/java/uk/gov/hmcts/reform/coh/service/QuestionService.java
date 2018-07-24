@@ -57,11 +57,11 @@ public class QuestionService {
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
 
         if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
-            throw new NotAValidUpdateException();
+            throw new NotAValidUpdateException("Invalid question round state transition");
         }
 
         if(!questionRoundService.isQrValidState(question, onlineHearing)) {
-            throw new NotAValidUpdateException();
+            throw new NotAValidUpdateException("Invalid question state");
         }
 
         Optional<QuestionState> state = questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName());
@@ -87,14 +87,14 @@ public class QuestionService {
             throw new EntityNotFoundException("Question state not found");
         }
         if(!question.getQuestionState().equals(draftedState.get())) {
-            throw new NotAValidUpdateException();
+            throw new NotAValidUpdateException("Cannot update a question not in draft state");
         }
 
         questionRepository.save(question);
     }
 
     @Transactional
-    public Optional<List<Question>> finaAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
+    public Optional<List<Question>> findAllQuestionsByOnlineHearing(OnlineHearing onlineHearing) {
         return Optional.ofNullable(questionRepository.findAllByOnlineHearing(onlineHearing));
     }
 }
