@@ -5,7 +5,7 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class EventForwardingRegisterId implements Serializable {
+public class SessionEventForwardingRegisterId implements Serializable {
 
     @Column(name = "jurisdiction_id")
     private Long jurisdictionId;
@@ -13,10 +13,10 @@ public class EventForwardingRegisterId implements Serializable {
     @Column(name = "event_type_id")
     private Integer eventTypeId;
 
-    public EventForwardingRegisterId() {
+    public SessionEventForwardingRegisterId() {
     }
 
-    public EventForwardingRegisterId(Long jurisdictionId, Integer eventTypeId) {
+    public SessionEventForwardingRegisterId(Long jurisdictionId, Integer eventTypeId) {
         this.jurisdictionId = jurisdictionId;
         this.eventTypeId = eventTypeId;
     }

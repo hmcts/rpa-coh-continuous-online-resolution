@@ -1,13 +1,14 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "session_event_forwarding_register")
 public class SessionEventForwardingRegister {
 
     @EmbeddedId
-    private EventForwardingRegisterId id;
+    private SessionEventForwardingRegisterId id;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "event_type_id")
@@ -23,7 +24,7 @@ public class SessionEventForwardingRegister {
     private String forwardingEndpoint;
 
     @Column(name = "registration_date")
-    private String registrationDate;
+    private Date registrationDate;
 
     @Column(name = "maximum_retries")
     private Integer maximumRetries;
@@ -35,16 +36,15 @@ public class SessionEventForwardingRegister {
                                           SessionEventType sessionEventType) {
         this.jurisdiction = jurisdiction;
         this.sessionEventType = sessionEventType;
-        this.id = new EventForwardingRegisterId(jurisdiction.getJurisdictionId(), sessionEventType.getEventTypeId());
+        this.id = new SessionEventForwardingRegisterId(jurisdiction.getJurisdictionId(), sessionEventType.getEventTypeId());
     }
-
-
-    public EventForwardingRegisterId getEventForwardingRegisterId() {
+    
+    public SessionEventForwardingRegisterId getEventForwardingRegisterId() {
         return id;
     }
 
-    public void setEventForwardingRegisterId(EventForwardingRegisterId eventForwardingRegisterId) {
-        this.id = eventForwardingRegisterId;
+    public void setEventForwardingRegisterId(SessionEventForwardingRegisterId sessionEventForwardingRegisterId) {
+        this.id = sessionEventForwardingRegisterId;
     }
 
     public SessionEventType getSessionEventType() {
@@ -71,11 +71,11 @@ public class SessionEventForwardingRegister {
         this.forwardingEndpoint = forwardingEndpoint;
     }
 
-    public String getRegistrationDate() {
+    public Date getRegistrationDate() {
         return registrationDate;
     }
 
-    public void setRegistrationDate(String registrationDate) {
+    public void setRegistrationDate(Date registrationDate) {
         this.registrationDate = registrationDate;
     }
 
