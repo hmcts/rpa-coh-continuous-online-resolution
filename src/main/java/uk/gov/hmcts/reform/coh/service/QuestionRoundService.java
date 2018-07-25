@@ -14,7 +14,6 @@ import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 @Service
-@Component
 public class QuestionRoundService {
 
     private QuestionRepository questionRepository;

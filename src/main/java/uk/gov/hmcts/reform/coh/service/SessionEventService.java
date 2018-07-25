@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
@@ -14,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class SessionEventService {
+
+    private static final Logger log = LoggerFactory.getLogger(SessionEventService.class);
 
     private static final String STARTING_STATE = SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName();
 
@@ -33,7 +38,9 @@ public class SessionEventService {
 
         Optional<SessionEventType> optSessionEventType = sessionEventTypeRespository.findByEventTypeName(sessionEventType);
         if (!optSessionEventType.isPresent()) {
-            throw new EntityNotFoundException("Session Event Type '" + sessionEventType + "' not found");
+            String message = "Session Event Type '" + sessionEventType + "' not found";
+            log.error(message);
+            throw new EntityNotFoundException(message);
         }
 
         return createSessionEvent(onlineHearing, optSessionEventType.get());
@@ -43,12 +50,16 @@ public class SessionEventService {
 
         Optional<SessionEventForwardingState> optForwardingState = sessionEventForwardingStateRepository.findByForwardingStateName(STARTING_STATE);
         if (!optForwardingState.isPresent()) {
-            throw new EntityNotFoundException("Session Event Forwarding State '" + STARTING_STATE + "' not found");
+            String message = "Session Event Forwarding State '" + STARTING_STATE + "' not found";
+            log.error(message);
+            throw new EntityNotFoundException(message);
         }
 
         Optional<SessionEventForwardingRegister> optRegister = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(onlineHearing.getJurisdiction(), sessionEventType);
         if (!optRegister.isPresent()) {
-            throw new EntityNotFoundException("Session event registry entry not found for jurisdiction '" + onlineHearing.getJurisdiction().getJurisdictionName() + "', session event type '" + sessionEventType.getEventTypeName() + "'");
+            String message = "Session event registry entry not found for jurisdiction '" + onlineHearing.getJurisdiction().getJurisdictionName() + "', session event type '" + sessionEventType.getEventTypeName() + "'";
+            log.error(message);
+            throw new EntityNotFoundException(message);
         }
 
         SessionEvent sessionEvent = new SessionEvent();
@@ -57,5 +68,10 @@ public class SessionEventService {
         sessionEvent.setSessionEventForwardingState(optForwardingState.get());
 
         return sessionEventRepository.save(sessionEvent);
+    }
+
+    @Transactional
+    public void deleteByOnlineHearing(OnlineHearing onlineHearing) {
+        sessionEventRepository.deleteByOnlineHearing(onlineHearing);
     }
 }

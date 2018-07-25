@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Component
 public class AnswerService {
 
     private AnswerRepository answerRepository;
