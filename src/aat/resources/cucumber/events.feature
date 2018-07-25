@@ -14,3 +14,8 @@ Feature: Event features
     And the decision expiry date is 7 days in the future
     When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_decision_issued'
+
+  Scenario: Subscribe to an event
+    Given a standard request to subscribe to question round issued
+    When a POST request is sent to register
+    Then the response code is 200

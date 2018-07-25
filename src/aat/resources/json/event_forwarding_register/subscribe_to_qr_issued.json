@@ -1,0 +1,7 @@
+{
+  "event_type": "question_round_issued",
+  "jurisdiction": "SSCS",
+  "endpoint": "http://localhost:8080/SSCS/notifications",
+  "maximum_retries": 5,
+  "active": "true"
+}

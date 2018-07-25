@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,24 +53,25 @@ public class EventForwardingController {
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity registerForEventNotifications(@Valid @RequestBody EventRegistrationRequest body) {
 
-        SessionEventForwardingRegister eventForwardingRegister = new SessionEventForwardingRegister();
-
         Optional<SessionEventType> eventType = eventTypeService.retrieveEventType(body.getEventType());
-        eventType.ifPresent(eventForwardingRegister::setSessionEventType);
-
+        if(!eventType.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event type not found");
+        }
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
-        jurisdiction.ifPresent(eventForwardingRegister::setJurisdiction);
+        if(!jurisdiction.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Jurisdiction not found");
+        }
+
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister(jurisdiction.get(), eventType.get());
 
         Optional<Integer> maxRetries = Optional.ofNullable(body.getMaxRetries());
-        maxRetries.ifPresent(eventForwardingRegister::setMaximumRetries);
+        maxRetries.ifPresent(sessionEventForwardingRegister::setMaximumRetries);
 
-        eventForwardingRegister.setActive(Boolean.valueOf(body.getActive()));
-        eventForwardingRegister.setForwardingEndpoint(body.getEndpoint());
+        sessionEventForwardingRegister.setActive(Boolean.valueOf(body.getActive()));
+        sessionEventForwardingRegister.setForwardingEndpoint(body.getEndpoint());
 
-        eventForwardingRegisterService.createEventForwardingRegister(eventForwardingRegister);
+        eventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
 
         return ResponseEntity.ok("Successfully registered for event notifications");
-
     }
-
 }
