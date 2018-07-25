@@ -166,7 +166,7 @@ Feature: Question Round Logic
     And each question in the question round has a deadline expiry date
     And a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_questions_issued'
-
+    And the event table
   Scenario: Issue a question round and check all questions are updated
     Given a standard online hearing is created
     And a standard question

@@ -29,12 +29,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
@@ -57,6 +59,12 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    @Autowired
+    private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
+
+    @Autowired
+    private SessionEventTypeRespository sessionEventTypeRespository;
 
     private JSONObject json;
 
@@ -101,7 +109,15 @@ public class ApiSteps extends BaseSteps {
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-
+        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
+                try {
+                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
+                } catch (DataIntegrityViolationException e) {
+                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
+            }
+        }
         for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
             try {
                 jurisdictionRepository.delete(jurisdiction);
@@ -194,11 +210,22 @@ public class ApiSteps extends BaseSteps {
     @And("^^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
     public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id,  int maxQuestionRounds) {
         Jurisdiction jurisdiction = new Jurisdiction();
-
         jurisdiction.setJurisdictionId(id);
         jurisdiction.setJurisdictionName(jurisdictionName);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
+
+
+        Optional<SessionEventType> optSessionEventType = sessionEventTypeRespository.findByEventTypeName(EventTypes.QUESTION_ROUND_ISSUED.getEventType());
+        Optional<Jurisdiction> testJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS");
+        Optional<SessionEventForwardingRegister> templateEFR = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(testJurisdiction.get(), optSessionEventType.get());
+
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister(jurisdiction, optSessionEventType.get());
+        sessionEventForwardingRegister.setForwardingEndpoint(templateEFR.get().getForwardingEndpoint());
+        sessionEventForwardingRegister.setMaximumRetries(templateEFR.get().getMaximumRetries());
+
+        SessionEventForwardingRegister savedEFR = sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister);
+        testContext.getScenarioContext().addSessionEventForwardingRegister(savedEFR);
         jurisdictions.add(jurisdiction);
     }
 
