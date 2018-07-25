@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
 import java.util.Optional;
 
 @Service
-@Component
 public class QuestionStateService {
 
     private QuestionStateRepository questionStateRepository;

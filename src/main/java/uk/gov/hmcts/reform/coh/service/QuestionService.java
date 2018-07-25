@@ -20,7 +20,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@Component
 public class QuestionService {
     private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
 

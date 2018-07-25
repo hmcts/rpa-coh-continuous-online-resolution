@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@Component
 public class OnlineHearingService {
 
     private OnlineHearingRepository onlineHearingRepository;

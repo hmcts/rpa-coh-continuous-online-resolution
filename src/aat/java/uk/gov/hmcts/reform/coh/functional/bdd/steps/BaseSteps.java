@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,6 +47,9 @@ public class BaseSteps {
 
     @Autowired
     private JurisdictionRepository jurisdictionRepository;
+
+    @Autowired
+    private SessionEventService sessionEventService;
 
     @Value("${base-urls.test-url}")
     String baseUrl;
@@ -89,11 +93,17 @@ public class BaseSteps {
 
         // Delete all online hearing + panel members
         if (testContext.getScenarioContext().getCaseIds() != null) {
+
             for (String caseId : testContext.getScenarioContext().getCaseIds()) {
                 try {
                     OnlineHearing onlineHearing = new OnlineHearing();
                     onlineHearing.setCaseId(caseId);
                     onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
+
+                    // First delete event linked to an online hearing
+                    sessionEventService.deleteByOnlineHearing(onlineHearing);
+
+                    // Now delete the panel members
                     onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                     onlineHearingService.deleteByCaseId(caseId);
                 } catch (DataIntegrityViolationException e) {

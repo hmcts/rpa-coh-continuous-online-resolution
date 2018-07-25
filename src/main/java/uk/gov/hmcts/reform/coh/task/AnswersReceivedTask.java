@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Component
 public class AnswersReceivedTask implements ContinuousOnlineResolutionTask<OnlineHearing>{
 
     private static final Logger log = LoggerFactory.getLogger(AnswersReceivedTask.class);
