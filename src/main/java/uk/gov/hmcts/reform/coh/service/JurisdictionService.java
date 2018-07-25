@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import java.util.Optional;
 
 @Service
-@Component
 public class JurisdictionService {
 
     private JurisdictionRepository jurisdictionRepository;

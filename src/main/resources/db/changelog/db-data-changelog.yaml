@@ -56,6 +56,27 @@ databaseChangeLog:
       runAlways: true
       changes:
         - sqlFile:
-            path: sql/event_types.sql
+            path: sql/session_event_types.sql
+            splitStatements: false
+            relativeToChangelogFile: true
+  - changeSet:
+      id: insert-static-session-event_forwarding-states
+      author: johnho
+      validCheckSum: ANY
+      runAlways: true
+      changes:
+        - sqlFile:
+            path: sql/session_event_forwarding_state.sql
+            splitStatements: false
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: insert-static-session-event-forwarding-register
+      author: johnho
+      validCheckSum: ANY
+      runAlways: true
+      changes:
+        - sqlFile:
+            path: sql/session_event_forwarding_register.sql
             splitStatements: false
             relativeToChangelogFile: true

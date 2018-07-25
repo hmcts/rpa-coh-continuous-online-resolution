@@ -6,8 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.exceptions.ResourceNotFoundException;
-import uk.gov.hmcts.reform.coh.repository.EventTypeRepository;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -16,13 +15,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(SpringRunner.class)
 public class EventTypeServiceTest {
     @Mock
-    private EventTypeRepository eventTypeRepository;
+    private SessionEventTypeRespository sessionEventTypeRespository;
     @Mock
     private EventTypeService eventTypeService;
 
     @Before
     public void setup() {
-        eventTypeService = new EventTypeService(eventTypeRepository);
+        eventTypeService = new EventTypeService(sessionEventTypeRespository);
 
     }
 

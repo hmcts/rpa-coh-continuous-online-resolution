@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,20 +9,20 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public class BaseSteps {
@@ -45,7 +44,10 @@ public class BaseSteps {
     private DecisionService decisionService;
 
     @Autowired
-    private JurisdictionRepository jurisdictionRepository;
+    private SessionEventService sessionEventService;
+
+    @Autowired
+    private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
     @Value("${base-urls.test-url}")
     String baseUrl;
@@ -65,13 +67,11 @@ public class BaseSteps {
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
 
-        Optional<Jurisdiction> optionalJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS");
-        if(!optionalJurisdiction.isPresent()) {
-            throw new NotFoundException("Test jurisdiction not found");
-        }
-        String url = optionalJurisdiction.get().getUrl();
-        optionalJurisdiction.get().setUrl(url.replace("${base-urls.test-url}", baseUrl));
-        jurisdictionRepository.save(optionalJurisdiction.get());
+        Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
+
+        sessionEventForwardingRegisters.iterator().forEachRemaining(
+                sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl)));
+        sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
     }
 
     public void cleanup() {
@@ -89,11 +89,17 @@ public class BaseSteps {
 
         // Delete all online hearing + panel members
         if (testContext.getScenarioContext().getCaseIds() != null) {
+
             for (String caseId : testContext.getScenarioContext().getCaseIds()) {
                 try {
                     OnlineHearing onlineHearing = new OnlineHearing();
                     onlineHearing.setCaseId(caseId);
                     onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
+
+                    // First delete event linked to an online hearing
+                    sessionEventService.deleteByOnlineHearing(onlineHearing);
+
+                    // Now delete the panel members
                     onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                     onlineHearingService.deleteByCaseId(caseId);
                 } catch (DataIntegrityViolationException e) {

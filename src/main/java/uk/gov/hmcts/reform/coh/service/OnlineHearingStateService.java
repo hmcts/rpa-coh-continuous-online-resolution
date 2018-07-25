@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingStateRepository;
 import java.util.Optional;
 
 @Service
-@Component
 public class OnlineHearingStateService {
 
     private OnlineHearingStateRepository onlineHearingStateRepository;

@@ -22,16 +22,19 @@ public class Decision {
     @JoinColumn(name = "online_hearing_id")
     private OnlineHearing onlineHearing;
 
-    @Column(name = "decision_header")
+    @Column(name = "decision_header", length = 5000)
     private String decisionHeader;
 
-    @Column(name = "decision_text", length = 2000)
+    @Column(name = "decision_text", columnDefinition="CLOB NOT NULL")
+    @Lob
     private String decisionText;
 
-    @Column(name = "decision_reason", length = 2000)
+    @Column(name = "decision_reason", columnDefinition="CLOB NOT NULL")
+    @Lob
     private String decisionReason;
 
-    @Column(name = "decision_award")
+    @Column(name = "decision_award", length = 5000)
+    @Lob
     private String decisionAward;
 
     @ManyToOne(optional=false)

@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 @Component
@@ -32,15 +30,6 @@ public class QuestionNotification {
     }
 
     private ResponseEntity notifyJurisdiction(Question question){
-        Jurisdiction jurisdiction = question.getOnlineHearing().getJurisdiction();
-
-        if(jurisdiction.getUrl()==null || StringUtils.isEmpty(jurisdiction.getUrl())){
-            throw new NullPointerException("No Jurisdiction found for online hearing: " + question.getOnlineHearing().getOnlineHearingId());
-        }
-
-        log.info("Online hearing Jurisdiction is " + jurisdiction.getJurisdictionName() +
-                " and the registered 'issuer' endpoint is " + jurisdiction.getUrl());
-
-        return restTemplate.postForEntity(jurisdiction.getUrl(), question, String.class);
+        return restTemplate.postForEntity("INSERT ENDPOINT HERE", question, String.class);
     }
 }

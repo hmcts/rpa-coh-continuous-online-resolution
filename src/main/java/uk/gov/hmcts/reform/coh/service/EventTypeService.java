@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.controller.exceptions.ResourceNotFoundException;
-import uk.gov.hmcts.reform.coh.domain.EventType;
-import uk.gov.hmcts.reform.coh.repository.EventTypeRepository;
+import uk.gov.hmcts.reform.coh.domain.SessionEventType;
+import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 
 import java.util.Optional;
 
@@ -13,15 +13,15 @@ import java.util.Optional;
 @Component
 public class EventTypeService {
 
-    private EventTypeRepository eventTypeRepository;
+    private SessionEventTypeRespository sessionEventTypeRespository;
 
     @Autowired
-    public EventTypeService(EventTypeRepository eventTypeRepository){
-        this.eventTypeRepository = eventTypeRepository;
+    public EventTypeService(SessionEventTypeRespository sessionEventTypeRespository){
+        this.sessionEventTypeRespository = sessionEventTypeRespository;
     }
 
-    public Optional<EventType> retrieveEventType(String eventType){
-        Optional<EventType> event = eventTypeRepository.findByEventTypeName(eventType);
+    public Optional<SessionEventType> retrieveEventType(String eventType){
+        Optional<SessionEventType> event = sessionEventTypeRespository.findByEventTypeName(eventType);
 
         if (!event.isPresent()){
             throw new ResourceNotFoundException("EventType Not Found");

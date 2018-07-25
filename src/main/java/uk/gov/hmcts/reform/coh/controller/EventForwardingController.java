@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.domain.EventForwardingRegister;
-import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.service.EventForwardingRegisterService;
 import uk.gov.hmcts.reform.coh.service.EventTypeService;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
@@ -52,10 +52,10 @@ public class EventForwardingController {
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity registerForEventNotifications(@Valid @RequestBody EventRegistrationRequest body) {
 
-        EventForwardingRegister eventForwardingRegister = new EventForwardingRegister();
+        SessionEventForwardingRegister eventForwardingRegister = new SessionEventForwardingRegister();
 
-        Optional<EventType> eventType = eventTypeService.retrieveEventType(body.getEventType());
-        eventType.ifPresent(eventForwardingRegister::setEventType);
+        Optional<SessionEventType> eventType = eventTypeService.retrieveEventType(body.getEventType());
+        eventType.ifPresent(eventForwardingRegister::setSessionEventType);
 
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
         jurisdiction.ifPresent(eventForwardingRegister::setJurisdiction);
