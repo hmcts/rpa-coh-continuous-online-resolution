@@ -16,9 +16,6 @@ public class Jurisdiction {
     @Column(name = "jurisdiction_name")
     private String jurisdictionName;
 
-    @Column(name = "url")
-    private String url;
-
     @Column(name = "max_question_rounds")
     private int maxQuestionRounds;
 
@@ -38,14 +35,6 @@ public class Jurisdiction {
         this.jurisdictionName = jurisdictionName;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     public void setMaxQuestionRounds(int maxQuestionRounds){
         this.maxQuestionRounds = maxQuestionRounds;
     }
@@ -59,7 +48,6 @@ public class Jurisdiction {
         return "Jurisdiction{" +
                 "jurisdictionId=" + jurisdictionId +
                 ", jurisdictionName='" + jurisdictionName + '\'' +
-                ", url='" + url + '\'' +
                 ", maxQuestionRounds=" + maxQuestionRounds +
                 '}';
     }
