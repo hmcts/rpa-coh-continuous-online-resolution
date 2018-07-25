@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
+import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestStateValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
@@ -146,9 +147,9 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Only draft decisions can be updated");
         }
 
-        // Check the stated passed in the request
+        // Check the state passed in the request
         Optional<DecisionState> optionalDecisionState = decisionStateService.retrieveDecisionStateByState(request.getState());
-        if (!optionalDecisionState.isPresent()) {
+        if (!optionalDecisionState.isPresent() || !DecisionRequestStateValidator.isValid(request.getState())) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
@@ -159,7 +160,7 @@ public class DecisionController {
         }
 
         // If a decision is issued, then there is a deadline to accept or reject it
-        if (request.getState().equals(DecisionsStates.DECISION_ISSUED.getStateName())) {
+        if (request.getState().equals(DecisionsStates.DECISION_ISSUE_PENDING.getStateName())) {
             decision.setDeadlineExpiryDate(ExpiryCalendar.getDeadlineExpiryDate());
         }
 

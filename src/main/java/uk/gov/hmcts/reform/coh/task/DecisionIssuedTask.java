@@ -10,9 +10,12 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -57,5 +60,10 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Decisi
             onlineHearing.registerStateChange();
             onlineHearingService.updateOnlineHearing(onlineHearing);
         }
+    }
+
+    @Override
+    public List<String> getName() {
+        return Arrays.asList(EventTypes.DECISION_ISSUED.getEventType());
     }
 }
