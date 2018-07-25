@@ -8,7 +8,6 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 
 @Service
-@Component
 public class OnlineHearingPanelMemberService {
 
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;

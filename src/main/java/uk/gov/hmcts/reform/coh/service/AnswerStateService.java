@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import java.util.Optional;
 
 @Service
-@Component
 public class AnswerStateService {
 
     private AnswerStateRepository answerStateRepository;
