@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
@@ -67,5 +68,10 @@ public class SessionEventService {
         sessionEvent.setSessionEventForwardingState(optForwardingState.get());
 
         return sessionEventRepository.save(sessionEvent);
+    }
+
+    @Transactional
+    public void deleteByOnlineHearing(OnlineHearing onlineHearing) {
+        sessionEventRepository.deleteByOnlineHearing(onlineHearing);
     }
 }
