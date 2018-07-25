@@ -113,4 +113,11 @@ public class SessionEventServiceTest {
         given(sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(jurisdiction, sessionEventType)).willReturn(Optional.empty());
         sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
     }
+
+    @Test
+    public void testRetrieveByOnlineHearing() {
+        given(sessionEventRepository.findByOnlineHearing(onlineHearing)).willReturn(Optional.of(sessionEvent));
+        Optional<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        assertEquals(sessionEvent, optSessionEvent.get());
+    }
 }
