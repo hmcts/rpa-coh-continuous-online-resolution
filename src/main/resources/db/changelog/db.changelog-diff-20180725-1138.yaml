@@ -1,0 +1,9 @@
+databaseChangeLog:
+- changeSet:
+    id: 1532515121371-1
+    author: phill (generated)
+    changes:
+    - dropColumn:
+        columnName: url
+        tableName: jurisdiction
+

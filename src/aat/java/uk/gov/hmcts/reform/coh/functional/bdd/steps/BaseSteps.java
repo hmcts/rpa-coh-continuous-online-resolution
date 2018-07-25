@@ -73,9 +73,6 @@ public class BaseSteps {
         if(!optionalJurisdiction.isPresent()) {
             throw new NotFoundException("Test jurisdiction not found");
         }
-        String url = optionalJurisdiction.get().getUrl();
-        optionalJurisdiction.get().setUrl(url.replace("${base-urls.test-url}", baseUrl));
-        jurisdictionRepository.save(optionalJurisdiction.get());
     }
 
     public void cleanup() {

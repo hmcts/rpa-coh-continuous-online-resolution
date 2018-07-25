@@ -35,7 +35,6 @@ public class QuestionNotificationTest {
         this.questionNotification = new QuestionNotification(restTemplate);
 
         Jurisdiction jurisdiction = new Jurisdiction();
-        jurisdiction.setUrl("http://someurl/notreal");
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setJurisdiction(jurisdiction);
         question = new Question();
@@ -57,17 +56,6 @@ public class QuestionNotificationTest {
         QuestionNotification questionNotification = new QuestionNotification(restTemplate);
         boolean success = questionNotification.notifyQuestionState(question);
         assertFalse(success);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testNotifyJurisdictionThrowsNullPointerExceptionWithNoUrl(){
-        Jurisdiction jurisdiction = new Jurisdiction();
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setJurisdiction(jurisdiction);
-        Question question = new Question();
-        question.setOnlineHearing(onlineHearing);
-
-        questionNotification.notifyQuestionState(question);
     }
 
     @Test
