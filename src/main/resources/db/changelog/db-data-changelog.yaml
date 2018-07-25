@@ -69,3 +69,13 @@ databaseChangeLog:
             path: sql/session_event_forwarding_state.sql
             splitStatements: false
             relativeToChangelogFile: true
+  - changeSet:
+          id: insert-data-session-event_forwarding-register
+          author: johnho
+          validCheckSum: ANY
+          runAlways: true
+          changes:
+          - sqlFile:
+                  path: sql/session_event_forwarding_register_data.sql
+                  splitStatements: false
+                  relativeToChangelogFile: true
