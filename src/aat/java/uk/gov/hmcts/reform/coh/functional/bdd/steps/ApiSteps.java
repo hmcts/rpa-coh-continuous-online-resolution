@@ -196,13 +196,12 @@ public class ApiSteps extends BaseSteps {
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
     }
 
-    @And("^^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' with url ' \"([^\"]*)\" and max question rounds ' \"(\\d+)\" ' is created$$")
-    public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id, String url, int maxQuestionRounds) {
+    @And("^^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
+    public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id,  int maxQuestionRounds) {
         Jurisdiction jurisdiction = new Jurisdiction();
 
         jurisdiction.setJurisdictionId(id);
         jurisdiction.setJurisdictionName(jurisdictionName);
-        jurisdiction.setUrl(url);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
         jurisdictions.add(jurisdiction);
