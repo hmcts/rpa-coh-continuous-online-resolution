@@ -33,10 +33,7 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
-import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
-import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
+import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.io.IOException;
@@ -65,6 +62,9 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private SessionEventTypeRespository sessionEventTypeRespository;
+
+    @Autowired
+    private SessionEventRepository sessionEventRepository;
 
     private JSONObject json;
 
@@ -257,5 +257,14 @@ public class ApiSteps extends BaseSteps {
         ResponseEntity<String> response = restTemplate.exchange(urlToLocation, HttpMethod.GET, request, String.class);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
+    }
+
+
+    @And("^the question round issued event is in the events table$")
+    public void theQuestionRoundIssuedEventIsInTheEventsTable() {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        List<SessionEvent> sessionEvents = sessionEventRepository.findAllByOnlineHearing(onlineHearing);
+
+        assertTrue(!sessionEvents.isEmpty());
     }
 }
