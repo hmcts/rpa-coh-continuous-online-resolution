@@ -1,4 +1,4 @@
-Feature: Decisions features
+Feature: Event features
 
   Scenario: Update decision state to issued
     Given a standard online hearing is created
