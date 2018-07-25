@@ -70,6 +70,10 @@ public class SessionEventService {
         return sessionEventRepository.save(sessionEvent);
     }
 
+    public Optional<SessionEvent> retrieveByOnlineHearing(OnlineHearing onlineHearing) {
+        return sessionEventRepository.findByOnlineHearing(onlineHearing);
+    }
+
     @Transactional
     public void deleteByOnlineHearing(OnlineHearing onlineHearing) {
         sessionEventRepository.deleteByOnlineHearing(onlineHearing);
