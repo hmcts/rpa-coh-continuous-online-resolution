@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.SessionEvent;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
@@ -173,10 +172,7 @@ public class DecisionController {
 
         // Now queue the notification
         try {
-            SessionEvent sessionEvent = sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());
-            if (sessionEvent.getEventId() == null) {
-                log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType());
-            }
+            sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());
         } catch (Exception e) {
             log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType());
             log.error("Exception is " + EventTypes.DECISION_ISSUED.getEventType());
