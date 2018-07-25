@@ -240,9 +240,9 @@ public class ApiSteps extends BaseSteps {
     @And("^an event has been queued for this online hearing of event type (.*)$")
     public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        Optional<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
-        assertTrue(optSessionEvent.isPresent());
-        assertEquals(eventType, optSessionEvent.get().getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+        assertTrue(!optSessionEvent.isEmpty());
+        assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
     }
 }

@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -70,8 +71,8 @@ public class SessionEventService {
         return sessionEventRepository.save(sessionEvent);
     }
 
-    public Optional<SessionEvent> retrieveByOnlineHearing(OnlineHearing onlineHearing) {
-        return sessionEventRepository.findByOnlineHearing(onlineHearing);
+    public List<SessionEvent> retrieveByOnlineHearing(OnlineHearing onlineHearing) {
+        return sessionEventRepository.findAllByOnlineHearing(onlineHearing);
     }
 
     @Transactional
