@@ -127,7 +127,6 @@ public class DecisionController {
             @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 422, message = "Validation Error")
     })
-
     @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 
