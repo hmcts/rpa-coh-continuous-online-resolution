@@ -7,8 +7,6 @@ import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 
-import java.awt.*;
-
 @Component
 public class EventScheduler {
 
@@ -26,7 +24,8 @@ public class EventScheduler {
     }
 
     private NotificationRequest constructRequest(OnlineHearing onlineHearing, EventTypes eventType) {
-        EventInterface eventInterface = eventInterfaceManager.getInterface(eventType.toString());
+        EventTransformer eventInterface = eventInterfaceManager.getEventTransformer(eventType.toString());
+
         return eventInterface.transform(onlineHearing);
     }
 

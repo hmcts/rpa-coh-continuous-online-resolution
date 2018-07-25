@@ -8,31 +8,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class to manage all the interfaces in the app
+ */
 @Service
 public class EventInterfaceManager {
 
-/**
- * Utility class to manage all the interfaces in the app 
- */
-
     @Autowired
-    private Map<String, EventInterface> eventInterfaces = new HashMap<String, EventInterface>();
+    private Map<String, EventTransformer> eventTransformers = new HashMap<String, EventTransformer>();
 
     /**
      * Add all the Spring managed interfaces to an internal map
      * @param iter
      */
-    public void setInterfaces(List<EventInterface> iter) {
-        for (EventInterface eventInterface : iter) {
-            eventInterfaces.put(eventInterface.getName(), eventInterface);
+    public void setEvenTransformers(List<EventTransformer> iter) {
+        for (EventTransformer eventInterface : iter) {
+            eventTransformers.put(eventInterface.getName(), eventInterface);
         }
     }
 
-    public EventInterface getInterface(String key) {
-        return eventInterfaces.get(key);
+    public EventTransformer getEventTransformer(String key) {
+        return eventTransformers.get(key);
     }
 
-    public Map<String, EventInterface> getInterfaces() {
-        return Collections.unmodifiableMap(this.eventInterfaces);
+    public Map<String, EventTransformer> getEventTransformers() {
+        return Collections.unmodifiableMap(this.eventTransformers);
     }
 }

@@ -1,11 +1,10 @@
 package uk.gov.hmcts.reform.coh.schedule.event;
 
 import uk.gov.hmcts.reform.coh.Notification.NotificationRequest;
-import uk.gov.hmcts.reform.coh.domain.EventType;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 
-public class QuestionRoundEvent implements EventInterface<OnlineHearing> {
+public class QuestionRoundEvent implements EventTransformer<OnlineHearing> {
 
     private EventTypes eventType = EventTypes.QUESTION_ROUND_ISSUED;
 
