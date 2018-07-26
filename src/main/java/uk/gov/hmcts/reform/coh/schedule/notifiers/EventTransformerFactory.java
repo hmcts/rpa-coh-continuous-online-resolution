@@ -11,7 +11,7 @@ import java.util.*;
  * Utility class to manage all the interfaces in the app
  */
 @Service
-public class EventTransformerManager {
+public class EventTransformerFactory {
 
     @Autowired
     private Set<EventTransformer> eventTransformers;

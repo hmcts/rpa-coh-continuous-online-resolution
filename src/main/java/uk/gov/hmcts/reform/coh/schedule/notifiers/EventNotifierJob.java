@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -22,7 +24,7 @@ public class EventNotifierJob {
     private static final Logger log = LoggerFactory.getLogger(EventNotifierJob.class);
 
     @Autowired
-    private EventTransformerManager eventTransformerManager;
+    private EventTransformerFactory eventTransformerFactory;
 
     @Autowired
     private SessionEventService sessionEventService;
@@ -39,33 +41,46 @@ public class EventNotifierJob {
 
     private SessionEventForwardingStates pendingState = SessionEventForwardingStates.EVENT_FORWARDING_PENDING;
 
+    private SessionEventForwardingStates successState = SessionEventForwardingStates.EVENT_FORWARDING_SUCCESS;
+
     @Scheduled(fixedDelayString  = "${event-scheduler.event-notifier.fixed-delay}")
     public void execute() {
-        List<SessionEvent> sessionEvents = getPendingSessionEvents();
 
+        List<SessionEvent> sessionEvents = getPendingSessionEvents();
         for (SessionEvent sessionEvent : sessionEvents) {
+
+            // Use the session event type to get the transformer that will create the notification message
             SessionEventType sessionEventType = sessionEvent.getSessionEventForwardingRegister().getSessionEventType();
-            EventTransformer transformer = eventTransformerManager.getEventTransformer(sessionEventType.getEventTypeName());
+            EventTransformer transformer = eventTransformerFactory.getEventTransformer(sessionEventType.getEventTypeName());
             NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
 
-            SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
-
             try {
-                forwarder.sendEndpoint(register, request);
+                // Now try and send the message
+                SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
+                ResponseEntity response = forwarder.sendEndpoint(register, request);
+
+                // Probably success. Check the response code and update the statuses
+                if (HttpStatus.OK.value() == response.getStatusCodeValue()) {
+                    Optional<SessionEventForwardingState> success = sessionEventForwardingStateRepository.findByForwardingStateName(successState.getStateName());
+                    if (success.isPresent()) {
+                        sessionEvent.setSessionEventForwardingState(success.get());
+                        sessionEventService.updateSessionEvent(sessionEvent);
+                    }
+                }
             } catch (NotificationException e) {
-                e.printStackTrace();
+                log.error("Exception while trying to send a notification. Exception is " + e.getMessage());
             }
         }
     }
 
     private List<SessionEvent> getPendingSessionEvents() {
-        Optional<SessionEventForwardingState> state = sessionEventForwardingStateRepository.findByForwardingStateName(pendingState.getStateName());
+        Optional<SessionEventForwardingState> pending = sessionEventForwardingStateRepository.findByForwardingStateName(pendingState.getStateName());
 
-        if (!state.isPresent()) {
+        if (!pending.isPresent()) {
             log.error("Unable to retrieve Session Event Forwarding State: " + pendingState.getStateName());
             return Collections.emptyList();
         }
 
-        return sessionEventService.retrieveBySessionEventForwardingState(state.get());
+        return sessionEventService.retrieveBySessionEventForwardingState(pending.get());
     }
 }
