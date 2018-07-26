@@ -11,12 +11,13 @@ import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundRequest;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.*;
-import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionRound;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 
 import java.util.List;
@@ -38,9 +39,6 @@ public class QuestionRoundController {
 
     @Autowired
     private QuestionRoundSentTask questionSentTask;
-
-    @Autowired
-    private SessionEventService sessionEventService;
 
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {
@@ -137,8 +135,6 @@ public class QuestionRoundController {
         }
 
         onlineHearing = optionalOnlineHearing.get();
-
-        sessionEventService.createSessionEvent(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED.getEventType());
         questionRoundService.issueQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
         questionSentTask.execute(onlineHearing);
 

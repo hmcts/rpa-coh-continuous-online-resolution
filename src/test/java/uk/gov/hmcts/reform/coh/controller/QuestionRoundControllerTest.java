@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
@@ -34,8 +33,6 @@ import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,9 +52,6 @@ public class QuestionRoundControllerTest {
 
     @Mock
     private QuestionStateService questionStateService;
-
-    @Mock
-    private SessionEventService sessionEventService;
 
     @Mock
     private QuestionRoundSentTask questionSentTask;
@@ -112,7 +106,6 @@ public class QuestionRoundControllerTest {
         given(questionRoundService.getNextQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(3);
         given(questionRoundService.getPreviousQuestionRound(anyInt())).willReturn(1);
         given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
-        given(sessionEventService.createSessionEvent(any(OnlineHearing.class), any(SessionEventType.class))).willReturn(new SessionEvent());
     }
 
     @Test
@@ -248,9 +241,5 @@ public class QuestionRoundControllerTest {
                 .content(json))
                 .andExpect(status().isOk())
                 .andReturn();
-
-        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
     }
-
-
 }
