@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.service.EventTypeService;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.Optional;
 
 @RestController
@@ -62,13 +63,14 @@ public class EventForwardingController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Jurisdiction not found");
         }
 
-        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister(jurisdiction.get(), eventType.get());
-
-        Optional<Integer> maxRetries = Optional.ofNullable(body.getMaxRetries());
-        maxRetries.ifPresent(sessionEventForwardingRegister::setMaximumRetries);
-
-        sessionEventForwardingRegister.setActive(Boolean.valueOf(body.getActive()));
-        sessionEventForwardingRegister.setForwardingEndpoint(body.getEndpoint());
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+                .sessionEventType(eventType.get())
+                .jurisdiction(jurisdiction.get())
+                .forwardingEndpoint(body.getEndpoint())
+                .maximumRetries(body.getMaxRetries())
+                .withActive(Boolean.valueOf(body.getActive()))
+                .registrationDate(new Date())
+                .build();
 
         eventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
 
