@@ -18,6 +18,7 @@ Feature: Answers
     And the response headers contains a location to the created entity
     And send get request to the location
     And the response code is 200
+    And an event has been queued for this online hearing of event type answers_submitted
 
   Scenario: Retrieve an answer for a question
     Given a standard online hearing is created
