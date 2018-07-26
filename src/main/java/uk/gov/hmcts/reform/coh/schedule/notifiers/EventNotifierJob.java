@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.schedule.notifiers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -32,6 +33,10 @@ public class EventNotifierJob {
     @Autowired
     private OnlineHearingService onlineHearingService;
 
+    @Autowired
+    @Qualifier("BasicJsonNotificationForwarder")
+    private  NotificationForwarder forwarder;
+
     private SessionEventForwardingStates pendingState = SessionEventForwardingStates.EVENT_FORWARDING_PENDING;
 
     @Scheduled(fixedDelayString  = "${event-scheduler.event-notifier.fixed-delay}")
@@ -45,7 +50,11 @@ public class EventNotifierJob {
 
             SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
 
-            log.info("\n\n " + register.getForwardingEndpoint());
+            try {
+                forwarder.sendEndpoint(register, request);
+            } catch (NotificationException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.schedule.notifiers;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 
@@ -18,9 +19,11 @@ public class NotificationRequest {
     private String eventType;
 
     @JsonProperty("expiry_date")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String expiryDate;
 
     @JsonProperty("reason")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String reason;
 
     public NotificationRequest() {

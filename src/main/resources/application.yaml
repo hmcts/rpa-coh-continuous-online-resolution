@@ -27,6 +27,12 @@ spring:
    enabled: ${ENABLE_DB_MIGRATE:true}
    change-log: classpath:/db/changelog/db.changelog-master.yaml
 
+base-urls:
+  idam-user: ${IDAM_API_URL:http://localhost:4501}
+  idam-s2s: ${S2S_URL:http://localhost:4502}
+  s2s-token: ${S2S_TOKEN:AAAAAAAAAAAAAAAA}
+  test-url: ${TEST_URL:http://localhost:8080}
+
 management:
   endpoints:
     web:
@@ -57,6 +63,7 @@ management:
      git:
        enabled: true # Whether to enable git info.
        mode: simple # Mode to use to expose git information.
+
 info:
   app:
     environment: ${PACKAGES_ENVIRONMENT:local}
