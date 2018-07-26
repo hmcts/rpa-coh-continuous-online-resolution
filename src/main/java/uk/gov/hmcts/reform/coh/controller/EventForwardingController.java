@@ -30,7 +30,6 @@ import java.util.Optional;
 public class EventForwardingController {
     private static final Logger log = LoggerFactory.getLogger(EventForwardingController.class);
 
-
     private final EventForwardingRegisterService eventForwardingRegisterService;
 
     private final EventTypeService eventTypeService;

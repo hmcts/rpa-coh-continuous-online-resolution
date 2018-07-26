@@ -12,7 +12,7 @@ public class SessionEvent {
     @Column(name = "event_id")
     private UUID eventId;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumns({
             @JoinColumn(name = "EVNT_ID", referencedColumnName = "event_type_id"),
             @JoinColumn(name = "JURS_ID", referencedColumnName = "jurisdiction_id") })

@@ -10,7 +10,7 @@ public class SessionEventForwardingRegister {
     @EmbeddedId
     private SessionEventForwardingRegisterId id;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "event_type_id")
     @MapsId("eventTypeId")
     private SessionEventType sessionEventType;
