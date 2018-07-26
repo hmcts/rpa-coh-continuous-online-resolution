@@ -224,9 +224,14 @@ public class ApiSteps extends BaseSteps {
         Optional<Jurisdiction> testJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS");
         Optional<SessionEventForwardingRegister> templateEFR = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(testJurisdiction.get(), optSessionEventType.get());
 
-        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister(jurisdiction, optSessionEventType.get());
-        sessionEventForwardingRegister.setForwardingEndpoint(templateEFR.get().getForwardingEndpoint());
-        sessionEventForwardingRegister.setMaximumRetries(templateEFR.get().getMaximumRetries());
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+                .jurisdiction(jurisdiction)
+                .sessionEventType(optSessionEventType.get())
+                .forwardingEndpoint(templateEFR.get().getForwardingEndpoint())
+                .maximumRetries(templateEFR.get().getMaximumRetries())
+                .registrationDate(new Date())
+                .withActive(true)
+                .build();
 
         SessionEventForwardingRegister savedEFR = sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister);
         testContext.getScenarioContext().addSessionEventForwardingRegister(savedEFR);

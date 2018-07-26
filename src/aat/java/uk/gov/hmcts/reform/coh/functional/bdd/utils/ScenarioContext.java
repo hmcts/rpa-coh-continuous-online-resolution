@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
@@ -37,6 +38,7 @@ public class ScenarioContext {
     private UpdateQuestionRequest updateQuestionRequest;
 
     Set<Jurisdiction> jurisdictions;
+    private EventRegistrationRequest eventRegistrationRequest;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
 
@@ -151,6 +153,7 @@ public class ScenarioContext {
         caseIds = null;
         jurisdictions = null;
         updateQuestionRequest = null;
+        eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
     }
 
@@ -160,5 +163,13 @@ public class ScenarioContext {
 
     public void setUpdateOnlineHearingRequest(UpdateOnlineHearingRequest updateOnlineHearingRequest) {
         this.updateOnlineHearingRequest = updateOnlineHearingRequest;
+    }
+
+    public void setEventRegistrationRequest(EventRegistrationRequest eventRegistrationRequest) {
+        this.eventRegistrationRequest = eventRegistrationRequest;
+    }
+
+    public EventRegistrationRequest getEventRegistrationRequest() {
+        return eventRegistrationRequest;
     }
 }
