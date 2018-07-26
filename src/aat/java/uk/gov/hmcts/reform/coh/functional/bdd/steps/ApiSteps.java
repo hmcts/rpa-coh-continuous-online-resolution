@@ -35,6 +35,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,6 +66,9 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private SessionEventRepository sessionEventRepository;
+
+    @Autowired
+    private SessionEventService sessionEventService;
 
     private JSONObject json;
 
@@ -259,12 +263,12 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 
-
-    @And("^the question round issued event is in the events table$")
-    public void theQuestionRoundIssuedEventIsInTheEventsTable() {
+    @And("^an event has been queued for this online hearing of event type (.*)$")
+    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        List<SessionEvent> sessionEvents = sessionEventRepository.findAllByOnlineHearing(onlineHearing);
+        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
-        assertTrue(!sessionEvents.isEmpty());
+        assertTrue(!optSessionEvent.isEmpty());
+        assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
     }
 }

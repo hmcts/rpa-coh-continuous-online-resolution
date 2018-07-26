@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,11 +67,10 @@ public class BaseSteps {
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
 
-        List<SessionEventForwardingRegister> sessionEventForwardingRegisters =
-                (List<SessionEventForwardingRegister>) sessionEventForwardingRegisterRepository.findAll();
+        Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
 
-        sessionEventForwardingRegisters.stream()
-                .forEach(sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl)));
+        sessionEventForwardingRegisters.iterator().forEachRemaining(
+                sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl)));
         sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
     }
 

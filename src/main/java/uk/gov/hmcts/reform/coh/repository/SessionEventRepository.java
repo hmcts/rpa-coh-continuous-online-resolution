@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface SessionEventRepository extends CrudRepository<SessionEvent, UUID> {
 
-    void deleteByOnlineHearing(OnlineHearing onlineHearing);
-
     List<SessionEvent> findAllByOnlineHearing(OnlineHearing onlineHearing);
+
+    void deleteByOnlineHearing(OnlineHearing onlineHearing);
 }

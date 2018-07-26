@@ -1,14 +1,13 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import cucumber.deps.com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.Arrays;
 import java.util.Calendar;
