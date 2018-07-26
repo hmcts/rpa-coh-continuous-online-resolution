@@ -20,7 +20,7 @@ public class EventSteps extends BaseSteps{
     @Autowired
     public EventSteps(TestContext testContext) {
         super(testContext);
-        restTemplate = new RestTemplate();
+        restTemplate = getRestTemplate();
     }
 
     @Given("^a standard request to subscribe to question round issued$")
