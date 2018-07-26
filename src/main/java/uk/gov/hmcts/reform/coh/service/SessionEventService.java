@@ -75,6 +75,10 @@ public class SessionEventService {
         return sessionEventRepository.findAllByOnlineHearing(onlineHearing);
     }
 
+    public List<SessionEvent> retrieveBySessionEventForwardingState(SessionEventForwardingState sessionEventForwardingState) {
+        return sessionEventRepository.findAllBySessionEventForwardingState(sessionEventForwardingState);
+    }
+
     @Transactional
     public void deleteByOnlineHearing(OnlineHearing onlineHearing) {
         sessionEventRepository.deleteByOnlineHearing(onlineHearing);

@@ -15,10 +15,10 @@ public class NotificationRequest {
     private UUID onlineHearingId;
 
     @JsonProperty("event_type")
-    private EventTypes eventType;
+    private String eventType;
 
     @JsonProperty("expiry_date")
-    private Date expiryDate;
+    private String expiryDate;
 
     @JsonProperty("reason")
     private String reason;
@@ -42,20 +42,19 @@ public class NotificationRequest {
         this.onlineHearingId = onlineHearingId;
     }
 
-    @Override
-    public String toString() {
-        return "NotificationRequest{" +
-                "caseId='" + caseId + '\'' +
-                ", onlineHearingId=" + onlineHearingId +
-                ", eventType='" + eventType + '\'' +
-                '}';
+    public String getEventType() {
+        return eventType;
     }
 
-    public Date getExpiryDate() {
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public String getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -67,7 +66,12 @@ public class NotificationRequest {
         this.reason = reason;
     }
 
-    public void setEventType(EventTypes eventType) {
-        this.eventType = eventType;
+    @Override
+    public String toString() {
+        return "NotificationRequest{" +
+                "caseId='" + caseId + '\'' +
+                ", onlineHearingId=" + onlineHearingId +
+                ", eventType='" + eventType + '\'' +
+                '}';
     }
 }
