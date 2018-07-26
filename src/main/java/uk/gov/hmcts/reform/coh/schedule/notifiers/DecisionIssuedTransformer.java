@@ -17,6 +17,7 @@ import java.util.Optional;
 public class DecisionIssuedTransformer implements EventTransformer<OnlineHearing> {
 
     private static final ISO8601DateFormat df = new ISO8601DateFormat();
+
     @Autowired
     private DecisionService decisionService;
 

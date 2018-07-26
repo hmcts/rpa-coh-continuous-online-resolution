@@ -15,6 +15,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
+import java.io.IOException;
+
 @Component
 @Qualifier("BasicJsonNotificationForwarder")
 public class BasicJsonNotificationForwarder implements NotificationForwarder<NotificationRequest> {
@@ -38,24 +40,37 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
     @Override
     public ResponseEntity sendEndpoint(SessionEventForwardingRegister register, NotificationRequest notificationRequest) throws NotificationException {
 
-        String endpoint = register.getForwardingEndpoint();
-        if (endpoint.contains(PLACEHOLDER_HOST)) {
-            endpoint = endpoint.replace("${base-urls.test-url}", baseUrl);
-        }
+        String endpoint = refactorEndpoint(register.getForwardingEndpoint());
 
         ResponseEntity response = null;
         try {
             log.info("Sending request to " + endpoint);
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = getRestTemplate();
             HttpEntity<String> request = new HttpEntity<>( mapper.writeValueAsString(notificationRequest), URL_ENCODED_HEADER);
             response = restTemplate.exchange(endpoint, HttpMethod.POST, request, String.class);
             log.info("Endpoint responded with " + response.getStatusCodeValue());
-        } catch (JsonProcessingException e) {
-            throw new NotificationException(e.getMessage());
+        } catch (IOException ioe) {
+            throw new NotificationException(ioe.getMessage());
         }  catch (HttpClientErrorException hcee) {
             throw new NotificationException("HTTP error. Endpoint responded with " + hcee.getRawStatusCode() + " and response body " + hcee.getResponseBodyAsString());
         }
 
         return response;
+    }
+
+    public String refactorEndpoint(String endpoint) {
+        if (endpoint.contains(PLACEHOLDER_HOST)) {
+            endpoint = endpoint.replace("${base-urls.test-url}", getBaseUrl());
+        }
+
+        return endpoint;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
     }
 }
