@@ -33,6 +33,10 @@ base-urls:
   s2s-token: ${S2S_TOKEN:AAAAAAAAAAAAAAAA}
   test-url: ${TEST_URL:http://localhost:8080}
 
+event-scheduler:
+    event-notifier:
+      fixed-delay: 20000
+
 #this need to be removed
 info:
   app:

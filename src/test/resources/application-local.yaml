@@ -7,6 +7,10 @@ spring:
     platform: h2
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+
+event-scheduler:
+    event-notifier:
+      fixed-delay: 20000
 #     properties:
 #       hiberante:
 #         dialect: org.hibernate.dialect.H2Dialect

@@ -93,6 +93,10 @@ app-insights:
   request-component: on
   telemetry-component: on
 
+event-scheduler:
+    event-notifier:
+      fixed-delay: 20000
+
 #
 #toggle:
 #  includeidamhealth: ${ENABLE_IDAM_HEALTH_CHECK:false}
