@@ -62,6 +62,10 @@ info:
     environment: ${PACKAGES_ENVIRONMENT:local}
     project: ${PACKAGES_PROJECT:coh}
     name: ${PACKAGES_NAME:cor}
+
+event-scheduler:
+  fixed-delay: 20000
+
 #    version: ${PACKAGES_VERSION:unknown}
 
 #auth:
