@@ -15,6 +15,8 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -112,5 +114,12 @@ public class SessionEventServiceTest {
     public void testCreateSessionEventWithInvalidJurisdictionAndSessionEventType() {
         given(sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(jurisdiction, sessionEventType)).willReturn(Optional.empty());
         sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
+    }
+
+    @Test
+    public void testRetrieveByOnlineHearing() {
+        given(sessionEventRepository.findAllByOnlineHearing(onlineHearing)).willReturn(Arrays.asList(sessionEvent));
+        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        assertEquals(sessionEvent, optSessionEvent.get(0));
     }
 }

@@ -31,11 +31,13 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingRespo
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.SessionEvent;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.io.IOException;
 import java.util.*;
@@ -57,6 +59,9 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    @Autowired
+    private SessionEventService sessionEventService;
 
     private JSONObject json;
 
@@ -230,5 +235,14 @@ public class ApiSteps extends BaseSteps {
         ResponseEntity<String> response = restTemplate.exchange(urlToLocation, HttpMethod.GET, request, String.class);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
+    }
+
+    @And("^an event has been queued for this online hearing of event type (.*)$")
+    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) throws Throwable {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+
+        assertTrue(!optSessionEvent.isEmpty());
+        assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
     }
 }
