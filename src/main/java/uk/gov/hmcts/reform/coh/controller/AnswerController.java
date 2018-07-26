@@ -31,7 +31,6 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,8 +87,14 @@ public class AnswerController {
 
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             // If a question exists, then it must be in the issued state to be answered
-            if (!optionalQuestion.isPresent()
-                    || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
+            if (!optionalQuestion.isPresent()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
+            }
+
+            if (optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED_PENDING.getStateName())
+                || optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())){
+
+            }else{
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
             }
 

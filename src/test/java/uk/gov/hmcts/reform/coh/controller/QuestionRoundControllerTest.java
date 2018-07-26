@@ -80,15 +80,15 @@ public class QuestionRoundControllerTest {
         questionRound.setQuestionRoundNumber(ROUNDID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
-        QuestionState issuedState = new QuestionState();
-        issuedState.setState(QuestionRoundService.ISSUED);
-        issuedState.setQuestionStateId(3);
+        QuestionState issuedPendingState = new QuestionState();
+        issuedPendingState.setState(QuestionRoundService.ISSUED_PENDING);
+        issuedPendingState.setQuestionStateId(3);
 
-        questionRoundState.setState(issuedState);
+        questionRoundState.setState(issuedPendingState);
 
         List<Question> questions = new ArrayList<>();
         Question question = new Question();
-        question.setQuestionState(issuedState);
+        question.setQuestionState(issuedPendingState);
         question.setQuestionRound(ROUNDID);
         questions.add(question);
         question.setQuestionId(UUID.randomUUID());
@@ -104,7 +104,7 @@ public class QuestionRoundControllerTest {
         jurisdiction.setMaxQuestionRounds(3);
         onlineHearing.setJurisdiction(jurisdiction);
 
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedPendingState));
         given(questionRoundService.issueQuestionRound(any(OnlineHearing.class), any(QuestionState.class), anyInt())).willReturn(null);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(questionRoundService.getAllQuestionRounds(any(OnlineHearing.class))).willReturn(questionRounds);
@@ -234,11 +234,11 @@ public class QuestionRoundControllerTest {
     }
 
     @Test
-    public void testUpdateCurrentQuestionRoundToIssued() throws Exception {
-        QuestionState issuedState = new QuestionState();
-        issuedState.setState(QuestionRoundService.ISSUED);
-        issuedState.setQuestionStateId(1);
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
+    public void testUpdateCurrentQuestionRoundToIssuedPending() throws Exception {
+        QuestionState issuedPendingState = new QuestionState();
+        issuedPendingState.setState(QuestionRoundService.ISSUED_PENDING);
+        issuedPendingState.setQuestionStateId(1);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedPendingState));
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
         doNothing().when(questionSentTask).execute(any(OnlineHearing.class));
 

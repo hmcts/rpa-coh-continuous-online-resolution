@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -54,13 +53,12 @@ public class QuestionService {
 
     @Transactional
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
-
         if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
             throw new NotAValidUpdateException("Invalid question round state transition");
         }
 
         if(!questionRoundService.isQrValidState(question, onlineHearing)) {
-            throw new NotAValidUpdateException("Invalid question state");
+            throw new NotAValidUpdateException("Cannot add question to issued question round");
         }
 
         Optional<QuestionState> state = questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName());

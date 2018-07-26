@@ -11,7 +11,10 @@ import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundRequest;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionRound;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
@@ -128,7 +131,8 @@ public class QuestionRoundController {
         }
 
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
-        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED))) {
+        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED_PENDING))) {
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid question round state");
         }
 
