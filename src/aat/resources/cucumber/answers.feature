@@ -59,6 +59,7 @@ Feature: Answers
     When a PUT request is sent
     Then the response code is 200
     And the answer text is 'bar'
+    And an event has been queued for this online hearing of event type answers_submitted
 
   Scenario: Update an answer state
     Given a standard online hearing is created
@@ -73,6 +74,7 @@ Feature: Answers
     And the answer state is 'answer_submitted'
     When a PUT request is sent
     Then the response code is 200
+    And an event has been queued for this online hearing of event type answers_submitted
 
   Scenario: Try and update an answer state from submitted to draft
     Given a standard online hearing is created

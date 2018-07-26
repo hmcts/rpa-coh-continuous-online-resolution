@@ -273,6 +273,8 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());
+        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
+
     }
 
     @Test

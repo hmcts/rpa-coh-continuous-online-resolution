@@ -226,6 +226,7 @@ public class AnswerController {
             CreateAnswerResponse answerResponse = new CreateAnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
+            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
             answersReceivedTask.execute(optionalOnlineHearing.get());
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
