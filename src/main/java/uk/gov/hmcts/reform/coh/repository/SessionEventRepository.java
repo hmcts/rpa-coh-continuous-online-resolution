@@ -6,7 +6,6 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEvent;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
