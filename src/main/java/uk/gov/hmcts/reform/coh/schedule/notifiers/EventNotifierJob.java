@@ -72,7 +72,7 @@ public class EventNotifierJob {
                     }
                 }
             } catch (NotificationException e) {
-                log.error("Exception while trying to send a notification. Exception is " + e.getMessage());
+                log.error(String.format("Exception while trying to send a notification. Exception is %s", e.getMessage()));
             }
         }
     }
@@ -81,7 +81,7 @@ public class EventNotifierJob {
         Optional<SessionEventForwardingState> pending = sessionEventForwardingStateRepository.findByForwardingStateName(pendingState.getStateName());
 
         if (!pending.isPresent()) {
-            log.error("Unable to retrieve Session Event Forwarding State: " + pendingState.getStateName());
+            log.error(String.format("Unable to retrieve Session Event Forwarding State: %s", pendingState.getStateName()));
             return Collections.emptyList();
         }
 

@@ -2,6 +2,10 @@ variable "product" {
   type = "string"
 }
 
+variable "shared_product_name" {
+  default = "coh"
+}
+
 variable "component" {
   type = "string"
 }

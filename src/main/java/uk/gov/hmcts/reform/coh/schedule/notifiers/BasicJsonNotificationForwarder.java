@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.schedule.notifiers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +43,11 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
         ResponseEntity response = null;
         try {
-            log.info("Sending request to " + endpoint);
+            log.info(String.format("Sending request to %s", endpoint));
             RestTemplate restTemplate = getRestTemplate();
             HttpEntity<String> request = new HttpEntity<>( mapper.writeValueAsString(notificationRequest), URL_ENCODED_HEADER);
             response = restTemplate.exchange(endpoint, HttpMethod.POST, request, String.class);
-            log.info("Endpoint responded with " + response.getStatusCodeValue());
+            log.info(String.format("Endpoint responded with %s", response.getStatusCodeValue()));
         } catch (IOException ioe) {
             throw new NotificationException(ioe.getMessage());
         }  catch (HttpClientErrorException hcee) {
