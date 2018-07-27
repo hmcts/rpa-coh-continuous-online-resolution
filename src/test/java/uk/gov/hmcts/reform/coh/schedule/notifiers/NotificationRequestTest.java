@@ -18,7 +18,7 @@ public class NotificationRequestTest {
     private Date date = new Date();
 
     @Before
-    public void setup() {
+    public void setUp() {
         request = new NotificationRequest();
 
         request.setOnlineHearingId(uuid);
