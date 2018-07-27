@@ -23,15 +23,12 @@ import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.service.AnswerService;
-import uk.gov.hmcts.reform.coh.service.AnswerStateService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,12 +50,18 @@ public class AnswerController {
     private AnswersReceivedTask answersReceivedTask;
 
     @Autowired
-    public AnswerController(AnswerService answerService, AnswerStateService answerStateService, QuestionService questionService, OnlineHearingService onlineHearingService, AnswersReceivedTask answersReceivedTask) {
+    private SessionEventService sessionEventService;
+
+    @Autowired
+    public AnswerController(AnswerService answerService, AnswerStateService answerStateService,
+                            QuestionService questionService, OnlineHearingService onlineHearingService,
+                            AnswersReceivedTask answersReceivedTask, SessionEventService sessionEventService) {
         this.answerService = answerService;
         this.answerStateService = answerStateService;
         this.questionService = questionService;
         this.onlineHearingService = onlineHearingService;
         this.answersReceivedTask = answersReceivedTask;
+        this.sessionEventService = sessionEventService;
     }
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
@@ -110,6 +113,8 @@ public class AnswerController {
             answer.setQuestion(optionalQuestion.get());
             answer = answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
+
+            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
             answersReceivedTask.execute(optionalOnlineHearing.get());
         } catch (Exception e) {
             log.error("Exception in createAnswer: " + e.getMessage());
@@ -221,6 +226,7 @@ public class AnswerController {
             CreateAnswerResponse answerResponse = new CreateAnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
+            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
             answersReceivedTask.execute(optionalOnlineHearing.get());
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
