@@ -65,9 +65,6 @@ public class ApiSteps extends BaseSteps {
     private SessionEventTypeRespository sessionEventTypeRespository;
 
     @Autowired
-    private SessionEventRepository sessionEventRepository;
-
-    @Autowired
     private SessionEventService sessionEventService;
 
     private JSONObject json;
