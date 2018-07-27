@@ -3,24 +3,26 @@ package uk.gov.hmcts.reform.coh.task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
 
-@Service
+@Component
 public class AnswersReceivedTask implements ContinuousOnlineResolutionTask<OnlineHearing>{
 
     private static final Logger log = LoggerFactory.getLogger(AnswersReceivedTask.class);
@@ -82,5 +84,10 @@ public class AnswersReceivedTask implements ContinuousOnlineResolutionTask<Onlin
         }
 
         return false;
+    }
+
+    @Override
+    public List<String> supports() {
+        return Arrays.asList(EventTypes.ANSWERS_SUBMITTED.getEventType());
     }
 }

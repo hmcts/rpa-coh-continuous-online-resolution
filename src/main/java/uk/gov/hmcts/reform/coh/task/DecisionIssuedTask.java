@@ -3,8 +3,9 @@ package uk.gov.hmcts.reform.coh.task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -12,9 +13,11 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-@Service
+@Component
 public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Decision> {
 
     private static final Logger log = LoggerFactory.getLogger(DecisionIssuedTask.class);
@@ -56,5 +59,10 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Decisi
             onlineHearing.registerStateChange();
             onlineHearingService.updateOnlineHearing(onlineHearing);
         }
+    }
+
+    @Override
+    public List<String> supports() {
+        return Arrays.asList(EventTypes.DECISION_ISSUED.getEventType());
     }
 }
