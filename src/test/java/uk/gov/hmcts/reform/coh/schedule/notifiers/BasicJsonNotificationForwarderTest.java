@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
 import java.util.UUID;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -61,12 +62,12 @@ public class BasicJsonNotificationForwarderTest {
         request.setEventType("foo");
         request.setOnlineHearingId(UUID.randomUUID());
 
-        doReturn(restTemplate).when(forwarder).getRestTemplate();
         when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class))).thenReturn(okResponse);
     }
 
     @Test
     public void testSuccess() throws Exception {
+        doReturn(restTemplate).when(forwarder).getRestTemplate();
         ResponseEntity response = forwarder.sendEndpoint(register, request);
         assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
     }
@@ -88,5 +89,10 @@ public class BasicJsonNotificationForwarderTest {
         doReturn("localhost").when(forwarder).getBaseUrl();
         String endpoint = forwarder.refactorEndpoint("${base-urls.test-url}/foo");
         assertEquals("localhost/foo", endpoint);
+    }
+
+    @Test
+    public void testGetRestTemplate() {
+        assertTrue(forwarder.getRestTemplate() instanceof RestTemplate);
     }
 }

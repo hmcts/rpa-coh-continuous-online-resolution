@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.schedule.notifiers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ import java.util.Set;
 public class EventTransformerFactory {
 
     @Autowired
-    private Set<EventTransformer> eventTransformers;
+    private Set<EventTransformer> eventTransformers = new HashSet<EventTransformer>();
 
     /**
      * Add all the Spring managed interfaces to an internal map
