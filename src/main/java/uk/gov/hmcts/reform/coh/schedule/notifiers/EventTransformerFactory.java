@@ -1,11 +1,10 @@
 package uk.gov.hmcts.reform.coh.schedule.notifiers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.coh.events.EventTypes;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Utility class to manage all the interfaces in the app

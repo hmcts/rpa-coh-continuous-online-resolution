@@ -2,9 +2,7 @@ package uk.gov.hmcts.reform.coh.schedule.notifiers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.coh.events.EventTypes;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class NotificationRequest {
@@ -25,9 +23,6 @@ public class NotificationRequest {
     @JsonProperty("reason")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String reason;
-
-    public NotificationRequest() {
-    }
 
     public String getCaseId() {
         return caseId;

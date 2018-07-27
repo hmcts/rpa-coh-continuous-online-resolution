@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.coh.service;
 
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.AnswerState;
