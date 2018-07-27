@@ -52,8 +52,12 @@ public class EventNotifierJob {
             // Use the session event type to get the transformer that will create the notification message
             SessionEventType sessionEventType = sessionEvent.getSessionEventForwardingRegister().getSessionEventType();
             EventTransformer transformer = eventTransformerFactory.getEventTransformer(sessionEventType.getEventTypeName());
-            NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
+            if (transformer == null) {
+                log.error(String.format("Unable to find an event transformer for %S.", sessionEventType.getEventTypeName()));
+                continue;
+            }
 
+            NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
             try {
                 // Now try and send the message
                 SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();

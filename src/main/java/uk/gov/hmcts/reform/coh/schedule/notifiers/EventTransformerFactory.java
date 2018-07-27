@@ -14,7 +14,7 @@ import java.util.*;
 public class EventTransformerFactory {
 
     @Autowired
-    private Set<EventTransformer> eventTransformers;
+    private Set<EventTransformer> eventTransformers = new HashSet<>();
 
     /**
      * Add all the Spring managed interfaces to an internal map
