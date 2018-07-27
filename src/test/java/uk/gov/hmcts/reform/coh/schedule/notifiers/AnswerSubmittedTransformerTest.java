@@ -4,44 +4,33 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
-import uk.gov.hmcts.reform.coh.service.DecisionService;
 
 import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-public class DecisionIssuedTransformerTest {
-
-    @Mock
-    private DecisionService decisionService;
+public class AnswerSubmittedTransformerTest {
 
     @InjectMocks
-    private DecisionIssuedTransformer transformer;
+    private AnswerSubmittedTransformer answerSubmittedTransformer;
 
     private SessionEventType sessionEventType;
-
+    private UUID uuid;
+    private Date date;
     private OnlineHearing onlineHearing;
 
-    private Decision decision;
-
-    private UUID uuid;
-
-    private Date date;
-
     @Before
-    public void setup() {
+    public void setUp() {
         sessionEventType = new SessionEventType();
-        sessionEventType.setEventTypeName(EventTypes.DECISION_ISSUED.getEventType());
+        sessionEventType.setEventTypeName(EventTypes.ANSWERS_SUBMITTED.getEventType());
 
         uuid = UUID.randomUUID();
         date = new Date();
@@ -49,17 +38,21 @@ public class DecisionIssuedTransformerTest {
         onlineHearing.setCaseId("foo");
         onlineHearing.setOnlineHearingId(uuid);
         onlineHearing.setEndDate(date);
-
-        decision = new Decision();
-
-        when(decisionService.findByOnlineHearingId(onlineHearing.getOnlineHearingId())).thenReturn(Optional.of(decision));
     }
 
     @Test
     public void testMapping() {
-        NotificationRequest request = transformer.transform(sessionEventType, onlineHearing);
+        NotificationRequest request = answerSubmittedTransformer.transform(sessionEventType, onlineHearing);
         assertEquals("foo", request.getCaseId());
         assertEquals(uuid, request.getOnlineHearingId());
-        assertEquals(EventTypes.DECISION_ISSUED.getEventType(), request.getEventType());
+        assertEquals(EventTypes.ANSWERS_SUBMITTED.getEventType(), request.getEventType());
+    }
+
+    @Test
+    public void testSupportsReturnsAnswerSubmittedType() {
+        List<String> supports = answerSubmittedTransformer.supports();
+        boolean success = supports.stream()
+                .anyMatch(eventType -> eventType.equalsIgnoreCase(EventTypes.ANSWERS_SUBMITTED.getEventType()));
+        assertTrue(success);
     }
 }

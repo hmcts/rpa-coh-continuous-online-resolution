@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.schedule.notifiers;
 
-import uk.gov.hmcts.reform.coh.domain.SessionEvent;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 
 import java.util.Arrays;

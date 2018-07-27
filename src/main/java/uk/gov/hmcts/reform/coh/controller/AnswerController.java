@@ -117,7 +117,7 @@ public class AnswerController {
             sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
             answersReceivedTask.execute(optionalOnlineHearing.get());
         } catch (Exception e) {
-            log.error("Exception in createAnswer: " + e.getMessage());
+            log.error(String.format("Exception in createAnswer: %s", e.getMessage()));
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
         }
 
