@@ -75,6 +75,8 @@ public class NotificationRequest {
                 "caseId='" + caseId + '\'' +
                 ", onlineHearingId=" + onlineHearingId +
                 ", eventType='" + eventType + '\'' +
+                (expiryDate == null ? "" : ", expiryDate=" + expiryDate) +
+                (reason == null ? "" : ", reason=" + reason) +
                 '}';
     }
 }
