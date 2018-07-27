@@ -6,6 +6,8 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public class ExpiryCalendar {
+
+    private ExpiryCalendar() {}
     /**
      * Hard-coded to 7 days.
      * @return
