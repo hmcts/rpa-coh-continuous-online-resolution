@@ -62,4 +62,10 @@ public class DecisionIssuedTransformerTest {
         assertEquals(uuid, request.getOnlineHearingId());
         assertEquals(EventTypes.DECISION_ISSUED.getEventType(), request.getEventType());
     }
+
+    @Test
+    public void testSupports() {
+        assertEquals(1, transformer.supports().size());
+        assertEquals("decision_issued", transformer.supports().get(0));
+    }
 }
