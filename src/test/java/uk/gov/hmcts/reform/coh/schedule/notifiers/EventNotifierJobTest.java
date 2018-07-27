@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates.*;
 import static uk.gov.hmcts.reform.coh.events.EventTypes.*;
