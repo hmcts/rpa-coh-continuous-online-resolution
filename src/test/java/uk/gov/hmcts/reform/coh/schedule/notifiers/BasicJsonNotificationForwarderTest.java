@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;

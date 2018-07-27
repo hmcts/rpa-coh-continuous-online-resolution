@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates.*;
 import static uk.gov.hmcts.reform.coh.events.EventTypes.*;
@@ -35,9 +36,6 @@ public class EventNotifierJobTest {
     private EventTransformerFactory factory;
 
     @Mock
-    private ResponseEntity okResponse;
-
-    @Mock
     @Qualifier("BasicJsonNotificationForwarder")
     private NotificationForwarder forwarder;
 
@@ -50,16 +48,12 @@ public class EventNotifierJobTest {
 
     private SessionEventForwardingRegister register;
 
-    private SessionEventType sessionEventType;
-
     private SessionEvent sessionEvent;
-
-    private EventTransformer transformer;
 
     private NotificationRequest request;
 
     @Before
-    public void setup() throws NotificationException {
+    public void setUp() throws NotificationException {
 
         pendingState = new SessionEventForwardingState();
         pendingState.setForwardingStateName(EVENT_FORWARDING_PENDING.getStateName());
@@ -67,7 +61,7 @@ public class EventNotifierJobTest {
         successState = new SessionEventForwardingState();
         successState.setForwardingStateName(EVENT_FORWARDING_SUCCESS.getStateName());
 
-        sessionEventType = new SessionEventType();
+        SessionEventType sessionEventType = new SessionEventType();
         sessionEventType.setEventTypeName(DECISION_ISSUED.getEventType());
 
         register = new SessionEventForwardingRegister();
@@ -79,9 +73,9 @@ public class EventNotifierJobTest {
         sessionEvent.setEventId(UUID.randomUUID());
         sessionEvent.setSessionEventForwardingRegister(register);
 
-        transformer = (s, o) -> request;
+        EventTransformer transformer = (s, o) -> request;
 
-        okResponse = new ResponseEntity(HttpStatus.OK);
+        ResponseEntity okResponse = new ResponseEntity(HttpStatus.OK);
 
         given(sessionEventForwardingStateRepository.findByForwardingStateName(EVENT_FORWARDING_PENDING.getStateName())).willReturn(Optional.of(pendingState));
         given(sessionEventService.retrieveBySessionEventForwardingState(pendingState)).willReturn(Arrays.asList(sessionEvent));
@@ -93,12 +87,14 @@ public class EventNotifierJobTest {
     public void testNoPendingState() {
         given(sessionEventForwardingStateRepository.findByForwardingStateName(EVENT_FORWARDING_PENDING.getStateName())).willReturn(Optional.empty());
         job.execute();
+        assertEquals(EVENT_FORWARDING_PENDING.getStateName(), sessionEvent.getSessionEventForwardingState().getForwardingStateName());
     }
 
     @Test
     public void testNoSessionEventsInPendingState() {
         given(sessionEventService.retrieveBySessionEventForwardingState(pendingState)).willReturn(Arrays.asList());
         job.execute();
+        assertEquals(EVENT_FORWARDING_PENDING.getStateName(), sessionEvent.getSessionEventForwardingState().getForwardingStateName());
     }
 
     @Test

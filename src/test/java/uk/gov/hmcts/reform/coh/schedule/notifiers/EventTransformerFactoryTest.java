@@ -17,7 +17,7 @@ public class EventTransformerFactoryTest {
     private EventTransformerFactory factory;
 
     @Before
-    public void setup() {
+    public void setUp() {
         factory = new EventTransformerFactory();
         factory.setEvenTransformers(Arrays.asList(new DecisionIssuedTransformer()));
     }
