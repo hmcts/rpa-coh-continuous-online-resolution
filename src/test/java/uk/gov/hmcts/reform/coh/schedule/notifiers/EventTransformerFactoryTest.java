@@ -18,13 +18,14 @@ public class EventTransformerFactoryTest {
 
     @Before
     public void setUp() {
+        EventTransformer transformer = (s, o) -> new NotificationRequest();
         factory = new EventTransformerFactory();
-        factory.setEvenTransformers(Arrays.asList(new DecisionIssuedTransformer()));
+        factory.setEvenTransformers(Arrays.asList(transformer));
     }
 
     @Test
     public void testGetTransformer() {
-        EventTransformer transformer = factory.getEventTransformer(EventTypes.DECISION_ISSUED.getEventType());
+        EventTransformer transformer = factory.getEventTransformer("default");
         assertNotNull(transformer);
     }
 
