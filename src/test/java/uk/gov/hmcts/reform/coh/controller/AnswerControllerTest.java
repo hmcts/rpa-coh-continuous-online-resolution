@@ -111,7 +111,6 @@ public class AnswerControllerTest {
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.ofNullable(answerState));
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.ofNullable(onlineHearing));
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
-
     }
 
     @Test
@@ -214,6 +213,35 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void testCreateAnswerForDraftedQuestionThrowsException() throws Exception {
+        Question question = new Question();
+        QuestionState draftedState = new QuestionState();
+        draftedState.setState(QuestionStates.DRAFTED.getStateName());
+        question.setQuestionState(draftedState);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
+
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testCreateAnswerForIssuedPendingQuestionIsSuccessful() throws Exception {
+        questionState = new QuestionState();
+        questionState.setState(QuestionStates.ISSUED_PENDING.getStateName());
+        question = new Question();
+        question.setQuestionState(questionState);
+
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -342,4 +370,6 @@ public class AnswerControllerTest {
                 .andReturn();
         assertEquals("Answer state is not valid", result.getResponse().getContentAsString());
     }
+
+
 }

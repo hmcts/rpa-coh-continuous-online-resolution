@@ -443,5 +443,25 @@ public class QuestionRoundServiceTest {
 
         questionRoundService.issueQuestionRound(onlineHearing, issuedPendingState, 1);
     }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testIssuedStateNotFoundThrowsException() {
+        Question question = new Question();
+        question.setQuestionRound(1);
+        question.setQuestionState(draftedState);
+
+        given(questionStateService.retrieveQuestionStateByStateName(issuedStateName)).willReturn(Optional.empty());
+        questionRoundService.isQrValidState(question, onlineHearing);
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testIsusedPendingStateNotFoundThrowsException() {
+        Question question = new Question();
+        question.setQuestionRound(1);
+        question.setQuestionState(draftedState);
+
+        given(questionStateService.retrieveQuestionStateByStateName(issuedPendingStateName)).willReturn(Optional.empty());
+        questionRoundService.isQrValidState(question, onlineHearing);
+    }
 }
 
