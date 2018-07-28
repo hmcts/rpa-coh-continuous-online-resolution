@@ -82,6 +82,14 @@ public class DecisionIssuedTaskTest {
     }
 
     @Test
+    public void testDecisionNotFound() {
+        onlineHearing.setOnlineHearingState(ohDecisionIssuedState);
+        given(decisionStateService.retrieveDecisionStateByState(DecisionsStates.DECISION_ISSUED.getStateName())).willReturn(Optional.empty());
+        decisionIssuedTask.execute(onlineHearing);
+        assertEquals(decisionIssuedState, decision.getDecisionstate());
+    }
+
+    @Test
     public void testOnlineHearingAlreadyDecisionIssuedState() {
         onlineHearing.setOnlineHearingState(ohDecisionIssuedState);
         decisionIssuedTask.execute(onlineHearing);
