@@ -346,7 +346,7 @@ public class DecisionControllerTest {
     @Test
     public void testUpdateDecisionIssued() throws Exception {
 
-        doNothing().when(decisionIssuedTask).execute(decision);
+        doNothing().when(decisionIssuedTask).execute(onlineHearing);
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         given(decisionStateService.retrieveDecisionStateByState("decision_issued")).willReturn(Optional.of(decisionState));
         updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUED.getStateName());

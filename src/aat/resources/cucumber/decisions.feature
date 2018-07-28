@@ -43,7 +43,7 @@ Feature: Decisions features
     And the decision state name is decision_issued
     And the decision expiry date is 7 days in the future
     When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
-    Then the online hearing state is 'continuous_online_hearing_decision_issued'
+    Then the online hearing state is 'continuous_online_hearing_started'
 
   Scenario: Update decision state that's already issued
     And a standard decision
