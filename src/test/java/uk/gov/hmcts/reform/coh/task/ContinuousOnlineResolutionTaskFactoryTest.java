@@ -15,7 +15,6 @@ import static org.junit.Assert.assertNull;
 @RunWith(SpringRunner.class)
 public class ContinuousOnlineResolutionTaskFactoryTest {
 
-    @Autowired
     private ContinuousOnlineResolutionTaskFactory factory;
 
     private ContinuousOnlineResolutionTask task;
