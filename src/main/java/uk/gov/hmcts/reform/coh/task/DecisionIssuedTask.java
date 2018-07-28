@@ -34,10 +34,6 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
 
     private DecisionStateService decisionStateService;
 
-    private OnlineHearingState ohDecisionIssuedState;
-
-    private DecisionState decisionIssuedState;
-
     @Autowired
     public DecisionIssuedTask(OnlineHearingService onlineHearingService, OnlineHearingStateService onlineHearingStateService, DecisionService decisionService, DecisionStateService decisionStateService) {
         this.onlineHearingService = onlineHearingService;
@@ -63,7 +59,7 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
             log.error(String.format("Unable to find decision state : %s", DecisionsStates.DECISION_ISSUED.getStateName()));
             return;
         }
-        decisionIssuedState = optDecisonState.get();
+        DecisionState decisionIssuedState = optDecisonState.get();
         log.info(String.format("Updating decision state to : %s", decisionIssuedState.getState()));
         Decision decision = optDecision.get();
         decision.addDecisionStateHistory(decisionIssuedState);
@@ -77,16 +73,16 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
             return;
         }
 
-        ohDecisionIssuedState = optOnlineHearingState.get();
+        OnlineHearingState ohDecisionIssuedState = optOnlineHearingState.get();
         log.info(String.format("Updating online hearing state to : %s", ohDecisionIssuedState.getState()));
 
         // Having to do this because JPA is a pain
         Optional<OnlineHearing> optOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if (optOnlineHearing.isPresent()) {
-            onlineHearing = optOnlineHearing.get();
-            onlineHearing.setOnlineHearingState(ohDecisionIssuedState);
-            onlineHearing.registerStateChange();
-            onlineHearingService.updateOnlineHearing(onlineHearing);
+            OnlineHearing newOnlineHearing = optOnlineHearing.get();
+            newOnlineHearing.setOnlineHearingState(ohDecisionIssuedState);
+            newOnlineHearing.registerStateChange();
+            onlineHearingService.updateOnlineHearing(newOnlineHearing);
         }
     }
 
