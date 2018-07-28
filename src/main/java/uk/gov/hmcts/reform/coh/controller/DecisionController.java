@@ -168,8 +168,6 @@ public class DecisionController {
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decisionService.updateDecision(decision);
 
-        decisionIssuedTask.execute(decision);
-
         // Now queue the notification
         try {
             sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());

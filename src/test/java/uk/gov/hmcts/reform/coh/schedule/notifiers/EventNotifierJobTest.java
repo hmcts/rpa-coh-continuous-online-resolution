@@ -12,6 +12,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTask;
+import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTaskFactory;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -32,7 +34,10 @@ public class EventNotifierJobTest {
     private SessionEventForwardingStateRepository sessionEventForwardingStateRepository;
 
     @Mock
-    private EventTransformerFactory factory;
+    private EventTransformerFactory transformerFactory;
+
+    @Mock
+    private ContinuousOnlineResolutionTaskFactory taskFactory;
 
     @Mock
     @Qualifier("BasicJsonNotificationForwarder")
@@ -74,11 +79,14 @@ public class EventNotifierJobTest {
 
         EventTransformer transformer = (s, o) -> request;
 
+        ContinuousOnlineResolutionTask task = (o) -> {};
+
         ResponseEntity okResponse = new ResponseEntity(HttpStatus.OK);
 
         given(sessionEventForwardingStateRepository.findByForwardingStateName(EVENT_FORWARDING_PENDING.getStateName())).willReturn(Optional.of(pendingState));
         given(sessionEventService.retrieveBySessionEventForwardingState(pendingState)).willReturn(Arrays.asList(sessionEvent));
-        given(factory.getEventTransformer(DECISION_ISSUED.getEventType())).willReturn(transformer);
+        given(transformerFactory.getEventTransformer(DECISION_ISSUED.getEventType())).willReturn(transformer);
+        given(taskFactory.getTask(DECISION_ISSUED.getEventType())).willReturn(task);
         given(forwarder.sendEndpoint(register, request)).willReturn(okResponse);
     }
 
@@ -98,7 +106,7 @@ public class EventNotifierJobTest {
 
     @Test
     public void testNoEventTransformerForSessionEvents() {
-        given(factory.getEventTransformer(DECISION_ISSUED.getEventType())).willReturn(null);
+        given(transformerFactory.getEventTransformer(DECISION_ISSUED.getEventType())).willReturn(null);
         job.execute();
         assertEquals(EVENT_FORWARDING_PENDING.getStateName(), sessionEvent.getSessionEventForwardingState().getForwardingStateName());
     }

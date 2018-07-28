@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
+import uk.gov.hmcts.reform.coh.service.DecisionService;
+import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -30,6 +32,12 @@ public class DecisionIssuedTaskTest {
 
     @Mock
     private OnlineHearingStateService onlineHearingStateService;
+
+    @Mock
+    private DecisionService decisionService;
+
+    @Mock
+    private DecisionStateService decisionStateService;
 
     @InjectMocks
     private DecisionIssuedTask decisionIssuedTask;
@@ -68,32 +76,35 @@ public class DecisionIssuedTaskTest {
         decision.setOnlineHearing(onlineHearing);
 
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(anyString())).willReturn(Optional.of(ohDecisionIssuedState));
+        given(decisionService.findByOnlineHearingId(onlineHearing.getOnlineHearingId())).willReturn(Optional.of(decision));
+        given(decisionStateService.retrieveDecisionStateByState(DecisionsStates.DECISION_ISSUED.getStateName())).willReturn(Optional.ofNullable(decisionIssuedState));
     }
 
     @Test
     public void testOnlineHearingAlreadyDecisionIssuedState() {
         onlineHearing.setOnlineHearingState(ohDecisionIssuedState);
-        decisionIssuedTask.execute(decision);
+        decisionIssuedTask.execute(onlineHearing);
         verify(onlineHearingService, times(0)).updateOnlineHearing(any(OnlineHearing.class));
     }
 
     @Test
     public void testOnlineHearingDecisionIssuedStateNotFound() {
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(anyString())).willReturn(Optional.empty());
-        decisionIssuedTask.execute(decision);
+        decisionIssuedTask.execute(onlineHearing);
         verify(onlineHearingService, times(0)).updateOnlineHearing(any(OnlineHearing.class));
     }
 
     @Test
     public void testDecisionNotInIssuedState() {
         decision.setDecisionstate(decisionDraftedState);
-        decisionIssuedTask.execute(decision);
+        decisionIssuedTask.execute(onlineHearing);
         verify(onlineHearingService, times(0)).updateOnlineHearing(any(OnlineHearing.class));
     }
 
     @Test
     public void testOnlineHearingUpdatedToDecisionIssuedState() {
-        decisionIssuedTask.execute(decision);
+        given(onlineHearingService.retrieveOnlineHearing((onlineHearing))).willReturn(Optional.of(onlineHearing));
+        decisionIssuedTask.execute(onlineHearing);
         assertEquals(ohDecisionIssuedState.getState(), onlineHearing.getOnlineHearingState().getState());
         verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearing);
     }
