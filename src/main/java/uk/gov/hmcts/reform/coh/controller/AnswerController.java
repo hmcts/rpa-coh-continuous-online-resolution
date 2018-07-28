@@ -90,9 +90,11 @@ public class AnswerController {
         try {
 
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+
             // If a question exists, then it must be in the issued state to be answered
             if (!optionalQuestion.isPresent()
-                    || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
+                    || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED_PENDING.getStateName())
+                && !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())){
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
             }
 

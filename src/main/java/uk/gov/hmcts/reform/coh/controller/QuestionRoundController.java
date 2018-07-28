@@ -15,9 +15,11 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionRound;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 
 import java.util.List;
@@ -39,6 +41,9 @@ public class QuestionRoundController {
 
     @Autowired
     private QuestionRoundSentTask questionSentTask;
+
+    @Autowired
+    private SessionEventService sessionEventService;
 
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {
@@ -126,7 +131,8 @@ public class QuestionRoundController {
         }
 
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
-        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED))) {
+        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED_PENDING))) {
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid question round state");
         }
 
@@ -135,6 +141,8 @@ public class QuestionRoundController {
         }
 
         onlineHearing = optionalOnlineHearing.get();
+
+        sessionEventService.createSessionEvent(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED.getEventType());
         questionRoundService.issueQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
         questionSentTask.execute(onlineHearing);
 
