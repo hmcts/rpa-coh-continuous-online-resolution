@@ -344,12 +344,12 @@ public class DecisionControllerTest {
     }
 
     @Test
-    public void testUpdateDecisionIssued() throws Exception {
+    public void testUpdateDecisionIssuePending() throws Exception {
 
         doNothing().when(decisionIssuedTask).execute(onlineHearing);
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
-        given(decisionStateService.retrieveDecisionStateByState("decision_issued")).willReturn(Optional.of(decisionState));
-        updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUED.getStateName());
+        given(decisionStateService.retrieveDecisionStateByState("decision_issue_pending")).willReturn(Optional.of(decisionState));
+        updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUE_PENDING.getStateName());
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))

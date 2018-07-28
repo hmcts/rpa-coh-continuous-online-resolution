@@ -39,10 +39,9 @@ public class Decision {
     @JoinColumn(name = "decision_state_id")
     private DecisionState decisionstate;
 
-    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "deadline_expiry_date")
-    private Date deadlineExpiryDate = new Date();
+    @Column(name = "deadline_expiry_date", nullable = true)
+    private Date deadlineExpiryDate;;
 
     @Column(name = "author_reference_id ")
     private String authorReferenceId ;

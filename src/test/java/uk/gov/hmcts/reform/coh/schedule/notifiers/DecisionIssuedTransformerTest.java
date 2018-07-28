@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -60,6 +61,14 @@ public class DecisionIssuedTransformerTest {
         NotificationRequest request = transformer.transform(sessionEventType, onlineHearing);
         assertEquals("foo", request.getCaseId());
         assertEquals(uuid, request.getOnlineHearingId());
+        assertEquals(EventTypes.DECISION_ISSUED.getEventType(), request.getEventType());
+    }
+
+    @Test
+    public void testDecisionExpiryNotFound() {
+        decision.setDeadlineExpiryDate(null);
+        NotificationRequest request = transformer.transform(sessionEventType, onlineHearing);
+        assertNull(request.getExpiryDate());
         assertEquals(EventTypes.DECISION_ISSUED.getEventType(), request.getEventType());
     }
 
