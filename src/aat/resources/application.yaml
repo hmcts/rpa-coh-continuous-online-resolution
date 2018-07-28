@@ -35,7 +35,7 @@ base-urls:
 
 event-scheduler:
     event-notifier:
-      fixed-delay: 3600000
+      fixed-delay: 60000
 
 #this need to be removed
 info:
