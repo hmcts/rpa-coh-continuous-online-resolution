@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -13,8 +14,12 @@ import static org.junit.Assert.assertNull;
 
 public class DecisionResponseMapperTest {
 
-    @Test
-    public void testMappings() {
+    private Decision decision;
+
+    private DecisionStateHistory history2;
+
+    @Before
+    public void setUp() {
         DecisionState fooState = new DecisionState();
         fooState.setState("foo");
 
@@ -30,7 +35,7 @@ public class DecisionResponseMapperTest {
         Calendar yesterday = new GregorianCalendar();
         yesterday.add(Calendar.DAY_OF_YEAR, -1);
 
-        Decision decision = new Decision();
+        decision = new Decision();
         decision.setDecisionId(decisionUuid);
         decision.setOnlineHearing(onlineHearing);
         decision.setDecisionHeader("Decision header");
@@ -44,11 +49,15 @@ public class DecisionResponseMapperTest {
         List<DecisionStateHistory> decisionStateHistories = new ArrayList<>();
         DecisionStateHistory history1 = new DecisionStateHistory(decision, barState);
         history1.setDateOccured(yesterday.getTime());
-        DecisionStateHistory history2 = new DecisionStateHistory(decision, fooState);
+        history2 = new DecisionStateHistory(decision, fooState);
         history2.setDateOccured(new Date());
         decisionStateHistories.add(history1);
         decisionStateHistories.add(history2);
         decision.setDecisionStateHistories(decisionStateHistories);
+    }
+
+    @Test
+    public void testMappings() {
 
         DecisionResponse response = new DecisionResponse();
         DecisionResponseMapper.map(decision, response);
@@ -64,6 +73,14 @@ public class DecisionResponseMapperTest {
 
         // This checks the sorting works
         assertEquals(history2.getDateOccured().toString(), response.getDecisionState().getStateDatetime());
+    }
+
+    @Test
+    public void testMappingNullExpiryDate() {
+        decision.setDeadlineExpiryDate(null);
+        DecisionResponse response = new DecisionResponse();
+        DecisionResponseMapper.map(decision, response);
+        assertNull(response.getDeadlineExpiryDate());
     }
 
     @Test
@@ -99,5 +116,11 @@ public class DecisionResponseMapperTest {
 
         // This checks the sorting works
         assertNull(response.getDecisionState().getStateDatetime());
+    }
+
+    @Test
+    public void testEmptyExpiryDate() {
+
+
     }
 }
