@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
@@ -107,5 +108,11 @@ public class DecisionIssuedTaskTest {
         decisionIssuedTask.execute(onlineHearing);
         assertEquals(ohDecisionIssuedState.getState(), onlineHearing.getOnlineHearingState().getState());
         verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearing);
+    }
+
+    @Test
+    public void testDecisionIssuedTaskSupports() {
+        assertEquals(1, decisionIssuedTask.supports().size());
+        assertEquals(EventTypes.DECISION_ISSUED.getEventType(), decisionIssuedTask.supports().get(0));
     }
 }
