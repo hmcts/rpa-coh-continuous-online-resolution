@@ -17,7 +17,12 @@ public enum DecisionResponseMapper {
     DECISION_TEXT(Decision::getDecisionText, DecisionResponse::setDecisionText),
     DECISION_REASON(Decision::getDecisionReason, DecisionResponse::setDecisionReason),
     DECISION_AWARD(Decision::getDecisionAward, DecisionResponse::setDecisionAward),
-    DEADLINE_EXPIRY_DATE(d -> d.getDeadlineExpiryDate().toString(), DecisionResponse::setDeadlineExpiryDate),
+    DEADLINE_EXPIRY_DATE(d -> {
+        if (d.getDeadlineExpiryDate() != null) {
+            return d.getDeadlineExpiryDate().toString();
+        }
+        return null;
+    }, DecisionResponse::setDeadlineExpiryDate),
     DECISION_STATE_NAME(d -> d.getDecisionstate().getState(), DecisionResponse::setDecisionStateName),
     DECISION_STATE_TIMESTAMP(
             d ->

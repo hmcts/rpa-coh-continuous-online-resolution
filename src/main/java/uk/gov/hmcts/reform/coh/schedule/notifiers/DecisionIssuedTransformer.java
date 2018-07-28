@@ -29,7 +29,7 @@ public class DecisionIssuedTransformer implements EventTransformer<OnlineHearing
         notificationRequest.setCaseId(onlineHearing.getCaseId());
         notificationRequest.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         notificationRequest.setEventType(sessionEventType.getEventTypeName());
-        if (optDecision.isPresent()) {
+        if (optDecision.isPresent() && optDecision.get().getDeadlineExpiryDate() != null) {
             notificationRequest.setExpiryDate(df.format(optDecision.get().getDeadlineExpiryDate()));
         }
 
