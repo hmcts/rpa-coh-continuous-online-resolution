@@ -117,10 +117,4 @@ public class DecisionResponseMapperTest {
         // This checks the sorting works
         assertNull(response.getDecisionState().getStateDatetime());
     }
-
-    @Test
-    public void testEmptyExpiryDate() {
-
-
-    }
 }
