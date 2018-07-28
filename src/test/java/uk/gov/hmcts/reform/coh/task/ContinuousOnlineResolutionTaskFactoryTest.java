@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.task;
 
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,23 +22,21 @@ public class ContinuousOnlineResolutionTaskFactoryTest {
     @Autowired
     private ContinuousOnlineResolutionTaskFactory factory;
 
-    @Test
-    public void testFactoryInitialization() {
-        assertNotNull(factory.getTask(EventTypes.ANSWERS_SUBMITTED.getEventType()));
-        assertNotNull(factory.getTask(EventTypes.DECISION_ISSUED.getEventType()));
-        assertNotNull(factory.getTask(EventTypes.QUESTION_ROUND_ISSUED.getEventType()));
-    }
-
-    @Test
-    public void testInvalidKey() {
-        assertNull(factory.getTask("foo"));
-    }
-
-    @Test
-    public void testSetTasks() {
-        ContinuousOnlineResolutionTask task = (o) -> {};
-        ContinuousOnlineResolutionTaskFactory factory = new ContinuousOnlineResolutionTaskFactory();
+    private ContinuousOnlineResolutionTask task;
+    @Before
+    public void setUp() {
+        factory = new ContinuousOnlineResolutionTaskFactory();
+        task = (o) -> {};
         factory.setTasks(Arrays.asList(task));
+    }
+
+    @Test
+    public void testGetTask() {
         assertEquals(task, factory.getTask("default"));
+    }
+
+    @Test
+    public void testGetTaskNotFound() {
+        assertNull(factory.getTask("foo"));
     }
 }
