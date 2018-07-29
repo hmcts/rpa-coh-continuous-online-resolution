@@ -24,7 +24,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.DEADLINE_ELAPSED;
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUE_PENDING;
 
 @RunWith(SpringRunner.class)
 public class QuestionRoundDeadlineElapsedTest {
