@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import java.util.Optional;
 
 @Service
-@Component
 public class EventTypeService {
 
     private SessionEventTypeRespository sessionEventTypeRespository;

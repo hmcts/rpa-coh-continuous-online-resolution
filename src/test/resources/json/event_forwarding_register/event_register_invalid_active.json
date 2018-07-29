@@ -3,5 +3,4 @@
   "event_type" : "question_round_issued",
   "endpoint" : "testing",
   "maximum_retries" : 5,
-  "active": "123"
 }

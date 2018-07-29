@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterReposito
 import java.util.Optional;
 
 @Service
-@Component
 public class EventForwardingRegisterService {
 
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
