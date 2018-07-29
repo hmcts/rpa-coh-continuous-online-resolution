@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.DEADLINE_ELAPSED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUE_PENDING;
 
 @RunWith(SpringRunner.class)
@@ -47,25 +48,25 @@ public class QuestionRoundDeadlineElapsedTest {
 
     private Question question;
 
-    private QuestionState pending;
+    private QuestionState issued;
 
     private QuestionState elapsed;
 
     @Before
     public void setUp() {
-        pending = new QuestionState();
-        pending.setState(ISSUE_PENDING.getStateName());
+        issued = new QuestionState();
+        issued.setState(ISSUED.getStateName());
         elapsed = new QuestionState();
         elapsed.setState(DEADLINE_ELAPSED.getStateName());
 
-        when(stateService.retrieveQuestionStateByStateName(ISSUE_PENDING.getStateName())).thenReturn(java.util.Optional.of(pending));
+        when(stateService.retrieveQuestionStateByStateName(ISSUED.getStateName())).thenReturn(java.util.Optional.of(issued));
         when(stateService.retrieveQuestionStateByStateName(DEADLINE_ELAPSED.getStateName())).thenReturn(java.util.Optional.of(elapsed));
 
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
         question = new Question();
         question.setOnlineHearing(onlineHearing);
-        question.setQuestionState(pending);
+        question.setQuestionState(issued);
 
         when(questionService.retrieveQuestionsDeadlineExpiredAndQuestionState(any(Date.class), any(QuestionState.class))).thenReturn(Arrays.asList(question));
         when(questionService.updateQuestionForced(question)).thenReturn(question);
@@ -74,16 +75,16 @@ public class QuestionRoundDeadlineElapsedTest {
 
     @Test
     public void testNoPendingState() {
-        when(stateService.retrieveQuestionStateByStateName(ISSUE_PENDING.getStateName())).thenReturn(java.util.Optional.empty());
+        when(stateService.retrieveQuestionStateByStateName(ISSUED.getStateName())).thenReturn(java.util.Optional.empty());
         trigger.execute();
-        assertEquals(pending, question.getQuestionState());
+        assertEquals(issued, question.getQuestionState());
     }
 
     @Test
     public void testNoElapsedState() {
         when(stateService.retrieveQuestionStateByStateName(DEADLINE_ELAPSED.getStateName())).thenReturn(java.util.Optional.empty());
         trigger.execute();
-        assertEquals(pending, question.getQuestionState());
+        assertEquals(issued, question.getQuestionState());
     }
 
     @Test

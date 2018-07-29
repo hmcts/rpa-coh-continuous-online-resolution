@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.DEADLINE_ELAPSED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUE_PENDING;
 
 @Component
@@ -40,10 +41,11 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
     @Override
     public void execute() {
         log.info(String.format("Executing %s", this.getClass()));
+
         Calendar calendar = new GregorianCalendar();
-        Optional<QuestionState> pendingState = stateService.retrieveQuestionStateByStateName(ISSUE_PENDING.getStateName());
-        if (!pendingState.isPresent()) {
-            log.error(String.format("Unable to find question state: %s", ISSUE_PENDING.getStateName()));
+        Optional<QuestionState> issuedState = stateService.retrieveQuestionStateByStateName(ISSUED.getStateName());
+        if (!issuedState.isPresent()) {
+            log.error(String.format("Unable to find question state: %s", ISSUED.getStateName()));
             return;
         }
 
@@ -53,13 +55,15 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
             return;
         }
 
-        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredAndQuestionState(calendar.getTime(), pendingState.get());
+        // For each question, update the state to elapsed
+        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredAndQuestionState(calendar.getTime(), issuedState.get());
         questions.forEach(q -> {
             q.setQuestionState(elapsedState.get());
             questionService.updateQuestionForced(q);
             log.info(String.format("Updated question %s to %s", q.getQuestionId(), elapsedState));
         });
 
+        // Only create one one session event per online hearing in case there's many rounds
         List<OnlineHearing> onlineHearings = retrieveQuestionsDeadlineExpiredAndQuestionStateDistinct(questions);
         onlineHearings.forEach( o -> {
             Optional<OnlineHearing> onlineHearing = onlineHearingService.retrieveOnlineHearing(o);
