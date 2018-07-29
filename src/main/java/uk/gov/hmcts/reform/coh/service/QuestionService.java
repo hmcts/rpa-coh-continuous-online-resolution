@@ -18,8 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUE_PENDING;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.*;
 
 @Service
 public class QuestionService {

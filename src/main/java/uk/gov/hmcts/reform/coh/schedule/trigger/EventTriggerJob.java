@@ -14,9 +14,6 @@ public class EventTriggerJob {
     private static final Logger log = LoggerFactory.getLogger(EventTriggerJob.class);
 
     @Autowired
-    private QuestionRoundDeadlineElapsed trigger;
-
-    @Autowired
     private EventTriggerFactory factory;
 
     @Scheduled(fixedDelayString  = "${event-scheduler.event-trigger.fixed-delay}")
