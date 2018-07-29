@@ -28,7 +28,7 @@ public class SessionEventTypeServiceTest {
     private SessionEventType sessionEventType;
 
     @Before
-    public void setup() throws IOException {
+    public void setUp() throws IOException {
 
         sessionEventTypeService = new SessionEventTypeService(sessionEventTypeRespository);
 

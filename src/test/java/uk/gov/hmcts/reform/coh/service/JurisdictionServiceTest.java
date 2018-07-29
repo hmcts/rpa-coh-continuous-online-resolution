@@ -26,10 +26,8 @@ public class JurisdictionServiceTest {
 
     private Jurisdiction jurisdiction;
 
-
-
     @Before
-    public void setup() throws IOException {
+    public void setUp() throws IOException {
         jurisdictionService = new JurisdictionService(jurisdictionRepository);
         jurisdiction = new Jurisdiction();
         jurisdiction.setJurisdictionName(SSCS);
@@ -38,13 +36,6 @@ public class JurisdictionServiceTest {
 
     @Test
     public void testGetJurisdictionWithName() {
-
-        when(jurisdictionRepository.findByJurisdictionName(SSCS)).thenReturn(Optional.ofNullable(jurisdiction));
-        assertEquals(jurisdiction, jurisdictionService.getJurisdictionWithName(SSCS).get());
-    }
-
-    @Test
-    public void testRetrieveQuestion() {
         when(jurisdictionRepository.findByJurisdictionName(SSCS)).thenReturn(Optional.of(jurisdiction));
 
         Optional<Jurisdiction> newJurisdiction = jurisdictionService.getJurisdictionWithName(SSCS);
@@ -54,9 +45,9 @@ public class JurisdictionServiceTest {
 
     @Test
     public void testFindByOnlineHearingIdFail() {
-        String name = "JUI";
-        when(jurisdictionRepository.findByJurisdictionName(name)).thenReturn(Optional.empty());
-        assertFalse(jurisdictionService.getJurisdictionWithName(name).isPresent());
+        String jui = "JUI";
+        when(jurisdictionRepository.findByJurisdictionName(jui)).thenReturn(Optional.empty());
+        assertFalse(jurisdictionService.getJurisdictionWithName(jui).isPresent());
     }
 
 }
