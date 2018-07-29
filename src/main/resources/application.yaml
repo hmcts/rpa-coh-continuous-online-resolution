@@ -103,6 +103,8 @@ app-insights:
 event-scheduler:
     event-notifier:
       fixed-delay: 60000
+    event-trigger:
+      fixed-delay: 60000
 
 #
 #toggle:
