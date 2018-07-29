@@ -4,7 +4,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,4 +19,5 @@ public interface QuestionRepository extends CrudRepository<Question, UUID> {
 
     List<Question> findByOnlineHearingAndQuestionRound(OnlineHearing onlineHearing, Integer questionRound);
 
+    List<Question> findAllByDeadlineExpiryDateLessThanEqualAndQuestionState(Date threshold, QuestionState questionState);
 }

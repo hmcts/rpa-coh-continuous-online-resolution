@@ -35,6 +35,7 @@ public class SessionEventService {
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
+    @Transactional
     public SessionEvent createSessionEvent(OnlineHearing onlineHearing, String sessionEventType) {
 
         Optional<SessionEventType> optSessionEventType = sessionEventTypeRespository.findByEventTypeName(sessionEventType);

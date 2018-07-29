@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
 
 @RunWith(SpringRunner.class)
 public class QuestionServiceTest {
@@ -52,7 +54,7 @@ public class QuestionServiceTest {
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         given(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).willReturn(true);
 
-        given(questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName())).willReturn(Optional.ofNullable(drafted));
+        given(questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName())).willReturn(Optional.ofNullable(drafted));
         given(questionStateService.retrieveQuestionStateByStateName(QuestionStates.ISSUED.getStateName())).willReturn(Optional.ofNullable(issued));
         question = new Question();
         question.setQuestionState(drafted);
@@ -65,6 +67,12 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).save(any(Question.class));
     }
 
+    @Test(expected = EntityNotFoundException.class)
+    public void testDraftQuestionNotFound() {
+        given(questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName())).willReturn(Optional.empty());
+        questionService.updateQuestion(question);
+    }
+
     @Test(expected = NotAValidUpdateException.class)
     public void testUpdateQuestionThrowsNotAValidUpdateIfNotDraftState() {
         question.setQuestionState(issued);
@@ -74,12 +82,12 @@ public class QuestionServiceTest {
     @Test
     public void testCreateQuestion() {
         when(questionRepository.save(question)).thenReturn(question);
-        when(questionStateService.retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName())).thenReturn(Optional.ofNullable(drafted));
+        when(questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName())).thenReturn(Optional.ofNullable(drafted));
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
         Question newQuestion = questionService.createQuestion(question, onlineHearing);
-        verify(questionStateService, times(1)).retrieveQuestionStateByStateName(QuestionStates.DRAFTED.getStateName());
+        verify(questionStateService, times(1)).retrieveQuestionStateByStateName(DRAFTED.getStateName());
         assertEquals(newQuestion, question);
     }
 
@@ -126,5 +134,11 @@ public class QuestionServiceTest {
         Optional<List<Question>> responses = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
 
         assertFalse(responses.isPresent());
+    }
+
+    @Test
+    public void testUpdateQuestionForced() {
+        questionService.updateQuestionForced(question);
+        verify(questionRepository, times(1)).save(question);
     }
 }
