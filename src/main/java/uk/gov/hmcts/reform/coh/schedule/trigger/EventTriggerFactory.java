@@ -14,7 +14,7 @@ public class EventTriggerFactory {
     private Set<EventTrigger> triggers  = new HashSet<>();
 
     public void setTriggers(List<EventTrigger> triggers) {
-        triggers.forEach(triggers::add);
+        this.triggers.addAll(triggers);
     }
 
     public Set<EventTrigger> getTriggers() {

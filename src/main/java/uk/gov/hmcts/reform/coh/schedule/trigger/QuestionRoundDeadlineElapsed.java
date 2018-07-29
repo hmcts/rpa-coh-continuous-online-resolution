@@ -48,7 +48,7 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
         }
 
         Optional<QuestionState> elapsedState = stateService.retrieveQuestionStateByStateName(DEADLINE_ELAPSED.getStateName());
-        if (!pendingState.isPresent()) {
+        if (!elapsedState.isPresent()) {
             log.error(String.format("Unable to find question state: %s", DEADLINE_ELAPSED.getStateName()));
             return;
         }

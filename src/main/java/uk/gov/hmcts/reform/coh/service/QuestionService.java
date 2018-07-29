@@ -95,7 +95,7 @@ public class QuestionService {
             throw new EntityNotFoundException(String.format("Question state not found: %s", DRAFTED.getStateName()));
         }
 
-        if (question.getQuestionState().equals(draftedState.get())) {
+        if (!question.getQuestionState().equals(draftedState.get())) {
             throw new NotAValidUpdateException("Cannot update a question not in draft or pending state");
         }
 
@@ -103,11 +103,9 @@ public class QuestionService {
     }
 
     @Transactional
-    public void updateQuestionForced(Question question){
+    public Question updateQuestionForced(Question question){
 
-        log.info("\n\nJJJ\n\n " + question.getQuestionState());
-
-        questionRepository.save(question);
+        return questionRepository.save(question);
     }
 
     @Transactional
