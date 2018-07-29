@@ -6,10 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static junit.framework.TestCase.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.*;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -17,9 +13,12 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.coh.events.EventTypes.QUESTION_ROUND_ISSUED;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.QUESTIONS_ISSUED;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
 
 @RunWith(SpringRunner.class)
 public class QuestionRoundSentTaskTest {
