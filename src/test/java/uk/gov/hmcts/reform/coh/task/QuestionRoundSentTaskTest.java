@@ -6,13 +6,19 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 
+import java.util.List;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static uk.gov.hmcts.reform.coh.events.EventTypes.QUESTION_ROUND_ISSUED;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.QUESTIONS_ISSUED;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
 
 @RunWith(SpringRunner.class)
 public class QuestionRoundSentTaskTest {
@@ -28,20 +34,41 @@ public class QuestionRoundSentTaskTest {
 
     private OnlineHearing onlineHearing;
 
-    private OnlineHearingState onlineHearingState;
+    private OnlineHearingState startedState;
+
+    private OnlineHearingState issuedState;
 
     @Before
     public void setup() {
-        String statename = OnlineHearingStates.QUESTIONS_ISSUED.getStateName();
+        startedState = new OnlineHearingState();
+        startedState.setState(STARTED.getStateName());
+
+        issuedState = new OnlineHearingState();
+        issuedState.setState(QUESTIONS_ISSUED.getStateName());
+
         onlineHearing = new OnlineHearing();
-        onlineHearingState = new OnlineHearingState();
-        onlineHearingState.setState(statename);
+        onlineHearing.setOnlineHearingState(startedState);
+
         given(onlineHearingService.updateOnlineHearing(onlineHearing)).willReturn(onlineHearing);
-        given(onlineHearingStateService.retrieveOnlineHearingStateByState(statename)).willReturn(java.util.Optional.ofNullable(onlineHearingState));
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(QUESTIONS_ISSUED.getStateName())).willReturn(java.util.Optional.ofNullable(issuedState));
     }
 
     @Test
     public void testSave() {
         questionRoundSentTask.execute(onlineHearing);
+        assertEquals(issuedState, onlineHearing.getOnlineHearingState());
+    }
+
+    @Test
+    public void testSupports() {
+        List<String> supports = questionRoundSentTask.supports();
+        assertTrue(supports.contains(QUESTION_ROUND_ISSUED.getEventType()));
+    }
+
+    @Test
+    public void testQuestionIssuedStateNotFound() {
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(QUESTIONS_ISSUED.getStateName())).willReturn(java.util.Optional.empty());
+        questionRoundSentTask.execute(onlineHearing);
+        assertEquals(startedState, onlineHearing.getOnlineHearingState());
     }
 }

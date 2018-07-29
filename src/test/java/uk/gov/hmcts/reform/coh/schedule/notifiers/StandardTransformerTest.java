@@ -17,10 +17,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-public class AnswerSubmittedTransformerTest {
+public class StandardTransformerTest {
 
     @InjectMocks
-    private AnswerSubmittedTransformer answerSubmittedTransformer;
+    private StandardTransformer standardTransformer;
 
     private SessionEventType sessionEventType;
     private UUID uuid;
@@ -42,17 +42,16 @@ public class AnswerSubmittedTransformerTest {
 
     @Test
     public void testMapping() {
-        NotificationRequest request = answerSubmittedTransformer.transform(sessionEventType, onlineHearing);
+        NotificationRequest request = standardTransformer.transform(sessionEventType, onlineHearing);
         assertEquals("foo", request.getCaseId());
         assertEquals(uuid, request.getOnlineHearingId());
         assertEquals(EventTypes.ANSWERS_SUBMITTED.getEventType(), request.getEventType());
     }
 
     @Test
-    public void testSupportsReturnsAnswerSubmittedType() {
-        List<String> supports = answerSubmittedTransformer.supports();
-        boolean success = supports.stream()
-                .anyMatch(eventType -> eventType.equalsIgnoreCase(EventTypes.ANSWERS_SUBMITTED.getEventType()));
-        assertTrue(success);
+    public void testSupportsExpectedEventType() {
+        List<String> supports = standardTransformer.supports();
+        assertTrue(supports.contains(EventTypes.ANSWERS_SUBMITTED.getEventType()));
+        assertTrue(supports.contains(EventTypes.QUESTION_DEADLINE_ELAPSED.getEventType()));
     }
 }

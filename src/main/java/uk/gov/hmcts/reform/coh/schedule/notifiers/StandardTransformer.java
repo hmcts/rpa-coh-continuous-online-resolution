@@ -3,13 +3,13 @@ package uk.gov.hmcts.reform.coh.schedule.notifiers;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
-import uk.gov.hmcts.reform.coh.events.EventTypes;
+import static uk.gov.hmcts.reform.coh.events.EventTypes.*;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class AnswerSubmittedTransformer implements EventTransformer<OnlineHearing> {
+public class StandardTransformer implements EventTransformer<OnlineHearing> {
 
     @Override
     public NotificationRequest transform(SessionEventType sessionEventType, OnlineHearing onlineHearing) {
@@ -24,6 +24,10 @@ public class AnswerSubmittedTransformer implements EventTransformer<OnlineHearin
 
     @Override
     public List<String> supports() {
-        return Arrays.asList(EventTypes.ANSWERS_SUBMITTED.getEventType());
+
+        return Arrays.asList(
+                ANSWERS_SUBMITTED.getEventType(),
+                QUESTION_DEADLINE_ELAPSED.getEventType()
+        );
     }
 }
