@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.controller.exceptions.ResourceNotFoundException;
 import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 
 import static org.hamcrest.CoreMatchers.is;
