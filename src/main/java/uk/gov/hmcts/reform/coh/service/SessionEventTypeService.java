@@ -9,12 +9,12 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import java.util.Optional;
 
 @Service
-public class EventTypeService {
+public class SessionEventTypeService {
 
     private SessionEventTypeRespository sessionEventTypeRespository;
 
     @Autowired
-    public EventTypeService(SessionEventTypeRespository sessionEventTypeRespository){
+    public SessionEventTypeService(SessionEventTypeRespository sessionEventTypeRespository){
         this.sessionEventTypeRespository = sessionEventTypeRespository;
     }
 
