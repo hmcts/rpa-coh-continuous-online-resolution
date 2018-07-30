@@ -41,7 +41,6 @@ public class SessionEventTypeServiceTest {
 
     @Test
     public void testGetEventTypeWithName() {
-
         when(sessionEventTypeRespository.findByEventTypeName(DECISION_REJECTED)).thenReturn(Optional.ofNullable(sessionEventType));
         assertEquals(sessionEventType, sessionEventTypeRespository.findByEventTypeName(DECISION_REJECTED).get());
     }
