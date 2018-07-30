@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
@@ -17,10 +17,16 @@ public class EventSteps extends BaseSteps{
 
     private ResponseEntity<String> response;
     private String endpoint = "/continuous-online-hearings/events/register";
+
     @Autowired
     public EventSteps(TestContext testContext) {
         super(testContext);
-        restTemplate = new RestTemplate();
+        restTemplate = getRestTemplate();
+    }
+
+    @Before
+    public void setup() throws Exception {
+        super.setup();
     }
 
     @Given("^a standard request to subscribe to question round issued$")

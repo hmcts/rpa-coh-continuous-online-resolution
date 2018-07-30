@@ -2,6 +2,7 @@ locals {
   app_full_name = "${var.product}-${var.component}"
   ase_name = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
+  shared_vault_name = "${var.shared_product_name}-${local.local_env}"
 }
 # "${local.ase_name}"
 # "${local.app_full_name}"
@@ -15,11 +16,11 @@ module "app" {
   ilbIp = "${var.ilbIp}"
   subscription = "${var.subscription}"
   capacity     = "${var.capacity}"
-  is_frontend = true #It's not front end but we need it so we can have a custom URL at the moment.
+  is_frontend = false
   additional_host_name = "${local.app_full_name}-${var.env}.service.${var.env}.platform.hmcts.net"
   https_only="false"
   common_tags  = "${var.common_tags}"
-  
+
   app_settings = {
     POSTGRES_HOST = "${module.db.host_name}"
     POSTGRES_PORT = "${module.db.postgresql_listen_port}"
@@ -71,7 +72,22 @@ module "db" {
   common_tags  = "${var.common_tags}"
 }
 
-module "key_vault" {
+data "azurerm_key_vault" "shared_key_vault" {
+  name = "${local.shared_vault_name}"
+  resource_group_name = "${local.shared_vault_name}"
+}
+
+data "azurerm_key_vault_secret" "s2s_secret" {
+  name = "cor-s2s-token"
+  vault_uri = "${data.azurerm_key_vault.shared_key_vault.vault_uri}"
+}
+
+//data "azurerm_key_vault_secret" "oauth2_secret" {
+//  name = "cor-oauth2-token"
+//  vault_uri = "${data.azurerm_key_vault.shared_key_vault.vault_uri}"
+//}
+
+module "local_key_vault" {
   source = "git@github.com:hmcts/moj-module-key-vault?ref=master"
   product = "${local.app_full_name}"
   env = "${var.env}"
@@ -84,29 +100,29 @@ module "key_vault" {
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name = "${local.app_full_name}-POSTGRES-USER"
   value = "${module.db.user_name}"
-  vault_uri = "${module.key_vault.key_vault_uri}"
+  vault_uri = "${module.local_key_vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
   name = "${local.app_full_name}-POSTGRES-PASS"
   value = "${module.db.postgresql_password}"
-  vault_uri = "${module.key_vault.key_vault_uri}"
+  vault_uri = "${module.local_key_vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
   name = "${local.app_full_name}-POSTGRES-HOST"
   value = "${module.db.host_name}"
-  vault_uri = "${module.key_vault.key_vault_uri}"
+  vault_uri = "${module.local_key_vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
   name = "${local.app_full_name}-POSTGRES-PORT"
   value = "${module.db.postgresql_listen_port}"
-  vault_uri = "${module.key_vault.key_vault_uri}"
+  vault_uri = "${module.local_key_vault.key_vault_uri}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name = "${local.app_full_name}-POSTGRES-DATABASE"
   value = "${module.db.postgresql_database}"
-  vault_uri = "${module.key_vault.key_vault_uri}"
+  vault_uri = "${module.local_key_vault.key_vault_uri}"
 }

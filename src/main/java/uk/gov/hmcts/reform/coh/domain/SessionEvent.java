@@ -18,7 +18,7 @@ public class SessionEvent {
             @JoinColumn(name = "JURS_ID", referencedColumnName = "jurisdiction_id") })
     private SessionEventForwardingRegister sessionEventForwardingRegister;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "online_hearing_id")
     private OnlineHearing onlineHearing;
 

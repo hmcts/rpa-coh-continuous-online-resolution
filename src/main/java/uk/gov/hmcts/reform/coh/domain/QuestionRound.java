@@ -5,17 +5,20 @@ import java.util.List;
 
 public class QuestionRound {
 
+    private OnlineHearing onlineHearing;
+
     private Integer questionRoundNumber;
 
     private List<Question> questionList = new ArrayList<>();
+
     private QuestionRoundState questionRoundState;
 
-    public QuestionRoundState getQuestionRoundState() {
-        return questionRoundState;
+    public OnlineHearing getOnlineHearing() {
+        return onlineHearing;
     }
 
-    public void setQuestionRoundState(QuestionRoundState questionRoundState) {
-        this.questionRoundState = questionRoundState;
+    public void setOnlineHearing(OnlineHearing onlineHearing) {
+        this.onlineHearing = onlineHearing;
     }
 
     public Integer getQuestionRoundNumber() {
@@ -32,5 +35,13 @@ public class QuestionRound {
 
     public void setQuestionList(List<Question> questionList) {
         this.questionList = questionList;
+    }
+
+    public QuestionRoundState getQuestionRoundState() {
+        return questionRoundState;
+    }
+
+    public void setQuestionRoundState(QuestionRoundState questionRoundState) {
+        this.questionRoundState = questionRoundState;
     }
 }

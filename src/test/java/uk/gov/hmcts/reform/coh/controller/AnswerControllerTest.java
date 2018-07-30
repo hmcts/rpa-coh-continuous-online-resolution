@@ -19,10 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
-import uk.gov.hmcts.reform.coh.service.AnswerService;
-import uk.gov.hmcts.reform.coh.service.AnswerStateService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
@@ -40,6 +37,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -62,6 +61,9 @@ public class AnswerControllerTest {
 
     @Mock
     private AnswersReceivedTask answersReceivedTask;
+
+    @Mock
+    private SessionEventService sessionEventService;
 
     @InjectMocks
     private AnswerController answerController;
@@ -104,6 +106,8 @@ public class AnswerControllerTest {
 
         onlineHearing = new OnlineHearing();
 
+
+        given(sessionEventService.createSessionEvent(any(OnlineHearing.class), anyString())).willReturn(new SessionEvent());
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.ofNullable(answer));
         given(answerService.createAnswer(any(Answer.class))).willReturn(answer);
@@ -176,6 +180,7 @@ public class AnswerControllerTest {
             URL u = new URL(returnedUrl); // this would check for the protocol
             u.toURI(); // does the extra checking required for validation of URI
             assertTrue(true);
+            verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
         }catch(MalformedURLException e){
             fail();
         }
@@ -233,7 +238,7 @@ public class AnswerControllerTest {
     @Test
     public void testCreateAnswerForIssuedPendingQuestionIsSuccessful() throws Exception {
         questionState = new QuestionState();
-        questionState.setState(QuestionStates.ISSUED_PENDING.getStateName());
+        questionState.setState(QuestionStates.ISSUE_PENDING.getStateName());
         question = new Question();
         question.setQuestionState(questionState);
 
@@ -296,6 +301,8 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());
+        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
+
     }
 
     @Test

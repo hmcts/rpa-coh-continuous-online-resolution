@@ -102,14 +102,14 @@ public class DecisionServiceTest {
     @Test
     public void testDeadlineExpiryDate() {
         DateFormat df = new SimpleDateFormat("yyyyMMDDHHmmss");
-        Calendar expectedExpiryDate = new GregorianCalendar();
-        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 7);
-        expectedExpiryDate.set(Calendar.HOUR, 23);
-        expectedExpiryDate.set(Calendar.MINUTE, 59);
-        expectedExpiryDate.set(Calendar.SECOND, 59);
+        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        calendar.add(Calendar.DAY_OF_YEAR, 7);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
 
         Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
 
-        assertTrue(df.format(expectedExpiryDate.getTime()).equalsIgnoreCase(df.format(expiryDate)));
+        assertTrue(df.format(calendar.getTime()).equalsIgnoreCase(df.format(expiryDate)));
     }
 }

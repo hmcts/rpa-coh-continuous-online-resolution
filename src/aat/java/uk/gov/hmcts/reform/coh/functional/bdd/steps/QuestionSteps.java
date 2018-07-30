@@ -30,6 +30,9 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -396,17 +399,33 @@ public class QuestionSteps extends BaseSteps{
         assertEquals(expectedHeader, question.getQuestionHeaderText());
     }
 
-    @And("^each question in the question round has a deadline expiry date$")
+    @And("^each question in the question round has a correct deadline expiry date$")
     public void eachQuestionInTheQuestionRoundHasADeadlineExpiryDate() throws Throwable {
         String rawJson = testContext.getHttpContext().getRawResponseString();
         QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
         List<QuestionResponse> questionResponses = questionRoundResponse.getQuestionList();
+
+        Calendar expectedExpiryDate = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 7);
+        expectedExpiryDate.set(Calendar.HOUR_OF_DAY, 23);
+        expectedExpiryDate.set(Calendar.MINUTE, 59);
+        expectedExpiryDate.set(Calendar.SECOND, 59);
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
         List<QuestionResponse> questionsWithNullExpiry = questionResponses.stream()
                 .filter(q -> q.getDeadlineExpiryDate() == null )
                 .collect(Collectors.toList());
 
         assertEquals(0, questionsWithNullExpiry.size());
+
+        for (QuestionResponse questionResponse : questionResponses) {
+            try {
+                assertEquals(expectedExpiryDate.getTime(), df.parse(questionResponse.getDeadlineExpiryDate()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @And("^wait until question round ' \"([^\"]*)\" ' is in question issued state$")

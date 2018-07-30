@@ -159,7 +159,7 @@ public class DecisionController {
         }
 
         // If a decision is issued, then there is a deadline to accept or reject it
-        if (request.getState().equals(DecisionsStates.DECISION_ISSUED.getStateName())) {
+        if (request.getState().equals(DecisionsStates.DECISION_ISSUE_PENDING.getStateName())) {
             decision.setDeadlineExpiryDate(ExpiryCalendar.getDeadlineExpiryDate());
         }
 
@@ -167,8 +167,6 @@ public class DecisionController {
         decision.addDecisionStateHistory(optionalDecisionState.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decisionService.updateDecision(decision);
-
-        decisionIssuedTask.execute(decision);
 
         // Now queue the notification
         try {

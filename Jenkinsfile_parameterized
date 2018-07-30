@@ -21,7 +21,7 @@ def component = "cor"
 def channel = '#coh-pipeline'
 
 List<LinkedHashMap<String, Object>> secrets = [
-//        secret('s2s-token', 'S2S_TOKEN')
+        secret('cor-s2s-token', 'S2S_TOKEN')
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -36,7 +36,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
-//    loadVaultSecrets(secrets)
+    loadVaultSecrets(secrets)
     before('buildinfra:sprod') {
         return
     }

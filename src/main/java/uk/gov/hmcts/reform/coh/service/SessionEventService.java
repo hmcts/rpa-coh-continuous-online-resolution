@@ -35,6 +35,7 @@ public class SessionEventService {
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
+    @Transactional
     public SessionEvent createSessionEvent(OnlineHearing onlineHearing, String sessionEventType) {
 
         Optional<SessionEventType> optSessionEventType = sessionEventTypeRespository.findByEventTypeName(sessionEventType);
@@ -73,6 +74,14 @@ public class SessionEventService {
 
     public List<SessionEvent> retrieveByOnlineHearing(OnlineHearing onlineHearing) {
         return sessionEventRepository.findAllByOnlineHearing(onlineHearing);
+    }
+
+    public List<SessionEvent> retrieveBySessionEventForwardingState(SessionEventForwardingState sessionEventForwardingState) {
+        return sessionEventRepository.findAllBySessionEventForwardingState(sessionEventForwardingState);
+    }
+
+    public SessionEvent updateSessionEvent(SessionEvent sessionEvent) {
+        return sessionEventRepository.save(sessionEvent);
     }
 
     @Transactional

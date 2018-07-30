@@ -3,9 +3,11 @@ package uk.gov.hmcts.reform.coh.states;
 public enum QuestionStates {
 
     DRAFTED("question_drafted"),
-    ISSUED_PENDING("question_issued_pending"),
+    ISSUE_PENDING("question_issue_pending"),
     ISSUED("question_issued"),
-    DEADLINE_ELAPSED("question_deadline_elapsed");
+    DEADLINE_ELAPSED("question_deadline_elapsed"),
+    QUESTION_DEADLINE_EXTENSION_DENIED("question_deadline_extension_denied"),
+    QUESTION_DEADLINE_EXTENSION_GRANTED("question_deadline_extension_granted");
 
     private String stateName;
 

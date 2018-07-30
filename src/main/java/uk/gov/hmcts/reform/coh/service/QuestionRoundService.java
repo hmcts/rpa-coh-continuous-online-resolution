@@ -18,7 +18,7 @@ public class QuestionRoundService {
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
-    public static final String ISSUED_PENDING = QuestionStates.ISSUED_PENDING.getStateName();
+    public static final String ISSUED_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
 
     public QuestionRoundService() {}
@@ -184,7 +184,7 @@ public class QuestionRoundService {
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
         QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
 
-        if(qrState.getState().equals(QuestionStates.ISSUED_PENDING.getStateName()) ||
+        if(qrState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
                 qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
             throw new NotAValidUpdateException("Question round has already been issued");
         }

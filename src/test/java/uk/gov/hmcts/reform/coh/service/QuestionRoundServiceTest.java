@@ -46,7 +46,7 @@ public class QuestionRoundServiceTest {
 
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
-    private static final String issuedPendingStateName = QuestionStates.ISSUED_PENDING.getStateName();
+    private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
 
     @Before
     public void setup(){

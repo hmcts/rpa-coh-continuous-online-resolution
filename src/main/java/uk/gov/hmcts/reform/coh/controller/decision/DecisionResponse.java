@@ -24,6 +24,7 @@ public class DecisionResponse {
     private String decisionAward;
 
     @JsonProperty(value = "deadline_expiry_date")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String deadlineExpiryDate;
 
     @JsonProperty(value = "decision_state")

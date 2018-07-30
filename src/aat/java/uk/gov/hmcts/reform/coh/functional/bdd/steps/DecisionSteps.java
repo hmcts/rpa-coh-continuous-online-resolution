@@ -29,6 +29,7 @@ import java.util.GregorianCalendar;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class DecisionSteps extends BaseSteps {
 
@@ -147,5 +148,11 @@ public class DecisionSteps extends BaseSteps {
         endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
 
         return endpoint;
+    }
+
+    @And("^the decision expiry date empty$")
+    public void theDecisionExpiryDateEmpty() throws Throwable {
+        DecisionResponse decision = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
+        assertNull(decision.getDeadlineExpiryDate());
     }
 }
