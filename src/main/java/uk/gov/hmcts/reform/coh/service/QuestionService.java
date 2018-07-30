@@ -11,14 +11,20 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
-import javax.persistence.EntityNotFoundException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED;
 
 @Service
 public class QuestionService {
@@ -105,5 +111,38 @@ public class QuestionService {
     @Transactional
     public void deleteQuestion(Question question) {
         questionRepository.delete(question);
+    }
+
+    @Transactional
+    public void requestDeadlineExtension(OnlineHearing onlineHearing) {
+        List<Question> questions = findAllQuestionsByOnlineHearing(onlineHearing)
+            .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
+
+        if (questions.isEmpty()) {
+            throw new RuntimeException("There are no questions to be answered");
+        }
+
+        QuestionState issued = questionStateService.fetchQuestionState(ISSUED);
+        QuestionState extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
+        QuestionState extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
+
+        Duration extension = Duration.ofDays(7);
+        Instant now = Instant.now();
+
+        questions.stream()
+            .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
+            .forEach(question -> {
+                if (issued.equals(question.getQuestionState())) {
+                    Temporal temporal = extension.addTo(question.getDeadlineExpiryDate().toInstant());
+                    Date newExpiryDate = Date.from(Instant.from(temporal));
+                    question.setDeadlineExpiryDate(newExpiryDate);
+
+                    question.setQuestionState(extensionGranted);
+                    question.updateQuestionStateHistory(extensionGranted);
+                } else if (extensionGranted.equals(question.getQuestionState())) {
+                    question.setQuestionState(extensionDenied);
+                    question.updateQuestionStateHistory(extensionDenied);
+                }
+            });
     }
 }

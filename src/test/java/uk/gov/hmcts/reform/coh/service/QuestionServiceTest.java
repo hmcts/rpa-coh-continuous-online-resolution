@@ -1,7 +1,11 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import com.google.common.collect.ImmutableList;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -13,6 +17,9 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +32,9 @@ import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
 
 @RunWith(SpringRunner.class)
 public class QuestionServiceTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Mock
     private QuestionRepository questionRepository;
@@ -146,5 +156,114 @@ public class QuestionServiceTest {
     public void testUpdateQuestionForced() {
         questionService.updateQuestionForced(question);
         verify(questionRepository, times(1)).save(question);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionWithNullOnlineHearing() {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("There are no questions to be answered");
+
+        questionService.requestDeadlineExtension(null);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForExpiredQuestion() {
+        Question mockedQuestion = expiredQuestion();
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForIssuedQuestion() {
+        Question mockedQuestion = notExpiredQuestion();
+        QuestionState issuedState = mockQuestionState(QuestionStates.ISSUED);
+        doReturn(issuedState).when(mockedQuestion).getQuestionState();
+
+        QuestionState grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+
+        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
+
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(1)).setDeadlineExpiryDate(any());
+        verify(mockedQuestion, times(1)).setQuestionState(grantedState);
+        verify(mockedQuestion, times(1)).updateQuestionStateHistory(grantedState);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForGrantedQuestion() {
+        Question mockedQuestion = notExpiredQuestion();
+        QuestionState grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        doReturn(grantedState).when(mockedQuestion).getQuestionState();
+
+        QuestionState issuedState = mockQuestionState(QuestionStates.ISSUED);
+        QuestionState deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+
+        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
+
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
+        verify(mockedQuestion, times(1)).setQuestionState(deniedState);
+        verify(mockedQuestion, times(1)).updateQuestionStateHistory(deniedState);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForPendingQuestion() {
+        Question mockedQuestion = notExpiredQuestion();
+        QuestionState pendingState = mockQuestionState(QuestionStates.ISSUE_PENDING);
+        doReturn(pendingState).when(mockedQuestion).getQuestionState();
+
+        QuestionState issuedState = mockQuestionState(QuestionStates.ISSUED);
+        QuestionState grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        QuestionState deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+
+        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
+
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
+        verify(mockedQuestion, times(0)).setQuestionState(deniedState);
+        verify(mockedQuestion, times(0)).updateQuestionStateHistory(deniedState);
+    }
+
+    private QuestionState mockQuestionState(QuestionStates state) {
+        QuestionState spy = spy(QuestionState.class);
+        doReturn(state.getStateName()).when(spy).getState();
+        return spy;
+    }
+
+    private Question expiredQuestion() {
+        Question mockedQuestion = spy(Question.class);
+        doReturn(Date.from(Instant.now().minus(1, ChronoUnit.DAYS))).when(mockedQuestion).getDeadlineExpiryDate();
+        return mockedQuestion;
+    }
+
+    private Question notExpiredQuestion() {
+        Question mockedQuestion = spy(Question.class);
+        doReturn(Date.from(Instant.now().plus(1, ChronoUnit.DAYS))).when(mockedQuestion).getDeadlineExpiryDate();
+        return mockedQuestion;
     }
 }
