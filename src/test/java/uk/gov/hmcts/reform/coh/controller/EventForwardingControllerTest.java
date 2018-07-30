@@ -12,23 +12,21 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.SessionEventForwardingRegisterService;
 import uk.gov.hmcts.reform.coh.service.SessionEventTypeService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,19 +52,16 @@ public class EventForwardingControllerTest {
 
     private static final String ENDPOINT = "/continuous-online-hearings/events";
 
-    private SessionEventType sessionEventType;
-    private Jurisdiction jurisdiction;
-
     private SessionEventForwardingRegister sessionEventForwardingRegister;
 
     @Before
     public void setUp() throws IOException {
 
         sessionEventForwardingRegister = new SessionEventForwardingRegister();
-        sessionEventType = new SessionEventType();
+        SessionEventType sessionEventType = new SessionEventType();
         sessionEventType.setEventTypeName("question_round_issued");
         sessionEventType.setEventTypeId(5);
-        jurisdiction = new Jurisdiction();
+        Jurisdiction jurisdiction = new Jurisdiction();
         jurisdiction.setJurisdictionName("JUI");
         jurisdiction.setJurisdictionId(2L);
 
