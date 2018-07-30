@@ -2,5 +2,4 @@
   "jurisdiction": "SSCS",
   "event_type" : "question_round_issued",
   "endpoint" : "testing",
-  "active": "true"
 }

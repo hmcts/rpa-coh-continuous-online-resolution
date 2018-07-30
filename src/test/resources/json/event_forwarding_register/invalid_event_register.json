@@ -1,0 +1,6 @@
+{
+  "event_type": "question_round_issued",
+  "jurisdiction": "SSCS",
+  "endpoint": "notifications",
+  "maximum_retries": 5
+}
