@@ -21,15 +21,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.io.IOException;
 import java.util.*;
@@ -37,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 
 @ContextConfiguration
 @SpringBootTest
@@ -176,6 +175,7 @@ public class QuestionSteps extends BaseSteps{
 
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
     public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, String.class);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
@@ -407,5 +407,29 @@ public class QuestionSteps extends BaseSteps{
                 .collect(Collectors.toList());
 
         assertEquals(0, questionsWithNullExpiry.size());
+    }
+
+    @And("^wait until question round ' \"([^\"]*)\" ' is in question issued state$")
+    public void waitUntilTheQuestionRoundIsInQuestionIssuedState(Integer questionRoundN) throws IOException, InterruptedException {
+        theGetRequestIsSentToGetQuestionRound(questionRoundN);
+
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+        QuestionRoundState questionRoundState = questionRoundResponse.getQuestionRoundState();
+
+        int counter = 0;
+        while(!questionRoundState.getState().equals(QuestionStates.ISSUED)){
+            counter++;
+            if( counter > 60) {
+                fail();
+                break;
+            }
+            theGetRequestIsSentToGetQuestionRound(questionRoundN);
+
+            rawJson = testContext.getHttpContext().getRawResponseString();
+            questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+            questionRoundState = questionRoundResponse.getQuestionRoundState();
+            Thread.sleep(1000);
+        }
     }
 }

@@ -11,6 +11,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until question round ' "1" ' is in question issued state
     And a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
