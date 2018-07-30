@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
@@ -18,7 +17,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -394,13 +394,6 @@ public class QuestionRoundServiceTest {
         assertEquals(3, issuedQuestions.size());
         verify(questionRepository, times(3)).save(any(Question.class));
         assertTrue(issuedQuestions.stream().allMatch(q -> q.getDeadlineExpiryDate() != null));
-    }
-
-    @Test(expected = NotAValidUpdateException.class)
-    public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() {
-        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
-
-        questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
     }
 }
 

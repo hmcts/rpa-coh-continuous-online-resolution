@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundRequest;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 
 import java.util.List;
@@ -121,6 +123,7 @@ public class QuestionRoundController {
         if(!optionalOnlineHearing.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
+        onlineHearing = optionalOnlineHearing.get();
 
         int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
         if(roundId > currentQuestionRoundNumber) {
@@ -137,11 +140,14 @@ public class QuestionRoundController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Previous question rounds cannot be issued");
         }
 
-        onlineHearing = optionalOnlineHearing.get();
+        QuestionRoundState qrState = questionRoundService.retrieveQuestionRoundState(questionRoundService.getQuestionRoundByRoundId(onlineHearing, currentQuestionRoundNumber));
+        if(qrState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
+                qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
+            throw new NotAValidUpdateException("Question round has already been issued");
+        }
 
         sessionEventService.createSessionEvent(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED.getEventType());
         questionRoundService.issueQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
-        questionSentTask.execute(onlineHearing);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

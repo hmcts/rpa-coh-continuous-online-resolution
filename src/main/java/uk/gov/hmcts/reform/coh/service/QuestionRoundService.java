@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
@@ -170,17 +169,8 @@ public class QuestionRoundService {
         return questionRound;
     }
 
-    @Transactional
-    public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
+    public List<Question> issueQuestionRound(QuestionState questionState, List<Question> questions) {
         List<Question> modifiedQuestion = new ArrayList<>();
-        List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
-        QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
-
-        if(qrState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
-                qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
-            throw new NotAValidUpdateException("Question round has already been issued");
-        }
-
         Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
         questions.stream().forEach(q -> {
             q.setQuestionState(questionState);
@@ -191,5 +181,11 @@ public class QuestionRoundService {
         });
 
         return modifiedQuestion;
+    }
+
+    @Transactional
+    public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
+        List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
+        return issueQuestionRound(questionState, questions);
     }
 }

@@ -15,13 +15,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.UUID;
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,7 +55,7 @@ public class QuestionRoundControllerTest {
     private QuestionStateService questionStateService;
 
     @Mock
-    private QuestionRoundSentTask questionSentTask;
+    private SessionEventService sessionEventService;
 
     @InjectMocks
     private QuestionRoundController questionRoundController;
@@ -64,6 +65,9 @@ public class QuestionRoundControllerTest {
     private static final String ENDPOINT = "/continuous-online-hearings/";
     private final int ROUNDID = 1;
     private QuestionRound questionRound;
+    private QuestionState issuedState;
+    private QuestionState issuePendingState;
+
 
     @Before
     public void setup() {
@@ -74,9 +78,13 @@ public class QuestionRoundControllerTest {
         questionRound.setQuestionRoundNumber(ROUNDID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
-        QuestionState issuedState = new QuestionState();
+        issuedState = new QuestionState();
         issuedState.setState(QuestionRoundService.ISSUED);
         issuedState.setQuestionStateId(3);
+
+        issuePendingState = new QuestionState();
+        issuePendingState.setState(QuestionRoundService.ISSUED_PENDING);
+        issuePendingState.setQuestionStateId(3);
 
         questionRoundState.setState(issuedState);
 
@@ -98,7 +106,7 @@ public class QuestionRoundControllerTest {
         jurisdiction.setMaxQuestionRounds(3);
         onlineHearing.setJurisdiction(jurisdiction);
 
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuePendingState));
         given(questionRoundService.issueQuestionRound(any(OnlineHearing.class), any(QuestionState.class), anyInt())).willReturn(null);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(questionRoundService.getAllQuestionRounds(any(OnlineHearing.class))).willReturn(questionRounds);
@@ -106,6 +114,7 @@ public class QuestionRoundControllerTest {
         given(questionRoundService.getNextQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(3);
         given(questionRoundService.getPreviousQuestionRound(anyInt())).willReturn(1);
         given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
+        given(sessionEventService.createSessionEvent(any(OnlineHearing.class), anyString())).willReturn(new SessionEvent());
     }
 
     @Test
@@ -228,18 +237,29 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testUpdateCurrentQuestionRoundToIssued() throws Exception {
-        QuestionState issuedState = new QuestionState();
-        issuedState.setState(QuestionRoundService.ISSUED);
-        issuedState.setQuestionStateId(1);
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
-        doNothing().when(questionSentTask).execute(any(OnlineHearing.class));
+
+        String json = JsonUtils.getJsonInput("question_round/issue_question_round");
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+               // .andExpect(status().isOk())
+                .andReturn();
+
+        System.out.println(result);
+    }
+
+
+    @Test(expected = NotAValidUpdateException.class)
+    public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() throws Exception {
+        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isOk())
+                .andExpect(status().is4xxClientError())
                 .andReturn();
     }
 }
