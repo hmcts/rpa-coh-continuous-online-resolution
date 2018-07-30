@@ -111,4 +111,10 @@ public class QuestionService {
     public void deleteQuestion(Question question) {
         questionRepository.delete(question);
     }
+
+    @Transactional
+    public List<Question> findAllQuestionsByOnlineHearingAndQuestionState(OnlineHearing onlineHearing, QuestionState questionState) {
+        return questionRepository.findAllQuestionsByOnlineHearingAndQuestionState(onlineHearing, questionState);
+    }
+
 }
