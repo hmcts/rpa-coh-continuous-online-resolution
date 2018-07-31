@@ -132,7 +132,6 @@ public class QuestionRoundController {
 
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
         if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED_PENDING))) {
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid question round state");
         }
 

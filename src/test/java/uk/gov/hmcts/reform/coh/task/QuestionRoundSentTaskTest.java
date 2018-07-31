@@ -54,8 +54,6 @@ public class QuestionRoundSentTaskTest {
     private OnlineHearingState startedState;
     private OnlineHearingState issuedState;
 
-    private OnlineHearing returnedOh;
-
     @Before
     public void setup() {
         startedState = new OnlineHearingState();
@@ -67,11 +65,9 @@ public class QuestionRoundSentTaskTest {
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingState(startedState);
 
-        returnedOh = new OnlineHearing();
-        given(onlineHearingService.updateOnlineHearing(onlineHearing)).willReturn(returnedOh);
-        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(returnedOh));
+        given(onlineHearingService.updateOnlineHearing(onlineHearing)).willReturn(onlineHearing);
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(onlineHearing));
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(QUESTIONS_ISSUED.getStateName())).willReturn(Optional.of(issuedState));
-
 
         QuestionState issuedPending = new QuestionState();
         issuedPending.setState(QuestionStates.ISSUE_PENDING.getStateName());
@@ -93,7 +89,6 @@ public class QuestionRoundSentTaskTest {
         questionRoundSentTask.execute(onlineHearing);
         verify(questionRoundService, times(1)).issueQuestionRound(any(QuestionState.class),
                 anyList());
-
     }
 
     @Test
@@ -104,7 +99,7 @@ public class QuestionRoundSentTaskTest {
 
     @Test
     public void testQuestionIssuedStateNotFound() {
-        given(onlineHearingStateService.retrieveOnlineHearingStateByState(QuestionStates.ISSUED.getStateName())).willReturn(Optional.empty());
+        given(questionStateService.retrieveQuestionStateByStateName(QuestionStates.ISSUED.getStateName())).willReturn(Optional.empty());
         questionRoundSentTask.execute(onlineHearing);
         assertEquals(startedState, onlineHearing.getOnlineHearingState());
     }

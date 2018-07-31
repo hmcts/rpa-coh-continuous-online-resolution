@@ -62,7 +62,7 @@ public class QuestionRoundSentTask implements ContinuousOnlineResolutionTask<Onl
 
         // Having to do this because JPA is a pain
         Optional<OnlineHearing> optOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if (!optOnlineHearing.isPresent()) {
+        if (optOnlineHearing.isPresent()) {
             OnlineHearing newOnlineHearing = optOnlineHearing.get();
             newOnlineHearing.setOnlineHearingState(questionSentState);
             newOnlineHearing.registerStateChange();

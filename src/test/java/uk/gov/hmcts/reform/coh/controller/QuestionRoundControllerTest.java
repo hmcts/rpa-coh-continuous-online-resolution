@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -65,6 +64,7 @@ public class QuestionRoundControllerTest {
     private static final String ENDPOINT = "/continuous-online-hearings/";
     private final int ROUNDID = 1;
     private QuestionRound questionRound;
+    private QuestionState draftedState;
     private QuestionState issuedState;
     private QuestionState issuePendingState;
 
@@ -84,9 +84,12 @@ public class QuestionRoundControllerTest {
 
         issuePendingState = new QuestionState();
         issuePendingState.setState(QuestionRoundService.ISSUED_PENDING);
-        issuePendingState.setQuestionStateId(3);
+        issuePendingState.setQuestionStateId(2);
 
-        questionRoundState.setState(issuedState);
+        draftedState = new QuestionState();
+        draftedState.setState(QuestionRoundService.DRAFTED);
+        draftedState.setQuestionStateId(2);
+        questionRoundState.setState(draftedState);
 
         List<Question> questions = new ArrayList<>();
         Question question = new Question();
@@ -115,10 +118,14 @@ public class QuestionRoundControllerTest {
         given(questionRoundService.getPreviousQuestionRound(anyInt())).willReturn(1);
         given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
         given(sessionEventService.createSessionEvent(any(OnlineHearing.class), anyString())).willReturn(new SessionEvent());
+
+        given(questionRoundService.retrieveQuestionRoundState(any(QuestionRound.class))).willReturn(new QuestionRoundState(draftedState));
+        given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
     }
 
     @Test
     public void testGetAllQuestionRounds() throws Exception {
+        given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
@@ -237,21 +244,17 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testUpdateCurrentQuestionRoundToIssued() throws Exception {
-        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
-        given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
+        given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuePendingState));
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-               // .andExpect(status().isOk())
-                .andReturn();
-
-        System.out.println(result);
+                .andExpect(status().isOk());
     }
 
 
-    @Test(expected = NotAValidUpdateException.class)
+    @Test
     public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() throws Exception {
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
@@ -259,7 +262,6 @@ public class QuestionRoundControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().is4xxClientError())
-                .andReturn();
+                .andExpect(status().is4xxClientError());
     }
 }
