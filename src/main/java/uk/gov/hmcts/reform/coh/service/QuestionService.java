@@ -135,19 +135,19 @@ public class QuestionService {
         questions.stream()
             .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
             .forEach(question -> {
-                if (canBeGranted(question)) {
+                if (shouldGrantExtensionTo(question)) {
                     grantDeadlineExtension(question);
-                } else if (canBeDenied(question)) {
+                } else if (shouldDenyExtensionTo(question)) {
                     denyDeadlineExtension(question);
                 }
             });
     }
 
-    private boolean canBeGranted(Question question) {
+    private boolean shouldGrantExtensionTo(Question question) {
         return issued.equals(question.getQuestionState());
     }
 
-    private boolean canBeDenied(Question question) {
+    private boolean shouldDenyExtensionTo(Question question) {
         return extensionGranted.equals(question.getQuestionState());
     }
 
