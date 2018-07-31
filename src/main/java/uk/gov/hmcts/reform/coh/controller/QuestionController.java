@@ -130,7 +130,7 @@ public class QuestionController {
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
-        
+
         Question question = new Question();
         QuestionRequestMapper mapper = new QuestionRequestMapper(question, savedOnlineHearing.get(), request);
         mapper.map();

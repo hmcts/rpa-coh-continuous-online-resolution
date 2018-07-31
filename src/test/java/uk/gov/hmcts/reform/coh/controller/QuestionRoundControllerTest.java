@@ -88,7 +88,7 @@ public class QuestionRoundControllerTest {
 
         draftedState = new QuestionState();
         draftedState.setState(QuestionRoundService.DRAFTED);
-        draftedState.setQuestionStateId(2);
+        draftedState.setQuestionStateId(1);
         questionRoundState.setState(draftedState);
 
         List<Question> questions = new ArrayList<>();

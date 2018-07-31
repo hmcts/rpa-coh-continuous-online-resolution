@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 
 import java.util.List;
@@ -140,8 +139,7 @@ public class QuestionRoundController {
         }
 
         QuestionRoundState qrState = questionRoundService.retrieveQuestionRoundState(questionRoundService.getQuestionRoundByRoundId(onlineHearing, currentQuestionRoundNumber));
-        if(qrState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
-                qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
+        if(questionRoundService.alreadyIssued(qrState)){
             throw new NotAValidUpdateException("Question round has already been issued");
         }
 

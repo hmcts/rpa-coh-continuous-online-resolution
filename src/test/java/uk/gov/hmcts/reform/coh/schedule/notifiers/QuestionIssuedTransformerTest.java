@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.schedule.notifiers;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,29 +13,32 @@ import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
-import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 
 @RunWith(SpringRunner.class)
 public class QuestionIssuedTransformerTest {
 
     @Mock
-    private QuestionStateService questionStateService;
-
-    @Mock
     private QuestionRoundService questionRoundService;
 
     @InjectMocks
     private QuestionIssuedTransformer questionIssuedTransformer;
+
+
+    private static final ISO8601DateFormat df = new ISO8601DateFormat();
 
     private SessionEventType sessionEventType;
     private UUID uuid;
@@ -74,7 +78,7 @@ public class QuestionIssuedTransformerTest {
     public void testMapping() {
         NotificationRequest request = questionIssuedTransformer.transform(sessionEventType, onlineHearing);
 
-        assertEquals(String.valueOf(expiryDeadline), request.getExpiryDate());
+        assertEquals(df.format(expiryDeadline), request.getExpiryDate());
         assertEquals("foo", request.getCaseId());
         assertEquals(uuid, request.getOnlineHearingId());
         assertEquals(EventTypes.QUESTION_ROUND_ISSUED.getEventType(), request.getEventType());
