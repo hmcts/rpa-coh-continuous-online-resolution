@@ -100,6 +100,12 @@ public class QuestionServiceTest {
         questionService.createQuestion(question, onlineHearing);
     }
 
+    @Test(expected = NotAValidUpdateException.class)
+    public void testCreateQuestionForIssuedQuestionRoundThrowsException() {
+        when(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).thenReturn(false);
+        questionService.createQuestion(question, onlineHearing);
+    }
+
     @Test
     public void testRetrieveQuestion() {
         when(questionRepository.findById(ONE)).thenReturn(Optional.of(question));

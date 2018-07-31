@@ -83,7 +83,7 @@ public class QuestionRoundControllerTest {
         issuedState.setQuestionStateId(3);
 
         issuePendingState = new QuestionState();
-        issuePendingState.setState(QuestionRoundService.ISSUED_PENDING);
+        issuePendingState.setState(QuestionRoundService.ISSUE_PENDING);
         issuePendingState.setQuestionStateId(2);
 
         draftedState = new QuestionState();
@@ -93,7 +93,7 @@ public class QuestionRoundControllerTest {
 
         List<Question> questions = new ArrayList<>();
         Question question = new Question();
-        question.setQuestionState(issuedState);
+        question.setQuestionState(issuePendingState);
         question.setQuestionRound(ROUNDID);
         questions.add(question);
         question.setQuestionId(UUID.randomUUID());

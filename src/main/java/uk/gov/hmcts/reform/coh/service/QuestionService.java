@@ -41,13 +41,12 @@ public class QuestionService {
 
     @Transactional
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
-
         if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
             throw new NotAValidUpdateException("Invalid question round state transition");
         }
 
         if(!questionRoundService.isQrValidState(question, onlineHearing)) {
-            throw new NotAValidUpdateException("Invalid question state");
+            throw new NotAValidUpdateException("Cannot add question to issued question round");
         }
 
         Optional<QuestionState> state = questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName());

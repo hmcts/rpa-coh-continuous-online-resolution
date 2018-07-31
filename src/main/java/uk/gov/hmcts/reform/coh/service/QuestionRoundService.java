@@ -17,7 +17,7 @@ public class QuestionRoundService {
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
-    public static final String ISSUED_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
+    public static final String ISSUE_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
 
     public QuestionRoundService() {}
@@ -32,23 +32,31 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
-        if(!optionalQuestionState.isPresent()){
+        Optional<QuestionState> optionalIssuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
+        if(!optionalIssuedState.isPresent()){
             throw new NoSuchElementException("Error: Required state not found.");
         }
 
-        QuestionRoundState issuedQrState = new QuestionRoundState(optionalQuestionState.get());
+        Optional<QuestionState> optionalIssuePendingState = questionStateService.retrieveQuestionStateByStateName(ISSUE_PENDING);
+        if(!optionalIssuePendingState.isPresent()){
+            throw new NoSuchElementException("Error: Required state not found.");
+        }
+        QuestionRoundState issuedState = new QuestionRoundState(optionalIssuedState.get());
+        QuestionRoundState issuedPendingState = new QuestionRoundState(optionalIssuePendingState.get());
+        QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
-        QuestionRoundState currentQrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
         // Current QR is issued and create new question round
-        if(currentQrState.equals(issuedQrState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+        if(currentState.equals(issuedState) && isIncremented(targetQuestionRound, currentRoundNumber)
+            || currentState.equals(issuedPendingState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
             return true;
         }
 
         // Current QR is not issued and question is current question round OR no QR exists yet
-        if(!currentQrState.equals(issuedQrState) && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
+        if(!currentState.equals(issuedState) && !currentState.equals(issuedPendingState)
+                && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
             return true;
         }
+
         return false;
     }
 

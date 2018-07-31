@@ -113,7 +113,7 @@ Feature: Question Round Logic
     Then the response code is 200
     And the number of questions rounds is ' "2" '
     And the number of questions in question round ' "1" ' is ' "2" '
-    And the question round ' "1" ' is ' "question_issued" '
+    And the question round ' "1" ' is ' "question_issued_pending" '
     And the question round ' "2" ' is ' "question_drafted" '
 
   Scenario: Get all question rounds for online hearing and check the previous, current, next & max QRs are correct
@@ -161,11 +161,12 @@ Feature: Question Round Logic
     Then the response code is 200
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
-    And the question round ' "1" ' is ' "question_issued" '
+    And the question round ' "1" ' is ' "question_issued_pending" '
     And each question in the question round has a history of at least ' "2" ' events
     And each question in the question round has a correct deadline expiry date
     And a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_questions_issued'
+    And an event has been queued for this online hearing of event type question_round_issued
 
 
   Scenario: Issue a question round and check all questions are updated
@@ -186,7 +187,7 @@ Feature: Question Round Logic
     Then the response code is 200
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
-    And the question round ' "1" ' is ' "question_issued" '
+    And the question round ' "1" ' is ' "question_issued_pending" '
     And each question in the question round has a history of at least ' "2" ' events
 
   Scenario: Attempt to issue a previous question round

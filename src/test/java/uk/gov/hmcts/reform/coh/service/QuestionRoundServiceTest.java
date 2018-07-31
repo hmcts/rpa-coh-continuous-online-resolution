@@ -34,6 +34,7 @@ public class QuestionRoundServiceTest {
     private QuestionState draftedState;
     private QuestionState submittedState;
     private QuestionState issuedState;
+    private QuestionState issuedPendingState;
     private List<Question> questionRound1Questions;
 
     @Mock
@@ -45,6 +46,7 @@ public class QuestionRoundServiceTest {
 
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
+    private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
 
     @Before
     public void setup(){
@@ -59,6 +61,10 @@ public class QuestionRoundServiceTest {
         issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
         issuedState.setState(issuedStateName);
+
+        issuedPendingState = new QuestionState();
+        issuedPendingState.setQuestionStateId(3);
+        issuedPendingState.setState(issuedPendingStateName);
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
@@ -78,6 +84,7 @@ public class QuestionRoundServiceTest {
         questionRound1Questions.add(question);
 
         given(questionStateService.retrieveQuestionStateByStateName(issuedStateName)).willReturn(Optional.of(issuedState));
+        given(questionStateService.retrieveQuestionStateByStateName(issuedPendingStateName)).willReturn(Optional.of(issuedPendingState));
         given(questionStateService.retrieveQuestionStateByStateName(draftedStateName)).willReturn(Optional.of(draftedState));
         given(questionStateService.retrieveQuestionStateByStateName("question_submitted")).willReturn(Optional.of(submittedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
@@ -335,9 +342,19 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(draftedState);
 
         doReturn(2).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        QuestionRoundState issuedQrState = new QuestionRoundState(issuedState);
-        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+        assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
+    }
+
+    @Test
+    public void testIncrementQrWhenNotIssuedPendingInvalid() {
+        Question question = new Question();
+        question.setQuestionRound(2);
+        question.setQuestionState(draftedState);
+
+        doReturn(2).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
     }
@@ -350,6 +367,18 @@ public class QuestionRoundServiceTest {
 
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        assertTrue(questionRoundService.isQrValidState(question, onlineHearing));
+    }
+
+    @Test
+    public void testIncrementQrWhenIssuedPendingIsValid() {
+        Question question = new Question();
+        question.setQuestionRound(2);
+        question.setQuestionState(draftedState);
+
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         assertTrue(questionRoundService.isQrValidState(question, onlineHearing));
     }
@@ -374,6 +403,18 @@ public class QuestionRoundServiceTest {
 
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
+    }
+
+    @Test
+    public void testAddQuestionToCurrentQrWhenIssuedPendingIsInvalid() {
+        Question question = new Question();
+        question.setQuestionRound(1);
+        question.setQuestionState(draftedState);
+
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
     }
