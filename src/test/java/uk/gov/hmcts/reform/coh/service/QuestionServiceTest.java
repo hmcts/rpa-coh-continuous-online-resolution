@@ -235,8 +235,8 @@ public class QuestionServiceTest {
         questionService.requestDeadlineExtension(onlineHearing);
 
         verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
-        verify(mockedQuestion, times(0)).setQuestionState(deniedState);
-        verify(mockedQuestion, times(0)).updateQuestionStateHistory(deniedState);
+        verify(mockedQuestion, times(0)).setQuestionState(any());
+        verify(mockedQuestion, times(0)).updateQuestionStateHistory(any());
     }
 
     private QuestionState mockQuestionState(QuestionStates state) {
