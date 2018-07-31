@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.schedule.notifiers; 
  
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -15,6 +16,8 @@ import static uk.gov.hmcts.reform.coh.events.EventTypes.QUESTION_ROUND_ISSUED;
 @Component 
 public class QuestionIssuedTransformer implements EventTransformer<OnlineHearing> {
 
+    private static final ISO8601DateFormat df = new ISO8601DateFormat();
+
     @Autowired
     private QuestionRoundService questionRoundService;
  
@@ -26,7 +29,7 @@ public class QuestionIssuedTransformer implements EventTransformer<OnlineHearing
         request.setCaseId(onlineHearing.getCaseId());
         request.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         request.setEventType(QUESTION_ROUND_ISSUED.getEventType());
-        request.setExpiryDate(String.valueOf(qrQuestions.get(0).getDeadlineExpiryDate()));
+        request.setExpiryDate(df.format(qrQuestions.get(0).getDeadlineExpiryDate()));
         return request; 
     } 
  
