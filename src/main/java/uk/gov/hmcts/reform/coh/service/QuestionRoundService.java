@@ -30,7 +30,7 @@ public class QuestionRoundService {
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return questionRoundState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
+        return !questionRoundState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
                 questionRoundState.getState().equals(QuestionStates.ISSUED.getStateName());
     }
 

@@ -254,7 +254,7 @@ public class QuestionRoundControllerTest {
     }
 
 
-    @Test
+    @Test()
     public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() throws Exception {
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
