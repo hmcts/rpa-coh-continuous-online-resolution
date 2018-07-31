@@ -34,6 +34,7 @@ import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.*;
+import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
@@ -66,6 +67,9 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private SessionEventService sessionEventService;
+
+    @Autowired
+    private EventNotifierJob eventNotifierJob;
 
     private JSONObject json;
 
@@ -203,7 +207,7 @@ public class ApiSteps extends BaseSteps {
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
@@ -267,11 +271,18 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^an event has been queued for this online hearing of event type (.*)$")
-    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) throws Throwable {
+    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
-        assertTrue(!optSessionEvent.isEmpty());
-        assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+        assertFalse(sessionEvents.isEmpty());
+        boolean hasEvent = sessionEvents.stream()
+                .anyMatch(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType));
+        assertTrue(hasEvent);
+    }
+
+    @And("^wait until the event is processed$")
+    public void waitUntilTheQuestionRoundIsInQuestionIssuedState() {
+        eventNotifierJob.execute();
     }
 }

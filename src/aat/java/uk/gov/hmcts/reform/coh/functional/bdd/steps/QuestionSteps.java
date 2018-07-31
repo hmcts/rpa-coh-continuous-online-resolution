@@ -21,13 +21,15 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.schedule.notifiers.QuestionIssuedTransformer;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -63,9 +65,6 @@ public class QuestionSteps extends BaseSteps{
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
-
-    @Autowired
-    private QuestionIssuedTransformer questionIssuedTransformer;
 
     @Autowired
     public QuestionSteps(TestContext testContext) {
@@ -112,7 +111,7 @@ public class QuestionSteps extends BaseSteps{
     public void theDraftAQuestion() throws Throwable {
         String jsonBody = JsonUtils.toJson(questionRequest);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-
+        onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         int httpResponseCode = 0;
         try{
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
@@ -154,8 +153,8 @@ public class QuestionSteps extends BaseSteps{
     @Given("^a standard question")
     public void aStandardQuestionRound() throws IOException{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
-        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
+        //String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
+        //onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")
@@ -428,33 +427,5 @@ public class QuestionSteps extends BaseSteps{
                 e.printStackTrace();
             }
         }
-    }
-
-    @And("^wait until question round ' \"([^\"]*)\" ' is in question issued state$")
-    public void waitUntilTheQuestionRoundIsInQuestionIssuedState(Integer questionRoundN) throws IOException, InterruptedException {
-        questionIssuedTransformer.transform(new SessionEventType(), testContext.getScenarioContext().getCurrentOnlineHearing());
-
-        /*
-        theGetRequestIsSentToGetQuestionRound(questionRoundN);
-
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
-        QuestionRoundState questionRoundState = questionRoundResponse.getQuestionRoundState();
-
-        int counter = 0;
-        while(!questionRoundState.getState().equals(QuestionStates.ISSUED)){
-            counter++;
-            if( counter > 60) {
-                fail();
-                break;
-            }
-            theGetRequestIsSentToGetQuestionRound(questionRoundN);
-
-            rawJson = testContext.getHttpContext().getRawResponseString();
-            questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
-            questionRoundState = questionRoundResponse.getQuestionRoundState();
-            Thread.sleep(1000);
-        }
-        */
     }
 }

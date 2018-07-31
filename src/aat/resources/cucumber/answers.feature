@@ -11,7 +11,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
-    And wait until question round ' "1" ' is in question issued state
+    And wait until the event is processed
     And a standard answer
     And the endpoint is for submitting an answer
     When a POST request is sent
@@ -19,12 +19,14 @@ Feature: Answers
     And the response headers contains a location to the created entity
     And send get request to the location
     And the response code is 200
+    And wait until the event is processed
     And an event has been queued for this online hearing of event type answers_submitted
 
   Scenario: Retrieve an answer for a question
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the endpoint is for submitting an answer
     And a POST request is sent
@@ -40,6 +42,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the answer text is empty
     And the endpoint is for submitting an answer
@@ -50,6 +53,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
@@ -66,6 +70,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
@@ -81,6 +86,7 @@ Feature: Answers
     Given a standard online hearing is created
     Given a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
@@ -98,6 +104,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And an unknown answer identifier
     And the answer text is 'foo'
@@ -109,6 +116,7 @@ Feature: Answers
     Given a standard online hearing is created
     Given a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the answer text is 'foo'
     And the endpoint is for submitting an answer
