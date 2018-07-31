@@ -30,8 +30,7 @@ public class QuestionRoundService {
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return !questionRoundState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
-                questionRoundState.getState().equals(QuestionStates.ISSUED.getStateName());
+        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED);
     }
 
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {

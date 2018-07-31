@@ -436,5 +436,20 @@ public class QuestionRoundServiceTest {
         verify(questionRepository, times(3)).save(any(Question.class));
         assertTrue(issuedQuestions.stream().allMatch(q -> q.getDeadlineExpiryDate() != null));
     }
+
+    @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssuePending() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedPendingState)));
+    }
+
+    @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssued() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedState)));
+    }
+
+    @Test
+    public void testAlreadyIssuedReturnsFalseIfQuestionStateIsDrafted() {
+        assertFalse(questionRoundService.alreadyIssued(new QuestionRoundState(draftedState)));
+    }
 }
 

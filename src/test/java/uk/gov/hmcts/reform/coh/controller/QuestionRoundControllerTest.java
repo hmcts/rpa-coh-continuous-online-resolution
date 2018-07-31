@@ -121,6 +121,7 @@ public class QuestionRoundControllerTest {
 
         given(questionRoundService.retrieveQuestionRoundState(any(QuestionRound.class))).willReturn(new QuestionRoundState(draftedState));
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(1);
+        doReturn(false).when(questionRoundService).alreadyIssued(any(QuestionRoundState.class));
     }
 
     @Test
@@ -254,10 +255,10 @@ public class QuestionRoundControllerTest {
     }
 
 
-    @Test()
+    @Test
     public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() throws Exception {
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
-
+        doReturn(true).when(questionRoundService).alreadyIssued(any(QuestionRoundState.class));
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
