@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Date;
@@ -48,6 +49,8 @@ public class QuestionService {
         if(!questionRoundService.isQrValidState(question, onlineHearing)) {
             throw new NotAValidUpdateException("Cannot add question to issued question round");
         }
+        int roundN = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
+
 
         Optional<QuestionState> state = questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName());
         if (!state.isPresent()) {

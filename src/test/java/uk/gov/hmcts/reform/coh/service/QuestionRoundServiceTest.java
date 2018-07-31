@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
@@ -327,6 +328,17 @@ public class QuestionRoundServiceTest {
         assertEquals(issuedState.getState(), questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 
+    @Test(expected = NotAValidUpdateException.class)
+    public void testAddNewQuestionRoundWhenIssuePendingThrowsException() {
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        Question question = new Question();
+        question.setQuestionRound(2);
+        question.setQuestionState(new QuestionState(QuestionStates.ISSUE_PENDING.getStateName()));
+        questionRoundService.isQrValidState(question, onlineHearing);
+    }
+
     @Test
     public void testIssueQuestionRound() {
         doReturn(new QuestionRoundState(draftedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
@@ -367,18 +379,6 @@ public class QuestionRoundServiceTest {
 
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
-
-        assertTrue(questionRoundService.isQrValidState(question, onlineHearing));
-    }
-
-    @Test
-    public void testIncrementQrWhenIssuedPendingIsValid() {
-        Question question = new Question();
-        question.setQuestionRound(2);
-        question.setQuestionState(draftedState);
-
-        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
-        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         assertTrue(questionRoundService.isQrValidState(question, onlineHearing));
     }

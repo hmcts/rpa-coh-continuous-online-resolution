@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
@@ -44,6 +45,11 @@ public class QuestionRoundService {
         QuestionRoundState issuedState = new QuestionRoundState(optionalIssuedState.get());
         QuestionRoundState issuedPendingState = new QuestionRoundState(optionalIssuePendingState.get());
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
+
+        if(currentRoundNumber != 0 && isIncremented(question.getQuestionRound(), currentRoundNumber)
+                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName())){
+            throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
+        }
 
         // Current QR is issued and create new question round
         if(currentState.equals(issuedState) && isIncremented(targetQuestionRound, currentRoundNumber)

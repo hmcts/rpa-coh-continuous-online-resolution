@@ -27,7 +27,7 @@ import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.schedule.notifiers.QuestionIssuedTransformer;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.fail;
 
 @ContextConfiguration
 @SpringBootTest
@@ -64,6 +63,9 @@ public class QuestionSteps extends BaseSteps{
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
+
+    @Autowired
+    private QuestionIssuedTransformer questionIssuedTransformer;
 
     @Autowired
     public QuestionSteps(TestContext testContext) {
@@ -430,6 +432,9 @@ public class QuestionSteps extends BaseSteps{
 
     @And("^wait until question round ' \"([^\"]*)\" ' is in question issued state$")
     public void waitUntilTheQuestionRoundIsInQuestionIssuedState(Integer questionRoundN) throws IOException, InterruptedException {
+        questionIssuedTransformer.transform(new SessionEventType(), testContext.getScenarioContext().getCurrentOnlineHearing());
+
+        /*
         theGetRequestIsSentToGetQuestionRound(questionRoundN);
 
         String rawJson = testContext.getHttpContext().getRawResponseString();
@@ -450,5 +455,6 @@ public class QuestionSteps extends BaseSteps{
             questionRoundState = questionRoundResponse.getQuestionRoundState();
             Thread.sleep(1000);
         }
+        */
     }
 }

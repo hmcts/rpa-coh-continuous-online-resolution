@@ -205,6 +205,7 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
     }
 
