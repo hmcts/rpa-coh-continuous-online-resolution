@@ -53,12 +53,24 @@ public class QuestionServiceTest {
 
     private OnlineHearing onlineHearing;
     private static UUID ONE;
+    private QuestionState issuedState;
+    private QuestionState grantedState;
+    private QuestionState deniedState;
 
     @Before
     public void setup() {
         ONE = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
+
+        issuedState = mockQuestionState(QuestionStates.ISSUED);
+        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
+
+        grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
+
+        deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
 
         questionService = new QuestionService(questionRepository, questionStateService, questionRoundService);
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
@@ -181,13 +193,7 @@ public class QuestionServiceTest {
     @Test
     public void testRequestingDeadlineExtensionForIssuedQuestion() {
         Question mockedQuestion = notExpiredQuestion();
-        QuestionState issuedState = mockQuestionState(QuestionStates.ISSUED);
         doReturn(issuedState).when(mockedQuestion).getQuestionState();
-
-        QuestionState grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
-
-        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
-        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
 
         when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
             ImmutableList.of(mockedQuestion)
@@ -203,15 +209,7 @@ public class QuestionServiceTest {
     @Test
     public void testRequestingDeadlineExtensionForGrantedQuestion() {
         Question mockedQuestion = notExpiredQuestion();
-        QuestionState grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
         doReturn(grantedState).when(mockedQuestion).getQuestionState();
-
-        QuestionState issuedState = mockQuestionState(QuestionStates.ISSUED);
-        QuestionState deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
-
-        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
-        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
-        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
 
         when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
             ImmutableList.of(mockedQuestion)
@@ -229,14 +227,6 @@ public class QuestionServiceTest {
         Question mockedQuestion = notExpiredQuestion();
         QuestionState pendingState = mockQuestionState(QuestionStates.ISSUE_PENDING);
         doReturn(pendingState).when(mockedQuestion).getQuestionState();
-
-        QuestionState issuedState = mockQuestionState(QuestionStates.ISSUED);
-        QuestionState grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
-        QuestionState deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
-
-        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
-        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
-        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
 
         when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
             ImmutableList.of(mockedQuestion)

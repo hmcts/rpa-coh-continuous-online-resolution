@@ -36,6 +36,10 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     private final QuestionStateService questionStateService;
+    private QuestionState issued;
+    private QuestionState extensionGranted;
+    private QuestionState extensionDenied;
+    private Duration extension = Duration.ofDays(7);
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
@@ -43,6 +47,10 @@ public class QuestionService {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
         this.questionRoundService = questionRoundService;
+
+        issued = questionStateService.fetchQuestionState(ISSUED);
+        extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
+        extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
     }
 
     @Transactional
@@ -122,27 +130,42 @@ public class QuestionService {
             throw new RuntimeException("There are no questions to be answered");
         }
 
-        QuestionState issued = questionStateService.fetchQuestionState(ISSUED);
-        QuestionState extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
-        QuestionState extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
-
-        Duration extension = Duration.ofDays(7);
         Instant now = Instant.now();
 
         questions.stream()
             .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
             .forEach(question -> {
-                if (issued.equals(question.getQuestionState())) {
-                    Temporal temporal = extension.addTo(question.getDeadlineExpiryDate().toInstant());
-                    Date newExpiryDate = Date.from(Instant.from(temporal));
-                    question.setDeadlineExpiryDate(newExpiryDate);
-
-                    question.setQuestionState(extensionGranted);
-                    question.updateQuestionStateHistory(extensionGranted);
-                } else if (extensionGranted.equals(question.getQuestionState())) {
-                    question.setQuestionState(extensionDenied);
-                    question.updateQuestionStateHistory(extensionDenied);
+                if (canBeGranted(question)) {
+                    grantDeadlineExtension(question);
+                } else if (canBeDenied(question)) {
+                    denyDeadlineExtension(question);
                 }
             });
+    }
+
+    private boolean canBeGranted(Question question) {
+        return issued.equals(question.getQuestionState());
+    }
+
+    private boolean canBeDenied(Question question) {
+        return extensionGranted.equals(question.getQuestionState());
+    }
+
+    private void grantDeadlineExtension(Question question) {
+        question.setDeadlineExpiryDate(newDeadline(question));
+        question.setQuestionState(extensionGranted);
+        question.updateQuestionStateHistory(extensionGranted);
+        questionRepository.save(question);
+    }
+
+    private Date newDeadline(Question question) {
+        Temporal temporal = extension.addTo(question.getDeadlineExpiryDate().toInstant());
+        return Date.from(Instant.from(temporal));
+    }
+
+    private void denyDeadlineExtension(Question question) {
+        question.setQuestionState(extensionDenied);
+        question.updateQuestionStateHistory(extensionDenied);
+        questionRepository.save(question);
     }
 }
