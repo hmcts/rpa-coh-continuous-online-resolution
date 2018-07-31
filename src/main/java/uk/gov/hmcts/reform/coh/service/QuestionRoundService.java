@@ -37,14 +37,6 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        QuestionState questionIssuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED)
-                .orElseThrow(() -> new NoSuchElementException("Error: Required state not found"));
-
-        QuestionState questionIssuedPendingState = questionStateService.retrieveQuestionStateByStateName(ISSUE_PENDING)
-                .orElseThrow(() -> new NoSuchElementException("Error: Required state not found"));
-
-        QuestionRoundState issuedState = new QuestionRoundState(questionIssuedState);
-        QuestionRoundState issuedPendingState = new QuestionRoundState(questionIssuedPendingState);
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
         if(currentRoundNumber != 0 && isIncremented(question.getQuestionRound(), currentRoundNumber)
@@ -53,14 +45,12 @@ public class QuestionRoundService {
         }
 
         // Current QR is issued and create new question round
-        if(currentState.equals(issuedState) && isIncremented(targetQuestionRound, currentRoundNumber)
-            || currentState.equals(issuedPendingState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+        if(alreadyIssued(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
             return true;
         }
 
         // Current QR is not issued and question is current question round OR no QR exists yet
-        if(!currentState.equals(issuedState) && !currentState.equals(issuedPendingState)
-                && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
+        if(!alreadyIssued(currentState) && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
             return true;
         }
 
