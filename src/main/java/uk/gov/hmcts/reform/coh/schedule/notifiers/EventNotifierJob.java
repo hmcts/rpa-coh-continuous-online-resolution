@@ -88,6 +88,14 @@ public class EventNotifierJob {
                         log.info(String.format("Found task %s to handle %s.", task.getClass(), sessionEventType.getEventTypeName()));
                         task.execute(sessionEvent.getOnlineHearing());
                     }
+                } else {
+                    log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+                    if (sessionEvent.getRetries() < register.getMaximumRetries()) {
+                        sessionEvent.setRetries(sessionEvent.getRetries() + 1);
+                        sessionEventService.updateSessionEvent(sessionEvent);
+                    } else {
+                        
+                    }
                 }
             } catch (NotificationException e) {
                 log.error(String.format("Exception while trying to send a notification. Exception is %s", e.getMessage()));
