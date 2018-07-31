@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.coh.appinsights.AppInsightsEvents;
+import uk.gov.hmcts.reform.coh.appinsights.AppInsightsEventRepository;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -16,9 +18,7 @@ import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTask;
 import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTaskFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class EventNotifierJob {
@@ -41,6 +41,9 @@ public class EventNotifierJob {
     private OnlineHearingService onlineHearingService;
 
     @Autowired
+    private AppInsightsEventRepository appInsightsEventRepository;
+
+    @Autowired
     @Qualifier("BasicJsonNotificationForwarder")
     private  NotificationForwarder forwarder;
 
@@ -51,8 +54,10 @@ public class EventNotifierJob {
     @Scheduled(fixedDelayString  = "${event-scheduler.event-notifier.fixed-delay}")
     public void execute() {
 
+
         List<SessionEvent> sessionEvents = getPendingSessionEvents();
         for (SessionEvent sessionEvent : sessionEvents) {
+            appInsightsEventRepository.trackEvent(AppInsightsEvents.COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
             log.info(String.format("Processing session event: %s", sessionEvent.getEventId()));
 
             // Use the session event type to get the transformer that will create the notification message
@@ -94,7 +99,7 @@ public class EventNotifierJob {
                         sessionEvent.setRetries(sessionEvent.getRetries() + 1);
                         sessionEventService.updateSessionEvent(sessionEvent);
                     } else {
-                        
+                        appInsightsEventRepository.trackEvent(AppInsightsEvents.COR_NOTIFICATION_FAILURE.name(), null);
                     }
                 }
             } catch (NotificationException e) {
@@ -112,5 +117,15 @@ public class EventNotifierJob {
         }
 
         return sessionEventService.retrieveBySessionEventForwardingState(pending.get());
+    }
+
+    private Map<String, String> createAppInsightsProperties(SessionEvent sessionEvent) {
+
+        Map<String, String> props = new HashMap<>();
+        props.put("Session Event", sessionEvent.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+        props.put("Jurisdiction", sessionEvent.getSessionEventForwardingRegister().getJurisdiction().getJurisdictionName());
+        props.put("Endpoint", sessionEvent.getSessionEventForwardingRegister().getForwardingEndpoint());
+
+        return props;
     }
 }

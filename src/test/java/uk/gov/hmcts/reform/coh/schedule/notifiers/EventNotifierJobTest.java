@@ -91,6 +91,13 @@ public class EventNotifierJobTest {
     }
 
     @Test
+    public void testReadScheduleConfig() {
+        given(sessionEventForwardingStateRepository.findByForwardingStateName(EVENT_FORWARDING_PENDING.getStateName())).willReturn(Optional.empty());
+        job.execute();
+        assertEquals(EVENT_FORWARDING_PENDING.getStateName(), sessionEvent.getSessionEventForwardingState().getForwardingStateName());
+    }
+
+    @Test
     public void testNoPendingState() {
         given(sessionEventForwardingStateRepository.findByForwardingStateName(EVENT_FORWARDING_PENDING.getStateName())).willReturn(Optional.empty());
         job.execute();
