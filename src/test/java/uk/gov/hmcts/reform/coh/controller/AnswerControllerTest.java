@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -229,10 +230,13 @@ public class AnswerControllerTest {
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
     }
 
     @Test
@@ -243,10 +247,13 @@ public class AnswerControllerTest {
         question.setQuestionState(questionState);
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
     }
 
     @Test

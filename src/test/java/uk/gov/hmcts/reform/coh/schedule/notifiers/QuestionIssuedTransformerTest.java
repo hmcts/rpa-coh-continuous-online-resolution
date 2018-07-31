@@ -42,7 +42,6 @@ public class QuestionIssuedTransformerTest {
 
     private SessionEventType sessionEventType;
     private UUID uuid;
-    private Date date;
     private OnlineHearing onlineHearing;
     private Date expiryDeadline;
 
@@ -52,7 +51,7 @@ public class QuestionIssuedTransformerTest {
         sessionEventType.setEventTypeName(EventTypes.QUESTION_ROUND_ISSUED.getEventType());
 
         uuid = UUID.randomUUID();
-        date = new Date();
+        Date date = new Date();
         onlineHearing = new OnlineHearing();
         onlineHearing.setCaseId("foo");
         onlineHearing.setOnlineHearingId(uuid);

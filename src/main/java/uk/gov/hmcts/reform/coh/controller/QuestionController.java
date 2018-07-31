@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
@@ -37,17 +36,14 @@ public class QuestionController {
 
     private OnlineHearingService onlineHearingService;
     private QuestionStateService questionStateService;
-    private QuestionRoundService questionRoundService;
 
     private Validation validation = new Validation();
 
     @Autowired
-    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService,
-                              QuestionRoundService questionRoundService) {
+    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService) {
         this.questionService = questionService;
         this.onlineHearingService = onlineHearingService;
         this.questionStateService = questionStateService;
-        this.questionRoundService = questionRoundService;
     }
 
     @ApiOperation("Get all questions for an online hearing")

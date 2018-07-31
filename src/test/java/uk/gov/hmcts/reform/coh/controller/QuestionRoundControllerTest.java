@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -64,10 +65,8 @@ public class QuestionRoundControllerTest {
     private static final String ENDPOINT = "/continuous-online-hearings/";
     private final int ROUNDID = 1;
     private QuestionRound questionRound;
-    private QuestionState draftedState;
     private QuestionState issuedState;
     private QuestionState issuePendingState;
-
 
     @Before
     public void setup() {
@@ -86,7 +85,7 @@ public class QuestionRoundControllerTest {
         issuePendingState.setState(QuestionRoundService.ISSUE_PENDING);
         issuePendingState.setQuestionStateId(2);
 
-        draftedState = new QuestionState();
+        QuestionState draftedState = new QuestionState();
         draftedState.setState(QuestionRoundService.DRAFTED);
         draftedState.setQuestionStateId(1);
         questionRoundState.setState(draftedState);
@@ -260,9 +259,11 @@ public class QuestionRoundControllerTest {
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
         doReturn(true).when(questionRoundService).alreadyIssued(any(QuestionRoundState.class));
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
     }
 }

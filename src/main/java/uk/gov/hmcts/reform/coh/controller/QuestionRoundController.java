@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,9 +35,6 @@ public class QuestionRoundController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
-
-    @Autowired
-    private QuestionRoundSentTask questionSentTask;
 
     @Autowired
     private SessionEventService sessionEventService;

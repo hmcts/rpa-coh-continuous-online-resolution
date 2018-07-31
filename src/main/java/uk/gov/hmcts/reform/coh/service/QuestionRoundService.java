@@ -33,34 +33,28 @@ public class QuestionRoundService {
         return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED);
     }
 
+    public boolean isFirstRound(int currentRoundNumber) {
+        return currentRoundNumber == 0;
+    }
+
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        QuestionState questionIssuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED)
-                .orElseThrow(() -> new NoSuchElementException("Error: Required state not found"));
-
-        QuestionState questionIssuedPendingState = questionStateService.retrieveQuestionStateByStateName(ISSUE_PENDING)
-                .orElseThrow(() -> new NoSuchElementException("Error: Required state not found"));
-
-        QuestionRoundState issuedState = new QuestionRoundState(questionIssuedState);
-        QuestionRoundState issuedPendingState = new QuestionRoundState(questionIssuedPendingState);
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
-        if(currentRoundNumber != 0 && isIncremented(question.getQuestionRound(), currentRoundNumber)
+        if(!isFirstRound(currentRoundNumber) && isIncremented(question.getQuestionRound(), currentRoundNumber)
                 && !currentState.getState().equals(QuestionStates.ISSUED.getStateName())){
             throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
 
         // Current QR is issued and create new question round
-        if(currentState.equals(issuedState) && isIncremented(targetQuestionRound, currentRoundNumber)
-            || currentState.equals(issuedPendingState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+        if(alreadyIssued(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
             return true;
         }
 
         // Current QR is not issued and question is current question round OR no QR exists yet
-        if(!currentState.equals(issuedState) && !currentState.equals(issuedPendingState)
-                && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
+        if(!alreadyIssued(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) {
             return true;
         }
 
@@ -77,7 +71,7 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getCurrentQuestionRoundNumber(onlineHearing);
 
-        if (currentQuestionRound == 0) {
+        if (isFirstRound(currentQuestionRound)) {
             return (targetQuestionRound == 1);
         } else if (currentQuestionRound == targetQuestionRound) {
             return true;
@@ -187,7 +181,7 @@ public class QuestionRoundService {
     public List<Question> issueQuestionRound(QuestionState questionState, List<Question> questions) {
         List<Question> modifiedQuestion = new ArrayList<>();
         Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
-        questions.stream().forEach(q -> {
+        questions.forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);
             q.setDeadlineExpiryDate(expiryDate);

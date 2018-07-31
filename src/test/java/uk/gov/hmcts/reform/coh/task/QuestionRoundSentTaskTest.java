@@ -52,14 +52,13 @@ public class QuestionRoundSentTaskTest {
 
     private OnlineHearing onlineHearing;
     private OnlineHearingState startedState;
-    private OnlineHearingState issuedState;
 
     @Before
     public void setup() {
         startedState = new OnlineHearingState();
         startedState.setState(STARTED.getStateName());
 
-        issuedState = new OnlineHearingState();
+        OnlineHearingState issuedState = new OnlineHearingState();
         issuedState.setState(QUESTIONS_ISSUED.getStateName());
 
         onlineHearing = new OnlineHearing();

@@ -451,5 +451,15 @@ public class QuestionRoundServiceTest {
     public void testAlreadyIssuedReturnsFalseIfQuestionStateIsDrafted() {
         assertFalse(questionRoundService.alreadyIssued(new QuestionRoundState(draftedState)));
     }
+
+    @Test
+    public void testIsFirstRoundReturnsTrueIfQuestionRoundIsZero() {
+        assertTrue(questionRoundService.isFirstRound(0));
+    }
+
+    @Test
+    public void testIsFirstRoundReturnsFalseIfQuestionRoundIsNotZero() {
+        assertTrue(questionRoundService.isFirstRound(1));
+    }
 }
 
