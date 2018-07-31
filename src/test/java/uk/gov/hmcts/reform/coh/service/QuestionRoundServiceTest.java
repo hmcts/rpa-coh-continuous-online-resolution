@@ -459,7 +459,7 @@ public class QuestionRoundServiceTest {
 
     @Test
     public void testIsFirstRoundReturnsFalseIfQuestionRoundIsNotZero() {
-        assertTrue(questionRoundService.isFirstRound(1));
+        assertFalse(questionRoundService.isFirstRound(1));
     }
 }
 
