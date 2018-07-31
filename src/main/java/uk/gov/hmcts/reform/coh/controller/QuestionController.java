@@ -130,9 +130,7 @@ public class QuestionController {
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
-
-       // QuestionRound questionRound = questionRoundService.getQuestionRoundByRoundId(onlineHearing, questionRoundService.getCurrentQuestionRoundNumber(onlineHearing));
-       // if (questionRound.getQuestionRoundState())
+        
         Question question = new Question();
         QuestionRequestMapper mapper = new QuestionRequestMapper(question, savedOnlineHearing.get(), request);
         mapper.map();
