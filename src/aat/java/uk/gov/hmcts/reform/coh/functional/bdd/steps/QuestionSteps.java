@@ -153,8 +153,6 @@ public class QuestionSteps extends BaseSteps{
     @Given("^a standard question")
     public void aStandardQuestionRound() throws IOException{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
-        //String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        //onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")

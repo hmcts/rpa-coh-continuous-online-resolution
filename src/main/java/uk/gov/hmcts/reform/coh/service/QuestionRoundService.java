@@ -29,21 +29,23 @@ public class QuestionRoundService {
         this.questionStateService = questionStateService;
     }
 
+    public boolean alreadyIssued(QuestionRoundState questionRoundState) {
+        return questionRoundState.getState().equals(QuestionStates.ISSUE_PENDING.getStateName()) ||
+                questionRoundState.getState().equals(QuestionStates.ISSUED.getStateName());
+    }
+
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        Optional<QuestionState> optionalIssuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
-        if(!optionalIssuedState.isPresent()){
-            throw new NoSuchElementException("Error: Required state not found.");
-        }
+        QuestionState questionIssuedState = questionStateService.retrieveQuestionStateByStateName(ISSUED)
+                .orElseThrow(() -> new NoSuchElementException("Error: Required state not found"));
 
-        Optional<QuestionState> optionalIssuePendingState = questionStateService.retrieveQuestionStateByStateName(ISSUE_PENDING);
-        if(!optionalIssuePendingState.isPresent()){
-            throw new NoSuchElementException("Error: Required state not found.");
-        }
-        QuestionRoundState issuedState = new QuestionRoundState(optionalIssuedState.get());
-        QuestionRoundState issuedPendingState = new QuestionRoundState(optionalIssuePendingState.get());
+        QuestionState questionIssuedPendingState = questionStateService.retrieveQuestionStateByStateName(ISSUE_PENDING)
+                .orElseThrow(() -> new NoSuchElementException("Error: Required state not found"));
+
+        QuestionRoundState issuedState = new QuestionRoundState(questionIssuedState);
+        QuestionRoundState issuedPendingState = new QuestionRoundState(questionIssuedPendingState);
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
         if(currentRoundNumber != 0 && isIncremented(question.getQuestionRound(), currentRoundNumber)
