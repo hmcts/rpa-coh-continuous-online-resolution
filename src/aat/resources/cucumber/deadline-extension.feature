@@ -9,3 +9,4 @@ Feature: Deadline Extension
     When the put request is sent to issue the question round ' "1" '
     And deadline extension is requested
     Then the response code is 200
+    And questions' deadlines have been successfully extended
