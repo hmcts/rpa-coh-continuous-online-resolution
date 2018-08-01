@@ -36,8 +36,7 @@ public class QuestionIssuedTransformerTest {
 
     @InjectMocks
     private QuestionIssuedTransformer questionIssuedTransformer;
-
-
+    
     private static final ISO8601DateFormat df = new ISO8601DateFormat();
 
     private SessionEventType sessionEventType;

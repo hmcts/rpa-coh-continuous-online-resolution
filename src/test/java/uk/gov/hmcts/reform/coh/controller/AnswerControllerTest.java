@@ -384,6 +384,4 @@ public class AnswerControllerTest {
                 .andReturn();
         assertEquals("Answer state is not valid", result.getResponse().getContentAsString());
     }
-
-
 }
