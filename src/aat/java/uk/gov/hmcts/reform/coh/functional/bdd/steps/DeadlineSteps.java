@@ -10,13 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.ResponseErrorHandler;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Calendar;
@@ -36,6 +39,8 @@ public class DeadlineSteps extends BaseSteps {
 
     @Autowired
     private QuestionSteps questionSteps;
+
+    private ResponseErrorHandler oldErrorHandler;
 
     @Autowired
     public DeadlineSteps(TestContext testContext) {
@@ -59,10 +64,41 @@ public class DeadlineSteps extends BaseSteps {
         UUID hearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
         String endpoint = "/continuous-online-hearings/" + hearingId + "/deadline-extensions";
         HttpEntity<String> request = new HttpEntity<>("");
+
+        setupRestTemplate();
+
         ResponseEntity<String> response =
             restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
 
+        restoreRestTemplate();
+
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+    }
+
+    private void setupRestTemplate() {
+        oldErrorHandler = restTemplate.getErrorHandler();
+
+        // valid response codes from the endpoint are not errors
+        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                return !(response.getRawStatusCode() == 200
+                    || response.getRawStatusCode() == 404
+                    || response.getRawStatusCode() == 424
+                    || response.getRawStatusCode() == 500)
+                    && oldErrorHandler.hasError(response);
+            }
+
+            @Override
+            public void handleError(ClientHttpResponse response) throws IOException {
+                oldErrorHandler.handleError(response);
+            }
+        });
+    }
+
+    private void restoreRestTemplate() {
+        restTemplate.setErrorHandler(oldErrorHandler);
     }
 
     @Then("^questions' deadlines have been successfully extended$")

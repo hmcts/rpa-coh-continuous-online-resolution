@@ -10,3 +10,8 @@ Feature: Deadline Extension
     And deadline extension is requested
     Then the response code is 200
     And questions' deadlines have been successfully extended
+
+  Scenario: Cannot extend deadline without questions
+    Given a standard online hearing is created
+    And deadline extension is requested
+    Then the response code is 424
