@@ -89,7 +89,7 @@ public class SessionEventService {
         sessionEventRepository.deleteByOnlineHearing(onlineHearing);
     }
 
-    public List<SessionEvent> retrieveAllByEventForwardingRegister(Optional<SessionEventForwardingRegister> sessionEventForwardingRegister) {
+    public List<SessionEvent> retrieveAllByEventForwardingRegister(SessionEventForwardingRegister sessionEventForwardingRegister) {
         return sessionEventRepository.findAllBySessionEventForwardingRegister(sessionEventForwardingRegister);
     }
 }
