@@ -41,21 +41,17 @@ public class QuestionService {
 
     @Transactional
     public Question createQuestion(final Question question, OnlineHearing onlineHearing) {
-        if(!questionRoundService.isQrValidTransition(question, onlineHearing)) {
-            throw new NotAValidUpdateException("Invalid question round state transition");
+        if(!questionRoundService.isQrValidTransition(question, onlineHearing)
+                || !questionRoundService.isQrValidState(question, onlineHearing)) {
+            throw new NotAValidUpdateException("Invalid question round transition");
         }
 
-        if(!questionRoundService.isQrValidState(question, onlineHearing)) {
-            throw new NotAValidUpdateException("Cannot add question to issued question round");
-        }
+        QuestionState state = questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName())
+                .orElseThrow(() -> new EntityNotFoundException("Question state not found"));
 
-        Optional<QuestionState> state = questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName());
-        if (!state.isPresent()) {
-            throw new EntityNotFoundException("Question state not found");
-        }
         question.setOnlineHearing(onlineHearing);
-        question.setQuestionState(state.get());
-        question.updateQuestionStateHistory(state.get());
+        question.setQuestionState(state);
+        question.updateQuestionStateHistory(state);
 
         return questionRepository.save(question);
     }
