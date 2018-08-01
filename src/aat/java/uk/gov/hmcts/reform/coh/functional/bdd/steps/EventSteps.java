@@ -24,9 +24,6 @@ import static org.junit.Assert.assertEquals;
 public class EventSteps extends BaseSteps{
 
     @Autowired
-    private SessionEventForwardingStateRepository sessionEventForwardingStateRepository;
-
-    @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
     @Autowired

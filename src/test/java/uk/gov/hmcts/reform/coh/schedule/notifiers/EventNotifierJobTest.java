@@ -59,11 +59,7 @@ public class EventNotifierJobTest {
 
     private SessionEventForwardingState successState;
 
-    private SessionEventForwardingState failedState;
-
     private SessionEventForwardingRegister register;
-
-    private Jurisdiction jurisdiction;
 
     private SessionEvent sessionEvent;
 
@@ -78,13 +74,13 @@ public class EventNotifierJobTest {
         successState = new SessionEventForwardingState();
         successState.setForwardingStateName(EVENT_FORWARDING_SUCCESS.getStateName());
 
-        failedState = new SessionEventForwardingState();
+        SessionEventForwardingState failedState = new SessionEventForwardingState();
         failedState.setForwardingStateName(EVENT_FORWARDING_FAILED.getStateName());
 
         SessionEventType sessionEventType = new SessionEventType();
         sessionEventType.setEventTypeName(DECISION_ISSUED.getEventType());
 
-        jurisdiction = new Jurisdiction();
+        Jurisdiction jurisdiction = new Jurisdiction();
         jurisdiction.setJurisdictionName("foo");
 
         register = new SessionEventForwardingRegister();
