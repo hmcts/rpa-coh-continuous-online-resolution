@@ -50,6 +50,7 @@ public class DeadlineControllerTest {
             .andExpect(status().isOk());
     }
 
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
     public void testExtensionRequestWithExceptionThrown() throws Exception, NoQuestionsAsked {
         OnlineHearing spyOnlineHearing = spy(OnlineHearing.class);
