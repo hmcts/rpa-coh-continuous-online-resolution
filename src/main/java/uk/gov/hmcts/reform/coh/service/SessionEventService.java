@@ -88,4 +88,8 @@ public class SessionEventService {
     public void deleteByOnlineHearing(OnlineHearing onlineHearing) {
         sessionEventRepository.deleteByOnlineHearing(onlineHearing);
     }
+
+    public List<SessionEvent> retrieveAllByEventForwardingRegister(Optional<SessionEventForwardingRegister> sessionEventForwardingRegister) {
+        return sessionEventRepository.findAllBySessionEventForwardingRegister(sessionEventForwardingRegister);
+    }
 }
