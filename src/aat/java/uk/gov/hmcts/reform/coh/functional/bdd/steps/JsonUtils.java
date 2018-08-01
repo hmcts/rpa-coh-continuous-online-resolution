@@ -25,8 +25,7 @@ public class JsonUtils {
         return mapper.readValue(getJsonInput(testName), clazz);
     }
 
-    public static Object toObjectFromJson(String json, Class clazz) throws IOException {
-
+    public static <T> T toObjectFromJson(String json, Class<T> clazz) throws IOException {
         return mapper.readValue(json, clazz);
     }
 
