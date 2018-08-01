@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,14 @@ public class DeadlineController {
         this.questionService = questionService;
     }
 
+    @ApiOperation(value = "Request deadline extension",
+        notes = "Issued questions will get better chance to be answered on time.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Success"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 406, message = "General request failure"),
+        @ApiResponse(code = 424, message = "Failed dependency")
+    })
     @PutMapping("/deadline-extensions")
     public ResponseEntity requestExtensionForQuestion(@PathVariable UUID onlineHearingId) {
         OnlineHearing onlineHearing = new OnlineHearing();
