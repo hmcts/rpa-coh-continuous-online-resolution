@@ -34,9 +34,6 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
-import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
-import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
@@ -65,15 +62,6 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private SessionEventService sessionEventService;
-
-    @Autowired
-    private EventNotifierJob eventNotifierJob;
-
-    @Autowired
-    private SessionEventTypeRespository sessionEventTypeRespository;
-
-    @Autowired
-    private OnlineHearingRepository onlineHearingRepository;
 
     private JSONObject json;
 
