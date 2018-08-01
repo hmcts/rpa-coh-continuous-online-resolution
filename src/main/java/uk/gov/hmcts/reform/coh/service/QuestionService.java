@@ -48,10 +48,6 @@ public class QuestionService {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
         this.questionRoundService = questionRoundService;
-
-        issued = questionStateService.fetchQuestionState(ISSUED);
-        extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
-        extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
     }
 
     @Transactional
@@ -130,6 +126,10 @@ public class QuestionService {
         if (questions.isEmpty()) {
             throw new NoQuestionsAsked();
         }
+
+        issued = questionStateService.fetchQuestionState(ISSUED);
+        extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
+        extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
 
         Instant now = Instant.now();
 
