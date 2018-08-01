@@ -43,8 +43,8 @@ public class DeadlineController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Success"),
         @ApiResponse(code = 404, message = "Not found"),
-        @ApiResponse(code = 406, message = "General request failure"),
-        @ApiResponse(code = 424, message = "Failed dependency")
+        @ApiResponse(code = 424, message = "Failed dependency"),
+        @ApiResponse(code = 500, message = "General request failure")
     })
     @PutMapping("/deadline-extensions")
     public ResponseEntity requestExtensionForQuestion(@PathVariable UUID onlineHearingId) {
@@ -60,7 +60,7 @@ public class DeadlineController {
             questionService.requestDeadlineExtension(optionalOnlineHearing.get());
         } catch (Exception e) {
             log.error("Request failed", e);
-            return ResponseEntity.status(406).body("Request failed. See logs for details.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Request failed. See logs for details.");
         } catch (NoQuestionsAsked e) {
             log.warn("Deadline extension request for hearing without questions; hearingId={}", onlineHearingId);
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No questions to extend deadline for.");

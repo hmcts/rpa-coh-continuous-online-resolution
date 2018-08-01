@@ -61,6 +61,6 @@ public class DeadlineControllerTest {
 
         UUID onlineHearingId = UUID.randomUUID();
         mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/deadline-extensions"))
-            .andExpect(status().is4xxClientError());
+            .andExpect(status().is5xxServerError());
     }
 }
