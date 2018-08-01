@@ -36,6 +36,7 @@ public enum QuestionResponseMapper {
         if(question.getDeadlineExpiryDate()!=null) {
             response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
         }
+        //if(question)
     }
 
     public void set(Question question, QuestionResponse questionResponse) {

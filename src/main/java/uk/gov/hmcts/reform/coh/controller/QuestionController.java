@@ -67,9 +67,9 @@ public class QuestionController {
         }
 
         List<Question> questions = optionalQuestions.get();
-        List<QuestionResponse> responses = new ArrayList<>();
+        List<QuestionAndAnswerResponse> responses = new ArrayList<>();
         for (Question question : questions) {
-            QuestionResponse questionResponse = new QuestionResponse();
+            QuestionAndAnswerResponse questionResponse = new QuestionAndAnswerResponse();
             QuestionResponseMapper.map(question, questionResponse);
             responses.add(questionResponse);
         }

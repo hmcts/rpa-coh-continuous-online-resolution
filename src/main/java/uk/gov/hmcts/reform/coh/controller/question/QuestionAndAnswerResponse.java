@@ -7,7 +7,7 @@ import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 
 import java.util.Date;
 
-public class QuestionResponse extends QuestionRequest {
+public class QuestionAndAnswerResponse extends QuestionRequest {
 
     @JsonProperty(value = "question_id")
     private String questionId;
@@ -18,9 +18,6 @@ public class QuestionResponse extends QuestionRequest {
 
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
-
-    @JsonProperty(value = "answer")
-    private String answer;
 
     public String getDeadlineExpiryDate() {
         return deadlineExpiryDate;
@@ -48,11 +45,4 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
 }
