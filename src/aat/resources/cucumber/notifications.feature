@@ -11,7 +11,7 @@ Feature: Event Notification Scheduler
     And send get request to the location
     And an event has been queued for this online hearing of event type answers_submitted
     When the notification scheduler runs
-    Then the event is sent
+    Then the event status is event_forwarding_success
 
   Scenario: Notification Event Failures
     Given a standard online hearing is created
@@ -24,4 +24,4 @@ Feature: Event Notification Scheduler
     And send get request to the location
     And an event has been queued for this online hearing of event type answers_submitted
     When the notification scheduler fails to send after configured retries for 'SSCS' and event type 'answers_submitted'
-    Then the event is sent
+    Then the event status is event_forwarding_failed

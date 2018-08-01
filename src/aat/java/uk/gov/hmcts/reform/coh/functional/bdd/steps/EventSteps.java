@@ -10,17 +10,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.SessionEvent;
-import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
-import uk.gov.hmcts.reform.coh.domain.SessionEventType;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
-import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,9 +28,6 @@ public class EventSteps extends BaseSteps{
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
-
-    @Autowired
-    private SessionEventForwardingRegister sessionEventForwardingRegister;
 
     @Autowired
     private SessionEventRepository sessionEventRepository;
@@ -92,22 +86,31 @@ public class EventSteps extends BaseSteps{
         Optional<Jurisdiction> optionalJurisdiction = jurisdictionRepository.findByJurisdictionName(jurisdiction);
         Optional<SessionEventType> sessionEventType = sessionEventTypeRespository.findByEventTypeName(eventType);
 
-        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(optionalJurisdiction.get(), sessionEventType.get());
+        Optional<SessionEventForwardingRegister> optSessionEventForwardingRegister = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(optionalJurisdiction.get(), sessionEventType.get());
 
-        for (int i = 0; i < sessionEventForwardingRegister.get().getMaximumRetries(); i++) {
+        SessionEventForwardingRegister register = optSessionEventForwardingRegister.get();
+        String originalEndpoint = register.getForwardingEndpoint();
+        register.setForwardingEndpoint("https://0.0.0.0/nowhere");
+        sessionEventForwardingRegisterRepository.save(register);
+        for (int i = 0; i < register.getMaximumRetries()+2; i++) {
             job.execute();
         }
+        register.setForwardingEndpoint(originalEndpoint);
+        sessionEventForwardingRegisterRepository.save(register);
     }
 
-    @Then("^the event is sent$")
-    public void theEventIsSent() {
+    @Then("^the event status is (.*)$")
+    public void theEventIsSent(String status) {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         Iterable<SessionEvent> events = sessionEventRepository.findAll();
-        events.forEach(e -> {
-            assertEquals(
-                    SessionEventForwardingStates.EVENT_FORWARDING_SUCCESS.getStateName(),
-                    e.getSessionEventForwardingState().getForwardingStateName()
-            );
-        }
-        );
+        StreamSupport.stream(events.spliterator(), false)
+                .filter(e -> e.getOnlineHearing().getOnlineHearingId().equals(onlineHearing.getOnlineHearingId()))
+                .forEach(e -> {
+                    assertEquals(
+                            status,
+                            e.getSessionEventForwardingState().getForwardingStateName()
+                    );
+                }
+                );
     }
 }
