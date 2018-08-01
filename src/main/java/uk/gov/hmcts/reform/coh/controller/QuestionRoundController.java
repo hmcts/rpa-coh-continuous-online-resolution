@@ -41,7 +41,7 @@ public class QuestionRoundController {
 
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = Question.class),
+            @ApiResponse(code = 200, message = "Success", response = QuestionRoundsResponse.class),
             @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),

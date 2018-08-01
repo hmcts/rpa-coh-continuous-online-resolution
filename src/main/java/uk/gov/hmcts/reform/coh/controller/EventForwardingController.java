@@ -17,8 +17,8 @@ import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
-import uk.gov.hmcts.reform.coh.service.EventForwardingRegisterService;
-import uk.gov.hmcts.reform.coh.service.EventTypeService;
+import uk.gov.hmcts.reform.coh.service.SessionEventForwardingRegisterService;
+import uk.gov.hmcts.reform.coh.service.SessionEventTypeService;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 
 import javax.validation.Valid;
@@ -30,36 +30,37 @@ import java.util.Optional;
 public class EventForwardingController {
     private static final Logger log = LoggerFactory.getLogger(EventForwardingController.class);
 
-    private final EventForwardingRegisterService eventForwardingRegisterService;
 
-    private final EventTypeService eventTypeService;
+    private final SessionEventForwardingRegisterService sessionEventForwardingRegisterService;
+
+    private final SessionEventTypeService sessionEventTypeService;
 
     private final JurisdictionService jurisdictionService;
 
     @Autowired
-    public EventForwardingController(EventForwardingRegisterService eventForwardingRegisterService, EventTypeService eventTypeService, JurisdictionService jurisdictionService) {
-        this.eventForwardingRegisterService = eventForwardingRegisterService;
-        this.eventTypeService = eventTypeService;
+    public EventForwardingController(SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
+        this.sessionEventForwardingRegisterService = sessionEventForwardingRegisterService;
+        this.sessionEventTypeService = sessionEventTypeService;
         this.jurisdictionService = jurisdictionService;
     }
 
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity registerForEventNotifications(@Valid @RequestBody EventRegistrationRequest body) {
 
-        Optional<SessionEventType> eventType = eventTypeService.retrieveEventType(body.getEventType());
+        Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(body.getEventType());
         if(!eventType.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event type not found");
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Event type not found");
         }
+
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
         if(!jurisdiction.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Jurisdiction not found");
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Jurisdiction not found");
         }
 
         SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
@@ -67,12 +68,19 @@ public class EventForwardingController {
                 .jurisdiction(jurisdiction.get())
                 .forwardingEndpoint(body.getEndpoint())
                 .maximumRetries(body.getMaxRetries())
-                .withActive(Boolean.valueOf(body.getActive()))
+                .withActive(true)
                 .registrationDate(new Date())
                 .build();
 
-        eventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
+        Optional<SessionEventForwardingRegister> sessionEvent = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(sessionEventForwardingRegister);
 
-        return ResponseEntity.ok("Successfully registered for event notifications");
+        if(sessionEvent.isPresent()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Jurisdiction already registered to event");
+        } else {
+            sessionEventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
+            return ResponseEntity.ok("Successfully registered for event notifications");
+        }
+
+
     }
 }

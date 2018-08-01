@@ -13,7 +13,7 @@ public class ExpiryCalendar {
      * @return
      */
     public static Date getDeadlineExpiryDate() {
-        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         calendar.add(Calendar.DAY_OF_YEAR, 7);
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
