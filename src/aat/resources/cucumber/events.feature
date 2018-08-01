@@ -17,3 +17,17 @@ Feature: Event features
 #    Given a standard request to subscribe to question round issued
 #    When a POST request is sent to register
 #    Then the response code is 200
+
+  Scenario: Reset answer_submitted event state
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And a standard answer
+    And the endpoint is for submitting an answer
+    And a POST request is sent
+    And the response code is 201
+    And an event has been queued for this online hearing of event type answers_submitted
+    And wait until the event is processed
+    When the put request is sent to reset the events of type answers_submitted
+    Then the response code is 200
+    And the event has been set to forwarding_state_pending of event type answers_submitted
