@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -18,7 +17,6 @@ import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
-import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -102,17 +100,8 @@ public class DeadlineSteps extends BaseSteps {
         restTemplate.setErrorHandler(oldErrorHandler);
     }
 
-    @Then("^questions' deadlines have been (successfully extended|denied)$")
-    public void questionsDeadlinesHaveBeenSuccessfullyExtended(String expectedState) throws Throwable {
-        QuestionStates questionExpectedState;
-        if ("denied".equals(expectedState)) {
-            questionExpectedState = QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED;
-        } else if (expectedState != null && expectedState.endsWith("extended")) {
-            questionExpectedState = QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED;
-        } else {
-            throw new PendingException("Question state not implemented yet");
-        }
-
+    @Then("^questions' deadlines have been (.*)$")
+    public void questionsDeadlinesHaveBeenSuccessfullyExtended(String questionExpectedState) throws Throwable {
         // load questions into scenario context
         questionSteps.get_all_questions_for_a_online_hearing();
 
@@ -133,7 +122,7 @@ public class DeadlineSteps extends BaseSteps {
             );
 
             assertEquals(
-                questionExpectedState.getStateName(),
+                questionExpectedState,
                 questionResponse.getCurrentState().getName()
             );
         }
