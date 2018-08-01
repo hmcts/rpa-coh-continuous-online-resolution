@@ -51,13 +51,13 @@ public class EventNotifierJob {
 
     private SessionEventForwardingStates successState = SessionEventForwardingStates.EVENT_FORWARDING_SUCCESS;
 
+    private SessionEventForwardingStates failureState = SessionEventForwardingStates.EVENT_FORWARDING_FAILED;
+
     @Scheduled(fixedDelayString  = "${event-scheduler.event-notifier.fixed-delay}")
     public void execute() {
 
-
         List<SessionEvent> sessionEvents = getPendingSessionEvents();
         for (SessionEvent sessionEvent : sessionEvents) {
-            appInsightsEventRepository.trackEvent(AppInsightsEvents.COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
             log.info(String.format("Processing session event: %s", sessionEvent.getEventId()));
 
             // Use the session event type to get the transformer that will create the notification message
@@ -74,8 +74,6 @@ public class EventNotifierJob {
                 // Now try and send the notification
                 SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
                 ResponseEntity response = forwarder.sendEndpoint(register, request);
-
-                // Probably success. Check the response code and update the status
                 if (HttpStatus.OK.value() == response.getStatusCodeValue()) {
                     log.info(String.format("Register endpoint responded OK"));
 
@@ -84,7 +82,6 @@ public class EventNotifierJob {
                     if (success.isPresent()) {
                         log.info(String.format("Updating session event state to %s", success.get().getForwardingStateName()));
                         sessionEvent.setSessionEventForwardingState(success.get());
-                        sessionEventService.updateSessionEvent(sessionEvent);
                     }
 
                     // Run any tasks required after notification completes
@@ -97,11 +94,19 @@ public class EventNotifierJob {
                     log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
                     if (sessionEvent.getRetries() < register.getMaximumRetries()) {
                         sessionEvent.setRetries(sessionEvent.getRetries() + 1);
-                        sessionEventService.updateSessionEvent(sessionEvent);
                     } else {
-                        appInsightsEventRepository.trackEvent(AppInsightsEvents.COR_NOTIFICATION_FAILURE.name(), null);
+                        Optional<SessionEventForwardingState> failure = sessionEventForwardingStateRepository.findByForwardingStateName(failureState.getStateName());
+                        appInsightsEventRepository.trackEvent(AppInsightsEvents.COH_COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
+                        if (failure.isPresent()) {
+                            log.error(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
+                            sessionEvent.setSessionEventForwardingState(failure.get());
+                        } else {
+                            log.info(String.format("Updating session event state to %s",failureState.getStateName()));
+                        }
                     }
                 }
+
+                sessionEventService.updateSessionEvent(sessionEvent);
             } catch (NotificationException e) {
                 log.error(String.format("Exception while trying to send a notification. Exception is %s", e.getMessage()));
             }
