@@ -93,12 +93,12 @@ public class EventForwardingController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PutMapping(value = "/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity resetSessionEvents(@RequestBody ResetSessionEventRequest request) {
+    public ResponseEntity resetSessionEvents(@Valid @RequestBody ResetSessionEventRequest request) {
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
         Optional<SessionEventType> sessionEventType = sessionEventTypeService.retrieveEventType(request.getEventType());
 
         if (!jurisdiction.isPresent() || !sessionEventType.isPresent()) {
-            ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid jurisdiction or event type");
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid jurisdiction or event type");
         }
 
         SessionEventForwardingRegister eventForwardingRegister = new SessionEventForwardingRegister.Builder()
@@ -107,10 +107,14 @@ public class EventForwardingController {
                 .build();
 
         Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
-        Optional<SessionEventForwardingState> pendingEventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());
+        if(!sessionEventForwardingRegister.isPresent()) {
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No registers for this jurisdiction & event type");
+        }
 
-        if(!sessionEventForwardingRegister.isPresent() || !pendingEventForwardingState.isPresent()) {
-            ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("We have encounter an error. Please contact support.");
+        Optional<SessionEventForwardingState> pendingEventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());
+        if(!sessionEventForwardingRegister.isPresent()) {
+            log.error("Pending event forwarding state was not found in the database");
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("We have encounter an error. Please contact support.");
         }
 
         sessionEventService.retrieveAllByEventForwardingRegister(sessionEventForwardingRegister).stream()
