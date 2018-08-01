@@ -29,16 +29,18 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.SessionEvent;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
+import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -62,6 +64,12 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private SessionEventService sessionEventService;
+
+    @Autowired
+    private EventNotifierJob eventNotifierJob;
+
+    @Autowired
+    private SessionEventForwardingStateRepository sessionEventForwardingStateRepository;
 
     private JSONObject json;
 
@@ -238,11 +246,36 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^an event has been queued for this online hearing of event type (.*)$")
-    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) throws Throwable {
+    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
         assertTrue(!optSessionEvent.isEmpty());
         assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+    }
+
+    @And("^wait until the event is processed$")
+    public void waitUntilTheQuestionRoundIsInQuestionIssuedState() {
+        eventNotifierJob.execute();
+    }
+
+    @And("^the event has been set to forwarding_state_pending of event type (.*)$")
+    public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        SessionEventForwardingState forwardingState = sessionEventForwardingStateRepository.findByForwardingStateName(eventType)
+                .orElseThrow(() -> new EntityNotFoundException());
+        Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearing.getJurisdictionName())
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
+                jurisdiction.getJurisdictionId(), forwardingState.getForwardingStateId());
+
+
+        boolean hasEvent = sessionEvents.stream()
+                .filter(se -> se.getSessionEventForwardingRegister().getEventForwardingRegisterId().equals(sessionEventForwardingRegisterId))
+                .allMatch(se -> se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));
+
+        assertTrue(hasEvent);
     }
 }
