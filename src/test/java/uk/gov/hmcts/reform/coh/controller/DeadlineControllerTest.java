@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -50,7 +51,7 @@ public class DeadlineControllerTest {
     }
 
     @Test
-    public void testExtensionRequestWithExceptionThrown() throws Exception {
+    public void testExtensionRequestWithExceptionThrown() throws Exception, NoQuestionsAsked {
         OnlineHearing spyOnlineHearing = spy(OnlineHearing.class);
         Optional<OnlineHearing> onlineHearing = Optional.of(spyOnlineHearing);
         when(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).thenReturn(onlineHearing);

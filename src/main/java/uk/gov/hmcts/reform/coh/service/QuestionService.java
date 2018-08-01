@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -122,12 +123,12 @@ public class QuestionService {
     }
 
     @Transactional
-    public void requestDeadlineExtension(OnlineHearing onlineHearing) {
+    public void requestDeadlineExtension(OnlineHearing onlineHearing) throws NoQuestionsAsked {
         List<Question> questions = findAllQuestionsByOnlineHearing(onlineHearing)
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
         if (questions.isEmpty()) {
-            throw new RuntimeException("There are no questions to be answered");
+            throw new NoQuestionsAsked();
         }
 
         Instant now = Instant.now();

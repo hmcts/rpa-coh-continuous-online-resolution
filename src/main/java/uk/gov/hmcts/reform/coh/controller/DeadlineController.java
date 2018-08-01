@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +50,9 @@ public class DeadlineController {
         } catch (Exception e) {
             log.error("Request failed", e);
             return ResponseEntity.status(406).body("Request failed. See logs for details.");
+        } catch (NoQuestionsAsked e) {
+            log.warn("Deadline extension request for hearing without questions; hearingId={}", onlineHearingId);
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No questions to extend deadline for.");
         }
         return ResponseEntity.ok(null);
     }

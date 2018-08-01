@@ -3,9 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -14,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
@@ -32,9 +31,6 @@ import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
 
 @RunWith(SpringRunner.class)
 public class QuestionServiceTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Mock
     private QuestionRepository questionRepository;
@@ -170,16 +166,13 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).save(question);
     }
 
-    @Test
-    public void testRequestingDeadlineExtensionWithNullOnlineHearing() {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("There are no questions to be answered");
-
+    @Test(expected = NoQuestionsAsked.class)
+    public void testRequestingDeadlineExtensionWithNullOnlineHearing() throws NoQuestionsAsked {
         questionService.requestDeadlineExtension(null);
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForExpiredQuestion() {
+    public void testRequestingDeadlineExtensionForExpiredQuestion() throws NoQuestionsAsked {
         Question mockedQuestion = expiredQuestion();
         when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
             ImmutableList.of(mockedQuestion)
@@ -191,7 +184,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForIssuedQuestion() {
+    public void testRequestingDeadlineExtensionForIssuedQuestion() throws NoQuestionsAsked {
         Question mockedQuestion = notExpiredQuestion();
         doReturn(issuedState).when(mockedQuestion).getQuestionState();
 
@@ -207,7 +200,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForGrantedQuestion() {
+    public void testRequestingDeadlineExtensionForGrantedQuestion() throws NoQuestionsAsked {
         Question mockedQuestion = notExpiredQuestion();
         doReturn(grantedState).when(mockedQuestion).getQuestionState();
 
@@ -223,7 +216,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForPendingQuestion() {
+    public void testRequestingDeadlineExtensionForPendingQuestion() throws NoQuestionsAsked {
         Question mockedQuestion = notExpiredQuestion();
         QuestionState pendingState = mockQuestionState(QuestionStates.ISSUE_PENDING);
         doReturn(pendingState).when(mockedQuestion).getQuestionState();
