@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -40,7 +41,11 @@ public class QuestionService {
     private QuestionState issued;
     private QuestionState extensionGranted;
     private QuestionState extensionDenied;
-    private Duration extension = Duration.ofDays(7);
+
+    @Value("${deadline.extension-days}")
+    private int extensionDays = 7;
+
+    private Duration extension;
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
@@ -132,6 +137,7 @@ public class QuestionService {
         extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
 
         Instant now = Instant.now();
+        extension = Duration.ofDays(extensionDays);
 
         questions.stream()
             .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
