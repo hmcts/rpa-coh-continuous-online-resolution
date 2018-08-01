@@ -46,7 +46,7 @@ public class DeadlineController {
         @ApiResponse(code = 424, message = "Failed dependency"),
         @ApiResponse(code = 500, message = "General request failure")
     })
-    @PutMapping("/deadline-extensions")
+    @PutMapping("/questions-deadline-extension")
     public ResponseEntity requestExtensionForQuestion(@PathVariable UUID onlineHearingId) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);

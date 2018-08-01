@@ -46,7 +46,7 @@ public class DeadlineControllerTest {
         when(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).thenReturn(onlineHearing);
 
         UUID onlineHearingId = UUID.randomUUID();
-        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/deadline-extensions"))
+        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
             .andExpect(status().isOk());
     }
 
@@ -60,7 +60,7 @@ public class DeadlineControllerTest {
         doThrow(RuntimeException.class).when(questionService).requestDeadlineExtension(any());
 
         UUID onlineHearingId = UUID.randomUUID();
-        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/deadline-extensions"))
+        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
             .andExpect(status().is5xxServerError());
     }
 }
