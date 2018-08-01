@@ -105,9 +105,8 @@ public class EventNotifierJob {
     protected void doFailureUpdate(SessionEventForwardingRegister register, SessionEvent sessionEvent) {
         log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
 
-        if (sessionEvent.getRetries() < register.getMaximumRetries()+1) {
-            sessionEvent.setRetries(sessionEvent.getRetries() + 1);
-        } else {
+        sessionEvent.setRetries(sessionEvent.getRetries() + 1);
+        if (sessionEvent.getRetries() >= register.getMaximumRetries()+1) {
             Optional<SessionEventForwardingState> failure = sessionEventForwardingStateRepository.findByForwardingStateName(failureState.getStateName());
             appInsightsEventRepository.trackEvent(AppInsightsEvents.COH_COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
             if (failure.isPresent()) {
