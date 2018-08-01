@@ -9,13 +9,12 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterReposito
 import java.util.Optional;
 
 @Service
-@Component
-public class EventForwardingRegisterService {
+public class SessionEventForwardingRegisterService {
 
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
     @Autowired
-    public EventForwardingRegisterService(SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository) {
+    public SessionEventForwardingRegisterService(SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository) {
         this.sessionEventForwardingRegisterRepository = sessionEventForwardingRegisterRepository;
     }
 

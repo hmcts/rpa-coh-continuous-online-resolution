@@ -15,12 +15,12 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-public class EventForwardingRegisterServiceTest {
+public class SessionEventForwardingRegisterServiceTest {
 
     @Mock
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
-    private EventForwardingRegisterService eventForwardingRegisterService;
+    private SessionEventForwardingRegisterService sessionEventForwardingRegisterService;
 
     private SessionEventForwardingRegister sessionEventForwardingRegister;
     private SessionEventForwardingRegisterId sessionEventForwardingRegisterId;
@@ -31,28 +31,28 @@ public class EventForwardingRegisterServiceTest {
 
         sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(1L, 1);
         sessionEventForwardingRegister.setEventForwardingRegisterId(sessionEventForwardingRegisterId);
-        eventForwardingRegisterService = new EventForwardingRegisterService(sessionEventForwardingRegisterRepository);
+        sessionEventForwardingRegisterService = new SessionEventForwardingRegisterService(sessionEventForwardingRegisterRepository);
     }
 
     @Test
     public void testCreateEventForwardingRegister() {
         when(sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister)).thenReturn(sessionEventForwardingRegister);
 
-        SessionEventForwardingRegister newEvent = eventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
+        SessionEventForwardingRegister newEvent = sessionEventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
         assertEquals(newEvent, sessionEventForwardingRegister);
     }
 
     @Test
     public void testRetrieveEventForwardingRegister() {
         when(sessionEventForwardingRegisterRepository.findById(sessionEventForwardingRegisterId)).thenReturn(Optional.of(sessionEventForwardingRegister));
-        Optional<SessionEventForwardingRegister> newEvent = eventForwardingRegisterService.retrieveEventForwardingRegister(sessionEventForwardingRegister);
+        Optional<SessionEventForwardingRegister> newEvent = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(sessionEventForwardingRegister);
         assertTrue(newEvent.isPresent());
     }
 
     @Test
     public void testRetrieveEventForwardingRegisterByIdFail() {
         when(sessionEventForwardingRegisterRepository.findById(sessionEventForwardingRegisterId)).thenReturn(Optional.empty());
-        Optional<SessionEventForwardingRegister> newEvent = eventForwardingRegisterService.retrieveEventForwardingRegister(sessionEventForwardingRegister);
+        Optional<SessionEventForwardingRegister> newEvent = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(sessionEventForwardingRegister);
         assertFalse(newEvent.isPresent());
     }
 }

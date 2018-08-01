@@ -405,7 +405,7 @@ public class QuestionSteps extends BaseSteps{
         QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
         List<QuestionResponse> questionResponses = questionRoundResponse.getQuestionList();
 
-        Calendar expectedExpiryDate = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        Calendar expectedExpiryDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 7);
         expectedExpiryDate.set(Calendar.HOUR_OF_DAY, 23);
         expectedExpiryDate.set(Calendar.MINUTE, 59);

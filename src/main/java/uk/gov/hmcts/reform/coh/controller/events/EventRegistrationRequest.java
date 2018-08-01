@@ -2,11 +2,9 @@ package uk.gov.hmcts.reform.coh.controller.events;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 
 public class EventRegistrationRequest {
 
@@ -19,7 +17,7 @@ public class EventRegistrationRequest {
     private String jurisdiction;
 
     @NotNull(message = "Endpoint Required")
-    @JsonProperty("endpoint")
+    @JsonProperty("endpoint") @NotBlank @URL
     private String endpoint;
 
     @PositiveOrZero @Max(5)
@@ -27,10 +25,6 @@ public class EventRegistrationRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer maxRetries = 3;
 
-    @JsonProperty("active")
-    @Pattern(regexp = "(?i:true|false)", message = "Active field must be true or false")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String active = "true";
 
     public String getEventType() {
         return eventType;
@@ -55,14 +49,6 @@ public class EventRegistrationRequest {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
-    }
-
-    public String getActive() {
-        return active;
-    }
-
-    public void setActive(String active) {
-        this.active = active;
     }
 
     public Integer getMaxRetries() {

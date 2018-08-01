@@ -5,55 +5,49 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequestMapper;
-import uk.gov.hmcts.reform.coh.controller.exceptions.ResourceNotFoundException;
-import uk.gov.hmcts.reform.coh.domain.Answer;
-import uk.gov.hmcts.reform.coh.domain.Decision;
-import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.repository.DecisionRepository;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
-import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class JurisdictionServiceTest {
+     private final String SSCS = "SSCS";
+
     @Mock
     private JurisdictionRepository jurisdictionRepository;
-    @Mock
+
     private JurisdictionService jurisdictionService;
 
+    private Jurisdiction jurisdiction;
+
     @Before
-    public void setup() {
+    public void setUp() throws IOException {
         jurisdictionService = new JurisdictionService(jurisdictionRepository);
-
-    }
-
-    @Test(expected = ResourceNotFoundException.class)
-    public void testInvalidJurisdictionThrowsResourceNotFoundException() throws Exception {
-        jurisdictionService.getJurisdictionWithName("Chocolate");
+        jurisdiction = new Jurisdiction();
+        jurisdiction.setJurisdictionName(SSCS);
+        when(jurisdictionRepository.save(jurisdiction)).thenReturn(jurisdiction);
     }
 
     @Test
-    public void testExceptionMessage() throws Exception {
-        try {
-            jurisdictionService.getJurisdictionWithName("Chocolate");
-        } catch (ResourceNotFoundException e){
-            assertThat(e.getMessage(), is("Jurisdiction Not Found"));
-        }
+    public void testGetJurisdictionWithName() {
+        when(jurisdictionRepository.findByJurisdictionName(SSCS)).thenReturn(Optional.of(jurisdiction));
+
+        Optional<Jurisdiction> newJurisdiction = jurisdictionService.getJurisdictionWithName(SSCS);
+        verify(jurisdictionRepository, times(1)).findByJurisdictionName(SSCS);
+        assertEquals(jurisdiction, newJurisdiction.get());
+    }
+
+    @Test
+    public void testFindByOnlineHearingIdFail() {
+        String jui = "JUI";
+        when(jurisdictionRepository.findByJurisdictionName(jui)).thenReturn(Optional.empty());
+        assertFalse(jurisdictionService.getJurisdictionWithName(jui).isPresent());
     }
 
 }
