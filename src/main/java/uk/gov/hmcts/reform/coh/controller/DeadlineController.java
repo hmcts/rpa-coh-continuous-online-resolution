@@ -65,6 +65,6 @@ public class DeadlineController {
             log.warn("Deadline extension request for hearing without questions; hearingId={}", onlineHearingId);
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No questions to extend deadline for.");
         }
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok().build();
     }
 }
