@@ -19,6 +19,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
+import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.util.JsonUtils;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -70,6 +72,7 @@ public class EventForwardingControllerTest {
     private static final String ENDPOINT = "/continuous-online-hearings/events";
 
     private SessionEventForwardingRegister sessionEventForwardingRegister;
+    private List<SessionEvent> sessionEventList;
 
     @Before
     public void setUp() throws IOException {
@@ -97,7 +100,7 @@ public class EventForwardingControllerTest {
         SessionEvent sentEvent = new SessionEvent();
         sentEvent.setSessionEventForwardingState(sendEventForwardingState);
 
-        List<SessionEvent> sessionEventList = new ArrayList<>();
+        sessionEventList = new ArrayList<>();
         sessionEventList.add(alreadyPendingEvent);
         sessionEventList.add(sentEvent);
 
@@ -121,13 +124,15 @@ public class EventForwardingControllerTest {
         given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(any(SessionEventForwardingRegister.class))).willReturn(Optional.of(sessionEventForwardingRegister));
         String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
 
-        MvcResult result = mockMvc.perform(put(ENDPOINT + "/reset")
+        mockMvc.perform(put(ENDPOINT + "/reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
-        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        verify(sessionEventService, times(1)).updateSessionEvent(any(SessionEvent.class));
+                .andExpect(status().is2xxSuccessful());
+
+        verify(sessionEventService, times(sessionEventList.size())).updateSessionEvent(any(SessionEvent.class));
+        boolean isReset = sessionEventList.stream()
+                .allMatch(se -> se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));
+        assertTrue(isReset);
     }
 
     @Test

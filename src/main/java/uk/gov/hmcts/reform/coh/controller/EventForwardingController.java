@@ -90,7 +90,8 @@ public class EventForwardingController {
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 422, message = "Validation error"),
+            @ApiResponse(code = 424, message = "Failed dependency")
     })
     @PutMapping(value = "/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity resetSessionEvents(@Valid @RequestBody ResetSessionEventRequest request) {
@@ -122,9 +123,9 @@ public class EventForwardingController {
         }
 
         sessionEventService.retrieveAllByEventForwardingRegister(sessionEventForwardingRegister.get()).stream()
-                .filter(se -> !(se.getSessionEventForwardingState().equals(pendingEventForwardingState.get())))
                 .forEach(se -> {
                             se.setSessionEventForwardingState(pendingEventForwardingState.get());
+                            se.setRetries(0);
                             sessionEventService.updateSessionEvent(se);
                         });
 
