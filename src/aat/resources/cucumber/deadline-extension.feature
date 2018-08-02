@@ -10,6 +10,7 @@ Feature: Deadline Extension
     And deadline extension is requested
     Then the response code is 200
     And question states are question_deadline_extension_granted
+    And question history has at least 2 events
 
   Scenario: Cannot extend deadline without questions
     Given a standard online hearing is created
@@ -27,3 +28,4 @@ Feature: Deadline Extension
     And deadline extension is requested again
     Then the response code is 200
     And question states are question_deadline_extension_denied
+    And question history has at least 3 events
