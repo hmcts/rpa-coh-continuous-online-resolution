@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.service;
 
+import com.google.common.collect.ImmutableList;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,9 +12,13 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,12 +49,24 @@ public class QuestionServiceTest {
 
     private OnlineHearing onlineHearing;
     private static UUID ONE;
+    private QuestionState issuedState;
+    private QuestionState grantedState;
+    private QuestionState deniedState;
 
     @Before
     public void setup() {
         ONE = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
+
+        issuedState = mockQuestionState(QuestionStates.ISSUED);
+        when(questionStateService.fetchQuestionState(QuestionStates.ISSUED)).thenReturn(issuedState);
+
+        grantedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)).thenReturn(grantedState);
+
+        deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
 
         questionService = new QuestionService(questionRepository, questionStateService, questionRoundService);
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
@@ -146,5 +164,89 @@ public class QuestionServiceTest {
     public void testUpdateQuestionForced() {
         questionService.updateQuestionForced(question);
         verify(questionRepository, times(1)).save(question);
+    }
+
+    @Test(expected = NoQuestionsAsked.class)
+    public void testRequestingDeadlineExtensionWithNullOnlineHearing() throws NoQuestionsAsked {
+        questionService.requestDeadlineExtension(null);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForExpiredQuestion() throws NoQuestionsAsked {
+        Question mockedQuestion = expiredQuestion();
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForIssuedQuestion() throws NoQuestionsAsked {
+        Question mockedQuestion = notExpiredQuestion();
+        doReturn(issuedState).when(mockedQuestion).getQuestionState();
+
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(1)).setDeadlineExpiryDate(any());
+        verify(mockedQuestion, times(1)).setQuestionState(grantedState);
+        verify(mockedQuestion, times(1)).updateQuestionStateHistory(grantedState);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForGrantedQuestion() throws NoQuestionsAsked {
+        Question mockedQuestion = notExpiredQuestion();
+        doReturn(grantedState).when(mockedQuestion).getQuestionState();
+
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
+        verify(mockedQuestion, times(1)).setQuestionState(deniedState);
+        verify(mockedQuestion, times(1)).updateQuestionStateHistory(deniedState);
+    }
+
+    @Test
+    public void testRequestingDeadlineExtensionForPendingQuestion() throws NoQuestionsAsked {
+        Question mockedQuestion = notExpiredQuestion();
+        QuestionState pendingState = mockQuestionState(QuestionStates.ISSUE_PENDING);
+        doReturn(pendingState).when(mockedQuestion).getQuestionState();
+
+        when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
+            ImmutableList.of(mockedQuestion)
+        );
+
+        questionService.requestDeadlineExtension(onlineHearing);
+
+        verify(mockedQuestion, times(0)).setDeadlineExpiryDate(any());
+        verify(mockedQuestion, times(0)).setQuestionState(any());
+        verify(mockedQuestion, times(0)).updateQuestionStateHistory(any());
+    }
+
+    private QuestionState mockQuestionState(QuestionStates state) {
+        QuestionState spy = spy(QuestionState.class);
+        doReturn(state.getStateName()).when(spy).getState();
+        return spy;
+    }
+
+    private Question expiredQuestion() {
+        Question mockedQuestion = spy(Question.class);
+        doReturn(Date.from(Instant.now().minus(1, ChronoUnit.DAYS))).when(mockedQuestion).getDeadlineExpiryDate();
+        return mockedQuestion;
+    }
+
+    private Question notExpiredQuestion() {
+        Question mockedQuestion = spy(Question.class);
+        doReturn(Date.from(Instant.now().plus(1, ChronoUnit.DAYS))).when(mockedQuestion).getDeadlineExpiryDate();
+        return mockedQuestion;
     }
 }

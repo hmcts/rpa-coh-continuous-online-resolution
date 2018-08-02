@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.Optional;
 
@@ -46,5 +47,25 @@ public class QuestionStateServiceTest {
         when(questionStateRepository.findByState(anyString())).thenReturn(Optional.ofNullable(questionState));
         Optional<QuestionState> questionState = questionStateService.retrieveQuestionStateByStateName("ISSUED");
         assertTrue(questionState.isPresent());
+    }
+
+    @Test
+    public void testFetchExistingState() {
+        when(questionStateRepository.findByState(QuestionStates.DRAFTED.getStateName()))
+            .thenReturn(Optional.of(questionState));
+
+        QuestionState draftedState = questionStateService.fetchQuestionState(QuestionStates.DRAFTED);
+        assertEquals(questionState, draftedState);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testThrowExceptionWhenFetchingNonExistingState() {
+        when(questionStateRepository.findByState(anyString())).thenReturn(Optional.empty());
+        questionStateService.fetchQuestionState(QuestionStates.ISSUED);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFetchNullState() {
+        questionStateService.fetchQuestionState(null);
     }
 }
