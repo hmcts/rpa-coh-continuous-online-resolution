@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
@@ -28,6 +27,7 @@ import java.util.UUID;
 public class BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(BaseSteps.class);
 
+    @Autowired
     protected RestTemplate restTemplate;
 
     protected static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -60,8 +60,6 @@ public class BaseSteps {
     }
 
     public void setup() throws Exception {
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
-
         endpoints.put("online hearing", "/continuous-online-hearings");
         endpoints.put("decision", "/continuous-online-hearings/onlineHearing_id/decisions");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");

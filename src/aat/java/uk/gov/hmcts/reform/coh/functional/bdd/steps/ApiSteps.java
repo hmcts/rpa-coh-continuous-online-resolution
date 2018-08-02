@@ -31,6 +31,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingRespo
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.functional.bdd.config.AppConfiguration;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.*;
@@ -46,7 +47,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = {AppConfiguration.class})
 public class ApiSteps extends BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(ApiSteps.class);
 
