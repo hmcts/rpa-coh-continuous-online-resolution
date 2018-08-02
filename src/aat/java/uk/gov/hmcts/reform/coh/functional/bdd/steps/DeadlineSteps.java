@@ -100,7 +100,7 @@ public class DeadlineSteps extends BaseSteps {
         restTemplate.setErrorHandler(oldErrorHandler);
     }
 
-    @Then("^questions' deadlines have been (.*)$")
+    @Then("^question states are (.*)$")
     public void questionsDeadlinesHaveBeenSuccessfullyExtended(String questionExpectedState) throws Throwable {
         // load questions into scenario context
         questionSteps.get_all_questions_for_a_online_hearing();
