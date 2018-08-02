@@ -15,9 +15,11 @@ import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.validators.QuestionValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
+import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
@@ -39,11 +41,14 @@ public class QuestionController {
 
     private Validation validation = new Validation();
 
+    private AnswerService answerService;
+
     @Autowired
-    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService) {
+    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService, AnswerService answerService) {
         this.questionService = questionService;
         this.onlineHearingService = onlineHearingService;
         this.questionStateService = questionStateService;
+        this.answerService = answerService;
     }
 
     @ApiOperation("Get all questions for an online hearing")
@@ -67,10 +72,11 @@ public class QuestionController {
         }
 
         List<Question> questions = optionalQuestions.get();
-        List<QuestionAndAnswerResponse> responses = new ArrayList<>();
+        List<QuestionResponse> responses = new ArrayList<>();
         for (Question question : questions) {
-            QuestionAndAnswerResponse questionResponse = new QuestionAndAnswerResponse();
-            QuestionResponseMapper.map(question, questionResponse);
+            Answer answer = answerService.retrieveAnswersByQuestion(question).get(0);
+            QuestionResponse questionResponse = new QuestionResponse();
+            QuestionResponseMapper.map(question, questionResponse, answer);
             responses.add(questionResponse);
         }
         AllQuestionsResponse response = new AllQuestionsResponse();

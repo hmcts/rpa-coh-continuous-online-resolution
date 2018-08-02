@@ -7,13 +7,13 @@ import java.util.List;
 public class AllQuestionsResponse {
 
     @JsonProperty(value = "questions")
-    private List<QuestionAndAnswerResponse> questions;
+    private List<QuestionResponse> questions;
 
-    public List<QuestionAndAnswerResponse> getQuestions() {
+    public List<QuestionResponse> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<QuestionAndAnswerResponse> questions) {
+    public void setQuestions(List<QuestionResponse> questions) {
         this.questions = questions;
     }
 }
