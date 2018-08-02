@@ -49,3 +49,7 @@ info:
     project: ${PACKAGES_PROJECT:coh}
     name: ${PACKAGES_NAME:cor}
 
+azure:
+  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}
