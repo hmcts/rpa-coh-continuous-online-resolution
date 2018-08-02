@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -115,7 +116,6 @@ public class AnswerControllerTest {
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.ofNullable(answerState));
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.ofNullable(onlineHearing));
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
-
     }
 
     @Test
@@ -219,6 +219,41 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void testCreateAnswerForDraftedQuestionThrowsException() throws Exception {
+        Question question = new Question();
+        QuestionState draftedState = new QuestionState();
+        draftedState.setState(QuestionStates.DRAFTED.getStateName());
+        question.setQuestionState(draftedState);
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
+
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void testCreateAnswerForIssuedPendingQuestionIsSuccessful() throws Exception {
+        questionState = new QuestionState();
+        questionState.setState(QuestionStates.ISSUE_PENDING.getStateName());
+        question = new Question();
+        question.setQuestionState(questionState);
+
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
     }
 
     @Test

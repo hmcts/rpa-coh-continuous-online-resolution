@@ -7,18 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundRequest;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionRound;
-import uk.gov.hmcts.reform.coh.domain.QuestionState;
+import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.task.QuestionRoundSentTask;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class QuestionRoundController {
     private OnlineHearingService onlineHearingService;
 
     @Autowired
-    private QuestionRoundSentTask questionSentTask;
+    private SessionEventService sessionEventService;
 
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {
@@ -112,13 +111,14 @@ public class QuestionRoundController {
     })
     @PutMapping("/questionrounds/{roundId}")
     public ResponseEntity updateQuestionRound(@PathVariable UUID onlineHearingId, @PathVariable int roundId,
-                                                                     @RequestBody QuestionRoundRequest body) {
+                                              @RequestBody QuestionRoundRequest body) {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
+        onlineHearing = optionalOnlineHearing.get();
 
         int currentQuestionRoundNumber = questionRoundService.getCurrentQuestionRoundNumber(onlineHearing);
         if(roundId > currentQuestionRoundNumber) {
@@ -126,7 +126,7 @@ public class QuestionRoundController {
         }
 
         Optional<QuestionState> questionStateOptional = questionStateService.retrieveQuestionStateByStateName(body.getStateName());
-        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUED))) {
+        if(!questionStateOptional.isPresent() || (!questionStateOptional.get().getState().equals(QuestionRoundService.ISSUE_PENDING))) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid question round state");
         }
 
@@ -134,9 +134,13 @@ public class QuestionRoundController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Previous question rounds cannot be issued");
         }
 
-        onlineHearing = optionalOnlineHearing.get();
+        QuestionRoundState qrState = questionRoundService.retrieveQuestionRoundState(questionRoundService.getQuestionRoundByRoundId(onlineHearing, currentQuestionRoundNumber));
+        if(questionRoundService.alreadyIssued(qrState)){
+            throw new NotAValidUpdateException("Question round has already been issued");
+        }
+
+        sessionEventService.createSessionEvent(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED.getEventType());
         questionRoundService.issueQuestionRound(onlineHearing, questionStateOptional.get(), roundId);
-        questionSentTask.execute(onlineHearing);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

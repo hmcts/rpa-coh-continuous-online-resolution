@@ -75,7 +75,15 @@ public class BaseSteps {
     }
 
     public void cleanup() {
-
+        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
+                try {
+                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
+                } catch (DataIntegrityViolationException e) {
+                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
+            }
+        }
         // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
