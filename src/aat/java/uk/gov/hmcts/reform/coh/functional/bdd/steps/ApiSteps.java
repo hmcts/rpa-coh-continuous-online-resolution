@@ -29,9 +29,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.SessionEvent;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
@@ -78,7 +76,7 @@ public class ApiSteps extends BaseSteps {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         caseIds = new HashSet<String>();
         httpClient = HttpClientBuilder
                 .create()

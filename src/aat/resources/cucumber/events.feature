@@ -1,3 +1,4 @@
+@events
 Feature: Event features
 
 #  Scenario: Update decision state to issued
@@ -17,3 +18,10 @@ Feature: Event features
 #    Given a standard request to subscribe to question round issued
 #    When a POST request is sent to register
 #    Then the response code is 200
+
+  Scenario: Subscribe to an event
+    Given jurisdiction ' "PIP", with id ' "42" ' and max question rounds ' "5" ' is created
+    And a standard event register request
+    When a POST request is sent to register
+    Then the response code is 200
+

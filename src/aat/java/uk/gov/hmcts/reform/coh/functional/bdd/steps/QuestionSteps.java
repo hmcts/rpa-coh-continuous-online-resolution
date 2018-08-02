@@ -97,14 +97,6 @@ public class QuestionSteps extends BaseSteps{
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
-
-        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
-            try {
-                jurisdictionRepository.delete(jurisdiction);
-            }catch(DataIntegrityViolationException e){
-                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
-            }
-        }
     }
 
     @And("^the post request is sent to create the question$")
