@@ -426,4 +426,20 @@ public class QuestionSteps extends BaseSteps{
             }
         }
     }
+
+    @And("^question history has at least (\\d+) events$")
+    public void questionHistoryHasAtLeastEvents(int expectedNumberOfEvents) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        List<QuestionResponse> questions = allQuestionsResponse.getQuestions();
+
+        boolean allMatch = questions.stream()
+            .map(questionResponse -> UUID.fromString(questionResponse.getQuestionId()))
+            .map(uuid -> questionRepository.findById(uuid))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .allMatch(question -> question.getQuestionStateHistories().size() >= expectedNumberOfEvents);
+
+        assertTrue(allMatch);
+    }
 }
