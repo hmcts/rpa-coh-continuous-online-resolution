@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
@@ -53,12 +54,14 @@ public class EventSteps extends BaseSteps {
     @After("@events")
     public void cleanUp() {
         Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterRepository
-                .findByJurisdictionAndSessionEventType(jurisdiction, sessionEventTypeRespository
-                        .findByEventTypeName("question_round_issued")
-                        .get()
+                .findByJurisdictionAndSessionEventType(
+                        jurisdiction,
+                        sessionEventTypeRespository.findByEventTypeName("question_round_issued").get()
                 );
 
-        sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister.get());
+        if (sessionEventForwardingRegister.isPresent()) {
+            sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister.get());
+        }
     }
 
     @And("^jurisdiction ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
@@ -84,9 +87,13 @@ public class EventSteps extends BaseSteps {
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(json, header);
-        response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        try {
+            response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+        }
     }
 
     @And("^a standard event register request$")
