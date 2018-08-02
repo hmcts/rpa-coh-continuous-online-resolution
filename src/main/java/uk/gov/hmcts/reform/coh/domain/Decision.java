@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +51,9 @@ public class Decision {
     @OneToMany(mappedBy = "decision",
             cascade = CascadeType.ALL)
     private List<DecisionStateHistory> decisionStateHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "decision")
+    private List<DecisionReply> decisionReplies = new ArrayList<>();
 
     public UUID getDecisionId() {
         return decisionId;
