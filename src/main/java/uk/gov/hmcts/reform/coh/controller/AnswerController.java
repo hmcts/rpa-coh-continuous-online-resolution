@@ -94,7 +94,7 @@ public class AnswerController {
             // If a question exists, then it must be in the issued state to be answered
             if (!optionalQuestion.isPresent()
                     || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist or is not yet issued");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist or has not yet been issued");
             }
 
             // For MVP, there'll only be one answer per question
