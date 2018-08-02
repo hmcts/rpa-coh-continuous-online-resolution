@@ -30,10 +30,11 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.*;
+import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
@@ -61,7 +62,19 @@ public class ApiSteps extends BaseSteps {
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
     @Autowired
+    private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
+
+    @Autowired
+    private SessionEventTypeRespository sessionEventTypeRespository;
+
+    @Autowired
     private SessionEventService sessionEventService;
+
+    @Autowired
+    private EventNotifierJob eventNotifierJob;
+
+    @Autowired
+    private OnlineHearingRepository onlineHearingRepository;
 
     private JSONObject json;
 
@@ -106,7 +119,15 @@ public class ApiSteps extends BaseSteps {
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-
+        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
+                try {
+                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
+                } catch (DataIntegrityViolationException e) {
+                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
+            }
+        }
         for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
             try {
                 jurisdictionRepository.delete(jurisdiction);
@@ -193,19 +214,36 @@ public class ApiSteps extends BaseSteps {
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
     }
 
     @And("^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
     public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id,  int maxQuestionRounds) {
         Jurisdiction jurisdiction = new Jurisdiction();
-
         jurisdiction.setJurisdictionId(id);
         jurisdiction.setJurisdictionName(jurisdictionName);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
+
+
+        Optional<SessionEventType> optSessionEventType = sessionEventTypeRespository.findByEventTypeName(EventTypes.QUESTION_ROUND_ISSUED.getEventType());
+        Optional<Jurisdiction> testJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS");
+        Optional<SessionEventForwardingRegister> templateEFR = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(testJurisdiction.get(), optSessionEventType.get());
+
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+                .jurisdiction(jurisdiction)
+                .sessionEventType(optSessionEventType.get())
+                .forwardingEndpoint(templateEFR.get().getForwardingEndpoint())
+                .maximumRetries(templateEFR.get().getMaximumRetries())
+                .registrationDate(new Date())
+                .withActive(true)
+                .build();
+
+        SessionEventForwardingRegister savedEFR = sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister);
+        testContext.getScenarioContext().addSessionEventForwardingRegister(savedEFR);
         jurisdictions.add(jurisdiction);
     }
 
@@ -242,10 +280,12 @@ public class ApiSteps extends BaseSteps {
     @And("^an event has been queued for this online hearing of event type (.*)$")
     public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
-        assertTrue(!optSessionEvent.isEmpty());
-        assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+        assertFalse(sessionEvents.isEmpty());
+        boolean hasEvent = sessionEvents.stream()
+                .anyMatch(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType));
+        assertTrue(hasEvent);
     }
 
     @And("^wait until the event is processed$")
@@ -254,22 +294,18 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^the event has been set to forwarding_state_pending of event type (.*)$")
-    public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) throws IOException {
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
-
+    public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
         SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
                 .orElseThrow(() -> new EntityNotFoundException());
-        String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
-        OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
 
-        Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearingRequest.getJurisdiction())
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
                 .orElseThrow(() -> new EntityNotFoundException());
 
         SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
                 jurisdiction.getJurisdictionId(), expectedEventType.getEventTypeId());
 
-
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
         boolean hasEvent = sessionEvents.stream()
                 .filter(se -> se.getSessionEventForwardingRegister().getEventForwardingRegisterId().equals(sessionEventForwardingRegisterId))
                 .allMatch(se -> se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));

@@ -111,7 +111,7 @@ public class QuestionSteps extends BaseSteps{
     public void theDraftAQuestion() throws Throwable {
         String jsonBody = JsonUtils.toJson(questionRequest);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
-
+        onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         int httpResponseCode = 0;
         try{
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
@@ -153,8 +153,6 @@ public class QuestionSteps extends BaseSteps{
     @Given("^a standard question")
     public void aStandardQuestionRound() throws IOException{
         questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
-        String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-        onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
     }
 
     @Given("^the question round is ' \"([^\"]*)\" '$")
@@ -179,6 +177,7 @@ public class QuestionSteps extends BaseSteps{
 
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
     public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, String.class);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());

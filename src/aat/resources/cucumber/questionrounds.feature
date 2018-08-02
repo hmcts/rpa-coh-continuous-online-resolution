@@ -8,6 +8,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     Given the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
@@ -19,17 +20,20 @@ Feature: Question Round Logic
     And a jurisdiction named ' "Civil directions", with id ' "55" ' and max question rounds ' "0" ' is created
     And the online hearing jurisdiction is ' "Civil directions" '
     And the post request is sent to create the online hearing
+    Then the response code is 201
     And a standard question
     Given the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     Given the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
+    And wait until the event is processed
     Given the question round is ' "4" '
     When the post request is sent to create the question
     Then the response code is 422
@@ -49,11 +53,13 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     Given the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
+    And wait until the event is processed
     Given the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 422
@@ -66,6 +72,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     Given a standard question
     And the question round is ' "3" '
     When the post request is sent to create the question
@@ -82,12 +89,14 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     Given a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
+    And wait until the event is processed
     Given a standard question
     And the question round is ' "3" '
     When the post request is sent to create the question
@@ -105,6 +114,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     Given a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
@@ -124,6 +134,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     And a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
@@ -159,6 +170,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "question_issued" '
@@ -166,6 +178,7 @@ Feature: Question Round Logic
     And each question in the question round has a correct deadline expiry date
     And a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_questions_issued'
+    And an event has been queued for this online hearing of event type question_round_issued
 
 
   Scenario: Issue a question round and check all questions are updated
@@ -184,6 +197,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "question_issued" '
@@ -197,6 +211,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     When a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
@@ -221,5 +236,6 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
+    And wait until the event is processed
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 422

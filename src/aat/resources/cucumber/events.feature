@@ -22,6 +22,7 @@ Feature: Event features
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
     And a standard answer
     And the endpoint is for submitting an answer
     And a POST request is sent
