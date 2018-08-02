@@ -208,7 +208,7 @@ public class AnswerControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        assertEquals("The question does not exist or not yet issued", result.getResponse().getContentAsString());
+        assertEquals("The question does not exist or is not yet issued", result.getResponse().getContentAsString());
     }
 
     @Test
