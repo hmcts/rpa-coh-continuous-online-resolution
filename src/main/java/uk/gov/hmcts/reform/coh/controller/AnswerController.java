@@ -90,6 +90,7 @@ public class AnswerController {
         try {
 
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
+
             // If a question exists, then it must be in the issued state to be answered
             if (!optionalQuestion.isPresent()
                     || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
@@ -150,7 +151,7 @@ public class AnswerController {
 
     @ApiOperation(value = "Get Answers", notes = "A GET request without a body is used to retrieve all answers to a question")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class),
+            @ApiResponse(code = 200, message = "Success", response = AnswerResponse.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found")

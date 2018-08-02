@@ -18,7 +18,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -34,6 +35,7 @@ public class QuestionRoundServiceTest {
     private QuestionState draftedState;
     private QuestionState submittedState;
     private QuestionState issuedState;
+    private QuestionState issuedPendingState;
     private List<Question> questionRound1Questions;
 
     @Mock
@@ -45,6 +47,7 @@ public class QuestionRoundServiceTest {
 
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
+    private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
 
     @Before
     public void setup(){
@@ -59,6 +62,10 @@ public class QuestionRoundServiceTest {
         issuedState = new QuestionState();
         issuedState.setQuestionStateId(3);
         issuedState.setState(issuedStateName);
+
+        issuedPendingState = new QuestionState();
+        issuedPendingState.setQuestionStateId(3);
+        issuedPendingState.setState(issuedPendingStateName);
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
@@ -78,6 +85,7 @@ public class QuestionRoundServiceTest {
         questionRound1Questions.add(question);
 
         given(questionStateService.retrieveQuestionStateByStateName(issuedStateName)).willReturn(Optional.of(issuedState));
+        given(questionStateService.retrieveQuestionStateByStateName(issuedPendingStateName)).willReturn(Optional.of(issuedPendingState));
         given(questionStateService.retrieveQuestionStateByStateName(draftedStateName)).willReturn(Optional.of(draftedState));
         given(questionStateService.retrieveQuestionStateByStateName("question_submitted")).willReturn(Optional.of(submittedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
@@ -320,6 +328,17 @@ public class QuestionRoundServiceTest {
         assertEquals(issuedState.getState(), questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 
+    @Test(expected = NotAValidUpdateException.class)
+    public void testAddNewQuestionRoundWhenIssuePendingThrowsException() {
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        Question question = new Question();
+        question.setQuestionRound(2);
+        question.setQuestionState(new QuestionState(QuestionStates.ISSUE_PENDING.getStateName()));
+        questionRoundService.isQrValidState(question, onlineHearing);
+    }
+
     @Test
     public void testIssueQuestionRound() {
         doReturn(new QuestionRoundState(draftedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
@@ -335,9 +354,19 @@ public class QuestionRoundServiceTest {
         question.setQuestionState(draftedState);
 
         doReturn(2).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        QuestionRoundState issuedQrState = new QuestionRoundState(issuedState);
-        doReturn(issuedQrState).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+        assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
+    }
+
+    @Test
+    public void testIncrementQrWhenNotIssuedPendingInvalid() {
+        Question question = new Question();
+        question.setQuestionRound(2);
+        question.setQuestionState(draftedState);
+
+        doReturn(2).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
         assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
     }
@@ -379,6 +408,18 @@ public class QuestionRoundServiceTest {
     }
 
     @Test
+    public void testAddQuestionToCurrentQrWhenIssuedPendingIsInvalid() {
+        Question question = new Question();
+        question.setQuestionRound(1);
+        question.setQuestionState(draftedState);
+
+        doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
+        doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+
+        assertFalse(questionRoundService.isQrValidState(question, onlineHearing));
+    }
+
+    @Test
     public void testIssueQuestionRoundChangesAllQuestionStatesAndSavesToDb() {
         List<Question> questions = new ArrayList<>();
         questions.add(new Question());
@@ -396,11 +437,29 @@ public class QuestionRoundServiceTest {
         assertTrue(issuedQuestions.stream().allMatch(q -> q.getDeadlineExpiryDate() != null));
     }
 
-    @Test(expected = NotAValidUpdateException.class)
-    public void testReissuingTheCurrentQuestionThrowsNotAValidUpdate() {
-        doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
+    @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssuePending() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedPendingState)));
+    }
 
-        questionRoundService.issueQuestionRound(onlineHearing, issuedState, 1);
+    @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssued() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedState)));
+    }
+
+    @Test
+    public void testAlreadyIssuedReturnsFalseIfQuestionStateIsDrafted() {
+        assertFalse(questionRoundService.alreadyIssued(new QuestionRoundState(draftedState)));
+    }
+
+    @Test
+    public void testIsFirstRoundReturnsTrueIfQuestionRoundIsZero() {
+        assertTrue(questionRoundService.isFirstRound(0));
+    }
+
+    @Test
+    public void testIsFirstRoundReturnsFalseIfQuestionRoundIsNotZero() {
+        assertFalse(questionRoundService.isFirstRound(1));
     }
 }
 
