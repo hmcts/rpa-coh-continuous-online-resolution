@@ -119,6 +119,16 @@ public class AnswerControllerTest {
     }
 
     @Test
+    public void testCreateAnswerOnlineHearingNotFound() throws Exception {
+
+        given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     public void testEmptyAnswerText() throws Exception {
 
         request.setAnswerText(null);
@@ -188,14 +198,17 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testCreateAnswerInvalidQuestion() throws Exception {
+    public void testCreateAnswerQuestionNotFound() throws Exception {
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("The question does not exist or has not yet been issued", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -276,6 +289,17 @@ public class AnswerControllerTest {
     }
 
     @Test
+    public void testGetAnswersQuestionNotFound() throws Exception {
+
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isFailedDependency());
+    }
+
+    @Test
     public void testGetAnswers() throws Exception {
 
         Question question = new Question();
@@ -296,6 +320,17 @@ public class AnswerControllerTest {
         String response = result.getResponse().getContentAsString();
         AnswerResponse[] answers = (AnswerResponse[]) JsonUtils.toObjectFromJson(response, AnswerResponse[].class);
         assertEquals(1, answers.length);
+    }
+
+    @Test
+    public void testUpdateAnswersOnlineHearingNotFound() throws Exception {
+        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound());
     }
 
     @Test
