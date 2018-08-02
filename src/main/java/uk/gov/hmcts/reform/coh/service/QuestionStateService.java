@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionStateRepository;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.Optional;
 
@@ -24,5 +25,10 @@ public class QuestionStateService {
 
     public Optional<QuestionState> retrieveQuestionStateByStateName(final String stateName){
         return questionStateRepository.findByState(stateName);
+    }
+
+    public QuestionState fetchQuestionState(QuestionStates state) {
+        return retrieveQuestionStateByStateName(state.getStateName())
+            .orElseThrow(() -> new RuntimeException("Unknown question state: " + state.name()));
     }
 }

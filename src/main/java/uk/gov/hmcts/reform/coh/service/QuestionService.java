@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -10,15 +11,22 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 
-import javax.persistence.EntityNotFoundException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED;
 
 @Service
 public class QuestionService {
@@ -30,6 +38,14 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     private final QuestionStateService questionStateService;
+    private QuestionState issued;
+    private QuestionState extensionGranted;
+    private QuestionState extensionDenied;
+
+    @Value("${deadline.extension-days}")
+    private int extensionDays = 7;
+
+    private Duration extension;
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
@@ -105,5 +121,58 @@ public class QuestionService {
     @Transactional
     public void deleteQuestion(Question question) {
         questionRepository.delete(question);
+    }
+
+    @Transactional
+    public void requestDeadlineExtension(OnlineHearing onlineHearing) throws NoQuestionsAsked {
+        List<Question> questions = findAllQuestionsByOnlineHearing(onlineHearing)
+            .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
+
+        if (questions.isEmpty()) {
+            throw new NoQuestionsAsked();
+        }
+
+        issued = questionStateService.fetchQuestionState(ISSUED);
+        extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
+        extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
+
+        Instant now = Instant.now();
+        extension = Duration.ofDays(extensionDays);
+
+        questions.stream()
+            .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
+            .forEach(question -> {
+                if (shouldGrantExtensionTo(question)) {
+                    grantDeadlineExtension(question);
+                } else if (shouldDenyExtensionTo(question)) {
+                    denyDeadlineExtension(question);
+                }
+            });
+    }
+
+    private boolean shouldGrantExtensionTo(Question question) {
+        return issued.equals(question.getQuestionState());
+    }
+
+    private boolean shouldDenyExtensionTo(Question question) {
+        return extensionGranted.equals(question.getQuestionState());
+    }
+
+    private void grantDeadlineExtension(Question question) {
+        question.setDeadlineExpiryDate(newDeadline(question));
+        question.setQuestionState(extensionGranted);
+        question.updateQuestionStateHistory(extensionGranted);
+        questionRepository.save(question);
+    }
+
+    private Date newDeadline(Question question) {
+        Temporal temporal = extension.addTo(question.getDeadlineExpiryDate().toInstant());
+        return Date.from(Instant.from(temporal));
+    }
+
+    private void denyDeadlineExtension(Question question) {
+        question.setQuestionState(extensionDenied);
+        question.updateQuestionStateHistory(extensionDenied);
+        questionRepository.save(question);
     }
 }
