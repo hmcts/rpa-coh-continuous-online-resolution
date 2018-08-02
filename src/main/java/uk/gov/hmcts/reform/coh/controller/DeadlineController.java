@@ -39,7 +39,7 @@ public class DeadlineController {
     }
 
     @ApiOperation(value = "Request deadline extension",
-        notes = "Issued questions will get better chance to be answered on time.")
+        notes = "A PUT request to extend the deadline of questions.")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Success"),
         @ApiResponse(code = 404, message = "Not found"),
