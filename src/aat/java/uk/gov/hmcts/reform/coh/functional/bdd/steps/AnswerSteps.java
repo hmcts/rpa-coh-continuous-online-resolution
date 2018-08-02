@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.config.AppConfiguration;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = {AppConfiguration.class})
 public class AnswerSteps extends BaseSteps{
     private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
 

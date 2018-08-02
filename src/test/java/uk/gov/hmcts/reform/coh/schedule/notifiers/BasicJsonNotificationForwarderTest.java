@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
@@ -52,6 +53,7 @@ public class BasicJsonNotificationForwarderTest {
         forwarder = Mockito.spy(BasicJsonNotificationForwarder.class);
 
         restTemplate = Mockito.mock(RestTemplate.class);
+        ReflectionTestUtils.setField(forwarder, "restTemplate", restTemplate);
 
         mapper = Mockito.mock(ObjectMapper.class);
 

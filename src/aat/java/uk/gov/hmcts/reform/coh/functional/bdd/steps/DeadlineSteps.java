@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.ResponseErrorHandler;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.functional.bdd.config.AppConfiguration;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 
@@ -30,7 +31,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = {AppConfiguration.class})
 public class DeadlineSteps extends BaseSteps {
 
     @Autowired
