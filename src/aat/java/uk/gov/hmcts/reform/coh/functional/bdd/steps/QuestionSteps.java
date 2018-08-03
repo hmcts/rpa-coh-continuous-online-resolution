@@ -131,7 +131,7 @@ public class QuestionSteps extends BaseSteps{
     public void get_all_questions_for_a_online_hearing() throws Throwable {
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-            ResponseEntity<String> response = response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
+            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
