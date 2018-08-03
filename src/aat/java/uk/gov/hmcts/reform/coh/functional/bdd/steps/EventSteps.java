@@ -116,7 +116,7 @@ public class EventSteps extends BaseSteps{
     }
 
     @When("^the put request is sent to reset the events of type (.*)$")
-    public void thePutRequestIsSentToResetTheEventsOfTypeAnswers_submitted(String eventType) throws IOException {
+    public void thePutRequestIsSentToResetTheEventsOfTypeAnswersSubmitted(String eventType) throws IOException {
         String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
         ResetSessionEventRequest resetSessionEventRequest = (ResetSessionEventRequest) JsonUtils.toObjectFromJson(json, ResetSessionEventRequest.class);
 

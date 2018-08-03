@@ -233,7 +233,7 @@ public class ApiSteps extends BaseSteps {
 
 
     @And("^the jurisdiction is registered to receive ([^\"]*) events$")
-    public void theJurisdictionIsRegisteredToReceiveQuestion_round_issuedEvents(String eventType) {
+    public void theJurisdictionIsRegisteredToReceiveQuestionRoundIssuedEvents(String eventType) {
 
         SessionEventType sessionEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
                 .orElseThrow(() -> new EntityNotFoundException());

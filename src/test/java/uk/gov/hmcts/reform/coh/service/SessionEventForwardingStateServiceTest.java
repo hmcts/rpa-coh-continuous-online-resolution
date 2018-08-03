@@ -23,7 +23,7 @@ public class SessionEventForwardingStateServiceTest {
     private SessionEventForwardingStateService sessionEventForwardingStateService;
 
     @Before
-    public void setup() {
+    public void setUp() {
         sessionEventForwardingStateService = new SessionEventForwardingStateService(sessionEventForwardingStateRepository);
     }
 
