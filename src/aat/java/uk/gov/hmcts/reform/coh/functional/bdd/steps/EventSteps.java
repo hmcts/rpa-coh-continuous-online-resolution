@@ -45,7 +45,7 @@ public class EventSteps extends BaseSteps{
 
 
     private ResponseEntity<String> response;
-    private String endpoint = "/continuous-online-hearings/events/register";
+    private String endpoint = "/continuous-online-hearings/events";
 
     @Autowired
     public EventSteps(TestContext testContext) {

@@ -22,7 +22,7 @@ Feature: Event features
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
-    And wait until the event is processed
+    And the notification scheduler runs
     And a standard answer
     And the endpoint is for submitting an answer
     And a POST request is sent
@@ -38,7 +38,7 @@ Feature: Event features
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
-    And wait until the event is processed
+    And the notification scheduler runs
     And an event has been queued for this online hearing of event type question_round_issued
     When the put request is sent to reset the events of type question_round_issued
     Then the response code is 200

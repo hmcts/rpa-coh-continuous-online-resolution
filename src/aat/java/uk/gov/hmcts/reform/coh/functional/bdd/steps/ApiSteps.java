@@ -296,11 +296,6 @@ public class ApiSteps extends BaseSteps {
         assertTrue(hasEvent);
     }
 
-    @And("^wait until the event is processed$")
-    public void waitUntilTheQuestionRoundIsInQuestionIssuedState() {
-        eventNotifierJob.execute();
-    }
-
     @And("^the event has been set to forwarding_state_pending of event type (.*)$")
     public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
         SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)

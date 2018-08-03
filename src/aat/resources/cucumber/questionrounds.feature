@@ -8,7 +8,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
@@ -28,13 +28,13 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given the question round is ' "4" '
     When the post request is sent to create the question
     Then the response code is 422
@@ -54,13 +54,13 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given the question round is ' "1" '
     When the post request is sent to create the question
     Then the response code is 422
@@ -73,7 +73,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard question
     And the question round is ' "3" '
     When the post request is sent to create the question
@@ -91,14 +91,14 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "2" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard question
     And the question round is ' "3" '
     When the post request is sent to create the question
@@ -116,7 +116,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
@@ -136,7 +136,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     And a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
@@ -172,7 +172,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "question_issued" '
@@ -199,7 +199,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     And the get request is sent to get question round ' "1" '
     Then the response code is 200
     And the question round ' "1" ' is ' "question_issued" '
@@ -213,7 +213,7 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     When a standard question
     And the question round is ' "2" '
     When the post request is sent to create the question
@@ -238,6 +238,6 @@ Feature: Question Round Logic
     Then the response code is 201
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     When the put request is sent to issue the question round ' "1" '
     Then the response code is 422
