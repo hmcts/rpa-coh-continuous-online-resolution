@@ -7,7 +7,6 @@ import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 
 import java.util.Date;
-import java.util.Optional;
 
 public class QuestionResponse extends QuestionRequest {
 

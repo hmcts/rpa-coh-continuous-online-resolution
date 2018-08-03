@@ -75,11 +75,13 @@ public class QuestionController {
         List<QuestionResponse> responses = new ArrayList<>();
         for (Question question : questions) {
             List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
-            if(!answers.isEmpty()) {
-                QuestionResponse questionResponse = new QuestionResponse();
+            QuestionResponse questionResponse = new QuestionResponse();
+            if(answers.isEmpty()) {
+                QuestionResponseMapper.map(question, questionResponse);
+            }else{
                 QuestionResponseMapper.map(question, questionResponse, answers.get(0));
-                responses.add(questionResponse);
             }
+            responses.add(questionResponse);
         }
         AllQuestionsResponse response = new AllQuestionsResponse();
         response.setQuestions(responses);
