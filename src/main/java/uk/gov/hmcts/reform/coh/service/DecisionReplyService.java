@@ -9,8 +9,12 @@ import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 @Service
 public class DecisionReplyService {
 
-    @Autowired
     private DecisionReplyRepository decisionReplyRepository;
+
+    @Autowired
+    public DecisionReplyService(DecisionReplyRepository decisionReplyRepository) {
+        this.decisionReplyRepository = decisionReplyRepository;
+    }
 
     @Transactional
     public DecisionReply createDecision(DecisionReply decisionReply) {

@@ -20,8 +20,10 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.service.DecisionReplyService;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -35,9 +37,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -60,6 +60,9 @@ public class DecisionControllerTest {
 
     @Mock
     private DecisionIssuedTask decisionIssuedTask;
+
+    @Mock
+    private DecisionReplyService decisionReplyService;
 
     @InjectMocks
     private DecisionController decisionController;
@@ -86,6 +89,7 @@ public class DecisionControllerTest {
     private UUID decisionUUID;
 
     private Date expiryDate;
+    private final String DECISION_REPLY_JSON = "decision/standard_decision_reply";
 
     @Before
     public void setup() throws IOException {
@@ -95,7 +99,7 @@ public class DecisionControllerTest {
         decisionUUID = UUID.randomUUID();
         expiryDate = new Date();
 
-        endpoint = "/continuous-online-hearings/" + uuid + "/decisions";
+        endpoint = "/continuous-online-hearings/" + uuid;
 
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
@@ -125,7 +129,7 @@ public class DecisionControllerTest {
     @Test
     public void testCreateDecisionAndCheckHeaderForLocation() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isCreated())
@@ -146,7 +150,7 @@ public class DecisionControllerTest {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
 
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isConflict());
@@ -156,7 +160,7 @@ public class DecisionControllerTest {
     public void testCreateDecisionForNonExistentOnlineHearing() throws Exception {
 
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isNotFound())
@@ -169,7 +173,7 @@ public class DecisionControllerTest {
     public void testCreateDecisionForNonExistentDecisionState() throws Exception {
 
         given(decisionStateService.retrieveDecisionStateByState("decision_drafted")).willReturn(Optional.empty());
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
@@ -182,7 +186,7 @@ public class DecisionControllerTest {
     public void testEmptyDecisionHeader() throws Exception {
 
         request.setDecisionHeader(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
@@ -195,7 +199,7 @@ public class DecisionControllerTest {
     public void testEmptyDecisionText() throws Exception {
 
         request.setDecisionText(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
@@ -208,7 +212,7 @@ public class DecisionControllerTest {
     public void testEmptyDecisionReason() throws Exception {
 
         request.setDecisionReason(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
@@ -221,7 +225,7 @@ public class DecisionControllerTest {
     public void testEmptyDecisionAward() throws Exception {
 
         request.setDecisionAward(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
@@ -233,7 +237,7 @@ public class DecisionControllerTest {
     @Test
     public void testGetDecision() throws Exception {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -257,7 +261,7 @@ public class DecisionControllerTest {
 
     @Test
     public void testGetDecisionNotFound() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.get(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound());
@@ -266,7 +270,7 @@ public class DecisionControllerTest {
     @Test
     public void testUpdateNonExistentDecision() throws Exception {
         given(decisionService.retrieveByOnlineHearingIdAndDecisionId(decisionUUID, decisionUUID)).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isNotFound())
@@ -279,7 +283,7 @@ public class DecisionControllerTest {
     public void testUpdateWhenDecisionIsNotDraft() throws Exception {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         decisionState.setState("foo");
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isConflict())
@@ -292,7 +296,7 @@ public class DecisionControllerTest {
     public void testUpdateWhenDecisionInvalidStateInRequest() throws Exception {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         updateDecisionRequest.setState("foo");
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isUnprocessableEntity())
@@ -306,7 +310,7 @@ public class DecisionControllerTest {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         updateDecisionRequest.setDecisionHeader(null);
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isUnprocessableEntity())
@@ -320,7 +324,7 @@ public class DecisionControllerTest {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         updateDecisionRequest.setDecisionText(null);
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isUnprocessableEntity())
@@ -334,7 +338,7 @@ public class DecisionControllerTest {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         updateDecisionRequest.setDecisionReason(null);
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isUnprocessableEntity())
@@ -350,9 +354,58 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         given(decisionStateService.retrieveDecisionStateByState("decision_issue_pending")).willReturn(Optional.of(decisionState));
         updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUE_PENDING.getStateName());
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testCreateReplyToDecision() throws Exception {
+        given(decisionService.findByOnlineHearingId(any(UUID.class))).willReturn(Optional.of(new Decision()));
+        given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String returnedUrl = result.getResponse().getHeader("Location");
+        try {
+            URL u = new URL(returnedUrl); // this would check for the protocol
+            u.toURI(); // does the extra checking required for validation of URI
+            assertTrue(true);
+        }catch(MalformedURLException e){
+            fail();
+        }
+    }
+
+    @Test
+    public void testCreateReplyToDecisionWithInvalidOnlineHearingThrowsNotFound() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
+        given(decisionService.findByOnlineHearingId(any(UUID.class))).willReturn(Optional.of(new Decision()));
+        given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Online hearing not found", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateReplyToHearingWithoutDecisionThrowsNotFound() throws Exception {
+        given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Unable to find decision", result.getResponse().getContentAsString());
     }
 }

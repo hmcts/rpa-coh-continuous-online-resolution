@@ -94,13 +94,11 @@ public class DecisionController {
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision.addDecisionStateHistory(optionalDecisionState.get());
         decision = decisionService.createDecision(decision);
-        CreateDecisionResponse response = new CreateDecisionResponse();
-        response.setDecisionId(decision.getDecisionId());
 
         UriComponents uriComponents =
                 uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisions").buildAndExpand(onlineHearingId);
 
-        return ResponseEntity.created(uriComponents.toUri()).body(response);
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decision.getDecisionId()));
     }
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
@@ -199,17 +197,12 @@ public class DecisionController {
         }
 
         DecisionReply decisionReply = new DecisionReply();
-        DecisionReplyRequestMapper.map(request, decisionReply);
-        decisionReply.setDecision(optionalDecision.get());
-
+        DecisionReplyRequestMapper.map(request, decisionReply, optionalDecision.get());
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
-        CreateDecisionResponse response = new CreateDecisionResponse();
-        response.setDecisionId(decisionReply.getId());
-
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisions").buildAndExpand(onlineHearingId);
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies").buildAndExpand(onlineHearingId);
 
-        return ResponseEntity.created(uriComponents.toUri()).body(response);
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decisionReply.getId()));
     }
 }
