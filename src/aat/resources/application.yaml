@@ -33,6 +33,9 @@ base-urls:
   s2s-token: ${S2S_TOKEN:AAAAAAAAAAAAAAAA}
   test-url: ${TEST_URL:http://localhost:8080}
 
+deadline:
+  extension-days: 7
+
 event-scheduler:
     event-notifier:
       fixed-delay: 360000
@@ -46,3 +49,7 @@ info:
     project: ${PACKAGES_PROJECT:coh}
     name: ${PACKAGES_NAME:cor}
 
+azure:
+  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}

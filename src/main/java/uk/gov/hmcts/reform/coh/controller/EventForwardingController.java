@@ -9,17 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
+import uk.gov.hmcts.reform.coh.controller.events.ResetSessionEventRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingState;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
-import uk.gov.hmcts.reform.coh.service.SessionEventForwardingRegisterService;
-import uk.gov.hmcts.reform.coh.service.SessionEventTypeService;
-import uk.gov.hmcts.reform.coh.service.JurisdictionService;
+import uk.gov.hmcts.reform.coh.service.*;
+import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
 import javax.validation.Valid;
 import java.util.Date;
@@ -36,12 +34,16 @@ public class EventForwardingController {
     private final SessionEventTypeService sessionEventTypeService;
 
     private final JurisdictionService jurisdictionService;
+    private final SessionEventForwardingStateService sessionEventForwardingStateService;
+    private final SessionEventService sessionEventService;
 
     @Autowired
-    public EventForwardingController(SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
+    public EventForwardingController(SessionEventService sessionEventService, SessionEventForwardingStateService sessionEventForwardingStateService,SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
         this.sessionEventForwardingRegisterService = sessionEventForwardingRegisterService;
         this.sessionEventTypeService = sessionEventTypeService;
         this.jurisdictionService = jurisdictionService;
+        this.sessionEventForwardingStateService = sessionEventForwardingStateService;
+        this.sessionEventService = sessionEventService;
     }
 
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
@@ -80,7 +82,53 @@ public class EventForwardingController {
             sessionEventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
             return ResponseEntity.ok("Successfully registered for event notifications");
         }
+    }
 
+    @ApiOperation(value = "Reset session events", notes = "A PUT request is used to reset the events")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 422, message = "Validation error"),
+            @ApiResponse(code = 424, message = "Failed dependency")
+    })
+    @PutMapping(value = "/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity resetSessionEvents(@Valid @RequestBody ResetSessionEventRequest request) {
 
+        Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
+        if(!eventType.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Event type not found");
+        }
+
+        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
+        if(!jurisdiction.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Jurisdiction not found");
+        }
+
+        SessionEventForwardingRegister eventForwardingRegister = new SessionEventForwardingRegister.Builder()
+                .jurisdiction(jurisdiction.get())
+                .sessionEventType(eventType.get())
+                .build();
+
+        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
+        if(!sessionEventForwardingRegister.isPresent()) {
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No registers for this jurisdiction & event type");
+        }
+
+        Optional<SessionEventForwardingState> pendingEventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());
+        if(!pendingEventForwardingState.isPresent()) {
+            log.error("Pending event forwarding state was not found in the database");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We have encounter an error. Please contact support.");
+        }
+
+        sessionEventService.retrieveAllByEventForwardingRegister(sessionEventForwardingRegister.get()).stream()
+                .forEach(se -> {
+                            se.setSessionEventForwardingState(pendingEventForwardingState.get());
+                            se.setRetries(0);
+                            sessionEventService.updateSessionEvent(se);
+                        });
+
+        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }

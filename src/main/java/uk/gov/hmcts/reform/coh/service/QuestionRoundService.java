@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -19,6 +18,7 @@ public class QuestionRoundService {
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
+    public static final String ISSUE_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
 
     public QuestionRoundService() {}
@@ -29,27 +29,35 @@ public class QuestionRoundService {
         this.questionStateService = questionStateService;
     }
 
+    public boolean alreadyIssued(QuestionRoundState questionRoundState) {
+        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED);
+    }
+
+    public boolean isFirstRound(int currentRoundNumber) {
+        return currentRoundNumber == 0;
+    }
+
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
 
-        Optional<QuestionState> optionalQuestionState = questionStateService.retrieveQuestionStateByStateName(ISSUED);
-        if(!optionalQuestionState.isPresent()){
-            throw new NoSuchElementException("Error: Required state not found.");
+        QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
+
+        if(!isFirstRound(currentRoundNumber) && isIncremented(question.getQuestionRound(), currentRoundNumber)
+                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName())){
+            throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
 
-        QuestionRoundState issuedQrState = new QuestionRoundState(optionalQuestionState.get());
-
-        QuestionRoundState currentQrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
         // Current QR is issued and create new question round
-        if(currentQrState.equals(issuedQrState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+        if(alreadyIssued(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
             return true;
         }
 
         // Current QR is not issued and question is current question round OR no QR exists yet
-        if(!currentQrState.equals(issuedQrState) && targetQuestionRound == currentRoundNumber || currentRoundNumber == 0) {
+        if(!alreadyIssued(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) {
             return true;
         }
+
         return false;
     }
 
@@ -63,7 +71,7 @@ public class QuestionRoundService {
         int targetQuestionRound = question.getQuestionRound();
         int currentQuestionRound = getCurrentQuestionRoundNumber(onlineHearing);
 
-        if (currentQuestionRound == 0) {
+        if (isFirstRound(currentQuestionRound)) {
             return (targetQuestionRound == 1);
         } else if (currentQuestionRound == targetQuestionRound) {
             return true;
@@ -170,18 +178,10 @@ public class QuestionRoundService {
         return questionRound;
     }
 
-    @Transactional
-    public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
+    public List<Question> issueQuestionRound(QuestionState questionState, List<Question> questions) {
         List<Question> modifiedQuestion = new ArrayList<>();
-        List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
-        QuestionRoundState qrState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, questionRoundNumber));
-
-        if(qrState.getState().equals(QuestionStates.ISSUED.getStateName())){
-            throw new NotAValidUpdateException("Question round has already been issued");
-        }
-
         Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
-        questions.stream().forEach(q -> {
+        questions.forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);
             q.setDeadlineExpiryDate(expiryDate);
@@ -190,5 +190,11 @@ public class QuestionRoundService {
         });
 
         return modifiedQuestion;
+    }
+
+    @Transactional
+    public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
+        List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
+        return issueQuestionRound(questionState, questions);
     }
 }

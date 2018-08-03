@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,10 +18,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.*;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionState;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
@@ -54,6 +53,9 @@ public class QuestionControllerTest {
     @Mock
     private QuestionStateService questionStateService;
 
+    @Mock
+    private AnswerService answerService;
+
     @InjectMocks
     private QuestionController questionController;
 
@@ -65,6 +67,8 @@ public class QuestionControllerTest {
     private QuestionRequest questionRequest;
 
     private Question question;
+
+    private Answer answer;
 
     private QuestionState issuedState;
 
@@ -88,6 +92,12 @@ public class QuestionControllerTest {
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
 
+        answer = new Answer();
+        answer.setAnswerText("test answer");
+        answer.setQuestion(question);
+        List<Answer> answerList = new ArrayList<>();
+        answerList.add(answer);
+
         issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
 
@@ -109,6 +119,7 @@ public class QuestionControllerTest {
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
         willDoNothing().given(questionService).updateQuestion(any(Question.class));
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
+        given(answerService.retrieveAnswersByQuestion(any(Question.class))).willReturn(answerList);
     }
 
     @Test
@@ -244,6 +255,7 @@ public class QuestionControllerTest {
         AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
 
         assertEquals(1, questionResponses.getQuestions().size());
+        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswer().getAnswerText());
     }
 
     @Test

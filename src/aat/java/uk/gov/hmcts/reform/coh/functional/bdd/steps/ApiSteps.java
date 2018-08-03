@@ -32,11 +32,13 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.repository.*;
+import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -59,7 +61,19 @@ public class ApiSteps extends BaseSteps {
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
     @Autowired
+    private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
+
+    @Autowired
+    private SessionEventTypeRespository sessionEventTypeRespository;
+
+    @Autowired
     private SessionEventService sessionEventService;
+
+    @Autowired
+    private EventNotifierJob eventNotifierJob;
+
+    @Autowired
+    private OnlineHearingRepository onlineHearingRepository;
 
     private JSONObject json;
 
@@ -68,7 +82,7 @@ public class ApiSteps extends BaseSteps {
     private RestTemplate restTemplate;
 
     private Set<String> caseIds;
-    private Set<Jurisdiction> jurisdictions;
+    private List<Jurisdiction> jurisdictions;
 
     @Autowired
     public ApiSteps(TestContext testContext) {
@@ -87,7 +101,7 @@ public class ApiSteps extends BaseSteps {
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
-        jurisdictions = new HashSet<>();
+        jurisdictions = new ArrayList<>();
         testContext.getScenarioContext().setJurisdictions(jurisdictions);
     }
 
@@ -104,7 +118,15 @@ public class ApiSteps extends BaseSteps {
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-
+        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
+                try {
+                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
+                } catch (DataIntegrityViolationException e) {
+                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
+            }
+        }
         for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
             try {
                 jurisdictionRepository.delete(jurisdiction);
@@ -172,6 +194,8 @@ public class ApiSteps extends BaseSteps {
             CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
             testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
             testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
+
+            testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
         }
@@ -189,20 +213,46 @@ public class ApiSteps extends BaseSteps {
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-
+        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
+        testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId()).get());
+
     }
 
     @And("^a jurisdiction named ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
     public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id,  int maxQuestionRounds) {
         Jurisdiction jurisdiction = new Jurisdiction();
-
         jurisdiction.setJurisdictionId(id);
         jurisdiction.setJurisdictionName(jurisdictionName);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
         jurisdictions.add(jurisdiction);
+    }
+
+
+    @And("^the jurisdiction is registered to receive ([^\"]*) events$")
+    public void theJurisdictionIsRegisteredToReceiveQuestionRoundIssuedEvents(String eventType) {
+
+        SessionEventType sessionEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
+                .orElseThrow(() -> new EntityNotFoundException());
+        Jurisdiction testJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS")
+                .orElseThrow(() -> new EntityNotFoundException());
+        SessionEventForwardingRegister templateEFR = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(testJurisdiction, sessionEventType)
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+                .jurisdiction(jurisdictions.get(0))
+                .sessionEventType(sessionEventType)
+                .forwardingEndpoint(templateEFR.getForwardingEndpoint())
+                .maximumRetries(templateEFR.getMaximumRetries())
+                .registrationDate(new Date())
+                .withActive(true)
+                .build();
+
+        SessionEventForwardingRegister savedEFR = sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister);
+        testContext.getScenarioContext().addSessionEventForwardingRegister(savedEFR);
     }
 
     @And("^the response contains (\\d+) panel member$")
@@ -235,12 +285,54 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 
-    @And("^an event has been queued for this online hearing of event type (.*)$")
-    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) throws Throwable {
+    @When("^an event has been queued for this online hearing of event type (.*)$")
+    public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
-        assertTrue(!optSessionEvent.isEmpty());
-        assertEquals(eventType, optSessionEvent.get(0).getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+        assertFalse(sessionEvents.isEmpty());
+        boolean hasEvent = sessionEvents.stream()
+                .anyMatch(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType));
+        assertTrue(hasEvent);
+    }
+
+    @And("^the event has been set to forwarding_state_pending of event type (.*)$")
+    public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
+        SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
+                jurisdiction.getJurisdictionId(), expectedEventType.getEventTypeId());
+
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        boolean hasEvent = sessionEvents.stream()
+                .filter(se -> se.getSessionEventForwardingRegister().getEventForwardingRegisterId().equals(sessionEventForwardingRegisterId))
+                .allMatch(se -> se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));
+
+        assertTrue(hasEvent);
+    }
+
+    @And("^the event type (.*) has been set to retries of (\\d+)$")
+    public void theEventHasBeenSetToRetriesOf(String eventType, int expectedRetries) {
+        SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
+                .orElseThrow(() -> new EntityNotFoundException());
+
+        SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
+                jurisdiction.getJurisdictionId(), expectedEventType.getEventTypeId());
+
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        boolean hasExpectedRetries = sessionEvents.stream()
+                .filter(se -> se.getSessionEventForwardingRegister().getEventForwardingRegisterId().equals(sessionEventForwardingRegisterId))
+                .allMatch(se -> se.getRetries()==expectedRetries);
+
+        assertTrue(hasExpectedRetries);
     }
 }

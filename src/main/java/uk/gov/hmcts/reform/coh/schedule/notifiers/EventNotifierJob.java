@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.coh.appinsights.AppInsightsEvents;
+import uk.gov.hmcts.reform.coh.appinsights.AppInsightsEventRepository;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -16,9 +18,7 @@ import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTask;
 import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTaskFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class EventNotifierJob {
@@ -41,12 +41,17 @@ public class EventNotifierJob {
     private OnlineHearingService onlineHearingService;
 
     @Autowired
+    private AppInsightsEventRepository appInsightsEventRepository;
+
+    @Autowired
     @Qualifier("BasicJsonNotificationForwarder")
     private  NotificationForwarder forwarder;
 
     private SessionEventForwardingStates pendingState = SessionEventForwardingStates.EVENT_FORWARDING_PENDING;
 
     private SessionEventForwardingStates successState = SessionEventForwardingStates.EVENT_FORWARDING_SUCCESS;
+
+    private SessionEventForwardingStates failureState = SessionEventForwardingStates.EVENT_FORWARDING_FAILED;
 
     @Scheduled(fixedDelayString  = "${event-scheduler.event-notifier.fixed-delay}")
     public void execute() {
@@ -65,12 +70,10 @@ public class EventNotifierJob {
 
             log.info(String.format("Found transformer %s to handle %s.", transformer.getClass(), sessionEventType.getEventTypeName()));
             NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
+            SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
             try {
                 // Now try and send the notification
-                SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
                 ResponseEntity response = forwarder.sendEndpoint(register, request);
-
-                // Probably success. Check the response code and update the status
                 if (HttpStatus.OK.value() == response.getStatusCodeValue()) {
                     log.info(String.format("Register endpoint responded OK"));
 
@@ -79,7 +82,6 @@ public class EventNotifierJob {
                     if (success.isPresent()) {
                         log.info(String.format("Updating session event state to %s", success.get().getForwardingStateName()));
                         sessionEvent.setSessionEventForwardingState(success.get());
-                        sessionEventService.updateSessionEvent(sessionEvent);
                     }
 
                     // Run any tasks required after notification completes
@@ -88,11 +90,34 @@ public class EventNotifierJob {
                         log.info(String.format("Found task %s to handle %s.", task.getClass(), sessionEventType.getEventTypeName()));
                         task.execute(sessionEvent.getOnlineHearing());
                     }
+                    sessionEventService.updateSessionEvent(sessionEvent);
+                } else {
+                    log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+                    doFailureUpdate(register, sessionEvent);
                 }
-            } catch (NotificationException e) {
+            } catch (Exception e) {
+                doFailureUpdate(register, sessionEvent);
                 log.error(String.format("Exception while trying to send a notification. Exception is %s", e.getMessage()));
             }
         }
+    }
+
+    protected void doFailureUpdate(SessionEventForwardingRegister register, SessionEvent sessionEvent) {
+        log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+
+        sessionEvent.setRetries(sessionEvent.getRetries() + 1);
+        if (sessionEvent.getRetries() >= register.getMaximumRetries()+1) {
+            Optional<SessionEventForwardingState> failure = sessionEventForwardingStateRepository.findByForwardingStateName(failureState.getStateName());
+            appInsightsEventRepository.trackEvent(AppInsightsEvents.COH_COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
+            if (failure.isPresent()) {
+                log.error(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
+                sessionEvent.setSessionEventForwardingState(failure.get());
+            } else {
+                log.info(String.format("Updating session event state to %s", failureState.getStateName()));
+            }
+        }
+
+        sessionEventService.updateSessionEvent(sessionEvent);
     }
 
     private List<SessionEvent> getPendingSessionEvents() {
@@ -104,5 +129,15 @@ public class EventNotifierJob {
         }
 
         return sessionEventService.retrieveBySessionEventForwardingState(pending.get());
+    }
+
+    private Map<String, String> createAppInsightsProperties(SessionEvent sessionEvent) {
+
+        Map<String, String> props = new HashMap<>();
+        props.put("Session Event", sessionEvent.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName());
+        props.put("Jurisdiction", sessionEvent.getSessionEventForwardingRegister().getJurisdiction().getJurisdictionName());
+        props.put("Endpoint", sessionEvent.getSessionEventForwardingRegister().getForwardingEndpoint());
+
+        return props;
     }
 }

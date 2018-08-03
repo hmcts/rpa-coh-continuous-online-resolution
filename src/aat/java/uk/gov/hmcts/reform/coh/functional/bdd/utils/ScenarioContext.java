@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingReque
 import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,8 +37,22 @@ public class ScenarioContext {
 
     private UpdateQuestionRequest updateQuestionRequest;
 
-    Set<Jurisdiction> jurisdictions;
+    private List<Jurisdiction> jurisdictions;
     private EventRegistrationRequest eventRegistrationRequest;
+
+    private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
+
+    public Set<SessionEventForwardingRegister> getSessionEventForwardingRegisters() {
+        return sessionEventForwardingRegisters;
+    }
+
+    public void setSessionEventForwardingRegisters(Set<SessionEventForwardingRegister> sessionEventForwardingRegisters) {
+        this.sessionEventForwardingRegisters = sessionEventForwardingRegisters;
+    }
+
+    public void addSessionEventForwardingRegister(SessionEventForwardingRegister sessionEventForwardingRegister) {
+        sessionEventForwardingRegisters.add(sessionEventForwardingRegister);
+    }
 
     public OnlineHearingRequest getCurrentOnlineHearingRequest() {
         return currentOnlineHearingRequest;
@@ -123,11 +138,11 @@ public class ScenarioContext {
         caseIds.add(caseId);
     }
 
-    public void setJurisdictions(Set<Jurisdiction> jurisdictions) {
+    public void setJurisdictions(List<Jurisdiction> jurisdictions) {
         this.jurisdictions = jurisdictions;
     }
 
-    public Set<Jurisdiction> getJurisdictions() {
+    public List<Jurisdiction> getJurisdictions() {
         return jurisdictions;
     }
 
@@ -139,6 +154,7 @@ public class ScenarioContext {
         jurisdictions = null;
         updateQuestionRequest = null;
         eventRegistrationRequest = null;
+        sessionEventForwardingRegisters = null;
     }
 
     public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
