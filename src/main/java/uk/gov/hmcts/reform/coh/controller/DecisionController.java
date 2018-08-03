@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequestMapper;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
@@ -214,6 +215,6 @@ public class DecisionController {
         UriComponents uriComponents =
                 uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies").buildAndExpand(onlineHearingId);
 
-        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decisionReply.getId()));
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(decisionReply.getId()));
     }
 }
