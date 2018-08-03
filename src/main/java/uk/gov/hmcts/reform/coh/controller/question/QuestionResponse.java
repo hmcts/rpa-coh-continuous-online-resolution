@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
+import uk.gov.hmcts.reform.coh.domain.Answer;
 
 import java.util.Date;
 
@@ -18,6 +19,10 @@ public class QuestionResponse extends QuestionRequest {
 
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
+
+    @JsonProperty(value = "answer")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Answer answer;
 
     public String getDeadlineExpiryDate() {
         return deadlineExpiryDate;
@@ -45,4 +50,11 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
+    public Answer getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(Answer answer) {
+        this.answer = answer;
+    }
 }

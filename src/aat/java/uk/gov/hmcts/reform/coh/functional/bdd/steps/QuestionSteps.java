@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -116,7 +115,7 @@ public class QuestionSteps extends BaseSteps{
         try{
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
             String json = response.getBody();
-            CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+            CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
             questionIds.add(createQuestionResponse.getQuestionId());
             httpResponseCode = response.getStatusCodeValue();
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
@@ -131,7 +130,7 @@ public class QuestionSteps extends BaseSteps{
     public void get_all_questions_for_a_online_hearing() throws Throwable {
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-            ResponseEntity<String> response = response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
+            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
@@ -207,10 +206,10 @@ public class QuestionSteps extends BaseSteps{
         QuestionRoundResponse questionRoundResponse;
 
         if(allQuestionRounds) {
-            QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
+            QuestionRoundsResponse questionRoundsResponse = JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
             questionRoundResponse = questionRoundsResponse.getQuestionRounds().get(questionRoundNumber - 1);
         }else{
-            questionRoundResponse = (QuestionRoundResponse) JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+            questionRoundResponse = JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
 
         }
         assertTrue(questionRoundResponse.getQuestionRoundState().getState().equalsIgnoreCase(expectedState));
@@ -278,8 +277,7 @@ public class QuestionSteps extends BaseSteps{
     @And("^the response contains (\\d) questions$")
     public void the_response_contains_n_questions(int count) throws Throwable {
         String rawJson = testContext.getHttpContext().getRawResponseString();
-        ObjectMapper mapper = new ObjectMapper();
-        AllQuestionsResponse questionResponses = mapper.readValue(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse questionResponses = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
         assertEquals(count, questionResponses.getQuestions().size());
     }
 
@@ -425,5 +423,21 @@ public class QuestionSteps extends BaseSteps{
                 e.printStackTrace();
             }
         }
+    }
+
+    @And("^question history has at least (\\d+) events$")
+    public void questionHistoryHasAtLeastEvents(int expectedNumberOfEvents) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        List<QuestionResponse> questions = allQuestionsResponse.getQuestions();
+
+        boolean allMatch = questions.stream()
+            .map(questionResponse -> UUID.fromString(questionResponse.getQuestionId()))
+            .map(uuid -> questionRepository.findById(uuid))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .allMatch(question -> question.getQuestionStateHistories().size() >= expectedNumberOfEvents);
+
+        assertTrue(allMatch);
     }
 }
