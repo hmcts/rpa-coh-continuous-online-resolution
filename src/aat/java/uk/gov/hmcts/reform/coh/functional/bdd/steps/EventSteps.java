@@ -1,9 +1,13 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,11 +15,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.controller.events.ResetSessionEventRequest;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.domain.SessionEventType;
+import uk.gov.hmcts.reform.coh.controller.events.ResetSessionEventRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
+import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 
@@ -26,7 +35,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventSteps extends BaseSteps{
+public class EventSteps extends BaseSteps {
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
@@ -43,9 +52,10 @@ public class EventSteps extends BaseSteps{
     @Autowired
     private EventNotifierJob job;
 
-
     private ResponseEntity<String> response;
     private String endpoint = "/continuous-online-hearings/events";
+
+    private Jurisdiction jurisdiction;
 
     @Autowired
     public EventSteps(TestContext testContext) {
@@ -54,14 +64,38 @@ public class EventSteps extends BaseSteps{
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
+        jurisdiction = new Jurisdiction();
     }
 
-    @Given("^a standard request to subscribe to question round issued$")
-    public void aStandardRequestToSubscribeToQuestionRoundIssued() throws IOException {
+    @After("@events")
+    public void jurisdictionCleanUp() {
+
+        Optional<SessionEventType> sessionEventType = sessionEventTypeRespository.findByEventTypeName("question_round_issued");
+
+
+        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterRepository
+                .findByJurisdictionAndSessionEventType(jurisdiction, sessionEventType.get());
+
+        sessionEventForwardingRegister.ifPresent(sessionEventForwardingRegister1 -> sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister1));
+    }
+
+    @And("^jurisdiction ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
+    public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id,  int maxQuestionRounds) {
+        jurisdiction = new Jurisdiction();
+
+        jurisdiction.setJurisdictionId(id);
+        jurisdiction.setJurisdictionName(jurisdictionName);
+        jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
+        jurisdictionRepository.save(jurisdiction);
+        testContext.getScenarioContext().getEventRegistrationRequest().setJurisdiction(jurisdiction.getJurisdictionName());
+    }
+
+    @Given("^a conflicting request to subscribe to question round issued$")
+    public void aConflictingRequestToSubscribeToQuestionRoundIssued() throws IOException {
         String json = JsonUtils.getJsonInput("event_forwarding_register/subscribe_to_qr_issued");
-        EventRegistrationRequest eventRegistrationRequest = (EventRegistrationRequest) JsonUtils.toObjectFromJson(json, EventRegistrationRequest.class);
+        EventRegistrationRequest eventRegistrationRequest = JsonUtils.toObjectFromJson(json, EventRegistrationRequest.class);
         testContext.getScenarioContext().setEventRegistrationRequest(eventRegistrationRequest);
     }
 
@@ -71,9 +105,13 @@ public class EventSteps extends BaseSteps{
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(json, header);
-        response = restTemplate.exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        try {
+            response = restTemplate.exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+        }
     }
 
     @When("^the notification scheduler runs$")
@@ -139,4 +177,28 @@ public class EventSteps extends BaseSteps{
             testContext.getHttpContext().setResponseBodyAndStatesForException(e);
         }
     }
+
+    @And("^a standard event register request$")
+    public void aStandardEventRegisterRequest() throws IOException{
+        String json = JsonUtils.getJsonInput("event_forwarding_register/subscribe_to_qr_issued");
+        EventRegistrationRequest eventRegistrationRequest = (EventRegistrationRequest) JsonUtils.toObjectFromJson(json, EventRegistrationRequest.class);
+        testContext.getScenarioContext().setEventRegistrationRequest(eventRegistrationRequest);
+    }
+
+    @And("^an invalid '\"([^\"]*)\"'$")
+    public void setInvalidProperty(String property) {
+
+        if (property.equalsIgnoreCase("jurisdiction")){
+            testContext.getScenarioContext().getEventRegistrationRequest().setJurisdiction("invalid");
+        }
+        if (property.equalsIgnoreCase("eventType")){
+            testContext.getScenarioContext().getEventRegistrationRequest().setEventType("invalid");
+        }
+        if (property.equalsIgnoreCase("url")){
+            testContext.getScenarioContext().getEventRegistrationRequest().setEndpoint("invalid");
+        }
+
+    }
+
+
 }

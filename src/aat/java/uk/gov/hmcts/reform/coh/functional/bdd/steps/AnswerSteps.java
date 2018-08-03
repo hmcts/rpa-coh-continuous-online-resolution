@@ -81,7 +81,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
@@ -94,7 +94,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @After
-    public void cleanup() {
+    public void cleanUp() {
         /**
          * For each test run, answers are attached to questions. These need
          * to be deleted after test completion. Delete in reverse order for
@@ -106,14 +106,6 @@ public class AnswerSteps extends BaseSteps{
 
         for (UUID questionId : questionIds) {
             questionService.deleteQuestion(new Question().questionId(questionId));
-        }
-
-        try {
-            String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-            onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
-        } catch(DataIntegrityViolationException e){
-            log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
         }
     }
 

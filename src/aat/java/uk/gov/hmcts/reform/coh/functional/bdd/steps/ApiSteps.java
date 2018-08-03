@@ -90,7 +90,7 @@ public class ApiSteps extends BaseSteps {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         caseIds = new HashSet<String>();
         httpClient = HttpClientBuilder
                 .create()

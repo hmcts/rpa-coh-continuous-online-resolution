@@ -95,14 +95,8 @@ public class QuestionSteps extends BaseSteps{
             onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
         } catch(DataIntegrityViolationException e){
             log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
-        }
-
-        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
-            try {
-                jurisdictionRepository.delete(jurisdiction);
-            }catch(DataIntegrityViolationException e){
-                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
-            }
+        } catch(NullPointerException e) {
+            log.error("null pointer from multiple cleanUp methods running" + e);
         }
     }
 
