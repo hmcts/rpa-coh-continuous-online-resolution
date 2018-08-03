@@ -285,7 +285,7 @@ public class ApiSteps extends BaseSteps {
         testContext.getHttpContext().setRawResponseString(response.getBody());
     }
 
-    @And("^an event has been queued for this online hearing of event type (.*)$")
+    @When("^an event has been queued for this online hearing of event type (.*)$")
     public void anEventHasBeenQueuedForThisOnlineHearingOfEventType(String eventType) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);

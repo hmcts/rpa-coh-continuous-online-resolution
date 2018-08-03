@@ -25,7 +25,7 @@ public class SessionEvent {
     @Column(name = "retries")
     private int retries;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "forwarding_state_id")
     private SessionEventForwardingState sessionEventForwardingState;
 

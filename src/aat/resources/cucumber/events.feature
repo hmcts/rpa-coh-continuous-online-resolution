@@ -28,7 +28,7 @@ Feature: Event features
     And a POST request is sent
     And the response code is 201
     And an event has been queued for this online hearing of event type answers_submitted
-    And wait until the event is processed
+    And the notification scheduler runs
     When the put request is sent to reset the events of type answers_submitted
     Then the response code is 200
     And the event has been set to forwarding_state_pending of event type answers_submitted
