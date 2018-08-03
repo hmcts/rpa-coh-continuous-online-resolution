@@ -74,7 +74,7 @@ public class QuestionController {
         List<Question> questions = optionalQuestions.get();
         List<QuestionResponse> responses = new ArrayList<>();
         for (Question question : questions) {
-            Answer answer = answerService.retrieveAnswersByQuestion(question).get(0);
+            List<Answer> answer = answerService.retrieveAnswersByQuestion(question);
             QuestionResponse questionResponse = new QuestionResponse();
             QuestionResponseMapper.map(question, questionResponse, answer);
             responses.add(questionResponse);

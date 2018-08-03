@@ -48,7 +48,7 @@ public enum QuestionResponseMapper {
         }
     }
 
-    public static void map(Question question, QuestionResponse response, Answer answer) {
+    public static void map(Question question, QuestionResponse response, List<Answer> answer) {
         for (QuestionResponseMapper m : QuestionResponseMapper.class.getEnumConstants()) {
             m.set(question, response);
         }

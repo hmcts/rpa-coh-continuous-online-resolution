@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class QuestionResponse extends QuestionRequest {
@@ -23,7 +24,7 @@ public class QuestionResponse extends QuestionRequest {
 
     @JsonProperty(value = "answer")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Answer answer;
+    private List<Answer> answer;
 
     public String getDeadlineExpiryDate() {
         return deadlineExpiryDate;
@@ -51,11 +52,11 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
-    public Answer getAnswer() {
+    public List<Answer> getAnswer() {
         return answer;
     }
 
-    public void setAnswer(Answer answer) {
+    public void setAnswer(List<Answer> answer) {
         this.answer = answer;
     }
 }
