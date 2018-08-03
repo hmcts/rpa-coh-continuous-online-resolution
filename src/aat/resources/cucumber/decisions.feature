@@ -59,3 +59,6 @@ Feature: Decisions features
     And a PUT request is sent for a decision
     And the response code is 409
     And the response contains the following text '"Only draft decisions can be updated" '
+
+  Scenario: Reply to a decision and accept
+

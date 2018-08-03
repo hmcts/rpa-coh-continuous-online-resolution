@@ -186,6 +186,12 @@ public class DecisionController {
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
+
+        if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
+            && !request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_REJECTED.getStateName())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Decision reply field is not valid");
+        }
+
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
@@ -196,8 +202,13 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
         }
 
+        Decision decision = optionalDecision.get();
+        if(!decision.getDecisionstate().getState().equalsIgnoreCase(DecisionsStates.DECISION_ISSUED.getStateName())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Decision must be issued before replying");
+        }
+
         DecisionReply decisionReply = new DecisionReply();
-        DecisionReplyRequestMapper.map(request, decisionReply, optionalDecision.get());
+        DecisionReplyRequestMapper.map(request, decisionReply, decision);
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =

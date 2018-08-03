@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -362,7 +363,12 @@ public class DecisionControllerTest {
 
     @Test
     public void testCreateReplyToDecision() throws Exception {
-        given(decisionService.findByOnlineHearingId(any(UUID.class))).willReturn(Optional.of(new Decision()));
+        DecisionState issuedState = new DecisionState();
+        issuedState.setState(DecisionsStates.DECISION_ISSUED.getStateName());
+
+        Decision decision = new Decision();
+        decision.setDecisionstate(issuedState);
+        given(decisionService.findByOnlineHearingId(any(UUID.class))).willReturn(Optional.of(decision));
         given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
@@ -379,6 +385,42 @@ public class DecisionControllerTest {
         }catch(MalformedURLException e){
             fail();
         }
+    }
+
+    @Test
+    public void testCreateReplyToHearingWithInvalidReplyThrowsBadRequest() throws Exception {
+        given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
+
+        DecisionReplyRequest request = (DecisionReplyRequest) JsonUtils.toObjectFromTestName(DECISION_REPLY_JSON, DecisionReplyRequest.class);
+        request.setDecisionReply("invalid_state");
+
+        String json = JsonUtils.toJson(request);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertEquals("Decision reply field is not valid", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateReplyToHearingWithDecisionNotIssuedThrowsNotFound() throws Exception {
+        DecisionState issuedState = new DecisionState();
+        issuedState.setState(DecisionsStates.DECISION_DRAFTED.getStateName());
+
+        Decision decision = new Decision();
+        decision.setDecisionstate(issuedState);
+        given(decisionService.findByOnlineHearingId(any(UUID.class))).willReturn(Optional.of(decision));
+        given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Decision must be issued before replying", result.getResponse().getContentAsString());
     }
 
     @Test
