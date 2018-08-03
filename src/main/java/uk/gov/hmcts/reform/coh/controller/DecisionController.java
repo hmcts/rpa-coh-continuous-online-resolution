@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequestMapper;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
@@ -27,6 +28,7 @@ import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -215,5 +217,34 @@ public class DecisionController {
                 uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies").buildAndExpand(onlineHearingId);
 
         return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decisionReply.getId()));
+    }
+
+    @ApiOperation(value = "Reply to a decision", notes = "A POST request is used to reply to a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Online hearing not found"),
+            @ApiResponse(code = 409, message = "Online hearing already contains a decision"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @GetMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAllDecisionReplies(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId) {
+
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+        }
+
+        AllDecisionRepliesResponse allDecisionRepliesResponse = new AllDecisionRepliesResponse();
+        Decision decision = optionalDecision.get();
+        List<DecisionReply> decisionReplies = decision.getDecisionReplies();
+
+        return ResponseEntity.ok().body(decisionReplies);
     }
 }
