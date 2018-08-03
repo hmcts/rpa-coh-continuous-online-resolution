@@ -146,4 +146,12 @@ public class Decision {
     public boolean addDecisionStateHistory(DecisionState decisionState) {
        return  decisionStateHistories.add(new DecisionStateHistory(this, decisionState));
     }
+
+    public List<DecisionReply> getDecisionReplies() {
+        return decisionReplies;
+    }
+
+    public void setDecisionReplies(List<DecisionReply> decisionReplies) {
+        this.decisionReplies = decisionReplies;
+    }
 }

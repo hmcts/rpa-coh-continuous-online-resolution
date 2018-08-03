@@ -30,7 +30,7 @@ public class DecisionReplyServiceTest {
     private DecisionReplyService decisionReplyService;
 
     @Before
-    public void setup() throws IOException {
+    public void setUp() throws IOException {
         DecisionReplyRequest request = (DecisionReplyRequest) JsonUtils.toObjectFromTestName("decision/standard_decision_reply", DecisionReplyRequest.class);
 
         decisionReply = new DecisionReply();
