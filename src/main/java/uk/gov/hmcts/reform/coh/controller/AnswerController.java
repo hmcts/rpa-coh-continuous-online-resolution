@@ -112,11 +112,11 @@ public class AnswerController {
 
             answer.setAnswerText(request.getAnswerText());
             answer.setQuestion(optionalQuestion.get());
-            answer = answerService.createAnswer(answer);
+            answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
 
-            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
-            answersReceivedTask.execute(optionalOnlineHearing.get());
+            queueSessionEvent(optionalOnlineHearing.get(), answer);
+
         } catch (Exception e) {
             log.error(String.format("Exception in createAnswer: %s", e.getMessage()));
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
@@ -227,11 +227,19 @@ public class AnswerController {
             CreateAnswerResponse answerResponse = new CreateAnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
-            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
-            answersReceivedTask.execute(optionalOnlineHearing.get());
+            queueSessionEvent(optionalOnlineHearing.get(), updatedAnswer);
+
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
+        }
+    }
+
+    private void queueSessionEvent(OnlineHearing onlineHearing, Answer answer) {
+
+        if (answer.getAnswerState().getState().equals(AnswerStates.SUBMITTED.getStateName())) {
+            sessionEventService.createSessionEvent(onlineHearing, EventTypes.ANSWERS_SUBMITTED.getEventType());
+            answersReceivedTask.execute(onlineHearing);
         }
     }
 

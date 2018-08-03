@@ -82,7 +82,9 @@ public class AnswerControllerTest {
 
     private OnlineHearing onlineHearing;
 
-    private AnswerState answerState;
+    private AnswerState draftedState;
+
+    private AnswerState submittedState;
 
     private Question question;
 
@@ -94,10 +96,15 @@ public class AnswerControllerTest {
         uuid = UUID.fromString("399388b4-7776-40f9-bb79-0e900807063b");
         answer.answerId(uuid).answerText("foo");
 
-        answerState = new AnswerState();
-        answerState.setState(AnswerStates.DRAFTED.getStateName());
-        answerState.setAnswerStateId(1);
-        answer.setAnswerState(answerState);
+        draftedState = new AnswerState();
+        draftedState.setState(AnswerStates.DRAFTED.getStateName());
+        draftedState.setAnswerStateId(1);
+        answer.setAnswerState(draftedState);
+
+        submittedState = new AnswerState();
+        submittedState.setState(AnswerStates.SUBMITTED.getStateName());
+        submittedState.setAnswerStateId(2);
+
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
 
         questionState = new QuestionState();
@@ -113,7 +120,8 @@ public class AnswerControllerTest {
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.ofNullable(answer));
         given(answerService.createAnswer(any(Answer.class))).willReturn(answer);
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(answer);
-        given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.ofNullable(answerState));
+        given(answerStateService.retrieveAnswerStateByState(draftedState.getState())).willReturn(Optional.ofNullable(draftedState));
+        given(answerStateService.retrieveAnswerStateByState(submittedState.getState())).willReturn(Optional.ofNullable(submittedState));
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.ofNullable(onlineHearing));
         request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
     }
@@ -178,11 +186,14 @@ public class AnswerControllerTest {
     @Test
     public void testCreateAnswerAndCheckHeaderForLocation() throws Exception {
 
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
+        AnswerRequest request = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        request.setAnswerState(AnswerStates.SUBMITTED.getStateName());
+
+        mockSubmittedAnswer();
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(JsonUtils.toJson(request)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -235,25 +246,7 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testCreateAnswerForDraftedQuestionThrowsException() throws Exception {
-        Question question = new Question();
-        QuestionState draftedState = new QuestionState();
-        draftedState.setState(QuestionStates.DRAFTED.getStateName());
-        question.setQuestionState(draftedState);
-        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
-
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isNotFound())
-                .andReturn();
-
-        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-    }
-
-    @Test
-    public void testCreateAnswerForIssuedPendingQuestionIsSuccessful() throws Exception {
+    public void testCreateAnswerDrafted() throws Exception {
         questionState = new QuestionState();
         questionState.setState(QuestionStates.ISSUE_PENDING.getStateName());
         question = new Question();
@@ -267,6 +260,33 @@ public class AnswerControllerTest {
                 .andReturn();
 
         assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
+        assertEquals(AnswerStates.DRAFTED.getStateName(), answer.getAnswerState().getState());
+        verify(sessionEventService, times(0)).createSessionEvent(any(OnlineHearing.class), anyString());
+        verify(answersReceivedTask, times(0)).execute(any(OnlineHearing.class));
+    }
+
+    @Test
+    public void testCreateAnswerSubmitted() throws Exception {
+        questionState = new QuestionState();
+        questionState.setState(QuestionStates.ISSUE_PENDING.getStateName());
+        question = new Question();
+        question.setQuestionState(questionState);
+
+        AnswerRequest request = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        request.setAnswerState(AnswerStates.SUBMITTED.getStateName());
+
+        mockSubmittedAnswer();
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
+        assertEquals(AnswerStates.SUBMITTED.getStateName(), answer.getAnswerState().getState());
+        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
+        verify(answersReceivedTask, times(1)).execute(any(OnlineHearing.class));
     }
 
     @Test
@@ -306,7 +326,7 @@ public class AnswerControllerTest {
         question.setQuestionId(UUID.randomUUID());
         Answer answer = new Answer();
         answer.answerId(uuid).answerText("foo");
-        answer.setAnswerState(answerState);
+        answer.setAnswerState(draftedState);
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
@@ -334,7 +354,7 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testUpdateAnswers() throws Exception {
+    public void testUpdateAnswersDraft() throws Exception {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
@@ -343,8 +363,25 @@ public class AnswerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());
-        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
+        verify(sessionEventService, times(0)).createSessionEvent(any(OnlineHearing.class), anyString());
+    }
 
+    @Test
+    public void testUpdateAnswersSubmitted() throws Exception {
+        AnswerRequest request = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        request.setAnswerState(AnswerStates.SUBMITTED.getStateName());
+
+        Answer savedAnswer = new Answer();
+        savedAnswer.setAnswerId(UUID.randomUUID());
+        savedAnswer.setAnswerState(submittedState);
+        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(savedAnswer);
+        doNothing().when(answersReceivedTask).execute(any(OnlineHearing.class));
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
+                .andExpect(status().isOk());
+        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
+        verify(answersReceivedTask, times(1)).execute(any(OnlineHearing.class));
     }
 
     @Test
@@ -352,7 +389,7 @@ public class AnswerControllerTest {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.empty());
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().is4xxClientError())
@@ -371,10 +408,10 @@ public class AnswerControllerTest {
     }
 
     @Test
-    public void testUpdateAnswersWhenAnswerSubmitted() throws Exception {
+    public void testUpdateAnswersWhenAnswerAlreadySubmitted() throws Exception {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
-        answerState.setState(AnswerStates.SUBMITTED.getStateName());
-        answer.setAnswerState(answerState);
+        draftedState.setState(AnswerStates.SUBMITTED.getStateName());
+        answer.setAnswerState(draftedState);
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
@@ -418,5 +455,11 @@ public class AnswerControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         assertEquals("Answer state is not valid", result.getResponse().getContentAsString());
+    }
+
+    private void mockSubmittedAnswer() {
+        // Sets the mock to created
+        answer.setAnswerId(UUID.randomUUID());
+        answer.setAnswerState(submittedState);
     }
 }
