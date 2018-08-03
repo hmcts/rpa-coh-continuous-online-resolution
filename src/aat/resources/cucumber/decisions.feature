@@ -61,6 +61,7 @@ Feature: Decisions features
     And the response contains the following text '"Only draft decisions can be updated" '
 
   Scenario: Reply to a decision and accept it
+    Given a standard online hearing is created
     Given a standard decision
     And a POST request is sent for a decision
     And the response code is 201
@@ -71,8 +72,12 @@ Feature: Decisions features
     Given a standard decision reply
     And a POST request is sent for a decision reply
     And the response code is 201
+    Then a GET request is sent for a decision reply
+    And the response code is 200
+    And the decision reply contains all the fields
 
   Scenario: Reply to a decision and reject it
+    Given a standard online hearing is created
     Given a standard decision
     And a POST request is sent for a decision
     And the response code is 201
@@ -84,6 +89,9 @@ Feature: Decisions features
     And the decision reply is ' "decision_rejected" '
     And a POST request is sent for a decision reply
     And the response code is 201
+    Then a GET request is sent for a decision reply
+    And the response code is 200
+    And the decision reply contains all the fields
 
   Scenario: Reply to a decision with invalid reply and throw bad request
     Given a standard decision
@@ -108,6 +116,7 @@ Feature: Decisions features
     And the response code is 404
 
   Scenario: Get all replies to a decision
+    Given a standard online hearing is created
     Given a standard decision
     And a POST request is sent for a decision
     And the response code is 201
@@ -127,6 +136,7 @@ Feature: Decisions features
     And the decision replies list contains 2 decision replies
 
   Scenario: Get all replies to a decision with no replies
+    Given a standard online hearing is created
     Given a standard decision
     And a POST request is sent for a decision
     And the response code is 201

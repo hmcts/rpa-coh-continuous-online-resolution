@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -145,6 +146,17 @@ public class DecisionSteps extends BaseSteps {
             }catch (HttpClientErrorException e){
                 testContext.getHttpContext().setResponseBodyAndStatesForException(e);
             }
+        }else if(type.equalsIgnoreCase("GET")) {
+            HttpEntity<String> request = new HttpEntity<>("", header);
+
+            try {
+                response = restTemplate.exchange(baseUrl + endpoint + "/" + testContext.getScenarioContext().getCurrentDecisionReplies().get(0).getId(), HttpMethod.GET, request, String.class);
+                DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
+                testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            }catch (HttpClientErrorException e){
+                testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+            }
         }
     }
 
@@ -261,5 +273,19 @@ public class DecisionSteps extends BaseSteps {
                     allDecisionRepliesResponse.getDecisionReplyList().get(n).getAuthorReference());
             n++;
         }
+    }
+
+    @And("^the decision reply contains all the fields$")
+    public void theDecisionReplyContainsAllTheFields() {
+        DecisionReplyResponse decisionReplyResponse = testContext.getScenarioContext().getDecisionReplyResponse();
+        DecisionReply expectedDecisionReply = testContext.getScenarioContext().getCurrentDecisionReplies().stream()
+                                                .filter(dr -> dr.getId().toString().equalsIgnoreCase(decisionReplyResponse.getDecisionReplyId()))
+                                                .findFirst()
+                                                .get();
+
+        assertEquals(expectedDecisionReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
+        assertEquals(expectedDecisionReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
+        assertEquals(expectedDecisionReply.getDecisionReply(), decisionReplyResponse.getDecisionReply());
+        assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
     }
 }

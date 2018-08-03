@@ -24,6 +24,7 @@ public class DecisionReplyService {
         return decisionReplyRepository.save(decisionReply);
     }
 
+    @Transactional
     public Optional<DecisionReply> findByDecisionReplyId(UUID decisionReplyId) {
         return decisionReplyRepository.findById(decisionReplyId);
     }

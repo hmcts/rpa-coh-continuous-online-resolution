@@ -5,6 +5,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
@@ -44,6 +45,7 @@ public class ScenarioContext {
     Set<Jurisdiction> jurisdictions;
     private EventRegistrationRequest eventRegistrationRequest;
     private AllDecisionRepliesResponse allDecisionRepliesResponse;
+    private DecisionReplyResponse decisionReplyResponse;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
 
@@ -201,5 +203,13 @@ public class ScenarioContext {
 
     public void setAllDecisionRepliesResponse(AllDecisionRepliesResponse allDecisionRepliesResponse) {
         this.allDecisionRepliesResponse = allDecisionRepliesResponse;
+    }
+
+    public void setDecisionReplyResponse(DecisionReplyResponse decisionReplyResponse) {
+        this.decisionReplyResponse = decisionReplyResponse;
+    }
+
+    public DecisionReplyResponse getDecisionReplyResponse() {
+        return decisionReplyResponse;
     }
 }

@@ -212,7 +212,7 @@ public class DecisionController {
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies").buildAndExpand(onlineHearingId);
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies/{decisionReplyId}").buildAndExpand(onlineHearingId, decisionReply.getId());
 
         return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decisionReply.getId()));
     }
