@@ -1,7 +1,16 @@
 package uk.gov.hmcts.reform.coh.controller.question;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
+import uk.gov.hmcts.reform.coh.repository.AnswerStateRepository;
+import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -24,6 +33,7 @@ public enum QuestionResponseMapper {
     private Function<Question, String> getter;
     private BiConsumer<QuestionResponse, String> setter;
 
+
     QuestionResponseMapper (Function<Question, String> getter, BiConsumer<QuestionResponse, String> setter){
         this.getter = getter;
         this.setter = setter;
@@ -33,12 +43,23 @@ public enum QuestionResponseMapper {
         for (QuestionResponseMapper m : QuestionResponseMapper.class.getEnumConstants()) {
             m.set(question, response);
         }
+        if (question.getDeadlineExpiryDate() != null) {
+            response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
+        }
+    }
+
+    public static void map(Question question, QuestionResponse response, Answer answer) {
+        for (QuestionResponseMapper m : QuestionResponseMapper.class.getEnumConstants()) {
+            m.set(question, response);
+        }
         if(question.getDeadlineExpiryDate()!=null) {
             response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
         }
+        response.setAnswer(answer);
     }
 
     public void set(Question question, QuestionResponse questionResponse) {
         setter.accept(questionResponse, getter.apply(question));
     }
+
 }
