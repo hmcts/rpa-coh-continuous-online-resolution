@@ -42,7 +42,7 @@ public class ScenarioContext {
     private DecisionReplyRequest decisionReplyRequest;
     private List<DecisionReply> decisionReplies = new ArrayList<>();
 
-    Set<Jurisdiction> jurisdictions;
+    private List<Jurisdiction> jurisdictions;
     private EventRegistrationRequest eventRegistrationRequest;
     private AllDecisionRepliesResponse allDecisionRepliesResponse;
     private DecisionReplyResponse decisionReplyResponse;
@@ -145,11 +145,11 @@ public class ScenarioContext {
         caseIds.add(caseId);
     }
 
-    public void setJurisdictions(Set<Jurisdiction> jurisdictions) {
+    public void setJurisdictions(List<Jurisdiction> jurisdictions) {
         this.jurisdictions = jurisdictions;
     }
 
-    public Set<Jurisdiction> getJurisdictions() {
+    public List<Jurisdiction> getJurisdictions() {
         return jurisdictions;
     }
 

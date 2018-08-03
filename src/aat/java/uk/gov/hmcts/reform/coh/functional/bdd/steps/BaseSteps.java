@@ -77,7 +77,7 @@ public class BaseSteps {
         Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
 
         sessionEventForwardingRegisters.iterator().forEachRemaining(
-                sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl)));
+                sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl).replace("https", "http")));
         sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
     }
 

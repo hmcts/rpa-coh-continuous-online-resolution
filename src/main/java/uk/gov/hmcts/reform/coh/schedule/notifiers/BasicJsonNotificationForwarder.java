@@ -52,6 +52,8 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
             throw new NotificationException(ioe.getMessage());
         }  catch (HttpClientErrorException hcee) {
             throw new NotificationException("HTTP error. Endpoint responded with " + hcee.getRawStatusCode() + " and response body " + hcee.getResponseBodyAsString());
+        } catch (Exception e){
+            throw new NotificationException(e.getMessage());
         }
 
         return response;

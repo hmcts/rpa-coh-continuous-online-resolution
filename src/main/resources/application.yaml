@@ -93,7 +93,9 @@ info:
 #    version: ${PACKAGES_VERSION:unknown}
 
 azure:
-  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+  app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:d30268e8-8979-4579-8d58-010dbe03a1e6}
 
 app-insights:
   dev-mode: off
@@ -105,9 +107,9 @@ deadline:
 
 event-scheduler:
     event-notifier:
-      fixed-delay: 60000
+      fixed-delay: 300000
     event-trigger:
-      fixed-delay: 60000
+      fixed-delay: 300000
 
 #
 #toggle:
