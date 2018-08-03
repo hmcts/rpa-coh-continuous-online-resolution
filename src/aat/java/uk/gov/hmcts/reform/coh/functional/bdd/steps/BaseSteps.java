@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -91,13 +92,15 @@ public class BaseSteps {
             }
         }
         // Delete all decision replies
-        if (testContext.getScenarioContext().getCurrentDecisionReply() != null) {
-            DecisionReply decisionReply = testContext.getScenarioContext().getCurrentDecisionReply();
-            try {
-                decisionReplyRepository.deleteById(decisionReply.getId());
-            }
-            catch (Exception e) {
-                log.debug("Unable to delete decision reply: " + decisionReply.getId());
+        if (!testContext.getScenarioContext().getCurrentDecisionReplies().isEmpty()) {
+
+            List<DecisionReply> decisionReplies = testContext.getScenarioContext().getCurrentDecisionReplies();
+            for(DecisionReply decisionReply : decisionReplies) {
+                try {
+                    decisionReplyRepository.deleteById(decisionReply.getId());
+                } catch (Exception e) {
+                    log.debug("Unable to delete decision reply: " + decisionReply.getId());
+                }
             }
         }
 

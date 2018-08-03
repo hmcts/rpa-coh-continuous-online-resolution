@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
-import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
-import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
-import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequestMapper;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.*;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
@@ -219,17 +217,16 @@ public class DecisionController {
         return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decisionReply.getId()));
     }
 
-    @ApiOperation(value = "Reply to a decision", notes = "A POST request is used to reply to a decision")
+    @ApiOperation(value = "Get all replies to decision", notes = "A GET request is used to get all replies to a decision")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Online hearing not found"),
-            @ApiResponse(code = 409, message = "Online hearing already contains a decision"),
             @ApiResponse(code = 422, message = "Validation error")
     })
     @GetMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAllDecisionReplies(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId) {
+    public ResponseEntity getAllDecisionReplies(@PathVariable UUID onlineHearingId) {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
@@ -241,10 +238,46 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
         }
 
-        AllDecisionRepliesResponse allDecisionRepliesResponse = new AllDecisionRepliesResponse();
-        Decision decision = optionalDecision.get();
-        List<DecisionReply> decisionReplies = decision.getDecisionReplies();
+        List<DecisionReply> decisionReplies = optionalDecision.get().getDecisionReplies();
 
-        return ResponseEntity.ok().body(decisionReplies);
+        AllDecisionRepliesResponse allDecisionRepliesResponse = new AllDecisionRepliesResponse();
+        for(DecisionReply decisionReply : decisionReplies) {
+            DecisionReplyResponse replyResponse = new DecisionReplyResponse();
+            DecisionReplyResponseMapper.map(decisionReply, replyResponse);
+            allDecisionRepliesResponse.addDecisionReply(replyResponse);
+        }
+        return ResponseEntity.ok().body(allDecisionRepliesResponse);
+    }
+
+    @ApiOperation(value = "Get a replies to decision", notes = "A GET request is used to get a reply to a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Online hearing not found"),
+            @ApiResponse(code = 422, message = "Validation error")
+    })
+    @GetMapping(value = "/decisionreplies/{decisionReplyId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getADecisionReply(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionReplyId) {
+
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+        }
+
+        Optional<DecisionReply> optionalDecisionReply = decisionReplyService.findByDecisionReplyId(decisionReplyId);
+        if(!optionalDecisionReply.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision reply");
+        }
+
+        DecisionReplyResponse decisionReplyResponse = new DecisionReplyResponse();
+        DecisionReplyResponseMapper.map(optionalDecisionReply.get(), decisionReplyResponse);
+
+        return ResponseEntity.ok().body(decisionReplyResponse);
     }
 }

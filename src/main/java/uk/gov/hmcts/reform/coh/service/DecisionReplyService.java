@@ -6,6 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 public class DecisionReplyService {
 
@@ -19,5 +22,9 @@ public class DecisionReplyService {
     @Transactional
     public DecisionReply createDecision(DecisionReply decisionReply) {
         return decisionReplyRepository.save(decisionReply);
+    }
+
+    public Optional<DecisionReply> findByDecisionReplyId(UUID decisionReplyId) {
+        return decisionReplyRepository.findById(decisionReplyId);
     }
 }

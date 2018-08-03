@@ -3,11 +3,12 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.ArrayList;
@@ -38,10 +39,11 @@ public class ScenarioContext {
 
     private UpdateQuestionRequest updateQuestionRequest;
     private DecisionReplyRequest decisionReplyRequest;
-    private DecisionReply decisionReply;
+    private List<DecisionReply> decisionReplies = new ArrayList<>();
 
     Set<Jurisdiction> jurisdictions;
     private EventRegistrationRequest eventRegistrationRequest;
+    private AllDecisionRepliesResponse allDecisionRepliesResponse;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
 
@@ -185,11 +187,19 @@ public class ScenarioContext {
         return decisionReplyRequest;
     }
 
-    public void setCurrentDecisionReply(DecisionReply decisionReply) {
-        this.decisionReply = decisionReply;
+    public void addCurrentDecisionReply(DecisionReply decisionReply) {
+        this.decisionReplies.add(decisionReply);
     }
 
-    public DecisionReply getCurrentDecisionReply() {
-        return decisionReply;
+    public List<DecisionReply> getCurrentDecisionReplies() {
+        return decisionReplies;
+    }
+
+    public AllDecisionRepliesResponse getAllDecisionRepliesResponse() {
+        return allDecisionRepliesResponse;
+    }
+
+    public void setAllDecisionRepliesResponse(AllDecisionRepliesResponse allDecisionRepliesResponse) {
+        this.allDecisionRepliesResponse = allDecisionRepliesResponse;
     }
 }
