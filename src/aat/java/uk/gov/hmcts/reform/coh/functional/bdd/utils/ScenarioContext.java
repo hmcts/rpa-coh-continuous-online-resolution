@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
@@ -36,6 +37,8 @@ public class ScenarioContext {
     private List<String> caseIds;
 
     private UpdateQuestionRequest updateQuestionRequest;
+    private DecisionReplyRequest decisionReplyRequest;
+    private DecisionReply decisionReply;
 
     Set<Jurisdiction> jurisdictions;
     private EventRegistrationRequest eventRegistrationRequest;
@@ -155,6 +158,7 @@ public class ScenarioContext {
         updateQuestionRequest = null;
         eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
+        decisionReplyRequest = null;
     }
 
     public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
@@ -171,5 +175,21 @@ public class ScenarioContext {
 
     public EventRegistrationRequest getEventRegistrationRequest() {
         return eventRegistrationRequest;
+    }
+
+    public void setCurrentDecisionReplyRequest(DecisionReplyRequest decisionReplyRequest) {
+        this.decisionReplyRequest = decisionReplyRequest;
+    }
+
+    public DecisionReplyRequest getCurrentDecisionReplyRequest() {
+        return decisionReplyRequest;
+    }
+
+    public void setCurrentDecisionReply(DecisionReply decisionReply) {
+        this.decisionReply = decisionReply;
+    }
+
+    public DecisionReply getCurrentDecisionReply() {
+        return decisionReply;
     }
 }

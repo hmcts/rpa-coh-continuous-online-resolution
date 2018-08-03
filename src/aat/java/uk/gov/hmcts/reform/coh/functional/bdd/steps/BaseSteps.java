@@ -9,10 +9,12 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
@@ -44,6 +46,9 @@ public class BaseSteps {
     private DecisionService decisionService;
 
     @Autowired
+    private DecisionReplyRepository decisionReplyRepository;
+
+    @Autowired
     private SessionEventService sessionEventService;
 
     @Autowired
@@ -64,6 +69,7 @@ public class BaseSteps {
 
         endpoints.put("online hearing", "/continuous-online-hearings");
         endpoints.put("decision", "/continuous-online-hearings/onlineHearing_id/decisions");
+        endpoints.put("decisionreply", "/continuous-online-hearings/onlineHearing_id/decisionreplies");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
 
@@ -84,6 +90,17 @@ public class BaseSteps {
                 }
             }
         }
+        // Delete all decision replies
+        if (testContext.getScenarioContext().getCurrentDecisionReply() != null) {
+            DecisionReply decisionReply = testContext.getScenarioContext().getCurrentDecisionReply();
+            try {
+                decisionReplyRepository.deleteById(decisionReply.getId());
+            }
+            catch (Exception e) {
+                log.debug("Unable to delete decision reply: " + decisionReply.getId());
+            }
+        }
+
         // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();

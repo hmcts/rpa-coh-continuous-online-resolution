@@ -17,7 +17,9 @@ import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
@@ -52,6 +54,18 @@ public class DecisionSteps extends BaseSteps {
     public void a_standard_decision() throws IOException {
         DecisionRequest decisionRequest = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
         testContext.getScenarioContext().setCurrentDecisionRequest(decisionRequest);
+    }
+
+    @Given("^a standard decision reply$")
+    public void aStandardDecisionReply() throws Throwable {
+        DecisionReplyRequest decisionReplyRequest = (DecisionReplyRequest) JsonUtils.toObjectFromTestName("decision/standard_decision_reply", DecisionReplyRequest.class);
+        testContext.getScenarioContext().setCurrentDecisionReplyRequest(decisionReplyRequest);
+    }
+
+    @And("^the decision reply is ' \"([^\"]*)\" '$")
+    public void theDecisionReplyIs(String decisionReply) {
+        DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
+        decisionReplyRequest.setDecisionReply(decisionReply);
     }
 
     @Given("^a standard decision for update$")
@@ -97,6 +111,35 @@ public class DecisionSteps extends BaseSteps {
             testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
         }
     }
+
+    @And("^a (.*) request is sent for a decision reply$")
+    public void aPOSTRequestIsSentForADecisionReply(String type) throws Throwable {
+        RestTemplate restTemplate = getRestTemplate();
+        ResponseEntity<String> response = null;
+
+        HttpHeaders header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+
+        String endpoint = getReplyEndpoint();
+
+        if(type.equalsIgnoreCase("POST")) {
+            String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentDecisionReplyRequest());
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+
+            try {
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+
+                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
+                DecisionReply decisionReply = new DecisionReply();
+                decisionReply.setId(createDecisionResponse.getDecisionId());
+                testContext.getScenarioContext().setCurrentDecisionReply(decisionReply);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            }catch (HttpClientErrorException e){
+                testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+            }
+        }
+    }
+
 
     @Then("^the response contains the decision UUID$")
     public void the_response_contains_the_decision_UUID() throws IOException {
@@ -144,6 +187,14 @@ public class DecisionSteps extends BaseSteps {
 
     private String getEndpoint() {
         String endpoint = getEndpoints().get("decision");
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
+
+        return endpoint;
+    }
+
+    private String getReplyEndpoint() {
+        String endpoint = getEndpoints().get("decisionreply");
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
 
