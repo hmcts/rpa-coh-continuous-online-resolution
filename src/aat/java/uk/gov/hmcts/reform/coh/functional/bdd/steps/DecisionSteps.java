@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
@@ -104,7 +105,7 @@ public class DecisionSteps extends BaseSteps {
                 HttpEntity<String> request = new HttpEntity<>(getPostRequest(), header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
 
-                CreateDecisionResponse createDecisionResponse = (CreateDecisionResponse) JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
+                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
                 Decision decision = new Decision();
                 decision.setDecisionId(createDecisionResponse.getDecisionId());
                 testContext.getScenarioContext().setCurrentDecision(decision);
@@ -137,8 +138,8 @@ public class DecisionSteps extends BaseSteps {
             try {
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
 
-                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
-                DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionResponse.getDecisionId())
+                CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionReplyResponse.class);
+                DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionReplyResponse.getDecisionId())
                         .orElseThrow(() -> new EntityNotFoundException());
 
                 testContext.getScenarioContext().addCurrentDecisionReply(decisionReply);
@@ -150,7 +151,8 @@ public class DecisionSteps extends BaseSteps {
             HttpEntity<String> request = new HttpEntity<>("", header);
 
             try {
-                response = restTemplate.exchange(baseUrl + endpoint + "/" + testContext.getScenarioContext().getCurrentDecisionReplies().get(0).getId(), HttpMethod.GET, request, String.class);
+                String uuid = testContext.getScenarioContext().getCurrentDecisionReplies().get(0).getId().toString();
+                response = restTemplate.exchange(baseUrl + endpoint + "/" + uuid, HttpMethod.GET, request, String.class);
                 DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
                 testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
@@ -287,5 +289,10 @@ public class DecisionSteps extends BaseSteps {
         assertEquals(expectedDecisionReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
         assertEquals(expectedDecisionReply.getDecisionReply(), decisionReplyResponse.getDecisionReply());
         assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+    }
+
+    @Given("^clear decision replies$")
+    public void testScenarioVariablesAreCleared() {
+        testContext.getScenarioContext().clearDecisionReplies();
     }
 }

@@ -163,6 +163,11 @@ public class ScenarioContext {
         eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
         decisionReplyRequest = null;
+
+    }
+
+    public void clearDecisionReplies() {
+        decisionReplies = new ArrayList<>();
     }
 
     public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
