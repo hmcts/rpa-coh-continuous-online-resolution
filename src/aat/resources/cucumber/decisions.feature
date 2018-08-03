@@ -67,7 +67,7 @@ Feature: Decisions features
     Given a standard decision for update
     And the update decision state is decision_issue_pending
     And a PUT request is sent for a decision
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard decision reply
     And a POST request is sent for a decision reply
     And the response code is 201
@@ -79,7 +79,7 @@ Feature: Decisions features
     Given a standard decision for update
     And the update decision state is decision_issue_pending
     And a PUT request is sent for a decision
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard decision reply
     And the decision reply is ' "decision_rejected" '
     And a POST request is sent for a decision reply
@@ -92,7 +92,7 @@ Feature: Decisions features
     Given a standard decision for update
     And the update decision state is decision_issue_pending
     And a PUT request is sent for a decision
-    And wait until the event is processed
+    And the notification scheduler runs
     Given a standard decision reply
     And the decision reply is ' "invalid_reply" '
     And a POST request is sent for a decision reply
