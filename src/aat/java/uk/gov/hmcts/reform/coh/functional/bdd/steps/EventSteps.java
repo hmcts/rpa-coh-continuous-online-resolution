@@ -47,21 +47,21 @@ public class EventSteps extends BaseSteps {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
+        jurisdiction = new Jurisdiction();
     }
 
     @After("@events")
-    public void cleanUp() {
-        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterRepository
-                .findByJurisdictionAndSessionEventType(
-                        jurisdiction,
-                        sessionEventTypeRespository.findByEventTypeName("question_round_issued").get()
-                );
+    public void jurisdictionCleanUp() {
 
-        if (sessionEventForwardingRegister.isPresent()) {
-            sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister.get());
-        }
+        Optional<SessionEventType> sessionEventType = sessionEventTypeRespository.findByEventTypeName("question_round_issued");
+
+
+        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterRepository
+                .findByJurisdictionAndSessionEventType(jurisdiction, sessionEventType.get());
+
+        sessionEventForwardingRegister.ifPresent(sessionEventForwardingRegister1 -> sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister1));
     }
 
     @And("^jurisdiction ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
@@ -72,6 +72,7 @@ public class EventSteps extends BaseSteps {
         jurisdiction.setJurisdictionName(jurisdictionName);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
+        testContext.getScenarioContext().getEventRegistrationRequest().setJurisdiction(jurisdiction.getJurisdictionName());
     }
 
     @Given("^a conflicting request to subscribe to question round issued$")
@@ -100,8 +101,22 @@ public class EventSteps extends BaseSteps {
     public void aStandardEventRegisterRequest() throws IOException{
         String json = JsonUtils.getJsonInput("event_forwarding_register/subscribe_to_qr_issued");
         EventRegistrationRequest eventRegistrationRequest = (EventRegistrationRequest) JsonUtils.toObjectFromJson(json, EventRegistrationRequest.class);
-        eventRegistrationRequest.setJurisdiction(jurisdiction.getJurisdictionName());
         testContext.getScenarioContext().setEventRegistrationRequest(eventRegistrationRequest);
+    }
+
+    @And("^an invalid '\"([^\"]*)\"'$")
+    public void setInvalidProperty(String property) {
+
+        if (property.equalsIgnoreCase("jurisdiction")){
+            testContext.getScenarioContext().getEventRegistrationRequest().setJurisdiction("invalid");
+        }
+        if (property.equalsIgnoreCase("eventType")){
+            testContext.getScenarioContext().getEventRegistrationRequest().setEventType("invalid");
+        }
+        if (property.equalsIgnoreCase("url")){
+            testContext.getScenarioContext().getEventRegistrationRequest().setEndpoint("invalid");
+        }
+
     }
 
 
