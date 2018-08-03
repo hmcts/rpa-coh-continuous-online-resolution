@@ -214,7 +214,7 @@ public class DecisionController {
         UriComponents uriComponents =
                 uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies/{decisionReplyId}").buildAndExpand(onlineHearingId, decisionReply.getId());
 
-        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decisionReply.getId()));
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(decisionReply.getId()));
     }
 
     @ApiOperation(value = "Get all replies to decision", notes = "A GET request is used to get all replies to a decision")
