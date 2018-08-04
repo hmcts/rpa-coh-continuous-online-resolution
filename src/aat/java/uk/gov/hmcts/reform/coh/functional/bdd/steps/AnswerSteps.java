@@ -105,7 +105,10 @@ public class AnswerSteps extends BaseSteps{
         }
 
         for (UUID questionId : questionIds) {
-            questionService.deleteQuestion(new Question().questionId(questionId));
+            Optional<Question> question = questionService.retrieveQuestionById(questionId);
+            if (question.isPresent()) {
+                questionService.deleteQuestion(question.get());
+            }
         }
     }
 
