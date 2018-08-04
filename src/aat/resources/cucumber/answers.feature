@@ -7,12 +7,28 @@ Feature: Answers
     When a POST request is sent
     Then the response code is 404
 
-  Scenario: Submit an answer for a question
+  Scenario: Submit a drafted answer for a question
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
     And wait until the event is processed
     And a standard answer
+    And the endpoint is for submitting an answer
+    When a POST request is sent
+    Then the response code is 201
+    And the response headers contains a location to the created entity
+    And send get request to the location
+    And the response code is 200
+    And wait until the event is processed
+    And there is no event queued for this online hearing of event type answers_submitted
+
+  Scenario: Submit a "submitted" answer for a question
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And wait until the event is processed
+    And a standard answer
+    And the answer state is answer_submitted
     And the endpoint is for submitting an answer
     When a POST request is sent
     Then the response code is 201
@@ -49,7 +65,7 @@ Feature: Answers
     When a POST request is sent
     Then the response code is 422
 
-  Scenario: Update an answer
+  Scenario: Update a drafted answer
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
@@ -64,7 +80,7 @@ Feature: Answers
     When a PUT request is sent
     Then the response code is 200
     And the answer text is 'bar'
-    And an event has been queued for this online hearing of event type answers_submitted
+    And there is no event queued for this online hearing of event type answers_submitted
 
   Scenario: Update an answer state
     Given a standard online hearing is created
@@ -77,7 +93,7 @@ Feature: Answers
     And a POST request is sent
     And the response code is 201
     And an update to the answer is required
-    And the answer state is 'answer_submitted'
+    And the answer state is answer_submitted
     When a PUT request is sent
     Then the response code is 200
     And an event has been queued for this online hearing of event type answers_submitted
@@ -93,10 +109,10 @@ Feature: Answers
     And a POST request is sent
     And the response code is 201
     And an update to the answer is required
-    And the answer state is 'answer_submitted'
+    And the answer state is answer_submitted
     When a PUT request is sent
     Then the response code is 200
-    And the answer state is 'answer_drafted'
+    And the answer state is answer_drafted
     When a PUT request is sent
     Then the response code is 422
 

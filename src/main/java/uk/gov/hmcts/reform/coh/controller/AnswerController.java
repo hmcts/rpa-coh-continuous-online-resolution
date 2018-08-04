@@ -257,7 +257,7 @@ public class AnswerController {
             Optional<AnswerState> optAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (!optAnswerState.isPresent()) {
                 result.setValid(false);
-                result.setReason("Answer state is not valid");
+                result.setReason(String.format("Answer state is not valid: %s", request.getAnswerState()));
             }
         }
         return result;

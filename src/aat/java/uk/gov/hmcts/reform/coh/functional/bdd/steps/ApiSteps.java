@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -278,6 +279,17 @@ public class ApiSteps extends BaseSteps {
         assertFalse(sessionEvents.isEmpty());
         boolean hasEvent = sessionEvents.stream()
                 .anyMatch(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType));
+        assertTrue(hasEvent);
+    }
+
+    @And("^there is no event queued for this online hearing of event type (.*)")
+    public void thereIsNoEventQueuedForThisOnlineHearingOfEventTypeAnswers_submitted(String eventType) throws Throwable {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+
+        assertFalse(sessionEvents.isEmpty());
+        boolean hasEvent = sessionEvents.stream()
+                .noneMatch(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType));
         assertTrue(hasEvent);
     }
 
