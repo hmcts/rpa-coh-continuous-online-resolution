@@ -153,8 +153,9 @@ public class OnlineHearingController {
 
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
         onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
-        onlineHearing.registerStateChange();
         onlineHearingService.createOnlineHearing(onlineHearing);
+        onlineHearing.registerStateChange();
+        onlineHearingService.updateOnlineHearing(onlineHearing);
 
         UriComponents uriComponents =
                 uriBuilder.path("/continuous-online-hearings/{onlineHearingId}").buildAndExpand(response.getOnlineHearingId());
