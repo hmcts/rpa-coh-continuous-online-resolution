@@ -296,6 +296,21 @@ public class ApiSteps extends BaseSteps {
         assertTrue(hasEvent);
     }
 
+    @And("^there is no event queued for this online hearing of event type (.*)")
+    public void thereIsNoEventQueuedForThisOnlineHearingOfEventTypeAnswers_submitted(String eventType) throws Throwable {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+
+        boolean hasEvent = sessionEvents.stream()
+                .noneMatch(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType));
+        assertTrue(hasEvent);
+    }
+
+    @And("^wait until the event is processed$")
+    public void waitUntilTheQuestionRoundIsInQuestionIssuedState() {
+        eventNotifierJob.execute();
+    }
+
     @And("^the event has been set to forwarding_state_pending of event type (.*)$")
     public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
         SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
