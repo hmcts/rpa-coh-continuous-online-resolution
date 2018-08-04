@@ -45,6 +45,17 @@ Feature: Decisions features
     And the decision expiry date is 7 days in the future
     When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_started'
+    And an event has been queued for this online hearing of event type decision_issued
+
+  Scenario: Update decision and state remains drafted
+    And a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And a PUT request is sent for a decision
+    When a GET request is sent for a decision
+    Then the decision state name is decision_drafted
+    And there is no event queued for this online hearing of event type decision_issued
 
   Scenario: Update decision state that's already issued
     And a standard decision
