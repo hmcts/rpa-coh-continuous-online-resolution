@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.coh.controller.question;
 
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -48,7 +51,9 @@ public enum QuestionResponseMapper {
         if(question.getDeadlineExpiryDate()!=null) {
             response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
         }
-        response.setAnswer(answer);
+        AnswerResponse answerResponse = new AnswerResponse();
+        AnswerResponseMapper.map(answer, answerResponse);
+        response.setAnswers(Arrays.asList(answerResponse));
     }
 
     public void set(Question question, QuestionResponse questionResponse) {

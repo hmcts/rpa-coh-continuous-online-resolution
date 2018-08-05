@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.conversations.AnswerConversationMapper;
 import uk.gov.hmcts.reform.coh.controller.conversations.DecisionConversationMapper;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
@@ -19,9 +21,11 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.conversations.QuestionConversationMapper;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
+import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
@@ -43,6 +47,9 @@ public class ConversationController {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private AnswerService answerService;
 
     @ApiOperation(value = "Get a conversation", notes = "A GET request to retrieve an online hearing conversation")
     @ApiResponses(value = {
@@ -94,6 +101,7 @@ public class ConversationController {
                             .map( q -> {
                                 QuestionResponse qr = new QuestionResponse();
                                 QuestionConversationMapper.map(q, qr);
+                                mapAnswers(q, qr);
                                 return qr;
                             }
                             )
@@ -101,5 +109,19 @@ public class ConversationController {
 
             response.setQuestions(questionResponses);
         }
+    }
+
+    public void mapAnswers(Question question, QuestionResponse response) {
+        List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+        response.setAnswers(
+                answers.stream()
+                        .map(a -> {
+                            AnswerResponse ar = new AnswerResponse();
+                            AnswerConversationMapper.map(a, ar);
+                            return ar;
+                        }
+                        )
+                        .collect(Collectors.toList())
+        );
     }
 }

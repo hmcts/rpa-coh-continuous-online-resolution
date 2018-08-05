@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import springfox.documentation.spring.web.json.Json;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -23,9 +24,9 @@ public class QuestionResponse extends QuestionRequest {
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
 
-    @JsonProperty(value = "answer")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Answer answer;
+    @JsonProperty(value = "answers")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<AnswerResponse> answers;
 
     @JsonProperty(value = "history")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -59,12 +60,12 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
-    public Answer getAnswer() {
-        return answer;
+    public List<AnswerResponse> getAnswers() {
+        return answers;
     }
 
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
+    public void setAnswers(List<AnswerResponse> answers) {
+        this.answers = answers;
     }
 
     public List<StateResponse> getHistories() {
