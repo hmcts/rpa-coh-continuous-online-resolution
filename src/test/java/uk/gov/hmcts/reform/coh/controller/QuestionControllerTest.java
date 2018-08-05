@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.*;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -92,9 +93,13 @@ public class QuestionControllerTest {
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
 
+        AnswerState answerState = new AnswerState();
+        answerState.setState("foo");
         answer = new Answer();
+        answer.setAnswerId(UUID.randomUUID());
         answer.setAnswerText("test answer");
         answer.setQuestion(question);
+        answer.setAnswerState(answerState);
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
 
@@ -139,7 +144,7 @@ public class QuestionControllerTest {
         assertEquals(question.getQuestionRound().toString(), responseQuestion.getQuestionRound());
         assertEquals(Integer.toString(question.getQuestionOrdinal()), responseQuestion.getQuestionOrdinal());
         assertEquals(issuedState.getState(), responseQuestion.getCurrentState().getName());
-        assertEquals(today.toString(), responseQuestion.getCurrentState().getDatetime());
+        assertEquals(CohISO8601DateFormat.format(today), responseQuestion.getCurrentState().getDatetime());
     }
 
     @Test
@@ -255,7 +260,7 @@ public class QuestionControllerTest {
         AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
 
         assertEquals(1, questionResponses.getQuestions().size());
-        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswer().getAnswerText());
+        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswers().get(0).getAnswerText());
     }
 
     @Test

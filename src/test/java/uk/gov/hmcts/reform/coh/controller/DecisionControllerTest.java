@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -242,7 +243,7 @@ public class DecisionControllerTest {
         DecisionResponse expected = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
         expected.setDecisionId(decisionUUID.toString());
         expected.setOnlineHearingId(uuid.toString());
-        expected.setDeadlineExpiryDate(expiryDate.toString());
+        expected.setDeadlineExpiryDate(CohISO8601DateFormat.format(expiryDate));
         DecisionResponse actual = (DecisionResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
 
         assertEquals(expected.getDecisionId(), actual.getDecisionId());
