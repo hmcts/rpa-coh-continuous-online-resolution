@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 
@@ -36,6 +37,14 @@ public class OnlineHearingResponse implements Serializable {
 
     @JsonProperty(value = "history")
     private List<StateResponse> histories = new ArrayList<>();
+
+    @JsonProperty(value = "uri")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String uri;
+
+    @JsonProperty(value = "decision")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private DecisionResponse decisionResponse;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -91,6 +100,22 @@ public class OnlineHearingResponse implements Serializable {
 
     public void setHistories(List<StateResponse> histories) {
         this.histories = histories;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public DecisionResponse getDecisionResponse() {
+        return decisionResponse;
+    }
+
+    public void setDecisionResponse(DecisionResponse decisionResponse) {
+        this.decisionResponse = decisionResponse;
     }
 
     public static class PanelMember {

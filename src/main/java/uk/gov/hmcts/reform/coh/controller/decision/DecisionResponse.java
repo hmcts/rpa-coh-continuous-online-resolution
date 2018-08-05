@@ -2,6 +2,10 @@ package uk.gov.hmcts.reform.coh.controller.decision;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DecisionResponse {
 
@@ -26,6 +30,10 @@ public class DecisionResponse {
     @JsonProperty(value = "deadline_expiry_date")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String deadlineExpiryDate;
+
+    @JsonProperty(value = "history")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<StateResponse> histories = new ArrayList<>();
 
     @JsonProperty(value = "decision_state")
     private DecisionState decisionState = new DecisionState();
@@ -100,6 +108,14 @@ public class DecisionResponse {
 
     public void setDecisionStateDatetime(String stateDatetime) {
         getDecisionState().setStateDatetime(stateDatetime);
+    }
+
+    public List<StateResponse> getHistories() {
+        return histories;
+    }
+
+    public void setHistories(List<StateResponse> histories) {
+        this.histories = histories;
     }
 
     public static class DecisionState {
