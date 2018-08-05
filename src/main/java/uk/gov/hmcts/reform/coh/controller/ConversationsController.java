@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}/conversations")
-public class ConversationController {
+public class ConversationsController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;

@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterReposito
 import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -156,7 +157,7 @@ public class EventSteps extends BaseSteps {
     @When("^the put request is sent to reset the events of type (.*)$")
     public void thePutRequestIsSentToResetTheEventsOfTypeAnswersSubmitted(String eventType) throws IOException {
         String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
-        ResetSessionEventRequest resetSessionEventRequest = (ResetSessionEventRequest) JsonUtils.toObjectFromJson(json, ResetSessionEventRequest.class);
+        ResetSessionEventRequest resetSessionEventRequest = JsonUtils.toObjectFromJson(json, ResetSessionEventRequest.class);
 
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
@@ -181,7 +182,7 @@ public class EventSteps extends BaseSteps {
     @And("^a standard event register request$")
     public void aStandardEventRegisterRequest() throws IOException{
         String json = JsonUtils.getJsonInput("event_forwarding_register/subscribe_to_qr_issued");
-        EventRegistrationRequest eventRegistrationRequest = (EventRegistrationRequest) JsonUtils.toObjectFromJson(json, EventRegistrationRequest.class);
+        EventRegistrationRequest eventRegistrationRequest = JsonUtils.toObjectFromJson(json, EventRegistrationRequest.class);
         testContext.getScenarioContext().setEventRegistrationRequest(eventRegistrationRequest);
     }
 

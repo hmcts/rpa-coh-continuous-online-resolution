@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingsResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @Given("^a standard online hearing$")
     public void a_standard_online_hearing() throws IOException {
-        OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
         testContext.getScenarioContext().setCurrentOnlineHearingRequest(onlineHearingRequest);
     }
 
@@ -99,7 +100,7 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @Given("^a standard update online hearing request$")
     public void a_standard_update_online_hearing_request() throws IOException {
-        UpdateOnlineHearingRequest request = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
+        UpdateOnlineHearingRequest request = JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
         testContext.getScenarioContext().setUpdateOnlineHearingRequest(request);
     }
 
@@ -110,20 +111,20 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @Then("^the response contains (\\d) online hearings$")
     public void the_response_contains_no_online_hearings(int count) throws IOException {
-        OnlineHearingsResponse response = (OnlineHearingsResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
+        OnlineHearingsResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
         assertEquals(count, response.getOnlineHearingResponses().size());
     }
 
     @Then("^the response contains online hearing with case '(.*)'$")
     public void the_response_contains_online_hearing_with_case(String caseId) throws IOException {
-        OnlineHearingsResponse response = (OnlineHearingsResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
+        OnlineHearingsResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
         assertTrue(response.getOnlineHearingResponses().stream().anyMatch(o -> caseId.equalsIgnoreCase(o.getCaseId())));
     }
 
 
     @Then("^the online hearing state is '(.*)'$")
     public void the_online_hearing_state_is (String state) throws IOException {
-        OnlineHearingResponse response = (OnlineHearingResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
+        OnlineHearingResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
         assertEquals(state, response.getCurrentState().getName());
     }
 }

@@ -24,7 +24,7 @@ import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -115,7 +115,7 @@ public class AnswerControllerTest {
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(answer);
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.ofNullable(answerState));
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.ofNullable(onlineHearing));
-        request = (AnswerRequest) JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        request = JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
     }
 
     @Test
@@ -282,7 +282,7 @@ public class AnswerControllerTest {
 
         String response = result.getResponse().getContentAsString();
         assertEquals("{\"answer_id\":\"" + uuid +"\",\"answer_text\":\"foo\",\"current_answer_state\":{\"state_name\":\"answer_drafted\"}}", response);
-        AnswerResponse getAnswer = (AnswerResponse) JsonUtils.toObjectFromJson(response, AnswerResponse.class);
+        AnswerResponse getAnswer = JsonUtils.toObjectFromJson(response, AnswerResponse.class);
         assertEquals(uuid.toString(), getAnswer.getAnswerId());
         assertEquals("foo", getAnswer.getAnswerText());
         assertEquals("answer_drafted", getAnswer.getStateResponse().getName());
@@ -318,7 +318,7 @@ public class AnswerControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        AnswerResponse[] answers = (AnswerResponse[]) JsonUtils.toObjectFromJson(response, AnswerResponse[].class);
+        AnswerResponse[] answers = JsonUtils.toObjectFromJson(response, AnswerResponse[].class);
         assertEquals(1, answers.length);
     }
 

@@ -20,7 +20,7 @@ import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
