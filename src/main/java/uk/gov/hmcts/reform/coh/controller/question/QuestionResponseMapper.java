@@ -1,13 +1,11 @@
 package uk.gov.hmcts.reform.coh.controller.question;
 
-import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum QuestionResponseMapper {
 
@@ -20,7 +18,7 @@ public enum QuestionResponseMapper {
     QUESTION_STATE(q -> q.getQuestionState().getState(), (qr, s) -> qr.getCurrentState().setName(s)),
     STATE_TIME(q -> {
         if (!q.getQuestionStateHistories().isEmpty()){
-            return q.getQuestionStateHistories().get(q.getQuestionStateHistories().size()-1).getDateOccurred().toString();
+            return CohISO8601DateFormat.format(q.getQuestionStateHistories().get(q.getQuestionStateHistories().size()-1).getDateOccurred());
         }
         return null;
         }, (qr, s) -> qr.getCurrentState().setDatetime(s));

@@ -38,6 +38,10 @@ public class DecisionResponse {
     @JsonProperty(value = "decision_state")
     private DecisionState decisionState = new DecisionState();
 
+    @JsonProperty(value = "uri")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String uri;
+
     public String getDecisionId() {
         return decisionId;
     }
@@ -116,6 +120,14 @@ public class DecisionResponse {
 
     public void setHistories(List<StateResponse> histories) {
         this.histories = histories;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public static class DecisionState {

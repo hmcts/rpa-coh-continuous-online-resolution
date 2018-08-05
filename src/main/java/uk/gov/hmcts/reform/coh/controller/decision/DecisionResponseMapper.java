@@ -60,17 +60,6 @@ public enum DecisionResponseMapper {
         for (DecisionResponseMapper m : DecisionResponseMapper.class.getEnumConstants()) {
             m.set(decision, response);
         }
-
-        if (decision.getDecisionStateHistories() != null && !decision.getDecisionStateHistories().isEmpty()) {
-            response.setHistories(
-                    decision.getDecisionStateHistories()
-                            .stream()
-                            .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured))
-                            .map(h -> new StateResponse(h.getDecisionstate().getState(), CohISO8601DateFormat.format(h.getDateOccured())))
-                            .collect(Collectors.toList()
-                            )
-            );
-        }
     }
 
     public void set(Decision decision, DecisionResponse response) {
