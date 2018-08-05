@@ -1,14 +1,12 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 
 import java.util.stream.Collectors;
 
 public class OnlineHearingMapper {
-    private static final ISO8601DateFormat df = new ISO8601DateFormat();
-
     public static void map(OnlineHearingResponse response, OnlineHearing onlineHearing) {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         response.setCaseId(onlineHearing.getCaseId());
@@ -22,7 +20,7 @@ public class OnlineHearingMapper {
 
         if (onlineHearing.getOnlineHearingStateHistories() != null && !onlineHearing.getOnlineHearingStateHistories().isEmpty()){
             response.getCurrentState().setDatetime
-                    (df.format(onlineHearing.getOnlineHearingStateHistories().stream().sorted(
+                    (CohISO8601DateFormat.format(onlineHearing.getOnlineHearingStateHistories().stream().sorted(
                             (a, b) -> (b.getDateOccurred().compareTo(a.getDateOccurred()))).collect(Collectors.toList()
                     ).get(onlineHearing.getOnlineHearingStateHistories().size()-1).getDateOccurred()));
         }
@@ -32,7 +30,7 @@ public class OnlineHearingMapper {
                     .getOnlineHearingStateHistories()
                     .stream()
                     .map(h -> {
-                        return new StateResponse(h.getOnlinehearingstate().getState(), df.format(h.getDateOccurred()));
+                        return new StateResponse(h.getOnlinehearingstate().getState(), CohISO8601DateFormat.format(h.getDateOccurred()));
                     })
                     .collect(Collectors.toList()));
         }

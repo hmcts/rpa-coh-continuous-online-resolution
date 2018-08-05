@@ -32,7 +32,7 @@ public class DecisionResponse {
     private String deadlineExpiryDate;
 
     @JsonProperty(value = "history")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<StateResponse> histories = new ArrayList<>();
 
     @JsonProperty(value = "decision_state")

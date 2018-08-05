@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.conversations.DecisionConversationMapper;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
