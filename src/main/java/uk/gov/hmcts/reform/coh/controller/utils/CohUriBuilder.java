@@ -1,16 +1,16 @@
 package uk.gov.hmcts.reform.coh.controller.utils;
 
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.UUID;
 
 public class CohUriBuilder {
 
-    private static final UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+    public static String buildOnlineHearingGet(UUID onlineHearingId) {
 
-    public static UriComponents buildOnlineHearingGet(UUID onlineHearingId) {
+        return String.format("/continuous-online-hearings/%s", onlineHearingId);
+    }
 
-        return uriBuilder.path("/continuous-online-hearings/{onlineHearingId}").buildAndExpand(onlineHearingId);
+    public static String buildQuestionGet(UUID onlineHearingId, UUID questionId) {
+
+        return String.format("/continuous-online-hearings/%s/questions/%s", onlineHearingId, questionId);
     }
 }

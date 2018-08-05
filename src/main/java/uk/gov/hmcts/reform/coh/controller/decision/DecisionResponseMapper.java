@@ -65,7 +65,7 @@ public enum DecisionResponseMapper {
             response.setHistories(
                     decision.getDecisionStateHistories()
                             .stream()
-                            .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured).reversed())
+                            .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured))
                             .map(h -> new StateResponse(h.getDecisionstate().getState(), CohISO8601DateFormat.format(h.getDateOccured())))
                             .collect(Collectors.toList()
                             )
