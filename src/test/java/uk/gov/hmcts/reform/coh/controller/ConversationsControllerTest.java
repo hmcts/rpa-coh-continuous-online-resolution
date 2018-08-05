@@ -15,18 +15,27 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.util.*;
 
 import static java.util.Arrays.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,6 +63,8 @@ public class ConversationsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    private static final String STARTED_STATE = OnlineHearingStates.STARTED.getStateName();
 
     private static final String uuid = "d9248584-4aa5-4cb0-aba6-d2633ad5a375";
 
@@ -89,12 +100,18 @@ public class ConversationsControllerTest {
 
         onlineHearingUuid = UUID.fromString("d9248584-4aa5-4cb0-aba6-d2633ad5a375");
         onlineHearing = new OnlineHearing();
+        onlineHearing.setCaseId("case_123");
         onlineHearing.setOnlineHearingId(onlineHearingUuid);
         onlineHearing.setStartDate(new Date());
 
         onlineHearingState = new OnlineHearingState();
-        onlineHearingState.setState("continuous_online_hearing_started");
+        onlineHearingState.setState(STARTED_STATE);
         onlineHearing.setOnlineHearingState(onlineHearingState);
+
+        OnlineHearingStateHistory ohHistory = new OnlineHearingStateHistory();
+        ohHistory.setOnlinehearingstate(onlineHearingState);
+        ohHistory.setDateOccurred(new Date());
+        onlineHearing.setOnlineHearingStateHistories(Arrays.asList(ohHistory));
 
         member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
@@ -108,11 +125,16 @@ public class ConversationsControllerTest {
         decision.setDecisionId(UUID.randomUUID());
         decision.setOnlineHearing(onlineHearing);
         decision.setDecisionHeader("Decision header");
-        decision.setDecisionText("Decision test");
+        decision.setDecisionText("Decision text");
         decision.setDecisionReason("Decision reason");
         decision.setDecisionAward("Decision award");
         decision.setDeadlineExpiryDate(expiryDate);
         decision.setDecisionstate(decisionState);
+
+        DecisionStateHistory decisionStateHistory = new DecisionStateHistory();
+        decisionStateHistory.setDateOccured(new Date());
+        decisionStateHistory.setDecisionstate(decisionState);
+        decision.setDecisionStateHistories(Arrays.asList(decisionStateHistory));
 
         issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
@@ -159,23 +181,31 @@ public class ConversationsControllerTest {
     }
 
     @Test
-    public void testDecisionNotFoundQuestionsNotFOund() throws Exception {
+    public void testDecisionNotFoundQuestionsNotFound() throws Exception {
         when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.empty());
         when(questionService.findAllQuestionsByOnlineHearing(onlineHearing)).thenReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.get((ENDPOINT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isOk());
 
+        ConversationResponse response = submitGet();
+        assertOnlineHearing(response);
+        assertNull(response.getOnlineHearing().getDecisionResponse());
+        assertNull(response.getOnlineHearing().getQuestions());
     }
 
     @Test
     public void testAnswersNotFound() throws Exception {
         when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(Collections.emptyList());
-        mockMvc.perform(MockMvcRequestBuilders.get((ENDPOINT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isOk());
+
+        ConversationResponse response = submitGet();
+        assertOnlineHearing(response);
+        assertDecision(response);
+        assertQuestionWithoutAnswer(response);
+    }
+
+    @Test
+    public void testQuestionWithAnAnswers() throws Exception {
+        ConversationResponse response = submitGet();
+        assertOnlineHearing(response);
+        assertDecision(response);
     }
 
     @Test
@@ -187,5 +217,65 @@ public class ConversationsControllerTest {
                 .andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
+    }
+
+    private ConversationResponse submitGet() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get((ENDPOINT))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), ConversationResponse.class);
+    }
+
+    private void assertOnlineHearing(ConversationResponse response) {
+        OnlineHearingResponse ohResponse = response.getOnlineHearing();
+        assertNotNull(ohResponse);
+        assertEquals("/continuous-online-hearings/" + onlineHearingUuid, response.getOnlineHearing().getUri());
+        assertEquals("case_123", ohResponse.getCaseId());
+        assertEquals(STARTED_STATE, ohResponse.getCurrentState().getName());
+        assertNotNull(ohResponse.getCurrentState().getDatetime());
+        assertEquals(1, ohResponse.getPanel().size());
+        assertEquals("foo bar", ohResponse.getPanel().get(0).getName());
+        assertEquals(1, ohResponse.getHistories().size());
+    }
+
+    private void assertDecision(ConversationResponse response) {
+        DecisionResponse decisionResponse = response.getOnlineHearing().getDecisionResponse();
+        assertNotNull(decisionResponse);
+        assertEquals("/continuous-online-hearings/" + onlineHearingUuid + "/decisions", decisionResponse.getUri());
+        assertNotNull(decision.getDecisionId());
+        assertEquals(onlineHearingUuid.toString(), decisionResponse.getOnlineHearingId());
+        assertEquals("Decision header", decisionResponse.getDecisionHeader());
+        assertEquals("Decision text", decisionResponse.getDecisionText());
+        assertEquals("Decision reason", decisionResponse.getDecisionReason());
+        assertEquals("Decision award", decisionResponse.getDecisionAward());
+        assertEquals(CohISO8601DateFormat.format(expiryDate), decisionResponse.getDeadlineExpiryDate());
+        assertEquals(decisionState.getState(), decisionResponse.getDecisionState().getStateName());
+        assertNotNull(decisionResponse.getDecisionState().getStateDatetime());
+    }
+
+    private void assertQuestionswithAnswers(ConversationResponse response) {
+        assertQuestions(response, true);
+    }
+
+    private void assertQuestionWithoutAnswer(ConversationResponse response) {
+        assertQuestions(response, false);
+    }
+
+    private void assertQuestions(ConversationResponse response, boolean withAnswers) {
+        List<QuestionResponse> questions = response.getOnlineHearing().getQuestions();
+
+        assertNotNull(questions);
+        assertEquals(2, questions.size());
+        for (QuestionResponse question : questions) {
+            if (withAnswers) {
+                assertNotNull(question.getAnswers());
+                assertEquals(1, question.getAnswers().size());
+            } else {
+                assertNull(question.getAnswers());
+            }
+        }
     }
 }

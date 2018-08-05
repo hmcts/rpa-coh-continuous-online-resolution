@@ -16,6 +16,6 @@ public class CohUriBuilder {
 
     public static String buildDecisionGet(UUID onlineHearingId) {
 
-        return String.format("/continuous-online-hearings/%s/decision", onlineHearingId);
+        return String.format("/continuous-online-hearings/%s/decisions", onlineHearingId);
     }
 }
