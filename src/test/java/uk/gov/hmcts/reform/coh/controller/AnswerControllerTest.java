@@ -454,7 +454,7 @@ public class AnswerControllerTest {
                 .content(json))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
-        assertEquals("Answer state is not valid", result.getResponse().getContentAsString());
+        assertEquals("Answer state is not valid: answer_drafted", result.getResponse().getContentAsString());
     }
 
     private void mockSubmittedAnswer() {
