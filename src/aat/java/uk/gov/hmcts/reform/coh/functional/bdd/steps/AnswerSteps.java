@@ -171,7 +171,8 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? UUID.randomUUID().toString() : currentQuestionId.toString());
+            String questionId = testContext.getScenarioContext().getCurrentQuestion().getQuestionId().toString();
+            endpoint = endpoint.replaceAll("question_id", questionId);
         }
 
         if ("answer".equalsIgnoreCase(entity) && currentAnswerId != null) {
