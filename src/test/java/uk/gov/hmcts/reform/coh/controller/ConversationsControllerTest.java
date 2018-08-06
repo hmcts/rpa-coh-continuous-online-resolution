@@ -221,13 +221,10 @@ public class ConversationsControllerTest {
 
     @Test
     public void testConversation() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get((ENDPOINT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
+        ConversationResponse response = submitGet();
+        assertOnlineHearing(response);
+        assertDecision(response);
+        assertQuestionswithAnswers(response);
     }
 
     private ConversationResponse submitGet() throws Exception {
