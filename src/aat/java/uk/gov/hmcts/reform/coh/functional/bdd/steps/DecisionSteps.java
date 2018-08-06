@@ -84,7 +84,7 @@ public class DecisionSteps extends BaseSteps {
                 HttpEntity<String> request = new HttpEntity<>(getPostRequest(), header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
 
-                CreateDecisionResponse createDecisionResponse = (CreateDecisionResponse) JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
+                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
                 Decision decision = new Decision();
                 decision.setDecisionId(createDecisionResponse.getDecisionId());
                 testContext.getScenarioContext().setCurrentDecision(decision);

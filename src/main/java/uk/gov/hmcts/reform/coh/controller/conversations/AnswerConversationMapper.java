@@ -4,8 +4,10 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.AnswerStateHistory;
+import uk.gov.hmcts.reform.coh.domain.Question;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -26,5 +28,7 @@ public class AnswerConversationMapper {
                     .collect(Collectors.toList())
             );
         }
+        Question question =  answer.getQuestion();
+        response.setUri(CohUriBuilder.buildAnswerGet(question.getOnlineHearing().getOnlineHearingId(), question.getQuestionId(), answer.getAnswerId()));
     }
 }

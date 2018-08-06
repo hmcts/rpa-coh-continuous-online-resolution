@@ -21,6 +21,10 @@ public class AnswerResponse {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<StateResponse> histories;
 
+    @JsonProperty(value = "uri")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String uri;
+
     public String getAnswerId() {
         return answerId;
     }
@@ -51,5 +55,13 @@ public class AnswerResponse {
 
     public void setHistories(List<StateResponse> histories) {
         this.histories = histories;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }

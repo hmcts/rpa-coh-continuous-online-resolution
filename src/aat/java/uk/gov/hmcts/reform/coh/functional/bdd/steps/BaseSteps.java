@@ -8,22 +8,17 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.domain.Decision;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
-import uk.gov.hmcts.reform.coh.service.DecisionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.service.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(BaseSteps.class);
@@ -36,6 +31,15 @@ public class BaseSteps {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
+
+    @Autowired
+    private QuestionService questionService;
+
+    @Autowired
+    private AnswerService answerService;
+
+    @Autowired
+    private AnswerRepository answerRepository;
 
     @Autowired
     private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
@@ -85,6 +89,7 @@ public class BaseSteps {
                 }
             }
         }
+
         // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
@@ -96,7 +101,6 @@ public class BaseSteps {
             }
         }
 
-        // Delete all online hearing + panel members
         if (testContext.getScenarioContext().getCaseIds() != null) {
 
             for (String caseId : testContext.getScenarioContext().getCaseIds()) {
@@ -104,6 +108,20 @@ public class BaseSteps {
                     OnlineHearing onlineHearing = new OnlineHearing();
                     onlineHearing.setCaseId(caseId);
                     onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
+
+                    // Delete all the Q & A
+                    Optional<List<Question>> questionList = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
+                    if (questionList.isPresent()) {
+                        for (Question question : questionList.get()) {
+                            List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+                            if (!answers.isEmpty()) {
+                                for (Answer answer : answers) {
+                                    answerRepository.delete(answer);
+                                }
+                            }
+                            questionService.deleteQuestion(question);
+                        }
+                    }
 
                     // First delete event linked to an online hearing
                     sessionEventService.deleteByOnlineHearing(onlineHearing);

@@ -115,11 +115,11 @@ public class ApiSteps extends BaseSteps {
                 onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByCaseId(caseId);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
                     sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
@@ -128,10 +128,10 @@ public class ApiSteps extends BaseSteps {
                 }
             }
         }
-        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
+        for (Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
             try {
                 jurisdictionRepository.delete(jurisdiction);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
