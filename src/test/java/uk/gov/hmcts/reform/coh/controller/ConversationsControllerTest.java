@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
@@ -65,6 +66,8 @@ public class ConversationsControllerTest {
     private MockMvc mockMvc;
 
     private static final String STARTED_STATE = OnlineHearingStates.STARTED.getStateName();
+
+    private static final String ANSWER_DRAFTED = AnswerStates.DRAFTED.getStateName();
 
     private static final String uuid = "d9248584-4aa5-4cb0-aba6-d2633ad5a375";
 
@@ -161,14 +164,18 @@ public class ConversationsControllerTest {
         answer1.answerId(UUID.randomUUID()).answerText("foo");
 
         answerState = new AnswerState();
-        answerState.setState(AnswerStates.DRAFTED.getStateName());
+        answerState.setState(ANSWER_DRAFTED);
         answerState.setAnswerStateId(1);
         answer1.setAnswerState(answerState);
+
+        AnswerStateHistory answerStateHistory = new AnswerStateHistory(answer1, answerState);
+        answer1.setAnswerStateHistories(Arrays.asList(answerStateHistory));
 
         when(onlineHearingService.retrieveOnlineHearing(onlineHearingUuid)).thenReturn(Optional.of(onlineHearing));
         when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.of(decision));
         when(questionService.findAllQuestionsByOnlineHearing(onlineHearing)).thenReturn(Optional.of(asList(question1, question2)));
         when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(Arrays.asList(answer1));
+        when(answerService.retrieveAnswersByQuestion(question2)).thenReturn(Arrays.asList(answer1));
     }
 
     @Test
@@ -192,20 +199,24 @@ public class ConversationsControllerTest {
     }
 
     @Test
+    public void testDecisionFound() throws Exception {
+        ConversationResponse response = submitGet();
+        assertDecision(response);
+    }
+
+    @Test
     public void testAnswersNotFound() throws Exception {
         when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(Collections.emptyList());
+        when(answerService.retrieveAnswersByQuestion(question2)).thenReturn(Collections.emptyList());
 
         ConversationResponse response = submitGet();
-        assertOnlineHearing(response);
-        assertDecision(response);
         assertQuestionWithoutAnswer(response);
     }
 
     @Test
     public void testQuestionWithAnAnswers() throws Exception {
         ConversationResponse response = submitGet();
-        assertOnlineHearing(response);
-        assertDecision(response);
+        assertQuestionswithAnswers(response);
     }
 
     @Test
@@ -273,6 +284,13 @@ public class ConversationsControllerTest {
             if (withAnswers) {
                 assertNotNull(question.getAnswers());
                 assertEquals(1, question.getAnswers().size());
+                AnswerResponse answerResponse = question.getAnswers().get(0);
+                assertEquals("foo", answerResponse.getAnswerText());
+                assertEquals(ANSWER_DRAFTED, answerResponse.getStateResponse().getName());
+                assertNotNull(answerResponse.getStateResponse().getDatetime());
+                assertEquals(1, answerResponse.getHistories().size());
+                assertEquals(ANSWER_DRAFTED, answerResponse.getHistories().get(0).getName());
+                assertEquals(answerResponse.getStateResponse().getDatetime(), answerResponse.getHistories().get(0).getDatetime());
             } else {
                 assertNull(question.getAnswers());
             }
