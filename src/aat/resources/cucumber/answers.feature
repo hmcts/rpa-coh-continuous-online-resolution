@@ -37,6 +37,8 @@ Feature: Answers
     And the response code is 200
     And wait until the event is processed
     And an event has been queued for this online hearing of event type answers_submitted
+    When the get request is sent to retrieve the submitted question
+    And the question state name is question_answered
 
   Scenario: Retrieve an answer for a question
     Given a standard online hearing is created

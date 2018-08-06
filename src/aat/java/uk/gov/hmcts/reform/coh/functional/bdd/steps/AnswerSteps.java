@@ -125,9 +125,12 @@ public class AnswerSteps extends BaseSteps{
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
-        CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         questionIds.add(createQuestionResponse.getQuestionId());
+        Question question = new Question();
+        question.setQuestionId(createQuestionResponse.getQuestionId());
+        testContext.getScenarioContext().setCurrentQuestion(question);
     }
 
     @Given("^a standard answer$")
