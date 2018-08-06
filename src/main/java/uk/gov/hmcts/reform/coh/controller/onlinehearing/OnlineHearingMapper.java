@@ -10,8 +10,10 @@ public class OnlineHearingMapper {
     public static void map(OnlineHearingResponse response, OnlineHearing onlineHearing) {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         response.setCaseId(onlineHearing.getCaseId());
-        response.setStartDate(onlineHearing.getStartDate());
-        response.setEndDate(onlineHearing.getEndDate());
+        response.setStartDate(CohISO8601DateFormat.format(onlineHearing.getStartDate()));
+        if (onlineHearing.getEndDate() != null) {
+            response.setEndDate(CohISO8601DateFormat.format(onlineHearing.getEndDate()));
+        }
         response.setPanel(onlineHearing.getPanelMembers()
                 .stream()
                 .map( p -> new OnlineHearingResponse.PanelMember(p.getFullName()))

@@ -23,11 +23,11 @@ public class OnlineHearingResponse implements Serializable {
 
     @JsonProperty("start_date")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Date startDate;
+    private String startDate;
 
     @JsonProperty(value = "end_date")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Date endDate;
+    private String endDate;
 
     @JsonProperty("panel")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -67,19 +67,19 @@ public class OnlineHearingResponse implements Serializable {
         this.caseId = caseId;
     }
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
