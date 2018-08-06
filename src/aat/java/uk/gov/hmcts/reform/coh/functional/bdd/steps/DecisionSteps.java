@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
@@ -129,9 +130,9 @@ public class DecisionSteps extends BaseSteps {
             try {
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
 
-                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
+                CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionReplyResponse.class);
                 DecisionReply decisionReply = new DecisionReply();
-                decisionReply.setId(createDecisionResponse.getDecisionId());
+                decisionReply.setId(createDecisionReplyResponse.getDecisionId());
                 testContext.getScenarioContext().setCurrentDecisionReply(decisionReply);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             }catch (HttpClientErrorException e){
