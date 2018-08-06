@@ -157,6 +157,7 @@ public class ConversationsControllerTest {
         answerState.setState(ANSWER_DRAFTED);
         answerState.setAnswerStateId(1);
         answer1.setAnswerState(answerState);
+        answer1.setQuestion(question1);
 
         AnswerStateHistory answerStateHistory = new AnswerStateHistory(answer1, answerState);
         answer1.setAnswerStateHistories(asList(answerStateHistory));
