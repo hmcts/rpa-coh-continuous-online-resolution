@@ -31,6 +31,8 @@ import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_HEADER_KEY;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class DecisionController {
@@ -46,8 +48,6 @@ public class DecisionController {
     private DecisionStateService decisionStateService;
     private SessionEventService sessionEventService;
     private DecisionReplyService decisionReplyService;
-
-    public static final String IDAM_HEADER_KEY = "idam_author_reference";
 
     private Validation validation = new Validation();
 
