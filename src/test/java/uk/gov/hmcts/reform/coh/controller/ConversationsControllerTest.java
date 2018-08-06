@@ -75,10 +75,6 @@ public class ConversationsControllerTest {
 
     private OnlineHearing onlineHearing;
 
-    private OnlineHearingPanelMember member;
-
-    private OnlineHearingState onlineHearingState;
-
     private Decision decision;
 
     private QuestionState issuedState;
@@ -107,7 +103,7 @@ public class ConversationsControllerTest {
         onlineHearing.setOnlineHearingId(onlineHearingUuid);
         onlineHearing.setStartDate(new Date());
 
-        onlineHearingState = new OnlineHearingState();
+        OnlineHearingState  onlineHearingState = new OnlineHearingState();
         onlineHearingState.setState(STARTED_STATE);
         onlineHearing.setOnlineHearingState(onlineHearingState);
 
@@ -116,7 +112,7 @@ public class ConversationsControllerTest {
         ohHistory.setDateOccurred(new Date());
         onlineHearing.setOnlineHearingStateHistories(Arrays.asList(ohHistory));
 
-        member = new OnlineHearingPanelMember();
+        OnlineHearingPanelMember member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
         onlineHearing.setPanelMembers(asList(member));
 
@@ -174,8 +170,8 @@ public class ConversationsControllerTest {
         when(onlineHearingService.retrieveOnlineHearing(onlineHearingUuid)).thenReturn(Optional.of(onlineHearing));
         when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.of(decision));
         when(questionService.findAllQuestionsByOnlineHearing(onlineHearing)).thenReturn(Optional.of(asList(question1, question2)));
-        when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(Arrays.asList(answer1));
-        when(answerService.retrieveAnswersByQuestion(question2)).thenReturn(Arrays.asList(answer1));
+        when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(asList(answer1));
+        when(answerService.retrieveAnswersByQuestion(question2)).thenReturn(asList(answer1));
     }
 
     @Test
