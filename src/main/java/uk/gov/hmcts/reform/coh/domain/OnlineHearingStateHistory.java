@@ -8,15 +8,17 @@ import java.util.Date;
     @Table(name = "online_hearing_state_history")
     public class OnlineHearingStateHistory {
 
-        @EmbeddedId
-        private OnlineHearingStateId id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        @Column(name = "id")
+        private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("onlineHearingId")
+        @JoinColumn(name = "online_hearing_id")
         private OnlineHearing onlinehearing;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @MapsId("onlineHearingStateId")
+        @JoinColumn(name = "online_hearing_state_id")
         private OnlineHearingState onlinehearingstate;
 
         @NotNull
@@ -47,7 +49,6 @@ import java.util.Date;
                                          OnlineHearingState onlinehearingstate) {
             this.onlinehearing = onlinehearing;
             this.onlinehearingstate = onlinehearingstate;
-            this.id = new OnlineHearingStateId(onlinehearing.getOnlineHearingId(), onlinehearingstate.getOnlineHearingStateId());
         }
 
         public Date getDateOccurred() {
@@ -56,14 +57,6 @@ import java.util.Date;
 
         public void setDateOccurred(Date dateOccurred) {
             this.dateOccurred = dateOccurred;
-        }
-
-        public OnlineHearingStateId getId() {
-            return id;
-        }
-
-        public void setId(OnlineHearingStateId id) {
-            this.id = id;
         }
     }
 
