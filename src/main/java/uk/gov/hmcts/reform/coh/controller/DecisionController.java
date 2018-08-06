@@ -39,6 +39,8 @@ public class DecisionController {
 
     private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
+    private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
+
     private OnlineHearingService onlineHearingService;
     private DecisionService decisionService;
     private DecisionStateService decisionStateService;
@@ -165,15 +167,23 @@ public class DecisionController {
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decisionService.updateDecision(decision);
 
-        // Now queue the notification
         try {
-            sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());
+            // Now queue the notification
+            queueDecisionIssue(decision);
         } catch (Exception e) {
             log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType());
             log.error("Exception is " + EventTypes.DECISION_ISSUED.getEventType());
         }
 
         return ResponseEntity.ok("");
+    }
+
+    private void queueDecisionIssue(Decision decision) {
+
+        Optional<DecisionState> pendingState = decisionStateService.retrieveDecisionStateByState(PENDING_STATE);
+        if (pendingState.isPresent() && decision.getDecisionstate().equals(pendingState.get())) {
+            sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());
+        }
     }
 
     @ApiOperation(value = "Reply to a decision", notes = "A POST request is used to reply to a decision")
