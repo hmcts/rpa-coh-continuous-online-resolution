@@ -6,21 +6,21 @@ import java.util.UUID;
 
 public class CreateDecisionReplyResponse {
     @JsonProperty(value = "decision_reply_id")
-    private UUID decisionId;
+    private UUID decisionReplyId;
 
     public CreateDecisionReplyResponse() {
         // For hibernate
     }
 
-    public CreateDecisionReplyResponse(UUID decisionId) {
-        this.decisionId = decisionId;
+    public CreateDecisionReplyResponse(UUID decisionReplyId) {
+        this.decisionReplyId = decisionReplyId;
     }
 
     public UUID getDecisionId() {
-        return decisionId;
+        return decisionReplyId;
     }
 
     public void setDecisionId(UUID decisionId) {
-        this.decisionId = decisionId;
+        this.decisionReplyId = decisionReplyId;
     }
 }

@@ -188,12 +188,10 @@ public class DecisionController {
 
     @ApiOperation(value = "Reply to a decision", notes = "A POST request is used to reply to a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
+            @ApiResponse(code = 201, message = "Success", response = CreateDecisionReplyResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Online hearing not found"),
-            @ApiResponse(code = 409, message = "Online hearing already contains a decision"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 404, message = "Online hearing not found")
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
