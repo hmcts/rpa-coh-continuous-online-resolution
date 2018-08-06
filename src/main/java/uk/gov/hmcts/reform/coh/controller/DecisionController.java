@@ -47,6 +47,8 @@ public class DecisionController {
     private SessionEventService sessionEventService;
     private DecisionReplyService decisionReplyService;
 
+    public static final String IDAM_HEADER_KEY = "idam_author_reference";
+
     private Validation validation = new Validation();
 
     @Autowired
@@ -194,7 +196,9 @@ public class DecisionController {
             @ApiResponse(code = 404, message = "Online hearing not found")
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
+    public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder,
+                                          @RequestHeader(value=IDAM_HEADER_KEY) String authorReferenceId,
+                                          @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
             && !request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_REJECTED.getStateName())) {
@@ -217,7 +221,7 @@ public class DecisionController {
         }
 
         DecisionReply decisionReply = new DecisionReply();
-        DecisionReplyRequestMapper.map(request, decisionReply, decision);
+        DecisionReplyRequestMapper.map(request, decisionReply, decision, authorReferenceId);
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =

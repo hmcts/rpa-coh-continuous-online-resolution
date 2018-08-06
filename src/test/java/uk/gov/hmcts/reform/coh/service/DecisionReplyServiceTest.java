@@ -35,7 +35,7 @@ public class DecisionReplyServiceTest {
 
         decisionReply = new DecisionReply();
         Decision decision = new Decision();
-        DecisionReplyRequestMapper.map(request, decisionReply, decision);
+        DecisionReplyRequestMapper.map(request, decisionReply, decision, "author_reference");
 
         given(decisionReplyRepository.save(any(DecisionReply.class))).willReturn(decisionReply);
         decisionReplyService = new DecisionReplyService(decisionReplyRepository);

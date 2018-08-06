@@ -13,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.DecisionController;
 import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
@@ -120,7 +121,7 @@ public class DecisionSteps extends BaseSteps {
 
         HttpHeaders header = new HttpHeaders();
         header.add("Content-Type", "application/json");
-
+        header.add(DecisionController.IDAM_HEADER_KEY, testContext.getScenarioContext().getIdamAuthorReference());
         String endpoint = getReplyEndpoint();
 
         if(type.equalsIgnoreCase("POST")) {

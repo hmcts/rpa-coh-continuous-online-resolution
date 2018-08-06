@@ -91,6 +91,8 @@ public class DecisionControllerTest {
 
     private Date expiryDate;
     private final String DECISION_REPLY_JSON = "decision/standard_decision_reply";
+    private final String IDAM_AUTHOR_REFERENCE = "TEST_REFERENCE_IDAM";
+    private final String IDAM_HEADER_KEY = "idam_author_reference";
 
     @Before
     public void setup() throws IOException {
@@ -373,7 +375,8 @@ public class DecisionControllerTest {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
+                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -397,7 +400,8 @@ public class DecisionControllerTest {
         String json = JsonUtils.toJson(request);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(json)
+                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -416,7 +420,8 @@ public class DecisionControllerTest {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
+                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -431,7 +436,8 @@ public class DecisionControllerTest {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
+                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -444,7 +450,8 @@ public class DecisionControllerTest {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON)))
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
+                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 

@@ -44,6 +44,15 @@ public class ScenarioContext {
     private EventRegistrationRequest eventRegistrationRequest;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
+    private String idamAuthorReference;
+
+    public String getIdamAuthorReference() {
+        return idamAuthorReference;
+    }
+
+    public void setIdamAuthorReference(String idamAuthorReference) {
+        this.idamAuthorReference = idamAuthorReference;
+    }
 
     public Set<SessionEventForwardingRegister> getSessionEventForwardingRegisters() {
         return sessionEventForwardingRegisters;

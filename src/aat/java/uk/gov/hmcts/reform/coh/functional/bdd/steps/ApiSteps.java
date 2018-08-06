@@ -350,4 +350,9 @@ public class ApiSteps extends BaseSteps {
 
         assertTrue(hasExpectedRetries);
     }
+
+    @Given("^the IDAM author reference is set$")
+    public void aIDAMAuthorReferenceIsSet() {
+        testContext.getScenarioContext().setIdamAuthorReference("standard_idam_reference");
+    }
 }
