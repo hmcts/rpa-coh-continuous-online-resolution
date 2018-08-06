@@ -297,7 +297,7 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^there is no event queued for this online hearing of event type (.*)")
-    public void thereIsNoEventQueuedForThisOnlineHearingOfEventTypeAnswers_submitted(String eventType) throws Throwable {
+    public void thereIsNoEventQueuedForThisOnlineHearingOfEventTypeAnswersSubmitted(String eventType) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 

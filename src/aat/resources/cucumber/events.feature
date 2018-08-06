@@ -19,6 +19,7 @@ Feature: Event features
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     And a standard answer
+    And the answer state is answer_submitted
     And the endpoint is for submitting an answer
     And a POST request is sent
     And the response code is 201
