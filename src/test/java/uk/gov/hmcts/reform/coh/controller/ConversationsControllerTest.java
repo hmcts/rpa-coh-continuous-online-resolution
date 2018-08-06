@@ -77,13 +77,7 @@ public class ConversationsControllerTest {
 
     private Decision decision;
 
-    private QuestionState issuedState;
-
     private Question question1;
-
-    private Answer answer1;
-
-    private AnswerState answerState;
 
     private Question question2;
 
@@ -94,7 +88,7 @@ public class ConversationsControllerTest {
     private Date expiryDate;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 
         onlineHearingUuid = UUID.fromString("d9248584-4aa5-4cb0-aba6-d2633ad5a375");
@@ -110,7 +104,7 @@ public class ConversationsControllerTest {
         OnlineHearingStateHistory ohHistory = new OnlineHearingStateHistory();
         ohHistory.setOnlinehearingstate(onlineHearingState);
         ohHistory.setDateOccurred(new Date());
-        onlineHearing.setOnlineHearingStateHistories(Arrays.asList(ohHistory));
+        onlineHearing.setOnlineHearingStateHistories(asList(ohHistory));
 
         OnlineHearingPanelMember member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
@@ -133,9 +127,9 @@ public class ConversationsControllerTest {
         DecisionStateHistory decisionStateHistory = new DecisionStateHistory();
         decisionStateHistory.setDateOccured(new Date());
         decisionStateHistory.setDecisionstate(decisionState);
-        decision.setDecisionStateHistories(Arrays.asList(decisionStateHistory));
+        decision.setDecisionStateHistories(asList(decisionStateHistory));
 
-        issuedState = new QuestionState();
+        QuestionState issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
 
         question1 = new Question();
@@ -156,16 +150,16 @@ public class ConversationsControllerTest {
         question2.setQuestionOrdinal(1);
         question2.setQuestionState(issuedState);
 
-        answer1 = new Answer();
+        Answer answer1 = new Answer();
         answer1.answerId(UUID.randomUUID()).answerText("foo");
 
-        answerState = new AnswerState();
+        AnswerState answerState = new AnswerState();
         answerState.setState(ANSWER_DRAFTED);
         answerState.setAnswerStateId(1);
         answer1.setAnswerState(answerState);
 
         AnswerStateHistory answerStateHistory = new AnswerStateHistory(answer1, answerState);
-        answer1.setAnswerStateHistories(Arrays.asList(answerStateHistory));
+        answer1.setAnswerStateHistories(asList(answerStateHistory));
 
         when(onlineHearingService.retrieveOnlineHearing(onlineHearingUuid)).thenReturn(Optional.of(onlineHearing));
         when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.of(decision));
