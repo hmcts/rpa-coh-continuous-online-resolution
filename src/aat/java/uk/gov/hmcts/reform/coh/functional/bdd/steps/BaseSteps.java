@@ -66,6 +66,7 @@ public class BaseSteps {
         endpoints.put("decision", "/continuous-online-hearings/onlineHearing_id/decisions");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
+        endpoints.put("conversations", "/continuous-online-hearings/onlineHearing_id/conversations");
 
         Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
 
