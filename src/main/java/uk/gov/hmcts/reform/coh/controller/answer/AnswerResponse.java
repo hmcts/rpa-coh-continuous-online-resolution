@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.controller.answer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
-import uk.gov.hmcts.reform.coh.domain.AnswerStateHistory;
 
 import java.util.List;
 

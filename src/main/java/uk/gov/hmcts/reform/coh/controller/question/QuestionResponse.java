@@ -2,12 +2,9 @@ package uk.gov.hmcts.reform.coh.controller.question;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import springfox.documentation.spring.web.json.Json;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
-import uk.gov.hmcts.reform.coh.domain.Answer;
 
 import java.util.Date;
 import java.util.List;

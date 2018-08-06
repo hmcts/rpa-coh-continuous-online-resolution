@@ -1,17 +1,13 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionStateHistory;
 
-import java.text.DateFormat;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum DecisionResponseMapper {
 
