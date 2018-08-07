@@ -11,15 +11,16 @@ import java.io.IOException;
 @Component 
 public class IdamHeaderInterceptor extends HandlerInterceptorAdapter { 
  
-    public static final String IDAM_AUTHOR_KEY = "IDAM_Author_ref";
+    public static final String IDAM_AUTHORIZATION = "Authorization";
+    public static final String IDAM_SERVICE_AUTHORIZATION = "serviceAuthorization";
  
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException { 
         response.setContentType("application/json"); 
         response.setCharacterEncoding("utf-8"); 
  
-        if(request.getHeader(IDAM_AUTHOR_KEY) == null) {
+        if(request.getHeader(IDAM_AUTHORIZATION) == null || request.getHeader(IDAM_SERVICE_AUTHORIZATION) == null) {
             JsonObject jsonObject = new JsonObject(); 
-            jsonObject.addProperty("error_message","Missing required IDAM header."); 
+            jsonObject.addProperty("error_message","Missing required IDAM headers.");
             response.getWriter().write(jsonObject.toString()); 
             response.setStatus(400); 
             return false; 

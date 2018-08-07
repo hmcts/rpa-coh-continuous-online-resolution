@@ -42,6 +42,7 @@ public class ScenarioContext {
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
     private String idamAuthorRef;
+    private String idamServiceRef;
 
     public Set<SessionEventForwardingRegister> getSessionEventForwardingRegisters() {
         return sessionEventForwardingRegisters;
@@ -180,5 +181,13 @@ public class ScenarioContext {
 
     public void setIdamAuthorRef(String idamAuthorRef) {
         this.idamAuthorRef = idamAuthorRef;
+    }
+
+    public String getIdamServiceRef() {
+        return idamServiceRef;
+    }
+
+    public void setIdamServiceRef(String idamServiceRef) {
+        this.idamServiceRef = idamServiceRef;
     }
 }
