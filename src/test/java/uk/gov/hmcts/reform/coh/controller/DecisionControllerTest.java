@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -26,7 +27,7 @@ import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -100,9 +101,9 @@ public class DecisionControllerTest {
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
 
-        request = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
-        updateDecisionRequest = (UpdateDecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
-        response = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
+        request = JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
+        updateDecisionRequest = JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
+        response = JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
 
         decision = new Decision();
         decision.setDecisionId(decisionUUID);
@@ -239,11 +240,11 @@ public class DecisionControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        DecisionResponse expected = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
+        DecisionResponse expected = JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
         expected.setDecisionId(decisionUUID.toString());
         expected.setOnlineHearingId(uuid.toString());
-        expected.setDeadlineExpiryDate(expiryDate.toString());
-        DecisionResponse actual = (DecisionResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
+        expected.setDeadlineExpiryDate(CohISO8601DateFormat.format(expiryDate));
+        DecisionResponse actual = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
 
         assertEquals(expected.getDecisionId(), actual.getDecisionId());
         assertEquals(expected.getOnlineHearingId(), actual.getOnlineHearingId());

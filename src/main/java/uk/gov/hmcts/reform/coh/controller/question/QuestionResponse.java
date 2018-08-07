@@ -2,9 +2,9 @@ package uk.gov.hmcts.reform.coh.controller.question;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
-import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -22,18 +22,24 @@ public class QuestionResponse extends QuestionRequest {
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
 
-    @JsonProperty(value = "answer")
+    @JsonProperty(value = "answers")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<AnswerResponse> answers;
+
+    @JsonProperty(value = "history")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<Answer> answers;
+
+    @JsonProperty(value = "uri")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String uri;
 
     public String getDeadlineExpiryDate() {
         return deadlineExpiryDate;
     }
 
     public void setDeadlineExpiryDate(Date deadlineExpiryDate) {
-        ISO8601DateFormat formatter = new ISO8601DateFormat();
-        String res = formatter.format(deadlineExpiryDate);
-        this.deadlineExpiryDate = res;
+        this.deadlineExpiryDate = CohISO8601DateFormat.format(deadlineExpiryDate);
     }
 
     public String getQuestionId() {
@@ -58,5 +64,21 @@ public class QuestionResponse extends QuestionRequest {
 
     public void setAnswers(List<Answer> answers) {
         this.answers = answers;
+    }
+
+    public List<StateResponse> getHistories() {
+        return histories;
+    }
+
+    public void setHistories(List<StateResponse> histories) {
+        this.histories = histories;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }

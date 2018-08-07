@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,9 +30,9 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -81,7 +79,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         super.setup();
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
@@ -94,7 +92,7 @@ public class AnswerSteps extends BaseSteps{
     }
 
     @After
-    public void cleanup() {
+    public void cleanUp() {
         /**
          * For each test run, answers are attached to questions. These need
          * to be deleted after test completion. Delete in reverse order for
@@ -105,15 +103,10 @@ public class AnswerSteps extends BaseSteps{
         }
 
         for (UUID questionId : questionIds) {
-            questionService.deleteQuestion(new Question().questionId(questionId));
-        }
-
-        try {
-            String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
-            onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-            onlineHearingRepository.deleteByCaseId(onlineHearingCaseId);
-        } catch(DataIntegrityViolationException e){
-            log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere." + e);
+            Optional<Question> question = questionService.retrieveQuestionById(questionId);
+            if (question.isPresent()) {
+                questionService.deleteQuestion(question.get());
+            }
         }
     }
 
@@ -122,7 +115,7 @@ public class AnswerSteps extends BaseSteps{
      */
     @Given("^a valid question$")
     public void an_existing_question() throws IOException {
-        QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
+        QuestionRequest questionRequest = JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
@@ -133,14 +126,14 @@ public class AnswerSteps extends BaseSteps{
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
-        CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         questionIds.add(createQuestionResponse.getQuestionId());
     }
 
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
-        this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        this.answerRequest = JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
@@ -159,6 +152,11 @@ public class AnswerSteps extends BaseSteps{
     @Given("^the answer text is '(.*)'$")
     public void answer_text_is(String text) {
         answerRequest.setAnswerText(text);
+    }
+
+    @Given("^the answer state is (.*)$")
+    public void answer_state_is(String state) {
+        answerRequest.setAnswerState(state);
     }
 
     @Given("^an unknown answer identifier$")
@@ -206,16 +204,11 @@ public class AnswerSteps extends BaseSteps{
     @Given("^an update to the answer is required$")
     public void an_update_to_the_answer_is_required() {
         try {
-            CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
+            CreateAnswerResponse answerResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
             log.error("Exception " + e.getMessage());
         }
-    }
-
-    @And("^the answer state is '(.*)'$")
-    public void theAnswerStateIsSUBMITTED(String answerState) {
-        answerRequest.setAnswerState(answerState);
     }
 
     @When("^a (.*) request is sent$")
@@ -258,7 +251,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^there are (\\d+) answers$")
     public void there_are_count_answers(int count) throws Throwable {
         String json = response.getBody();
-        Answer[] myObjects = (Answer[]) JsonUtils.toObjectFromJson(json, Answer[].class);
+        Answer[] myObjects = JsonUtils.toObjectFromJson(json, Answer[].class);
 
         assertEquals("Response status code", myObjects.length, count);
     }
@@ -266,7 +259,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^the answer response answer text is '(.*)'$")
     public void the_answer_text_is(String text) throws Throwable {
         String json = response.getBody();
-        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         assertEquals("Answer text", text, response.getAnswerText());
     }
@@ -274,7 +267,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^the answer response answer state is '(.*)'$")
     public void the_answer_state_is(String text) throws Throwable {
         String json = response.getBody();
-        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         assertEquals("Answer state name", text, response.getStateResponse().getName());
     }
@@ -283,7 +276,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^the answer response answer state datetime is a valid ISO8601 date$")
     public void the_answer_state_datetime_is_iso8601() throws Throwable {
         String json = response.getBody();
-        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         try {
             ISO8601DateFormat df = new ISO8601DateFormat();
@@ -310,12 +303,12 @@ public class AnswerSteps extends BaseSteps{
 
         UUID answerId = null;
         if ((json.indexOf("question_id") > 0) || json.contains("current_answer_state")) {
-            AnswerResponse answer = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+            AnswerResponse answer = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
             answerId = UUID.fromString(answer.getAnswerId());
         } else {
 
             if (!json.startsWith("[")) {
-                CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
+                CreateAnswerResponse answerResponse = JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
                 answerId = answerResponse.getAnswerId();
             }
         }

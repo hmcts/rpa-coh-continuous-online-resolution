@@ -17,13 +17,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.*;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -79,7 +80,7 @@ public class QuestionControllerTest {
 
     @Before
     public void setup() throws IOException {
-        questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
+        questionRequest = JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.fromString("0c08b113-16d1-4fb5-b41f-a928aa64d39a"));
         uuid = UUID.randomUUID();
@@ -91,9 +92,13 @@ public class QuestionControllerTest {
         question.setQuestionRound(1);
         question.setQuestionOrdinal(2);
 
+        AnswerState answerState = new AnswerState();
+        answerState.setState("foo");
         answer = new Answer();
+        answer.setAnswerId(UUID.randomUUID());
         answer.setAnswerText("test answer");
         answer.setQuestion(question);
+        answer.setAnswerState(answerState);
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
 
@@ -138,7 +143,7 @@ public class QuestionControllerTest {
         assertEquals(question.getQuestionRound().toString(), responseQuestion.getQuestionRound());
         assertEquals(Integer.toString(question.getQuestionOrdinal()), responseQuestion.getQuestionOrdinal());
         assertEquals(issuedState.getState(), responseQuestion.getCurrentState().getName());
-        assertEquals(today.toString(), responseQuestion.getCurrentState().getDatetime());
+        assertEquals(CohISO8601DateFormat.format(today), responseQuestion.getCurrentState().getDatetime());
     }
 
     @Test

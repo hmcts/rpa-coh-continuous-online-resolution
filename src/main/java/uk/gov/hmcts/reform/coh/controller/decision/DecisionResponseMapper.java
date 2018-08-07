@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionStateHistory;
 
@@ -7,7 +8,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum DecisionResponseMapper {
 
@@ -19,7 +19,7 @@ public enum DecisionResponseMapper {
     DECISION_AWARD(Decision::getDecisionAward, DecisionResponse::setDecisionAward),
     DEADLINE_EXPIRY_DATE(d -> {
         if (d.getDeadlineExpiryDate() != null) {
-            return d.getDeadlineExpiryDate().toString();
+            return CohISO8601DateFormat.format(d.getDeadlineExpiryDate());
         }
         return null;
     }, DecisionResponse::setDeadlineExpiryDate),
@@ -29,11 +29,11 @@ public enum DecisionResponseMapper {
             {
                 String date = null;
                 if (d.getDecisionStateHistories() != null && !d.getDecisionStateHistories().isEmpty()) {
-                    date = d.getDecisionStateHistories()
+                    date = CohISO8601DateFormat.format(
+                            d.getDecisionStateHistories()
                             .stream()
                             .sorted(Comparator.comparing(DecisionStateHistory::getDateOccured).reversed())
-                            .findFirst().get().getDateOccured()
-                            .toString();
+                            .findFirst().get().getDateOccured());
                 }
 
                 return date;

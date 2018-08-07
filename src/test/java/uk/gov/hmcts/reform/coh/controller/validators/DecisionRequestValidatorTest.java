@@ -3,13 +3,11 @@ package uk.gov.hmcts.reform.coh.controller.validators;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DecisionRequestValidatorTest {
 
@@ -19,7 +17,7 @@ public class DecisionRequestValidatorTest {
 
     @Before
     public void setup() throws IOException {
-        request = (DecisionRequest)JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
+        request = JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
         validation = new Validation();
     }
 

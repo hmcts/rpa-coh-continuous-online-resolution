@@ -9,15 +9,17 @@ import java.util.Objects;
 @Table(name = "question_state_history")
 public class QuestionStateHistory {
 
-    @EmbeddedId
-    private QuestionStateId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("questionId")
+    @JoinColumn(name = "question_id")
     private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("questionStateId")
+    @JoinColumn(name = "question_state_id")
     private QuestionState questionstate; //lowercase as liquidbase is funny with case
 
     @NotNull
@@ -25,28 +27,19 @@ public class QuestionStateHistory {
     @Column(name = "date_occurred")
     private Date dateOccurred = new Date();
 
-
     private QuestionStateHistory() {}
 
     public QuestionStateHistory(Question question, QuestionState questionstate) {
         this.question = question;
         this.questionstate = questionstate;
-        this.id = new QuestionStateId(question.getQuestionId(), questionstate.getQuestionStateId());
     }
 
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(question, questionstate);
+    public QuestionState getQuestionstate() {
+        return questionstate;
     }
 
-
-    public QuestionStateId getId() {
-        return id;
-    }
-
-    public void setId(QuestionStateId id) {
-        this.id = id;
+    public void setQuestionstate(QuestionState questionstate) {
+        this.questionstate = questionstate;
     }
 
     public Date getDateOccurred() {
@@ -55,5 +48,10 @@ public class QuestionStateHistory {
 
     public void setDateOccurred(Date dateOccurred) {
         this.dateOccurred = dateOccurred;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(question, questionstate);
     }
 }
