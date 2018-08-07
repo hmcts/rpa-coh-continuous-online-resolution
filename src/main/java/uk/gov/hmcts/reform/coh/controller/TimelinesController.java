@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
+import uk.gov.hmcts.reform.coh.controller.timelines.TimelinesResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.*;
@@ -54,5 +55,15 @@ public class TimelinesController {
         OnlineHearingMapper.map(response, retrievedOnlineHearing.get());
 
         return ResponseEntity.ok(response);
+
     }
+
+    public void mapOnlineHearingToTimeline(OnlineHearing onlineHearing, TimelinesResponse response) {
+
+        OnlineHearingResponse onlineHearingResponse = new OnlineHearingResponse();
+        response.setOnlineHearing(onlineHearingResponse);
+        OnlineHearingMapper.map(onlineHearingResponse, onlineHearing);
+
+    }
+
 }
