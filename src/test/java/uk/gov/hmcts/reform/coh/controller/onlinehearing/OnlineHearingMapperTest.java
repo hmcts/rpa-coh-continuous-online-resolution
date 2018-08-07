@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
@@ -61,8 +62,8 @@ public class OnlineHearingMapperTest {
 
         assertEquals(uuid, response.getOnlineHearingId());
         assertEquals("foo", response.getCaseId());
-        assertEquals(startDate.getTime(), response.getStartDate());
-        assertEquals(endDate.getTime(), response.getEndDate());
+        assertEquals(CohISO8601DateFormat.format(startDate.getTime()), response.getStartDate());
+        assertEquals(CohISO8601DateFormat.format(endDate.getTime()), response.getEndDate());
         assertEquals(1, response.getPanel().size());
         assertEquals("foo bar", response.getPanel().get(0).getName());
         assertEquals(startState.getState(), response.getCurrentState().getName());

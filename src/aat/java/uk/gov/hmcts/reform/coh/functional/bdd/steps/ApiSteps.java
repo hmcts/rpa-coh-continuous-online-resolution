@@ -37,6 +37,7 @@ import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -114,11 +115,11 @@ public class ApiSteps extends BaseSteps {
                 onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByCaseId(caseId);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
                     sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
@@ -127,10 +128,10 @@ public class ApiSteps extends BaseSteps {
                 }
             }
         }
-        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
+        for (Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
             try {
                 jurisdictionRepository.delete(jurisdiction);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
@@ -175,7 +176,7 @@ public class ApiSteps extends BaseSteps {
     @Then("^the response contains the online hearing UUID$")
     public void the_response_contains_the_online_hearing_UUID() throws IOException {
         String responseString = testContext.getHttpContext().getRawResponseString();
-        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        CreateOnlineHearingResponse response = JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         assertEquals(response.getOnlineHearingId(), UUID.fromString(response.getOnlineHearingId()).toString());
     }
 
@@ -183,7 +184,7 @@ public class ApiSteps extends BaseSteps {
     public void aStandardOnlineHearingIsCreated() throws Throwable {
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
 
-        OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
+        OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         try {
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
@@ -191,7 +192,7 @@ public class ApiSteps extends BaseSteps {
             testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
-            CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+            CreateOnlineHearingResponse newOnlineHearing = JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
             testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
             testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
 
@@ -214,7 +215,7 @@ public class ApiSteps extends BaseSteps {
         String responseString = response.getBody();
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        CreateOnlineHearingResponse newOnlineHearing = JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId()).get());
