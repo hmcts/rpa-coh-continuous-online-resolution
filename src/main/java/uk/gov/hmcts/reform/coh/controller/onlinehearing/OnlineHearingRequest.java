@@ -70,6 +70,9 @@ public class OnlineHearingRequest {
         @JsonProperty("name")
         private String name;
 
+        @JsonProperty("role")
+        private String role;
+
         public String getIdentityToken() {
             return identityToken;
         }
@@ -84,6 +87,14 @@ public class OnlineHearingRequest {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
     }
 }

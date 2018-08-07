@@ -135,12 +135,16 @@ public class OnlineHearingResponse implements Serializable {
         @JsonProperty("name")
         private String name;
 
+        @JsonProperty("role")
+        private String role;
+
         public PanelMember() {
             super();
         }
 
-        public PanelMember(String name) {
+        public PanelMember(String name, String role) {
             this.name = name;
+            this.role = role;
         }
 
         public String getName() {
@@ -149,6 +153,14 @@ public class OnlineHearingResponse implements Serializable {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
     }
 }
