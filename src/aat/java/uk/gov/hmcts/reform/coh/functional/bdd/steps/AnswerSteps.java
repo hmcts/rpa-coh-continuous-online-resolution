@@ -169,8 +169,14 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            String questionId = testContext.getScenarioContext().getCurrentQuestion().getQuestionId().toString();
-            endpoint = endpoint.replaceAll("question_id", questionId);
+
+            if(testContext.getScenarioContext().getCurrentQuestion()==null) {
+                // For missing submitting answer to non-existing answer tests
+                endpoint = endpoint.replaceAll("question_id", UUID.randomUUID().toString());
+            }else {
+                String questionId = testContext.getScenarioContext().getCurrentQuestion().getQuestionId().toString();
+                endpoint = endpoint.replaceAll("question_id", questionId);
+            }
         }
 
         if ("answer".equalsIgnoreCase(entity) && currentAnswerId != null) {
