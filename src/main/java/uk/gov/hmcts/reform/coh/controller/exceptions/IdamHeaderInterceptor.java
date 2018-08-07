@@ -12,7 +12,7 @@ import java.io.IOException;
 public class IdamHeaderInterceptor extends HandlerInterceptorAdapter { 
  
     public static final String IDAM_AUTHORIZATION = "Authorization";
-    public static final String IDAM_SERVICE_AUTHORIZATION = "serviceAuthorization";
+    public static final String IDAM_SERVICE_AUTHORIZATION = "ServiceAuthorization";
  
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException { 
         response.setContentType("application/json"); 
