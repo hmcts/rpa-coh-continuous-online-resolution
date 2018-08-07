@@ -33,7 +33,7 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
     static {
         URL_ENCODED_HEADER = new HttpHeaders();
         URL_ENCODED_HEADER.add("Content-Type", "application/json");
-        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_HEADER_KEY, IDAM_SERVICE_TOKEN);
+        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, IDAM_SERVICE_TOKEN);
     }
 
     @Value("${base-urls.test-url}")

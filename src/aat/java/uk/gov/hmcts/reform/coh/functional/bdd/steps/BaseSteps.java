@@ -84,7 +84,7 @@ public class BaseSteps {
         testContext.getScenarioContext().setIdamAuthorRef("judge_123_idam");
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
-        header.add(IdamHeaderInterceptor.IDAM_HEADER_KEY, testContext.getScenarioContext().getIdamAuthorRef());
+        header.add(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, testContext.getScenarioContext().getIdamAuthorRef());
     }
 
     public void cleanup() {
