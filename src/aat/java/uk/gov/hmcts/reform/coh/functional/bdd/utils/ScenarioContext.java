@@ -38,9 +38,9 @@ public class ScenarioContext {
 
     private UpdateQuestionRequest updateQuestionRequest;
     private DecisionReplyRequest decisionReplyRequest;
-    private DecisionReply decisionReply;
 
     private List<Jurisdiction> jurisdictions;
+    private List<DecisionReply> decisionReplies = new ArrayList<>();
     private EventRegistrationRequest eventRegistrationRequest;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
@@ -194,11 +194,15 @@ public class ScenarioContext {
         return decisionReplyRequest;
     }
 
-    public void setCurrentDecisionReply(DecisionReply decisionReply) {
-        this.decisionReply = decisionReply;
+    public void addDecisionReply(DecisionReply decisionReply) {
+        decisionReplies.add(decisionReply);
     }
 
-    public DecisionReply getCurrentDecisionReply() {
-        return decisionReply;
+    public void setDecisionReplies(List<DecisionReply> decisionReplies) {
+        this.decisionReplies = decisionReplies;
+    }
+
+    public List<DecisionReply> getDecisionReplies() {
+        return decisionReplies;
     }
 }

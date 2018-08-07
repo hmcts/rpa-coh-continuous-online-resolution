@@ -93,6 +93,9 @@ public class BaseSteps {
     }
 
     public void cleanup() {
+        for(DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
+            decisionReplyRepository.deleteById(decisionReply.getId());
+        }
         if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
@@ -102,8 +105,7 @@ public class BaseSteps {
                 }
             }
         }
-
-        // Delete all decisions
+                // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
             try {

@@ -96,6 +96,23 @@ Feature: Decisions features
     And a POST request is sent for a decision reply
     And the response code is 201
 
+  Scenario: Save multiple decision replies to a decision
+    Given a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    Given a standard decision reply
+    And the decision reply is ' "decision_rejected" '
+    When a POST request is sent for a decision reply
+    Then the response code is 201
+    Given a standard decision reply
+    And the decision reply is ' "decision_accepted" '
+    When a POST request is sent for a decision reply
+    Then the response code is 201
+
   Scenario: Reply to a decision with invalid reply and throw bad request
     Given a standard decision
     And a POST request is sent for a decision
