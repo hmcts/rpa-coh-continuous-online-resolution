@@ -50,6 +50,7 @@ Feature: Questions feature
     Then the response code is 201
     When the get request is sent to retrieve all questions
     And the response contains the following text '"answer_text" '
+    And question 1 contains 1 answer
 
   Scenario: Edit the question body
     Given a standard online hearing is created
