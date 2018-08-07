@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class QuestionResponse extends QuestionRequest {
 
@@ -57,14 +58,6 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
-    public List<AnswerResponse> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(List<AnswerResponse> answers) {
-        this.answers = answers;
-    }
-
     public List<StateResponse> getHistories() {
         return histories;
     }
@@ -79,5 +72,13 @@ public class QuestionResponse extends QuestionRequest {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public List<AnswerResponse> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<AnswerResponse> answers) {
+        this.answers = answers;
     }
 }

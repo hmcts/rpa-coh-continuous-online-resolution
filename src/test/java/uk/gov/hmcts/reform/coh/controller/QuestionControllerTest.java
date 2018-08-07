@@ -259,7 +259,7 @@ public class QuestionControllerTest {
         AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
 
         assertEquals(1, questionResponses.getQuestions().size());
-        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswers().get(0).getAnswerText());
+        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswers().getAnswerText());
     }
 
     @Test

@@ -76,11 +76,7 @@ public class QuestionController {
         for (Question question : questions) {
             List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
             QuestionResponse questionResponse = new QuestionResponse();
-            if (answers.isEmpty()) {
-                QuestionResponseMapper.map(question, questionResponse);
-            } else {
-                QuestionResponseMapper.map(question, questionResponse, answers.get(0));
-            }
+            QuestionResponseMapper.map(question, questionResponse, answers);
             responses.add(questionResponse);
         }
         AllQuestionsResponse response = new AllQuestionsResponse();

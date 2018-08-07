@@ -35,6 +35,23 @@ Feature: Questions feature
     Then the response code is 200
     And the response contains 2 questions
 
+  Scenario: Retrieve all questions
+    Given a standard online hearing is created
+    And a standard question
+    And the question round is ' "1" '
+    And the post request is sent to create the question
+    Then the response code is 201
+    When the put request is sent to issue the question round ' "1" '
+    Then wait until the event is processed
+    And the response code is 200
+    And a standard answer
+    And the endpoint is for submitting an answer
+    And a POST request is sent
+    Then the response code is 201
+    When the get request is sent to retrieve all questions
+    And the response contains the following text '"answer_text" '
+    And question 1 contains 1 answer
+
   Scenario: Edit the question body
     Given a standard online hearing is created
     And a standard question

@@ -1,12 +1,9 @@
 package uk.gov.hmcts.reform.coh.controller.question;
 
-import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
-import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
-import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -44,16 +41,14 @@ public enum QuestionResponseMapper {
         }
     }
 
-    public static void map(Question question, QuestionResponse response, Answer answer) {
+    public static void map(Question question, QuestionResponse response, List<Answer> answer) {
         for (QuestionResponseMapper m : QuestionResponseMapper.class.getEnumConstants()) {
             m.set(question, response);
         }
         if(question.getDeadlineExpiryDate()!=null) {
             response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
         }
-        AnswerResponse answerResponse = new AnswerResponse();
-        AnswerResponseMapper.map(answer, answerResponse);
-        response.setAnswers(Arrays.asList(answerResponse));
+        response.setAnswers(answer);
     }
 
     public void set(Question question, QuestionResponse questionResponse) {
