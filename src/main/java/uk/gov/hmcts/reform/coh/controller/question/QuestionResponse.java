@@ -28,7 +28,7 @@ public class QuestionResponse extends QuestionRequest {
 
     @JsonProperty(value = "history")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Answer> answers;
+    private List<StateResponse> histories;
 
     @JsonProperty(value = "uri")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -58,14 +58,6 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
-    public List<Answer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
-    }
-
     public List<StateResponse> getHistories() {
         return histories;
     }
@@ -80,5 +72,13 @@ public class QuestionResponse extends QuestionRequest {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public List<AnswerResponse> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<AnswerResponse> answers) {
+        this.answers = answers;
     }
 }
