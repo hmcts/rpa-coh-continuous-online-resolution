@@ -129,6 +129,9 @@ public class AnswerSteps extends BaseSteps{
         CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         questionIds.add(createQuestionResponse.getQuestionId());
+        Question question = new Question();
+        question.setQuestionId(createQuestionResponse.getQuestionId());
+        testContext.getScenarioContext().setCurrentQuestion(question);
     }
 
     @Given("^a standard answer$")
