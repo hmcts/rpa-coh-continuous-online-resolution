@@ -7,9 +7,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public enum DecisionReplyRequestMapper {
-    DECISION_HEADER(DecisionReplyRequest::getDecisionReply, DecisionReply::setDecisionReply),
-    DECISION_TEXT(DecisionReplyRequest::getDecisionReplyReason, DecisionReply::setDecisionReplyReason),
-    DECISION_REASON(DecisionReplyRequest::getAuthorReferenceId, DecisionReply::setAuthorReferenceId);
+    DECISION_REPLY(DecisionReplyRequest::getDecisionReply, DecisionReply::setDecisionReply),
+    DECISION_REPLY_REASON(DecisionReplyRequest::getDecisionReplyReason, DecisionReply::setDecisionReplyReason);
 
     private Function<DecisionReplyRequest, String> getter;
 
@@ -20,11 +19,12 @@ public enum DecisionReplyRequestMapper {
         this.setter = setter;
     }
 
-    public static void map(DecisionReplyRequest request, DecisionReply decisionReply, Decision decision) {
+    public static void map(DecisionReplyRequest request, DecisionReply decisionReply, Decision decision, String authorReferenceId) {
         for (DecisionReplyRequestMapper m : DecisionReplyRequestMapper.class.getEnumConstants()) {
             m.set(request, decisionReply);
         }
         decisionReply.setDecision(decision);
+        decisionReply.setAuthorReferenceId(authorReferenceId);
     }
 
     public void set(DecisionReplyRequest request, DecisionReply decision) {

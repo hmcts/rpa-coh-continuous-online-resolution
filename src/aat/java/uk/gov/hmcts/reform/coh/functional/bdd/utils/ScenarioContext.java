@@ -40,14 +40,16 @@ public class ScenarioContext {
 
     private UpdateQuestionRequest updateQuestionRequest;
     private DecisionReplyRequest decisionReplyRequest;
-    private List<DecisionReply> decisionReplies = new ArrayList<>();
 
     private List<Jurisdiction> jurisdictions;
+    private List<DecisionReply> decisionReplies = new ArrayList<>();
     private EventRegistrationRequest eventRegistrationRequest;
     private AllDecisionRepliesResponse allDecisionRepliesResponse;
     private DecisionReplyResponse decisionReplyResponse;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
+    private String idamAuthorRef;
+    private String idamServiceRef;
 
     public Set<SessionEventForwardingRegister> getSessionEventForwardingRegisters() {
         return sessionEventForwardingRegisters;
@@ -186,6 +188,22 @@ public class ScenarioContext {
         return eventRegistrationRequest;
     }
 
+    public String getIdamAuthorRef() {
+        return idamAuthorRef;
+    }
+
+    public void setIdamAuthorRef(String idamAuthorRef) {
+        this.idamAuthorRef = idamAuthorRef;
+    }
+
+    public String getIdamServiceRef() {
+        return idamServiceRef;
+    }
+
+    public void setIdamServiceRef(String idamServiceRef) {
+        this.idamServiceRef = idamServiceRef;
+    }
+
     public void setCurrentDecisionReplyRequest(DecisionReplyRequest decisionReplyRequest) {
         this.decisionReplyRequest = decisionReplyRequest;
     }
@@ -194,26 +212,29 @@ public class ScenarioContext {
         return decisionReplyRequest;
     }
 
-    public void addCurrentDecisionReply(DecisionReply decisionReply) {
-        this.decisionReplies.add(decisionReply);
+    public void addDecisionReply(DecisionReply decisionReply) {
+        decisionReplies.add(decisionReply);
     }
 
-    public List<DecisionReply> getCurrentDecisionReplies() {
+    public void setDecisionReplies(List<DecisionReply> decisionReplies) {
+        this.decisionReplies = decisionReplies;
+    }
+
+    public List<DecisionReply> getDecisionReplies() {
         return decisionReplies;
-    }
-
-    public AllDecisionRepliesResponse getAllDecisionRepliesResponse() {
-        return allDecisionRepliesResponse;
     }
 
     public void setAllDecisionRepliesResponse(AllDecisionRepliesResponse allDecisionRepliesResponse) {
         this.allDecisionRepliesResponse = allDecisionRepliesResponse;
     }
 
+    public AllDecisionRepliesResponse getAllDecisionRepliesResponse() {
+        return allDecisionRepliesResponse;
+    }
+
     public void setDecisionReplyResponse(DecisionReplyResponse decisionReplyResponse) {
         this.decisionReplyResponse = decisionReplyResponse;
     }
-
     public DecisionReplyResponse getDecisionReplyResponse() {
         return decisionReplyResponse;
     }

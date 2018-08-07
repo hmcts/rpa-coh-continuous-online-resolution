@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.controller.decision;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.DecisionStateHistory;
@@ -68,11 +69,11 @@ public class DecisionResponseMapperTest {
         assertEquals(decision.getDecisionText(), response.getDecisionText());
         assertEquals(decision.getDecisionReason(), response.getDecisionReason());
         assertEquals(decision.getDecisionAward(), response.getDecisionAward());
-        assertEquals(decision.getDeadlineExpiryDate().toString(), response.getDeadlineExpiryDate());
+        assertEquals(CohISO8601DateFormat.format(decision.getDeadlineExpiryDate()), response.getDeadlineExpiryDate());
         assertEquals(decision.getDecisionstate().getState(), response.getDecisionState().getStateName());
 
         // This checks the sorting works
-        assertEquals(history2.getDateOccured().toString(), response.getDecisionState().getStateDatetime());
+        assertEquals(CohISO8601DateFormat.format(history2.getDateOccured()), response.getDecisionState().getStateDatetime());
     }
 
     @Test

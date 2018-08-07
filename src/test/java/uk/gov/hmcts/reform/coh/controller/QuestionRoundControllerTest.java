@@ -23,7 +23,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +133,7 @@ public class QuestionRoundControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        QuestionRoundsResponse questionRoundsResponse = (QuestionRoundsResponse)JsonUtils.toObjectFromJson(response, QuestionRoundsResponse.class);
+        QuestionRoundsResponse questionRoundsResponse = JsonUtils.toObjectFromJson(response, QuestionRoundsResponse.class);
         assertEquals(3, (int) questionRoundsResponse.getMaxQuestionRound());
         assertEquals(2, (int) questionRoundsResponse.getCurrentQuestionRound());
         assertEquals(1, (int) questionRoundsResponse.getPreviousQuestionRound());
@@ -158,7 +158,7 @@ public class QuestionRoundControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
+        QuestionRoundResponse questionRoundResponse = JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
         assertEquals(1, questionRoundResponse.getQuestionList().size());
         assertEquals("1", questionRoundResponse.getQuestionRound());
     }
@@ -176,7 +176,7 @@ public class QuestionRoundControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        QuestionRoundResponse questionRoundResponse = (QuestionRoundResponse)JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
+        QuestionRoundResponse questionRoundResponse = JsonUtils.toObjectFromJson(response, QuestionRoundResponse.class);
         assertEquals(0, questionRoundResponse.getQuestionList().size());
         assertEquals("1", questionRoundResponse.getQuestionRound());
     }

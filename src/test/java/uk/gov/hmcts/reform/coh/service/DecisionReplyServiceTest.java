@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequestMa
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class DecisionReplyServiceTest {
 
         decisionReply = new DecisionReply();
         Decision decision = new Decision();
-        DecisionReplyRequestMapper.map(request, decisionReply, decision);
+        DecisionReplyRequestMapper.map(request, decisionReply, decision, "author_reference");
 
         given(decisionReplyRepository.save(any(DecisionReply.class))).willReturn(decisionReply);
         given(decisionReplyRepository.findById(any(UUID.class))).willReturn(Optional.of(decisionReply));

@@ -1,0 +1,49 @@
+databaseChangeLog:
+- changeSet:
+    id: 1533654189899-1
+    author: phill (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: decision_reply_id
+            type: UUID
+        - column:
+            name: author_reference_id
+            type: VARCHAR(255)
+        - column:
+            name: date_occurred
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: decision_reply
+            type: VARCHAR(255)
+        - column:
+            name: decision_reply_reason
+            type: TEXT
+        - column:
+            name: decision_id
+            type: UUID
+        tableName: decision_reply
+- changeSet:
+    id: 1533654189899-2
+    author: phill (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: decision_reply_id
+        constraintName: decision_replyPK
+        tableName: decision_reply
+- changeSet:
+    id: 1533654189899-3
+    author: phill (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: decision_id
+        baseTableName: decision_reply
+        constraintName: FKgu0lp4dal6t7n6lw80fcx7olv
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: decision_id
+        referencedTableName: decision
+

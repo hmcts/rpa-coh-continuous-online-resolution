@@ -1,5 +1,4 @@
 {
   "decision_reply": "decision_accepted",
-  "decision_reply_reason": "some reason",
-  "author_reference_id": "some author id"
+  "decision_reply_reason": "some reason"
 }

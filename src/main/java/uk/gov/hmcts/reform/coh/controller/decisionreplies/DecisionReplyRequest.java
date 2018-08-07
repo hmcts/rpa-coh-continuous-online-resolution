@@ -14,9 +14,6 @@ public class DecisionReplyRequest {
     @NotNull(message = "Decision reply reason required")
     private String decisionReplyReason;
 
-    @JsonProperty("author_reference_id")
-    @NotNull(message = "Author reference id required")
-    private String authorReferenceId;
 
     public String getDecisionReply() {
         return decisionReply;
@@ -32,13 +29,5 @@ public class DecisionReplyRequest {
 
     public void setDecisionReplyReason(String decisionReplyReason) {
         this.decisionReplyReason = decisionReplyReason;
-    }
-
-    public String getAuthorReferenceId() {
-        return authorReferenceId;
-    }
-
-    public void setAuthorReferenceId(String authorReferenceId) {
-        this.authorReferenceId = authorReferenceId;
     }
 }

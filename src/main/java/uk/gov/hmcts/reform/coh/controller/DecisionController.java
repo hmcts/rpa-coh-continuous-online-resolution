@@ -26,9 +26,12 @@ import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
@@ -37,6 +40,8 @@ public class DecisionController {
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
     private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
+
+    private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
 
     private OnlineHearingService onlineHearingService;
     private DecisionService decisionService;
@@ -164,9 +169,9 @@ public class DecisionController {
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decisionService.updateDecision(decision);
 
-        // Now queue the notification
         try {
-            sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());
+            // Now queue the notification
+            queueDecisionIssue(decision);
         } catch (Exception e) {
             log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType());
             log.error("Exception is " + EventTypes.DECISION_ISSUED.getEventType());
@@ -175,17 +180,29 @@ public class DecisionController {
         return ResponseEntity.ok("");
     }
 
+    private void queueDecisionIssue(Decision decision) {
+
+        Optional<DecisionState> pendingState = decisionStateService.retrieveDecisionStateByState(PENDING_STATE);
+        if (pendingState.isPresent() && decision.getDecisionstate().equals(pendingState.get())) {
+            sessionEventService.createSessionEvent(decision.getOnlineHearing(), EventTypes.DECISION_ISSUED.getEventType());
+        }
+    }
+
     @ApiOperation(value = "Reply to a decision", notes = "A POST request is used to reply to a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
+            @ApiResponse(code = 201, message = "Success", response = CreateDecisionReplyResponse.class),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Online hearing not found"),
-            @ApiResponse(code = 409, message = "Online hearing already contains a decision"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 404, message = "Online hearing not found")
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
+    public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder,
+                                          @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
+                                          @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
+
+        if(authorReferenceId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Author reference id is not valid");
+        }
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
             && !request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_REJECTED.getStateName())) {
@@ -208,7 +225,8 @@ public class DecisionController {
         }
 
         DecisionReply decisionReply = new DecisionReply();
-        DecisionReplyRequestMapper.map(request, decisionReply, decision);
+        DecisionReplyRequestMapper.map(request, decisionReply, decision, authorReferenceId);
+        decisionReply.setDateOccured(new Date());
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =

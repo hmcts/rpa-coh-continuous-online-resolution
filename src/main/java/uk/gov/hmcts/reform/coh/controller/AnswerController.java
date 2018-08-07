@@ -19,10 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
-import uk.gov.hmcts.reform.coh.domain.Answer;
-import uk.gov.hmcts.reform.coh.domain.AnswerState;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
@@ -39,30 +36,26 @@ import java.util.stream.Collectors;
 public class AnswerController {
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
+    @Autowired
     private AnswerService answerService;
 
+    @Autowired
     private AnswerStateService answerStateService;
 
+    @Autowired
     private QuestionService questionService;
 
+    @Autowired
+    private QuestionStateService questionStateService;
+
+    @Autowired
     private OnlineHearingService onlineHearingService;
 
+    @Autowired
     private AnswersReceivedTask answersReceivedTask;
 
     @Autowired
     private SessionEventService sessionEventService;
-
-    @Autowired
-    public AnswerController(AnswerService answerService, AnswerStateService answerStateService,
-                            QuestionService questionService, OnlineHearingService onlineHearingService,
-                            AnswersReceivedTask answersReceivedTask, SessionEventService sessionEventService) {
-        this.answerService = answerService;
-        this.answerStateService = answerStateService;
-        this.questionService = questionService;
-        this.onlineHearingService = onlineHearingService;
-        this.answersReceivedTask = answersReceivedTask;
-        this.sessionEventService = sessionEventService;
-    }
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
     @ApiResponses(value = {
@@ -112,11 +105,11 @@ public class AnswerController {
 
             answer.setAnswerText(request.getAnswerText());
             answer.setQuestion(optionalQuestion.get());
-            answer = answerService.createAnswer(answer);
+            answerService.createAnswer(answer);
             answerResponse.setAnswerId(answer.getAnswerId());
 
-            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
-            answersReceivedTask.execute(optionalOnlineHearing.get());
+            performQuestionAnswered(optionalOnlineHearing.get(), answer);
+
         } catch (Exception e) {
             log.error(String.format("Exception in createAnswer: %s", e.getMessage()));
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
@@ -227,11 +220,30 @@ public class AnswerController {
             CreateAnswerResponse answerResponse = new CreateAnswerResponse();
             answerResponse.setAnswerId(updatedAnswer.getAnswerId());
 
-            sessionEventService.createSessionEvent(optionalOnlineHearing.get(), EventTypes.ANSWERS_SUBMITTED.getEventType());
-            answersReceivedTask.execute(optionalOnlineHearing.get());
+            performQuestionAnswered(optionalOnlineHearing.get(), updatedAnswer);
+
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
+        }
+    }
+
+    private void performQuestionAnswered(OnlineHearing onlineHearing, Answer answer) {
+
+        if (answer.getAnswerState().getState().equals(AnswerStates.SUBMITTED.getStateName())) {
+
+            try {
+                // Update the state of the question
+                QuestionState answeredState = questionStateService.fetchQuestionState(QuestionStates.ANSWERED);
+                Question question = answer.getQuestion();
+                question.updateQuestionStateHistory(answeredState);
+                question.setQuestionState(answeredState);
+                questionService.updateQuestionForced(question);
+            } catch (Exception e) {
+                log.error("Exception trying to get question state: " + e.getMessage());
+            }
+            sessionEventService.createSessionEvent(onlineHearing, EventTypes.ANSWERS_SUBMITTED.getEventType());
+            answersReceivedTask.execute(onlineHearing);
         }
     }
 
@@ -249,7 +261,7 @@ public class AnswerController {
             Optional<AnswerState> optAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (!optAnswerState.isPresent()) {
                 result.setValid(false);
-                result.setReason("Answer state is not valid");
+                result.setReason(String.format("Answer state is not valid: %s", request.getAnswerState()));
             }
         }
         return result;

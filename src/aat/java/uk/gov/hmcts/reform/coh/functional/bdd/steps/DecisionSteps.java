@@ -8,11 +8,11 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.DecisionController;
 import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
@@ -26,9 +26,11 @@ import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -60,13 +62,13 @@ public class DecisionSteps extends BaseSteps {
 
     @Given("^a standard decision$")
     public void a_standard_decision() throws IOException {
-        DecisionRequest decisionRequest = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
+        DecisionRequest decisionRequest = JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
         testContext.getScenarioContext().setCurrentDecisionRequest(decisionRequest);
     }
 
     @Given("^a standard decision reply$")
     public void aStandardDecisionReply() throws Throwable {
-        DecisionReplyRequest decisionReplyRequest = (DecisionReplyRequest) JsonUtils.toObjectFromTestName("decision/standard_decision_reply", DecisionReplyRequest.class);
+        DecisionReplyRequest decisionReplyRequest = JsonUtils.toObjectFromTestName("decision/standard_decision_reply", DecisionReplyRequest.class);
         testContext.getScenarioContext().setCurrentDecisionReplyRequest(decisionReplyRequest);
     }
 
@@ -78,7 +80,7 @@ public class DecisionSteps extends BaseSteps {
 
     @Given("^a standard decision for update$")
     public void a_standard_decision_for_update() throws IOException {
-        UpdateDecisionRequest decisionRequest = (UpdateDecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
+        UpdateDecisionRequest decisionRequest = JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
         testContext.getScenarioContext().setUpdateDecisionRequest(decisionRequest);
     }
 
@@ -92,10 +94,7 @@ public class DecisionSteps extends BaseSteps {
 
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
-
+        testContext.getScenarioContext().setDecisionReplies(new ArrayList<>());
         String endpoint = getEndpoint();
         try {
             if ("GET".equalsIgnoreCase(type)) {
@@ -125,9 +124,6 @@ public class DecisionSteps extends BaseSteps {
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
 
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
-
         String endpoint = getReplyEndpoint();
 
         if(type.equalsIgnoreCase("POST")) {
@@ -137,12 +133,12 @@ public class DecisionSteps extends BaseSteps {
 
             try {
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-
                 CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionReplyResponse.class);
-                DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionReplyResponse.getDecisionId())
+
+                DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionReplyResponse.getDecisionReplyId())
                         .orElseThrow(() -> new EntityNotFoundException());
 
-                testContext.getScenarioContext().addCurrentDecisionReply(decisionReply);
+                testContext.getScenarioContext().addDecisionReply(decisionReply);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             }catch (HttpClientErrorException e){
                 testContext.getHttpContext().setResponseBodyAndStatesForException(e);
@@ -151,7 +147,7 @@ public class DecisionSteps extends BaseSteps {
             HttpEntity<String> request = new HttpEntity<>("", header);
 
             try {
-                String uuid = testContext.getScenarioContext().getCurrentDecisionReplies().get(0).getId().toString();
+                String uuid = testContext.getScenarioContext().getDecisionReplies().get(0).getId().toString();
                 response = restTemplate.exchange(baseUrl + endpoint + "/" + uuid, HttpMethod.GET, request, String.class);
                 DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
                 testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
@@ -166,9 +162,6 @@ public class DecisionSteps extends BaseSteps {
     public void aGETRequestIsSentForAllDecisionReplies() throws Throwable {
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
 
         String endpoint = getReplyEndpoint();
         HttpEntity<String> request = new HttpEntity<>("", header);
@@ -189,7 +182,7 @@ public class DecisionSteps extends BaseSteps {
     @Then("^the response contains the decision UUID$")
     public void the_response_contains_the_decision_UUID() throws IOException {
         String responseString = testContext.getHttpContext().getRawResponseString();
-        CreateDecisionResponse response = (CreateDecisionResponse) JsonUtils.toObjectFromJson(responseString, CreateDecisionResponse.class);
+        CreateDecisionResponse response = JsonUtils.toObjectFromJson(responseString, CreateDecisionResponse.class);
         assertNotNull(response.getDecisionId());
     }
 
@@ -203,13 +196,13 @@ public class DecisionSteps extends BaseSteps {
 
     @And("^the decision id matches$")
     public void the_question_id_matches() throws Throwable {
-        DecisionResponse response = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
+        DecisionResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertEquals(testContext.getScenarioContext().getCurrentDecision().getDecisionId().toString(), response.getDecisionId());
     }
 
     @And("^the decision state name is (.*)")
     public void the_question_id_matches(String stateName) throws Throwable {
-        DecisionResponse response = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
+        DecisionResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertEquals(stateName, response.getDecisionState().getStateName());
     }
 
@@ -217,7 +210,7 @@ public class DecisionSteps extends BaseSteps {
     public void the_decision_expiry_date() throws IOException {
         Calendar expiry = new GregorianCalendar();
         expiry.add(Calendar.DAY_OF_YEAR, 7);
-        DecisionResponse decision = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
+        DecisionResponse decision = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertNotNull(decision.getDeadlineExpiryDate());
        /*TO DO Fix assert */
         // assertTrue(decision.getDeadlineExpiryDate().contains(df.format(expiry.getTime())));
@@ -226,7 +219,7 @@ public class DecisionSteps extends BaseSteps {
 
     @And("^the decision state timestamp is today$")
     public void the_question_state_timestamp_is_today() throws Throwable {
-        DecisionResponse decision = (DecisionResponse) JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
+        DecisionResponse decision = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertTrue(decision.getDecisionState().getStateDatetime().contains(df.format(new Date())));
     }
 
@@ -258,7 +251,7 @@ public class DecisionSteps extends BaseSteps {
         assertEquals(expectedDecisionReplies, allDecisionRepliesResponse.getDecisionReplyList().size());
 
         int n = 0;
-        for(DecisionReply expectedDecisionReply : testContext.getScenarioContext().getCurrentDecisionReplies()) {
+        for(DecisionReply expectedDecisionReply : testContext.getScenarioContext().getDecisionReplies()) {
             assertEquals(expectedDecisionReply.getDecisionReplyReason(),
                     allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReplyReason());
 
@@ -280,7 +273,7 @@ public class DecisionSteps extends BaseSteps {
     @And("^the decision reply contains all the fields$")
     public void theDecisionReplyContainsAllTheFields() {
         DecisionReplyResponse decisionReplyResponse = testContext.getScenarioContext().getDecisionReplyResponse();
-        DecisionReply expectedDecisionReply = testContext.getScenarioContext().getCurrentDecisionReplies().stream()
+        DecisionReply expectedDecisionReply = testContext.getScenarioContext().getDecisionReplies().stream()
                                                 .filter(dr -> dr.getId().toString().equalsIgnoreCase(decisionReplyResponse.getDecisionReplyId()))
                                                 .findFirst()
                                                 .get();
