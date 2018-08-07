@@ -44,7 +44,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHOR_KEY;
+import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -377,7 +377,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -402,7 +402,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
-                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -422,7 +422,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -438,7 +438,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -452,7 +452,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 

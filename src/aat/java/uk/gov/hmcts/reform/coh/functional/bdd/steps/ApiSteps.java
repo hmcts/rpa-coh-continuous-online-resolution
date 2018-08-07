@@ -142,7 +142,8 @@ public class ApiSteps extends BaseSteps {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         HttpGet request = new HttpGet(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString());
         request.addHeader("content-type", "application/json");
-        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, testContext.getScenarioContext().getIdamAuthorRef());
+        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
+        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
@@ -151,8 +152,8 @@ public class ApiSteps extends BaseSteps {
     public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
         HttpGet request = new HttpGet(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
-        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, testContext.getScenarioContext().getIdamAuthorRef());
-
+        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
+        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
@@ -160,6 +161,7 @@ public class ApiSteps extends BaseSteps {
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
         HttpPost request = new HttpPost(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
+        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
         StringEntity params = new StringEntity(json.toString());
         request.setEntity(params);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));

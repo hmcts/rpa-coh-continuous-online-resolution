@@ -86,10 +86,12 @@ public class BaseSteps {
                 sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl).replace("https", "http")));
         sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
 
-        testContext.getScenarioContext().setIdamAuthorRef("judge_123_idam");
+        testContext.getScenarioContext().setIdamAuthorRef("bearer judge_123_idam");
+        testContext.getScenarioContext().setIdamServiceRef("idam-service-ref-id");
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
-        header.add(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, testContext.getScenarioContext().getIdamAuthorRef());
+        header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
+        header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
     }
 
     public void cleanup() {

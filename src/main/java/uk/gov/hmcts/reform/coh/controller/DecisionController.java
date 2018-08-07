@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHOR_KEY;
+import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
@@ -198,7 +198,7 @@ public class DecisionController {
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder,
-                                          @RequestHeader(value=IDAM_AUTHOR_KEY) String authorReferenceId,
+                                          @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
         if(authorReferenceId.isEmpty()) {

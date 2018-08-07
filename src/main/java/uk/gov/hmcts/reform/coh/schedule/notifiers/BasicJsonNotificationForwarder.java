@@ -29,11 +29,13 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
     private static HttpHeaders URL_ENCODED_HEADER;
 
+    private static String IDAM_AUTHORISATION_TOKEN = "test_idam_service";
     private static String IDAM_SERVICE_TOKEN = "test_idam_service";
     static {
         URL_ENCODED_HEADER = new HttpHeaders();
         URL_ENCODED_HEADER.add("Content-Type", "application/json");
-        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, IDAM_SERVICE_TOKEN);
+        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, IDAM_AUTHORISATION_TOKEN);
+        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, IDAM_SERVICE_TOKEN);
     }
 
     @Value("${base-urls.test-url}")
