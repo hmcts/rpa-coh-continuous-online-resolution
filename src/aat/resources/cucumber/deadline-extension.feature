@@ -11,6 +11,7 @@ Feature: Deadline Extension
     Then the response code is 200
     And question states are question_deadline_extension_granted
     And question history has at least 2 events
+    And an event has been queued for this online hearing of event type question_deadline_extension_granted
 
   Scenario: Cannot extend deadline without questions
     Given a standard online hearing is created
