@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
-import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -38,9 +37,6 @@ public class DeadlineController {
 
     @Autowired
     private SessionEventService sessionEventService;
-
-    @Autowired
-    private AnswersReceivedTask answersReceivedTask;
 
     public DeadlineController() {
     }
