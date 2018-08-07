@@ -15,49 +15,41 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.service.JurisdictionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.service.*;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}/timelines")
-public class OnlineHearingTimelinesController {
+public class TimelinesController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
 
     @Autowired
-    private OnlineHearingPanelMemberService onlineHearingPanelMemberService;
+    private QuestionService questionService;
 
     @Autowired
-    private OnlineHearingStateService onlineHearingStateService;
+    private AnswerService answerService;
 
     @Autowired
-    private JurisdictionService jurisdictionService;
-
-    private Validation validation = new Validation();
+    private DecisionService decisionService;
 
 
-    @ApiOperation(value = "Get Online Hearing Timeline", notes = "A GET request with a request body is used to retrieve an online hearing timeline")
+    @ApiOperation(value = "Get Online Hearing Timeline", notes = "A GET request to retrieve an online hearing timeline")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = OnlineHearingResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 200, message = "OK", response = OnlineHearingResponse.class),
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OnlineHearingResponse> retrieveOnlineHearingTimeline(@PathVariable String onlineHearingId ) {
+    public ResponseEntity getTimelines(@PathVariable UUID onlineHearingId ) {
 
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(UUID.fromString(onlineHearingId));
-        Optional<OnlineHearing> retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
+        Optional<OnlineHearing> retrievedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!retrievedOnlineHearing.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
+
         OnlineHearingResponse response = new OnlineHearingResponse();
         OnlineHearingMapper.map(response, retrievedOnlineHearing.get());
 
