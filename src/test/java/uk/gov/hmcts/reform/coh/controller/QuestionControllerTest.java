@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -255,7 +254,7 @@ public class QuestionControllerTest {
         AllQuestionsResponse questionResponses = mapper.readValue(result.getResponse().getContentAsString(), AllQuestionsResponse.class);
 
         assertEquals(1, questionResponses.getQuestions().size());
-        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswer().getAnswerText());
+        assertEquals("test answer", questionResponses.getQuestions().get(0).getAnswers().getAnswerText());
     }
 
     @Test

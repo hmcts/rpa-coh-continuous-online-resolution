@@ -24,7 +24,7 @@ public class QuestionResponse extends QuestionRequest {
 
     @JsonProperty(value = "answer")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Answer> answer;
+    private List<Answer> answers;
 
     public String getDeadlineExpiryDate() {
         return deadlineExpiryDate;
@@ -52,11 +52,11 @@ public class QuestionResponse extends QuestionRequest {
         this.currentState = currentState;
     }
 
-    public List<Answer> getAnswer() {
-        return answer;
+    public List<Answer> getAnswers() {
+        return answers;
     }
 
-    public void setAnswer(List<Answer> answer) {
-        this.answer = answer;
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 }

@@ -1,16 +1,9 @@
 package uk.gov.hmcts.reform.coh.controller.question;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
-import uk.gov.hmcts.reform.coh.repository.AnswerStateRepository;
-import uk.gov.hmcts.reform.coh.service.AnswerService;
-import uk.gov.hmcts.reform.coh.service.AnswerStateService;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -55,7 +48,7 @@ public enum QuestionResponseMapper {
         if(question.getDeadlineExpiryDate()!=null) {
             response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
         }
-        response.setAnswer(answer);
+        response.setAnswers(answer);
     }
 
     public void set(Question question, QuestionResponse questionResponse) {
