@@ -11,7 +11,7 @@ import java.io.IOException;
 @Component 
 public class IdamHeaderInterceptor extends HandlerInterceptorAdapter { 
  
-    public static final String IDAM_AUTHOR_KEY = "IDAM_Author_ref";
+    public static final String IDAM_AUTHOR_KEY = "Authorization";
  
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException { 
         response.setContentType("application/json"); 
