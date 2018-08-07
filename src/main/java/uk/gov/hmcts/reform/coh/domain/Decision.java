@@ -52,7 +52,9 @@ public class Decision {
             cascade = CascadeType.ALL)
     private List<DecisionStateHistory> decisionStateHistories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "decision")
+    @OneToMany(mappedBy = "decision",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
     private List<DecisionReply> decisionReplies = new ArrayList<>();
 
     public UUID getDecisionId() {

@@ -256,7 +256,7 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
         }
 
-        List<DecisionReply> decisionReplies = optionalDecision.get().getDecisionReplies();
+        List<DecisionReply> decisionReplies = decisionReplyService.findAllDecisionReplyByDecision(optionalDecision.get());
 
         AllDecisionRepliesResponse allDecisionRepliesResponse = new AllDecisionRepliesResponse();
         for(DecisionReply decisionReply : decisionReplies) {

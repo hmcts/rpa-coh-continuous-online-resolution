@@ -479,8 +479,7 @@ public class DecisionControllerTest {
         decisionReply.setDecisionReplyReason("some reason 1");
         decisionReplies.add(decisionReply);
 
-        decision.setDecisionReplies(decisionReplies);
-
+        given(decisionReplyService.findAllDecisionReplyByDecision(any(Decision.class))).willReturn(decisionReplies);
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
