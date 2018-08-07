@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
+import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -53,6 +54,9 @@ public class AnswerControllerTest {
 
     @Mock
     private QuestionService questionService;
+
+    @Mock
+    private QuestionStateService questionStateService;
 
     @Mock
     private AnswerService answerService;
@@ -107,8 +111,7 @@ public class AnswerControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
 
-        questionState = new QuestionState();
-        questionState.setState(QuestionStates.ISSUED.getStateName());
+        questionState = QuestionStateUtils.get(QuestionStates.ISSUED);
         question = new Question();
         question.setQuestionState(questionState);
 
@@ -123,6 +126,8 @@ public class AnswerControllerTest {
         given(answerStateService.retrieveAnswerStateByState(draftedState.getState())).willReturn(Optional.ofNullable(draftedState));
         given(answerStateService.retrieveAnswerStateByState(submittedState.getState())).willReturn(Optional.ofNullable(submittedState));
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.ofNullable(onlineHearing));
+        given(questionStateService.fetchQuestionState(QuestionStates.ANSWERED)).willReturn(QuestionStateUtils.get(QuestionStates.ANSWERED));
+
         request = JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
     }
 
@@ -247,8 +252,7 @@ public class AnswerControllerTest {
 
     @Test
     public void testCreateAnswerDrafted() throws Exception {
-        questionState = new QuestionState();
-        questionState.setState(QuestionStates.ISSUE_PENDING.getStateName());
+        questionState = QuestionStateUtils.get(QuestionStates.ISSUE_PENDING);
         question = new Question();
         question.setQuestionState(questionState);
 

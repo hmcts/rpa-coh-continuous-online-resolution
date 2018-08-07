@@ -16,12 +16,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -160,7 +159,9 @@ public class QuestionSteps extends BaseSteps{
 
     @When("^the get request is sent to get all question rounds$")
     public void theGetRequestIsSentToGetAllQuestionRounds() {
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", String.class);
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
+
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
 
@@ -170,7 +171,10 @@ public class QuestionSteps extends BaseSteps{
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
     public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, String.class);
+
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
+
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
 
@@ -432,5 +436,13 @@ public class QuestionSteps extends BaseSteps{
             .allMatch(question -> question.getQuestionStateHistories().size() >= expectedNumberOfEvents);
 
         assertTrue(allMatch);
+    }
+
+    @And("^question (\\d+) contains (\\d+) answer$")
+    public void questionContainsAnswer(int questionOrd, int numAnswers) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        List<AnswerResponse> answers = allQuestionsResponse.getQuestions().get(questionOrd-1).getAnswers();
+        assertEquals(answers.size(), numAnswers);
     }
 }
