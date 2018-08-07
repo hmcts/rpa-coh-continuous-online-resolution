@@ -27,7 +27,9 @@ public class StandardTransformer implements EventTransformer<OnlineHearing> {
 
         return Arrays.asList(
                 ANSWERS_SUBMITTED.getEventType(),
-                QUESTION_DEADLINE_ELAPSED.getEventType()
+                QUESTION_DEADLINE_ELAPSED.getEventType(),
+                QUESTION_DEADLINE_EXTENSION_DENIED.getEventType(),
+                QUESTION_DEADLINE_EXTENSION_GRANTED.getEventType()
         );
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
+import uk.gov.hmcts.reform.coh.controller.state.DeadlineExtensionHelper;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
@@ -20,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 
@@ -124,7 +127,7 @@ public class QuestionService {
     }
 
     @Transactional
-    public void requestDeadlineExtension(OnlineHearing onlineHearing) throws NoQuestionsAsked {
+    public DeadlineExtensionHelper requestDeadlineExtension(OnlineHearing onlineHearing) throws NoQuestionsAsked {
         List<Question> questions = findAllQuestionsByOnlineHearing(onlineHearing)
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
@@ -139,15 +142,23 @@ public class QuestionService {
         Instant now = Instant.now();
         extension = Duration.ofDays(extensionDays);
 
-        questions.stream()
+        long eligible = questions.stream()
+                .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant())).count();
+        DeadlineExtensionHelper helper = new DeadlineExtensionHelper(eligible, 0, 0);
+
+       questions.stream()
             .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
             .forEach(question -> {
                 if (shouldGrantExtensionTo(question)) {
+                    helper.getAndIncrementGranted();
                     grantDeadlineExtension(question);
                 } else if (shouldDenyExtensionTo(question)) {
+                    helper.getAndIncrementDenied();
                     denyDeadlineExtension(question);
                 }
             });
+
+        return helper;
     }
 
     private boolean shouldGrantExtensionTo(Question question) {
