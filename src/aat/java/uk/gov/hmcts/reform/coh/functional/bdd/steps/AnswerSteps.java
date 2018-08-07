@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
@@ -121,8 +120,6 @@ public class AnswerSteps extends BaseSteps{
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
 
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
@@ -214,9 +211,6 @@ public class AnswerSteps extends BaseSteps{
     public void send_request(String type) throws IOException {
 
         String json = JsonUtils.toJson(answerRequest);
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
 
         int httpResponseCode = 0;
         RestTemplate restTemplate = getRestTemplate();

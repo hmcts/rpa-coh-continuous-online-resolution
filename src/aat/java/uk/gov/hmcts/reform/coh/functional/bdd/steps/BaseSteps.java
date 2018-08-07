@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -57,6 +59,7 @@ public class BaseSteps {
     String baseUrl;
 
     protected TestContext testContext;
+    protected HttpHeaders header;
 
     @Autowired
     public BaseSteps(TestContext testContext) {
@@ -77,6 +80,11 @@ public class BaseSteps {
         sessionEventForwardingRegisters.iterator().forEachRemaining(
                 sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl).replace("https", "http")));
         sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
+
+        testContext.getScenarioContext().setIdamAuthorRef("judge_123_idam");
+        header = new HttpHeaders();
+        header.add("Content-Type", "application/json");
+        header.add(IdamHeaderInterceptor.IDAM_HEADER_KEY, testContext.getScenarioContext().getIdamAuthorRef());
     }
 
     public void cleanup() {

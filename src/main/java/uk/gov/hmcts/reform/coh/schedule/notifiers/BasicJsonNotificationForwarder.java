@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
 import java.io.IOException;
@@ -28,9 +29,11 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
     private static HttpHeaders URL_ENCODED_HEADER;
 
+    private static String IDAM_SERVICE_TOKEN = "test_idam_service";
     static {
         URL_ENCODED_HEADER = new HttpHeaders();
         URL_ENCODED_HEADER.add("Content-Type", "application/json");
+        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_HEADER_KEY, IDAM_SERVICE_TOKEN);
     }
 
     @Value("${base-urls.test-url}")
