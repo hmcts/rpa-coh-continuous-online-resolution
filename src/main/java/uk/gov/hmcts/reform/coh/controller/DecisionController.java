@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -226,6 +227,7 @@ public class DecisionController {
 
         DecisionReply decisionReply = new DecisionReply();
         DecisionReplyRequestMapper.map(request, decisionReply, decision, authorReferenceId);
+        decisionReply.setDateOccured(new Date());
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =

@@ -1,6 +1,6 @@
 databaseChangeLog:
 - changeSet:
-    id: 1533545286241-1
+    id: 1533654189899-1
     author: phill (generated)
     changes:
     - createTable:
@@ -14,17 +14,20 @@ databaseChangeLog:
             name: author_reference_id
             type: VARCHAR(255)
         - column:
+            name: date_occurred
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
             name: decision_reply
             type: VARCHAR(255)
         - column:
             name: decision_reply_reason
-            type: VARCHAR(255)
+            type: TEXT
         - column:
             name: decision_id
             type: UUID
         tableName: decision_reply
 - changeSet:
-    id: 1533545286241-2
+    id: 1533654189899-2
     author: phill (generated)
     changes:
     - addPrimaryKey:
@@ -32,7 +35,7 @@ databaseChangeLog:
         constraintName: decision_replyPK
         tableName: decision_reply
 - changeSet:
-    id: 1533545286241-3
+    id: 1533654189899-3
     author: phill (generated)
     changes:
     - addForeignKeyConstraint:

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -22,8 +23,20 @@ public class DecisionReply {
     @Column(name = "decision_reply")
     private String decisionReply;
 
-    @Column(name = "decision_reply_reason")
+    @Column(name = "decision_reply_reason", columnDefinition="CLOB NOT NULL")
+    @Lob
     private String decisionReplyReason;
+
+    @Column(name = "date_occurred")
+    private Date dateOccured;
+
+    public Date getDateOccured() {
+        return dateOccured;
+    }
+
+    public void setDateOccured(Date dateOccured) {
+        this.dateOccured = dateOccured;
+    }
 
     public UUID getId() {
         return id;
