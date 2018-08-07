@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
@@ -26,7 +26,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -36,9 +36,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -94,8 +92,8 @@ public class OnlineHearingControllerTest {
         onlineHearing.setPanelMembers(Arrays.asList(member));
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
 
-        onlineHearingRequest = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-        updateOnlineHearingRequest = (UpdateOnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
+        onlineHearingRequest = JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        updateOnlineHearingRequest = JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
 
         onlineHearingState = new OnlineHearingState();
         onlineHearingState.setState("continuous_online_hearing_started");
@@ -290,8 +288,7 @@ public class OnlineHearingControllerTest {
         OnlineHearingResponse response = new OnlineHearingResponse();
         OnlineHearingMapper.map(response, onlineHearing);
 
-        ISO8601DateFormat df = new ISO8601DateFormat();
-        assertEquals(df.format(recentStateTime), response.getCurrentState().getDatetime());
+        assertEquals(CohISO8601DateFormat.format(recentStateTime), response.getCurrentState().getDatetime());
     }
 
     @Test

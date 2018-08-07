@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -37,6 +38,7 @@ import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -78,7 +80,7 @@ public class ApiSteps extends BaseSteps {
     private JSONObject json;
 
     private CloseableHttpClient httpClient;
-    private HttpHeaders header;
+
     private RestTemplate restTemplate;
 
     private Set<String> caseIds;
@@ -91,6 +93,7 @@ public class ApiSteps extends BaseSteps {
 
     @Before
     public void setUp() throws Exception {
+        super.setup();
         caseIds = new HashSet<String>();
         httpClient = HttpClientBuilder
                 .create()
@@ -98,8 +101,6 @@ public class ApiSteps extends BaseSteps {
                         .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
                         .build())
                 .build();
-        header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         jurisdictions = new ArrayList<>();
         testContext.getScenarioContext().setJurisdictions(jurisdictions);
@@ -114,11 +115,11 @@ public class ApiSteps extends BaseSteps {
                 onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
                 onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
                 onlineHearingService.deleteByCaseId(caseId);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
-        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
                     sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
@@ -127,10 +128,10 @@ public class ApiSteps extends BaseSteps {
                 }
             }
         }
-        for(Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
+        for (Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()){
             try {
                 jurisdictionRepository.delete(jurisdiction);
-            }catch(DataIntegrityViolationException e){
+            } catch(DataIntegrityViolationException e){
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
@@ -141,6 +142,7 @@ public class ApiSteps extends BaseSteps {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         HttpGet request = new HttpGet(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString());
         request.addHeader("content-type", "application/json");
+        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, testContext.getScenarioContext().getIdamAuthorRef());
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
@@ -149,6 +151,7 @@ public class ApiSteps extends BaseSteps {
     public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
         HttpGet request = new HttpGet(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
+        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHOR_KEY, testContext.getScenarioContext().getIdamAuthorRef());
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
@@ -175,7 +178,7 @@ public class ApiSteps extends BaseSteps {
     @Then("^the response contains the online hearing UUID$")
     public void the_response_contains_the_online_hearing_UUID() throws IOException {
         String responseString = testContext.getHttpContext().getRawResponseString();
-        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        CreateOnlineHearingResponse response = JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         assertEquals(response.getOnlineHearingId(), UUID.fromString(response.getOnlineHearingId()).toString());
     }
 
@@ -183,7 +186,7 @@ public class ApiSteps extends BaseSteps {
     public void aStandardOnlineHearingIsCreated() throws Throwable {
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
 
-        OnlineHearingRequest onlineHearingRequest = (OnlineHearingRequest)JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
+        OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         try {
             ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
@@ -191,7 +194,7 @@ public class ApiSteps extends BaseSteps {
             testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
-            CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+            CreateOnlineHearingResponse newOnlineHearing = JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
             testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
             testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
 
@@ -214,7 +217,7 @@ public class ApiSteps extends BaseSteps {
         String responseString = response.getBody();
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        CreateOnlineHearingResponse newOnlineHearing = (CreateOnlineHearingResponse)JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+        CreateOnlineHearingResponse newOnlineHearing = JsonUtils.toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId()).get());
@@ -297,7 +300,7 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^there is no event queued for this online hearing of event type (.*)")
-    public void thereIsNoEventQueuedForThisOnlineHearingOfEventTypeAnswers_submitted(String eventType) throws Throwable {
+    public void thereIsNoEventQueuedForThisOnlineHearingOfEventTypeAnswersSubmitted(String eventType) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
@@ -349,10 +352,5 @@ public class ApiSteps extends BaseSteps {
                 .allMatch(se -> se.getRetries()==expectedRetries);
 
         assertTrue(hasExpectedRetries);
-    }
-
-    @Given("^the IDAM author reference is set$")
-    public void aIDAMAuthorReferenceIsSet() {
-        testContext.getScenarioContext().setIdamAuthorReference("standard_idam_reference");
     }
 }

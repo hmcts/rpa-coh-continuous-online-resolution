@@ -31,7 +31,7 @@ import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 
-import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_HEADER_KEY;
+import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHOR_KEY;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
@@ -197,8 +197,12 @@ public class DecisionController {
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder,
-                                          @RequestHeader(value=IDAM_HEADER_KEY) String authorReferenceId,
+                                          @RequestHeader(value=IDAM_AUTHOR_KEY) String authorReferenceId,
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
+
+        if(authorReferenceId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Author reference id is not valid");
+        }
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
             && !request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_REJECTED.getStateName())) {

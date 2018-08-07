@@ -44,15 +44,7 @@ public class ScenarioContext {
     private EventRegistrationRequest eventRegistrationRequest;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
-    private String idamAuthorReference;
-
-    public String getIdamAuthorReference() {
-        return idamAuthorReference;
-    }
-
-    public void setIdamAuthorReference(String idamAuthorReference) {
-        this.idamAuthorReference = idamAuthorReference;
-    }
+    private String idamAuthorRef;
 
     public Set<SessionEventForwardingRegister> getSessionEventForwardingRegisters() {
         return sessionEventForwardingRegisters;
@@ -184,6 +176,14 @@ public class ScenarioContext {
 
     public EventRegistrationRequest getEventRegistrationRequest() {
         return eventRegistrationRequest;
+    }
+
+    public String getIdamAuthorRef() {
+        return idamAuthorRef;
+    }
+
+    public void setIdamAuthorRef(String idamAuthorRef) {
+        this.idamAuthorRef = idamAuthorRef;
     }
 
     public void setCurrentDecisionReplyRequest(DecisionReplyRequest decisionReplyRequest) {

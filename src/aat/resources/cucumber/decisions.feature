@@ -1,7 +1,6 @@
 Feature: Decisions features
 
   Background:
-    Given the IDAM author reference is set
     When a standard online hearing is created
     Then the response code is 201
 

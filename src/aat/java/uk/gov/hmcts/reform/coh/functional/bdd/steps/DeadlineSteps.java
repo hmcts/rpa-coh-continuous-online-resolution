@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -62,7 +63,7 @@ public class DeadlineSteps extends BaseSteps {
 
         UUID hearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
         String endpoint = "/continuous-online-hearings/" + hearingId + "/questions-deadline-extension";
-        HttpEntity<String> request = new HttpEntity<>("");
+        HttpEntity<String> request = new HttpEntity<>("", header);
 
         setupRestTemplate();
 

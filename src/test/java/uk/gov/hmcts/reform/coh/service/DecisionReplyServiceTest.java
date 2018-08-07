@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequestMa
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 

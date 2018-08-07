@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
@@ -29,7 +30,7 @@ import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -43,6 +44,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHOR_KEY;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -92,7 +94,6 @@ public class DecisionControllerTest {
     private Date expiryDate;
     private final String DECISION_REPLY_JSON = "decision/standard_decision_reply";
     private final String IDAM_AUTHOR_REFERENCE = "TEST_REFERENCE_IDAM";
-    private final String IDAM_HEADER_KEY = "idam_author_reference";
 
     @Before
     public void setup() throws IOException {
@@ -107,9 +108,9 @@ public class DecisionControllerTest {
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(uuid);
 
-        request = (DecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
-        updateDecisionRequest = (UpdateDecisionRequest) JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
-        response = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
+        request = JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
+        updateDecisionRequest = JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
+        response = JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
 
         decision = new Decision();
         decision.setDecisionId(decisionUUID);
@@ -246,11 +247,11 @@ public class DecisionControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        DecisionResponse expected = (DecisionResponse) JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
+        DecisionResponse expected = JsonUtils.toObjectFromTestName("decision/standard_decision_response", DecisionResponse.class);
         expected.setDecisionId(decisionUUID.toString());
         expected.setOnlineHearingId(uuid.toString());
-        expected.setDeadlineExpiryDate(expiryDate.toString());
-        DecisionResponse actual = (DecisionResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
+        expected.setDeadlineExpiryDate(CohISO8601DateFormat.format(expiryDate));
+        DecisionResponse actual = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
 
         assertEquals(expected.getDecisionId(), actual.getDecisionId());
         assertEquals(expected.getOnlineHearingId(), actual.getOnlineHearingId());
@@ -376,7 +377,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -394,14 +395,14 @@ public class DecisionControllerTest {
     public void testCreateReplyToHearingWithInvalidReplyThrowsBadRequest() throws Exception {
         given(decisionReplyService.createDecision(any(DecisionReply.class))).willReturn(new DecisionReply());
 
-        DecisionReplyRequest request = (DecisionReplyRequest) JsonUtils.toObjectFromTestName(DECISION_REPLY_JSON, DecisionReplyRequest.class);
+        DecisionReplyRequest request = JsonUtils.toObjectFromTestName(DECISION_REPLY_JSON, DecisionReplyRequest.class);
         request.setDecisionReply("invalid_state");
 
         String json = JsonUtils.toJson(request);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
-                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -421,7 +422,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -437,7 +438,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -451,7 +452,7 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_HEADER_KEY, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHOR_KEY, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 

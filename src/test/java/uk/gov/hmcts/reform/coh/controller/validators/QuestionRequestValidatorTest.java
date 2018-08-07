@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.coh.controller.validators;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ public class QuestionRequestValidatorTest {
 
     @Before
     public void setup() throws IOException {
-        request = (QuestionRequest)JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
+        request = JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
         validation = new Validation();
     }
 

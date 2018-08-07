@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.repository.DecisionRepository;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
-import uk.gov.hmcts.reform.coh.util.JsonUtils;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
