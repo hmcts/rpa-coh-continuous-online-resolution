@@ -30,6 +30,7 @@ import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -114,7 +115,7 @@ public class AnswerSteps extends BaseSteps{
      */
     @Given("^a valid question$")
     public void an_existing_question() throws IOException {
-        QuestionRequest questionRequest = (QuestionRequest) JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
+        QuestionRequest questionRequest = JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
@@ -125,14 +126,14 @@ public class AnswerSteps extends BaseSteps{
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
-        CreateQuestionResponse createQuestionResponse = (CreateQuestionResponse) JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         questionIds.add(createQuestionResponse.getQuestionId());
     }
 
     @Given("^a standard answer$")
     public void a_standard_answer() throws IOException {
-        this.answerRequest = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        this.answerRequest = JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
@@ -202,7 +203,7 @@ public class AnswerSteps extends BaseSteps{
     @Given("^an update to the answer is required$")
     public void an_update_to_the_answer_is_required() {
         try {
-            CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
+            CreateAnswerResponse answerResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
             this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
         } catch (Exception e) {
             log.error("Exception " + e.getMessage());
@@ -249,7 +250,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^there are (\\d+) answers$")
     public void there_are_count_answers(int count) throws Throwable {
         String json = response.getBody();
-        Answer[] myObjects = (Answer[]) JsonUtils.toObjectFromJson(json, Answer[].class);
+        Answer[] myObjects = JsonUtils.toObjectFromJson(json, Answer[].class);
 
         assertEquals("Response status code", myObjects.length, count);
     }
@@ -257,7 +258,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^the answer response answer text is '(.*)'$")
     public void the_answer_text_is(String text) throws Throwable {
         String json = response.getBody();
-        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         assertEquals("Answer text", text, response.getAnswerText());
     }
@@ -265,7 +266,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^the answer response answer state is '(.*)'$")
     public void the_answer_state_is(String text) throws Throwable {
         String json = response.getBody();
-        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         assertEquals("Answer state name", text, response.getStateResponse().getName());
     }
@@ -274,7 +275,7 @@ public class AnswerSteps extends BaseSteps{
     @Then("^the answer response answer state datetime is a valid ISO8601 date$")
     public void the_answer_state_datetime_is_iso8601() throws Throwable {
         String json = response.getBody();
-        AnswerResponse response = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         try {
             ISO8601DateFormat df = new ISO8601DateFormat();
@@ -301,12 +302,12 @@ public class AnswerSteps extends BaseSteps{
 
         UUID answerId = null;
         if ((json.indexOf("question_id") > 0) || json.contains("current_answer_state")) {
-            AnswerResponse answer = (AnswerResponse) JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+            AnswerResponse answer = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
             answerId = UUID.fromString(answer.getAnswerId());
         } else {
 
             if (!json.startsWith("[")) {
-                CreateAnswerResponse answerResponse = (CreateAnswerResponse) JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
+                CreateAnswerResponse answerResponse = JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
                 answerId = answerResponse.getAnswerId();
             }
         }

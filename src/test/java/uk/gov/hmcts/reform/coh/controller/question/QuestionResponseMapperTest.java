@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.controller.question;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
@@ -68,7 +69,7 @@ public class QuestionResponseMapperTest {
         assertEquals(state.getState(), response.getCurrentState().getName());
 
         // This checks the sorting works
-        assertEquals(history2.getDateOccurred().toString(), response.getCurrentState().getDatetime());
+        assertEquals(CohISO8601DateFormat.format(history2.getDateOccurred()), response.getCurrentState().getDatetime());
     }
 
     @Test

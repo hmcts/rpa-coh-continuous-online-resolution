@@ -27,7 +27,6 @@ public class QuestionStateHistory {
     @Column(name = "date_occurred")
     private Date dateOccurred = new Date();
 
-
     private QuestionStateHistory() {}
 
     public QuestionStateHistory(Question question, QuestionState questionstate) {
@@ -35,10 +34,12 @@ public class QuestionStateHistory {
         this.questionstate = questionstate;
     }
 
+    public QuestionState getQuestionstate() {
+        return questionstate;
+    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(question, questionstate);
+    public void setQuestionstate(QuestionState questionstate) {
+        this.questionstate = questionstate;
     }
 
     public Date getDateOccurred() {
@@ -47,5 +48,10 @@ public class QuestionStateHistory {
 
     public void setDateOccurred(Date dateOccurred) {
         this.dateOccurred = dateOccurred;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(question, questionstate);
     }
 }
