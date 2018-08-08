@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
+import static uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
