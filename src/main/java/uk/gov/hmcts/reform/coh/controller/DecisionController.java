@@ -145,7 +145,7 @@ public class DecisionController {
     public ResponseEntity updateDecision(@RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
                                          @PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 
-        if(authorReferenceId.isEmpty()) {
+        if(authorReferenceId == null || authorReferenceId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
         }
 
@@ -214,8 +214,7 @@ public class DecisionController {
                                           @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
-
-        if(authorReferenceId.isEmpty()) {
+        if(authorReferenceId == null || authorReferenceId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
         }
 

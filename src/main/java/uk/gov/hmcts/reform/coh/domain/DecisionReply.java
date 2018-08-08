@@ -21,7 +21,7 @@ public class DecisionReply {
     private Decision decision;
 
     @Column(name = "decision_reply")
-    private String decisionReply;
+    private boolean decisionReply;
 
     @Column(name = "decision_reply_reason", columnDefinition="CLOB NOT NULL")
     @Lob
@@ -54,11 +54,11 @@ public class DecisionReply {
         this.decision = decision;
     }
 
-    public String getDecisionReply() {
+    public boolean getDecisionReply() {
         return decisionReply;
     }
 
-    public void setDecisionReply(String decisionReply) {
+    public void setDecisionReply(boolean decisionReply) {
         this.decisionReply = decisionReply;
     }
 
