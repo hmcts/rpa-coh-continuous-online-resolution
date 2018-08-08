@@ -541,7 +541,7 @@ public class DecisionControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        AllDecisionRepliesResponse allDecisionRepliesResponse = (AllDecisionRepliesResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), AllDecisionRepliesResponse.class);
+        AllDecisionRepliesResponse allDecisionRepliesResponse = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), AllDecisionRepliesResponse.class);
         assertEquals(decisionReplies.size(), allDecisionRepliesResponse.getDecisionReplyList().size());
 
         int n = 0;

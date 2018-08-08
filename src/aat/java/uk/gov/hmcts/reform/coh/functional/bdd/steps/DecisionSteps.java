@@ -246,29 +246,37 @@ public class DecisionSteps extends BaseSteps {
     }
 
     @And("^the decision replies list contains (\\d+) decision replies$")
-    public void theDecisionRepliesListContainsDecisionReplies(int expectedDecisionReplies) throws Throwable {
-        AllDecisionRepliesResponse allDecisionRepliesResponse = testContext.getScenarioContext().getAllDecisionRepliesResponse();
-        assertEquals(expectedDecisionReplies, allDecisionRepliesResponse.getDecisionReplyList().size());
+    public void theDecisionRepliesListContainsDecisionReplies(int expectedDecisionReplies) {
+        AllDecisionRepliesResponse allDecisionRepliesResponse =
+                testContext.getScenarioContext().getAllDecisionRepliesResponse();
 
         int n = 0;
-        for(DecisionReply expectedDecisionReply : testContext.getScenarioContext().getDecisionReplies()) {
-            assertEquals(expectedDecisionReply.getDecisionReplyReason(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReplyReason());
+        for (DecisionReply expectedDecisionReply : testContext.getScenarioContext().getDecisionReplies()) {
+            DecisionReplyResponse decisionReplyResponse = allDecisionRepliesResponse.getDecisionReplyList().get(n);
 
-            String replyState = expectedDecisionReply.getDecisionReply() ? DecisionsStates.DECISIONS_ACCEPTED.getStateName() : DecisionsStates.DECISIONS_REJECTED.getStateName();
-            assertEquals(replyState,
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReply());
+            assertNotNull(decisionReplyResponse);
+
+            assertEquals(expectedDecisionReply.getDecisionReplyReason(),
+                    decisionReplyResponse.getDecisionReplyReason());
+
+            String replyState =
+                    expectedDecisionReply.getDecisionReply()
+                            ? DecisionsStates.DECISIONS_ACCEPTED.getStateName()
+                            : DecisionsStates.DECISIONS_REJECTED.getStateName();
+
+            assertEquals(replyState, decisionReplyResponse.getDecisionReply());
 
             assertEquals(expectedDecisionReply.getDecision().getDecisionId().toString(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionId());
+                    decisionReplyResponse.getDecisionId());
 
-            assertEquals(expectedDecisionReply.getId().toString(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReplyId());
+            assertEquals(expectedDecisionReply.getId().toString(), decisionReplyResponse.getDecisionReplyId());
 
-            assertEquals(expectedDecisionReply.getAuthorReferenceId(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getAuthorReference());
+            assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+
             n++;
         }
+
+        assertEquals(expectedDecisionReplies, n);
     }
 
     @And("^the decision reply contains all the fields$")
