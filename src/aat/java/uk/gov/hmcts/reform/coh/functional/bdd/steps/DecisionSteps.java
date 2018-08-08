@@ -92,7 +92,7 @@ public class DecisionSteps extends BaseSteps {
 
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
-        testContext.getScenarioContext().setDecisionReplies(new ArrayList<>());
+        testContext.getScenarioContext().clearDecisionReplies();
         String endpoint = getEndpoint();
         try {
             if ("GET".equalsIgnoreCase(type)) {
@@ -245,7 +245,7 @@ public class DecisionSteps extends BaseSteps {
         assertNull(decision.getDeadlineExpiryDate());
     }
 
-    @And("^the decision replies list contains (\\d+) decision replies$")
+    @And("^the decision replies list contains (\\d+) decision repl(?:y|ies)$")
     public void theDecisionRepliesListContainsDecisionReplies(int expectedDecisionReplies) {
         AllDecisionRepliesResponse allDecisionRepliesResponse =
                 testContext.getScenarioContext().getAllDecisionRepliesResponse();
@@ -285,11 +285,16 @@ public class DecisionSteps extends BaseSteps {
         DecisionReply expectedDecisionReply = testContext.getScenarioContext().getDecisionReplies().stream()
                                                 .filter(dr -> dr.getId().toString().equalsIgnoreCase(decisionReplyResponse.getDecisionReplyId()))
                                                 .findFirst()
-                                                .get();
+                                                .orElseThrow(() -> new EntityNotFoundException());
 
         assertEquals(expectedDecisionReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
         assertEquals(expectedDecisionReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
-        assertEquals(expectedDecisionReply.getDecisionReply(), decisionReplyResponse.getDecisionReply());
+
+        String replyState =
+                expectedDecisionReply.getDecisionReply()
+                        ? DecisionsStates.DECISIONS_ACCEPTED.getStateName()
+                        : DecisionsStates.DECISIONS_REJECTED.getStateName();
+        assertEquals(replyState, decisionReplyResponse.getDecisionReply());
         assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
     }
 }
