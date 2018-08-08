@@ -11,7 +11,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
  
     @Autowired 
     IdamHeaderInterceptor idamHeaderInterceptor; 
- 
+
+    @Override
     public void addInterceptors(InterceptorRegistry registry) { 
         registry.addInterceptor(idamHeaderInterceptor); 
     } 

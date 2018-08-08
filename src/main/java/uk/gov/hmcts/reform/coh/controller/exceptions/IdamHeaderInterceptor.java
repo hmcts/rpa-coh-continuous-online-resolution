@@ -13,7 +13,8 @@ public class IdamHeaderInterceptor extends HandlerInterceptorAdapter {
  
     public static final String IDAM_AUTHORIZATION = "Authorization";
     public static final String IDAM_SERVICE_AUTHORIZATION = "ServiceAuthorization";
- 
+
+    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException { 
         response.setContentType("application/json"); 
         response.setCharacterEncoding("utf-8"); 

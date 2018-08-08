@@ -42,6 +42,7 @@ public class DecisionController {
     private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
     private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
+    private static final String MISSING_AUTHOR_MESSAGE = "Authorization author id must not be empty";
 
     private OnlineHearingService onlineHearingService;
     private DecisionService decisionService;
@@ -77,7 +78,7 @@ public class DecisionController {
                                          @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
 
         if(authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
@@ -145,7 +146,7 @@ public class DecisionController {
                                          @PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 
         if(authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
@@ -213,9 +214,8 @@ public class DecisionController {
                                           @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
-
         if(authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
