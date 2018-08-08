@@ -9,7 +9,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -19,16 +18,13 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.util.UUID;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNull;
 
 public class OnlineHearingSteps extends BaseSteps {
@@ -67,9 +63,6 @@ public class OnlineHearingSteps extends BaseSteps {
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
 
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
-
         String endpoint = getEndpoints().get("online hearing");
         try {
             String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
@@ -99,9 +92,6 @@ public class OnlineHearingSteps extends BaseSteps {
 
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
 
         String endpoint = getEndpoints().get("conversations");
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();

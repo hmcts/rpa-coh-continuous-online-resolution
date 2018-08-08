@@ -12,18 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
@@ -48,7 +45,6 @@ public class QuestionSteps extends BaseSteps{
 
     private String ENDPOINT = "/continuous-online-hearings";
     private OnlineHearing onlineHearing;
-    private HttpHeaders header;
     private Question question;
     private QuestionRequest questionRequest;
     private List<UUID> questionIds;
@@ -74,8 +70,6 @@ public class QuestionSteps extends BaseSteps{
     @Before
     public void setup() throws Exception {
         super.setup();
-        header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         questionIds = new ArrayList<>();
     }
 
@@ -87,7 +81,6 @@ public class QuestionSteps extends BaseSteps{
             } catch (Exception e) {
                 // Don't care
             }
-
         }
 
         try {
@@ -125,8 +118,11 @@ public class QuestionSteps extends BaseSteps{
     public void get_all_questions_for_a_online_hearing() throws Throwable {
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", String.class);
-            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+
+            HttpEntity<String> request = new HttpEntity<>("", header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.GET, request, String.class);
+
+           testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
         }
@@ -137,7 +133,8 @@ public class QuestionSteps extends BaseSteps{
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             Question question = testContext.getScenarioContext().getCurrentQuestion();
-            ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), String.class);
+            HttpEntity<String> request = new HttpEntity<>("", header);
+            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), HttpMethod.GET, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
@@ -162,7 +159,9 @@ public class QuestionSteps extends BaseSteps{
 
     @When("^the get request is sent to get all question rounds$")
     public void theGetRequestIsSentToGetAllQuestionRounds() {
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", String.class);
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
+
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
 
@@ -172,7 +171,10 @@ public class QuestionSteps extends BaseSteps{
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
     public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, String.class);
+
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
+
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
 
@@ -434,5 +436,13 @@ public class QuestionSteps extends BaseSteps{
             .allMatch(question -> question.getQuestionStateHistories().size() >= expectedNumberOfEvents);
 
         assertTrue(allMatch);
+    }
+
+    @And("^question (\\d+) contains (\\d+) answer$")
+    public void questionContainsAnswer(int questionOrd, int numAnswers) throws Throwable {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        List<AnswerResponse> answers = allQuestionsResponse.getQuestions().get(questionOrd-1).getAnswers();
+        assertEquals(answers.size(), numAnswers);
     }
 }

@@ -8,8 +8,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,7 +18,6 @@ import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -47,6 +44,7 @@ public class DeadlineControllerTest {
 
     @InjectMocks
     private DeadlineController deadlineController;
+
     @Autowired
     private MockMvc mockMvc;
 

@@ -2,6 +2,9 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: db.changelog-diff-20180804-1126.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: db.changelog-diff-20180808-1424.yaml
 
   - include:
       relativeToChangelogFile: true

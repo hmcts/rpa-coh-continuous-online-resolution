@@ -1,7 +1,7 @@
 Feature: Decisions features
 
   Background:
-    Given a standard online hearing is created
+    When a standard online hearing is created
     Then the response code is 201
 
   Scenario: Create decision
@@ -70,3 +70,97 @@ Feature: Decisions features
     And a PUT request is sent for a decision
     And the response code is 409
     And the response contains the following text '"Only draft decisions can be updated" '
+
+  Scenario: Reply to a decision and accept it
+    Given a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    Given a standard decision reply
+    And a POST request is sent for a decision reply
+    And the response code is 201
+
+  Scenario: Reply to a decision and reject it
+    Given a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    Given a standard decision reply
+    And the decision reply is ' "decision_rejected" '
+    And a POST request is sent for a decision reply
+    And the response code is 201
+
+  Scenario: Save multiple decision replies to a decision
+    Given a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    Given a standard decision reply
+    And the decision reply is ' "decision_rejected" '
+    When a POST request is sent for a decision reply
+    Then the response code is 201
+    Given a standard decision reply
+    And the decision reply is ' "decision_accepted" '
+    When a POST request is sent for a decision reply
+    Then the response code is 201
+
+  Scenario: Reply to a decision with invalid reply and throw bad request
+    Given a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    Given a standard decision reply
+    And the decision reply is ' "invalid_reply" '
+    And a POST request is sent for a decision reply
+    And the response code is 400
+
+  Scenario: Reply to a decision which is not issued and throw not found
+    Given a standard online hearing is created
+    And a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision reply
+    And the decision reply is ' "decision_rejected" '
+    And a POST request is sent for a decision reply
+    And the response code is 404
+
+  Scenario: Get all replies to a decision
+    Given a standard online hearing is created
+    And a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    Given a standard decision reply
+    And the decision reply is ' "decision_rejected" '
+    And a POST request is sent for a decision reply
+    And the response code is 201
+    Given a standard decision reply
+    And a POST request is sent for a decision reply
+    And the response code is 201
+    When a GET request is sent for all decision replies
+    Then the response code is 200
+    And the decision replies list contains 2 decision replies
+
+  Scenario: Get all replies to a decision with no replies
+    Given a standard online hearing is created
+    And a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    When a GET request is sent for all decision replies
+    Then the response code is 200
+    And the decision replies list contains 0 decision replies

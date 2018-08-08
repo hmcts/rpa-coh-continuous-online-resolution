@@ -18,6 +18,14 @@ Feature: Deadline Extension
     And deadline extension is requested
     Then the response code is 424
 
+  Scenario: Cannot extend deadline for questions in question_issue_pending state
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    When deadline extension is requested
+    Then the response code is 424
+    And the response message is 'No questions to extend deadline for'
+
   Scenario: Extending already extended deadline is denied
     Given a standard online hearing is created
     And a standard question

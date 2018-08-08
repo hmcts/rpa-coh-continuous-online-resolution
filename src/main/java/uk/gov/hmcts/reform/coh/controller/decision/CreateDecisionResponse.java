@@ -9,6 +9,14 @@ public class CreateDecisionResponse {
     @JsonProperty(value = "decision_id")
     private UUID decisionId;
 
+    public CreateDecisionResponse() {
+        // For hibernate
+    }
+
+    public CreateDecisionResponse(UUID decisionId) {
+        this.decisionId = decisionId;
+    }
+
     public UUID getDecisionId() {
         return decisionId;
     }

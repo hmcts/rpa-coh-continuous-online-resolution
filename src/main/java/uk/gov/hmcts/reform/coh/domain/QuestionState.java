@@ -27,6 +27,10 @@ public class QuestionState {
         this.state = state;
     }
 
+    public QuestionState(int questionStateId, String state) {
+        this.questionStateId = questionStateId;
+        this.state = state;
+    }
 
     @Override
     public boolean equals(Object o) {

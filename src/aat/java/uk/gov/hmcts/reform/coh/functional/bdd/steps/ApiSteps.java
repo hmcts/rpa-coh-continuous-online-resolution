@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -79,7 +80,7 @@ public class ApiSteps extends BaseSteps {
     private JSONObject json;
 
     private CloseableHttpClient httpClient;
-    private HttpHeaders header;
+
     private RestTemplate restTemplate;
 
     private Set<String> caseIds;
@@ -92,6 +93,7 @@ public class ApiSteps extends BaseSteps {
 
     @Before
     public void setUp() throws Exception {
+        super.setup();
         caseIds = new HashSet<String>();
         httpClient = HttpClientBuilder
                 .create()
@@ -99,8 +101,6 @@ public class ApiSteps extends BaseSteps {
                         .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
                         .build())
                 .build();
-        header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         jurisdictions = new ArrayList<>();
         testContext.getScenarioContext().setJurisdictions(jurisdictions);
@@ -142,6 +142,8 @@ public class ApiSteps extends BaseSteps {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         HttpGet request = new HttpGet(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString());
         request.addHeader("content-type", "application/json");
+        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
+        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
@@ -150,7 +152,8 @@ public class ApiSteps extends BaseSteps {
     public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
         HttpGet request = new HttpGet(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
-
+        request.addHeader(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
+        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
     }
 
@@ -158,6 +161,7 @@ public class ApiSteps extends BaseSteps {
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
         HttpPost request = new HttpPost(baseUrl + endpoint);
         request.addHeader("content-type", "application/json");
+        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
         StringEntity params = new StringEntity(json.toString());
         request.setEntity(params);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));

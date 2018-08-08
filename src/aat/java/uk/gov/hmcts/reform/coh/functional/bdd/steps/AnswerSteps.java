@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
@@ -121,14 +120,15 @@ public class AnswerSteps extends BaseSteps{
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
 
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
         response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
         CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         questionIds.add(createQuestionResponse.getQuestionId());
+        Question question = new Question();
+        question.setQuestionId(createQuestionResponse.getQuestionId());
+        testContext.getScenarioContext().setCurrentQuestion(question);
     }
 
     @Given("^a standard answer$")
@@ -169,7 +169,13 @@ public class AnswerSteps extends BaseSteps{
         if (endpoints.containsKey(entity)) {
             // See if we need to fix the endpoint
             this.endpoint = endpoints.get(entity);
-            endpoint = endpoint.replaceAll("question_id", currentQuestionId == null ? UUID.randomUUID().toString() : currentQuestionId.toString());
+            
+            // For missing submitting answer to non-existing answer tests
+            UUID questionId = Optional.ofNullable(testContext.getScenarioContext().getCurrentQuestion())
+                    .flatMap(question -> Optional.ofNullable(question.getQuestionId()))
+                    .orElse(UUID.randomUUID());
+
+            endpoint = endpoint.replaceAll("question_id", questionId.toString());
         }
 
         if ("answer".equalsIgnoreCase(entity) && currentAnswerId != null) {
@@ -214,9 +220,6 @@ public class AnswerSteps extends BaseSteps{
     public void send_request(String type) throws IOException {
 
         String json = JsonUtils.toJson(answerRequest);
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
 
         int httpResponseCode = 0;
         RestTemplate restTemplate = getRestTemplate();
