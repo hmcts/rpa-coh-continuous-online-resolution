@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.DecisionController;
-import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decision.*;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
@@ -29,6 +26,7 @@ import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.NotSupportedException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -152,9 +150,11 @@ public class DecisionSteps extends BaseSteps {
                 DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
                 testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            }catch (HttpClientErrorException e){
+            }catch (HttpClientErrorException e) {
                 testContext.getHttpContext().setResponseBodyAndStatesForException(e);
             }
+        }else{
+            throw new NotSupportedException("Method not support: " + type);
         }
     }
 
@@ -255,7 +255,8 @@ public class DecisionSteps extends BaseSteps {
             assertEquals(expectedDecisionReply.getDecisionReplyReason(),
                     allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReplyReason());
 
-            assertEquals(expectedDecisionReply.getDecisionReply(),
+            String replyState = expectedDecisionReply.getDecisionReply() ? DecisionsStates.DECISIONS_ACCEPTED.getStateName() : DecisionsStates.DECISIONS_REJECTED.getStateName();
+            assertEquals(replyState,
                     allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReply());
 
             assertEquals(expectedDecisionReply.getDecision().getDecisionId().toString(),

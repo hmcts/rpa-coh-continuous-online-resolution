@@ -213,10 +213,11 @@ public class ScenarioContext {
     }
 
     public void addDecisionReply(DecisionReply decisionReply) {
+
         decisionReplies.add(decisionReply);
     }
-
     public void setDecisionReplies(List<DecisionReply> decisionReplies) {
+
         this.decisionReplies = decisionReplies;
     }
 

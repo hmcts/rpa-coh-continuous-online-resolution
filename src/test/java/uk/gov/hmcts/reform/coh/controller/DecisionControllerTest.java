@@ -521,7 +521,7 @@ public class DecisionControllerTest {
         decisionReply.setId(UUID.randomUUID());
         decisionReply.setDecision(decision);
         decisionReply.setAuthorReferenceId("some author");
-        decisionReply.setDecisionReply(DecisionsStates.DECISIONS_ACCEPTED.getStateName());
+        decisionReply.setDecisionReply(true);
         decisionReply.setDecisionReplyReason("some reason");
         decisionReplies.add(decisionReply);
 
@@ -529,7 +529,7 @@ public class DecisionControllerTest {
         decisionReply.setId(UUID.randomUUID());
         decisionReply.setDecision(decision);
         decisionReply.setAuthorReferenceId("some author 1");
-        decisionReply.setDecisionReply(DecisionsStates.DECISIONS_ACCEPTED.getStateName());
+        decisionReply.setDecisionReply(true);
         decisionReply.setDecisionReplyReason("some reason 1");
         decisionReplies.add(decisionReply);
 
@@ -556,7 +556,7 @@ public class DecisionControllerTest {
             assertEquals(expectedReply.getAuthorReferenceId(),
                     allDecisionRepliesResponse.getDecisionReplyList().get(n).getAuthorReference());
 
-            assertEquals(expectedReply.getDecisionReply(),
+            assertEquals(DecisionsStates.DECISIONS_ACCEPTED.getStateName(),
                     allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReply());
 
             assertEquals(expectedReply.getDecisionReplyReason(),
@@ -611,7 +611,7 @@ public class DecisionControllerTest {
         decisionReply.setId(decisionReplyId);
         decisionReply.setDecision(decision);
         decisionReply.setAuthorReferenceId("some author");
-        decisionReply.setDecisionReply(DecisionsStates.DECISIONS_ACCEPTED.getStateName());
+        decisionReply.setDecisionReply(true);
         decisionReply.setDecisionReplyReason("some reason");
 
         given(decisionReplyService.findByDecisionReplyId(decisionReplyId)).willReturn(Optional.of(decisionReply));
@@ -627,7 +627,7 @@ public class DecisionControllerTest {
         assertEquals(decisionReply.getId().toString(), decisionReplyResponse.getDecisionReplyId());
         assertEquals(decisionReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
         assertEquals(decisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
-        assertEquals(decisionReply.getDecisionReply(), decisionReplyResponse.getDecisionReply());
+        assertEquals(DecisionsStates.DECISIONS_ACCEPTED.getStateName(), decisionReplyResponse.getDecisionReply());
         assertEquals(decisionReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
     }
 

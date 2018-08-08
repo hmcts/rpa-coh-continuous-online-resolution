@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.decisionreplies;
 
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 
 import java.util.function.BiConsumer;
@@ -9,7 +10,6 @@ public enum DecisionReplyResponseMapper {
 
     DECISION_REPLY_ID(dr -> dr.getId().toString(), DecisionReplyResponse::setDecisionReplyId),
     DECISION_ID(dr -> dr.getDecision().getDecisionId().toString(), DecisionReplyResponse::setDecisionId),
-    DECISION_REPLY(dr -> dr.getDecisionReply(), DecisionReplyResponse::setDecisionReply),
     DECISION_REPLY_REASON(dr -> dr.getDecisionReplyReason(), DecisionReplyResponse::setDecisionReplyReason),
     AUTHOR_REFERENCE(dr -> dr.getAuthorReferenceId(), DecisionReplyResponse::setAuthorReference);
 
@@ -25,6 +25,9 @@ public enum DecisionReplyResponseMapper {
         for(DecisionReplyResponseMapper m : DecisionReplyResponseMapper.class.getEnumConstants()) {
             m.set(decisionReply, decisionReplyResponse);
         }
+
+        String replyState = decisionReply.getDecisionReply() ? DecisionsStates.DECISIONS_ACCEPTED.getStateName() : DecisionsStates.DECISIONS_REJECTED.getStateName();
+        decisionReplyResponse.setDecisionReply(replyState);
     }
 
     public void set(DecisionReply decisionReply, DecisionReplyResponse decisionReplyResponse) {
