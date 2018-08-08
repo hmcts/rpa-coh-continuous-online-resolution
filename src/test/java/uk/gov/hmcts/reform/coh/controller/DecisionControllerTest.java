@@ -44,7 +44,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
+import static uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -434,7 +434,6 @@ public class DecisionControllerTest {
 
     @Test
     public void testCreateDecisionReplyWithEmptyAuthorReferenceThrows400() throws Exception {
-        
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
