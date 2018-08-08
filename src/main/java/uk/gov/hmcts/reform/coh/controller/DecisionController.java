@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
-import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
-import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
-import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequestMapper;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.*;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
@@ -29,6 +27,7 @@ import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,6 +42,7 @@ public class DecisionController {
     private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
     private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
+    private static final String MISSING_AUTHOR_MESSAGE = "Authorization author id must not be empty";
 
     private OnlineHearingService onlineHearingService;
     private DecisionService decisionService;
@@ -78,7 +78,7 @@ public class DecisionController {
                                          @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
 
         if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
@@ -146,7 +146,7 @@ public class DecisionController {
                                          @PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 
         if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
@@ -215,7 +215,7 @@ public class DecisionController {
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
         if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
@@ -244,8 +244,66 @@ public class DecisionController {
         decisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies").buildAndExpand(onlineHearingId);
+                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisionreplies/{decisionReplyId}").buildAndExpand(onlineHearingId, decisionReply.getId());
 
         return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(decisionReply.getId()));
+    }
+
+    @ApiOperation(value = "Get all replies to decision", notes = "A GET request is used to get all replies to a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = AllDecisionRepliesResponse.class),
+            @ApiResponse(code = 404, message = "Online hearing not found")
+    })
+    @GetMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAllDecisionReplies(@PathVariable UUID onlineHearingId) {
+
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+        }
+
+        List<DecisionReply> decisionReplies = decisionReplyService.findAllDecisionReplyByDecision(optionalDecision.get());
+
+        AllDecisionRepliesResponse allDecisionRepliesResponse = new AllDecisionRepliesResponse();
+        for(DecisionReply decisionReply : decisionReplies) {
+            DecisionReplyResponse replyResponse = new DecisionReplyResponse();
+            DecisionReplyResponseMapper.map(decisionReply, replyResponse);
+            allDecisionRepliesResponse.addDecisionReply(replyResponse);
+        }
+        return ResponseEntity.ok().body(allDecisionRepliesResponse);
+    }
+
+    @ApiOperation(value = "Get a replies to decision", notes = "A GET request is used to get a reply to a decision")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = DecisionReplyResponse.class),
+            @ApiResponse(code = 404, message = "Online hearing not found")
+    })
+    @GetMapping(value = "/decisionreplies/{decisionReplyId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getADecisionReply(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionReplyId) {
+
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+        }
+
+        Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
+        if (!optionalDecision.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+        }
+
+        Optional<DecisionReply> optionalDecisionReply = decisionReplyService.findByDecisionReplyId(decisionReplyId);
+        if(!optionalDecisionReply.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision reply");
+        }
+
+        DecisionReplyResponse decisionReplyResponse = new DecisionReplyResponse();
+        DecisionReplyResponseMapper.map(optionalDecisionReply.get(), decisionReplyResponse);
+
+        return ResponseEntity.ok().body(decisionReplyResponse);
     }
 }

@@ -19,7 +19,9 @@ import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
@@ -35,9 +37,7 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -510,5 +510,169 @@ public class DecisionControllerTest {
                 .andReturn();
 
         assertEquals("Unable to find decision", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testGetAllRepliesToDecision() throws Exception {
+        List<DecisionReply> decisionReplies = new ArrayList<>();
+
+        DecisionReply decisionReply = new DecisionReply();
+        decisionReply.setId(UUID.randomUUID());
+        decisionReply.setDecision(decision);
+        decisionReply.setAuthorReferenceId("some author");
+        decisionReply.setDecisionReply(true);
+        decisionReply.setDecisionReplyReason("some reason");
+        decisionReplies.add(decisionReply);
+
+        decisionReply = new DecisionReply();
+        decisionReply.setId(UUID.randomUUID());
+        decisionReply.setDecision(decision);
+        decisionReply.setAuthorReferenceId("some author 1");
+        decisionReply.setDecisionReply(true);
+        decisionReply.setDecisionReplyReason("some reason 1");
+        decisionReplies.add(decisionReply);
+
+        given(decisionReplyService.findAllDecisionReplyByDecision(any(Decision.class))).willReturn(decisionReplies);
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        AllDecisionRepliesResponse allDecisionRepliesResponse =
+                JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), AllDecisionRepliesResponse.class);
+
+        assertEquals(decisionReplies.size(), allDecisionRepliesResponse.getDecisionReplyList().size());
+
+        int n = 0;
+        for (DecisionReply expectedReply : decisionReplies) {
+            DecisionReplyResponse decisionReplyResponse = allDecisionRepliesResponse.getDecisionReplyList().get(n);
+
+            assertNotNull(decisionReplyResponse);
+
+            assertEquals(expectedReply.getId().toString(), decisionReplyResponse.getDecisionReplyId());
+
+            assertEquals(expectedReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
+
+            assertEquals(expectedReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+
+            assertEquals(DecisionsStates.DECISIONS_ACCEPTED.getStateName(), decisionReplyResponse.getDecisionReply());
+
+            assertEquals(expectedReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
+
+            n++;
+        }
+        assertEquals(decisionReplies.size(), n);
+    }
+
+    @Test
+    public void testGetAllDecisionRepliesReturnsEmptyListIfNoReplies() throws Exception {
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        AllDecisionRepliesResponse allDecisionRepliesResponse = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), AllDecisionRepliesResponse.class);
+        assertEquals(0, allDecisionRepliesResponse.getDecisionReplyList().size());
+    }
+
+    @Test
+    public void testGetAllDecisionRepliesOnlineHearingDoesNotExistThrows404() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Online hearing not found", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testGetAllDecisionRepliesDecisionNotFoundThrows404() throws Exception {
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.empty());
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Unable to find decision", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testGetASingleReplyToDecision() throws Exception {
+        UUID decisionReplyId = UUID.randomUUID();
+
+        DecisionReply decisionReply = new DecisionReply();
+        decisionReply.setId(decisionReplyId);
+        decisionReply.setDecision(decision);
+        decisionReply.setAuthorReferenceId("some author");
+        decisionReply.setDecisionReply(true);
+        decisionReply.setDecisionReplyReason("some reason");
+
+        given(decisionReplyService.findByDecisionReplyId(decisionReplyId)).willReturn(Optional.of(decisionReply));
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionReplyResponse.class);
+        assertEquals(decisionReply.getId().toString(), decisionReplyResponse.getDecisionReplyId());
+        assertEquals(decisionReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
+        assertEquals(decisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+        assertEquals(DecisionsStates.DECISIONS_ACCEPTED.getStateName(), decisionReplyResponse.getDecisionReply());
+        assertEquals(decisionReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
+    }
+
+
+    @Test
+    public void testGetDecisionReplyOnlineHearingDoesNotExistThrows404() throws Exception {
+        UUID decisionReplyId = UUID.randomUUID();
+        given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Online hearing not found", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testGetDecisionReplyDecisionNotFoundThrows404() throws Exception {
+        UUID decisionReplyId = UUID.randomUUID();
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.empty());
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Unable to find decision", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testGetDecisionReplyDecisionReplyNotFoundThrows404() throws Exception {
+        UUID decisionReplyId = UUID.randomUUID();
+        given(decisionReplyService.findByDecisionReplyId(decisionReplyId)).willReturn(Optional.empty());
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertEquals("Unable to find decision reply", result.getResponse().getContentAsString());
     }
 }

@@ -13,12 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.DecisionController;
-import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decision.*;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -93,7 +92,7 @@ public class DecisionSteps extends BaseSteps {
 
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
-        testContext.getScenarioContext().setDecisionReplies(new ArrayList<>());
+        testContext.getScenarioContext().clearDecisionReplies();
         String endpoint = getEndpoint();
         try {
             if ("GET".equalsIgnoreCase(type)) {
@@ -126,7 +125,8 @@ public class DecisionSteps extends BaseSteps {
         String endpoint = getReplyEndpoint();
 
         if(type.equalsIgnoreCase("POST")) {
-            String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentDecisionReplyRequest());
+            DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
+            String json = JsonUtils.toJson(decisionReplyRequest);
             HttpEntity<String> request = new HttpEntity<>(json, header);
 
             try {
@@ -141,10 +141,42 @@ public class DecisionSteps extends BaseSteps {
             }catch (HttpClientErrorException e){
                 testContext.getHttpContext().setResponseBodyAndStatesForException(e);
             }
+        }else if(type.equalsIgnoreCase("GET")) {
+            HttpEntity<String> request = new HttpEntity<>("", header);
+
+            try {
+                String uuid = testContext.getScenarioContext().getDecisionReplies().get(0).getId().toString();
+                response = restTemplate.exchange(baseUrl + endpoint + "/" + uuid, HttpMethod.GET, request, String.class);
+                DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
+                testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            }catch (HttpClientErrorException e) {
+                testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+            }
         }else{
             throw new NotSupportedException("Method not support: " + type);
         }
     }
+
+    @When("^a GET request is sent for all decision replies$")
+    public void aGETRequestIsSentForAllDecisionReplies() throws Throwable {
+        RestTemplate restTemplate = getRestTemplate();
+        ResponseEntity<String> response = null;
+
+        String endpoint = getReplyEndpoint();
+        HttpEntity<String> request = new HttpEntity<>("", header);
+
+        try {
+            response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
+
+            AllDecisionRepliesResponse allDecisionRepliesResponse = JsonUtils.toObjectFromJson(response.getBody(), AllDecisionRepliesResponse.class);
+            testContext.getScenarioContext().setAllDecisionRepliesResponse(allDecisionRepliesResponse);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        }catch (HttpClientErrorException e){
+            testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+        }
+    }
+
 
 
     @Then("^the response contains the decision UUID$")
@@ -211,5 +243,58 @@ public class DecisionSteps extends BaseSteps {
     public void theDecisionExpiryDateEmpty() throws Throwable {
         DecisionResponse decision = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertNull(decision.getDeadlineExpiryDate());
+    }
+
+    @And("^the decision replies list contains (\\d+) decision repl(?:y|ies)$")
+    public void theDecisionRepliesListContainsDecisionReplies(int expectedDecisionReplies) {
+        AllDecisionRepliesResponse allDecisionRepliesResponse =
+                testContext.getScenarioContext().getAllDecisionRepliesResponse();
+
+        int n = 0;
+        for (DecisionReply expectedDecisionReply : testContext.getScenarioContext().getDecisionReplies()) {
+            DecisionReplyResponse decisionReplyResponse = allDecisionRepliesResponse.getDecisionReplyList().get(n);
+
+            assertNotNull(decisionReplyResponse);
+
+            assertEquals(expectedDecisionReply.getDecisionReplyReason(),
+                    decisionReplyResponse.getDecisionReplyReason());
+
+            String replyState =
+                    expectedDecisionReply.getDecisionReply()
+                            ? DecisionsStates.DECISIONS_ACCEPTED.getStateName()
+                            : DecisionsStates.DECISIONS_REJECTED.getStateName();
+
+            assertEquals(replyState, decisionReplyResponse.getDecisionReply());
+
+            assertEquals(expectedDecisionReply.getDecision().getDecisionId().toString(),
+                    decisionReplyResponse.getDecisionId());
+
+            assertEquals(expectedDecisionReply.getId().toString(), decisionReplyResponse.getDecisionReplyId());
+
+            assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+
+            n++;
+        }
+
+        assertEquals(expectedDecisionReplies, n);
+    }
+
+    @And("^the decision reply contains all the fields$")
+    public void theDecisionReplyContainsAllTheFields() {
+        DecisionReplyResponse decisionReplyResponse = testContext.getScenarioContext().getDecisionReplyResponse();
+        DecisionReply expectedDecisionReply = testContext.getScenarioContext().getDecisionReplies().stream()
+                                                .filter(dr -> dr.getId().toString().equalsIgnoreCase(decisionReplyResponse.getDecisionReplyId()))
+                                                .findFirst()
+                                                .orElseThrow(() -> new EntityNotFoundException());
+
+        assertEquals(expectedDecisionReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
+        assertEquals(expectedDecisionReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
+
+        String replyState =
+                expectedDecisionReply.getDecisionReply()
+                        ? DecisionsStates.DECISIONS_ACCEPTED.getStateName()
+                        : DecisionsStates.DECISIONS_REJECTED.getStateName();
+        assertEquals(replyState, decisionReplyResponse.getDecisionReply());
+        assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
     }
 }

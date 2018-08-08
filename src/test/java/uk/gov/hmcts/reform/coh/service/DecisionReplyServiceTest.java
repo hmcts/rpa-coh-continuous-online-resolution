@@ -13,8 +13,11 @@ import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -38,6 +41,7 @@ public class DecisionReplyServiceTest {
         DecisionReplyRequestMapper.map(request, decisionReply, decision, "author_reference");
 
         given(decisionReplyRepository.save(any(DecisionReply.class))).willReturn(decisionReply);
+        given(decisionReplyRepository.findById(any(UUID.class))).willReturn(Optional.of(decisionReply));
         decisionReplyService = new DecisionReplyService(decisionReplyRepository);
     }
 
@@ -46,5 +50,14 @@ public class DecisionReplyServiceTest {
         DecisionReply returnedDecisionReply = decisionReplyService.createDecision(decisionReply);
         verify(decisionReplyRepository, times(1)).save(any(DecisionReply.class));
         assertEquals(decisionReply, returnedDecisionReply);
+    }
+
+    @Test
+    public void testFindDecisionReplyById() {
+        Optional<DecisionReply> returnedDecisionReply = decisionReplyService.findByDecisionReplyId(UUID.randomUUID());
+        verify(decisionReplyRepository, times(1)).findById(any(UUID.class));
+
+        assertTrue(returnedDecisionReply.isPresent());
+        assertEquals(decisionReply, returnedDecisionReply.get());
     }
 }

@@ -3,11 +3,13 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
-import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingRequest;
+import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.ArrayList;
@@ -42,6 +44,8 @@ public class ScenarioContext {
     private List<Jurisdiction> jurisdictions;
     private List<DecisionReply> decisionReplies = new ArrayList<>();
     private EventRegistrationRequest eventRegistrationRequest;
+    private AllDecisionRepliesResponse allDecisionRepliesResponse;
+    private DecisionReplyResponse decisionReplyResponse;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
     private String idamAuthorRef;
@@ -51,7 +55,8 @@ public class ScenarioContext {
         return sessionEventForwardingRegisters;
     }
 
-    public void setSessionEventForwardingRegisters(Set<SessionEventForwardingRegister> sessionEventForwardingRegisters) {
+    public void setSessionEventForwardingRegisters(
+        Set<SessionEventForwardingRegister> sessionEventForwardingRegisters) {
         this.sessionEventForwardingRegisters = sessionEventForwardingRegisters;
     }
 
@@ -161,6 +166,11 @@ public class ScenarioContext {
         eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
         decisionReplyRequest = null;
+
+    }
+
+    public void clearDecisionReplies() {
+        decisionReplies = new ArrayList<>();
     }
 
     public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
@@ -207,6 +217,7 @@ public class ScenarioContext {
 
         decisionReplies.add(decisionReply);
     }
+
     public void setDecisionReplies(List<DecisionReply> decisionReplies) {
 
         this.decisionReplies = decisionReplies;
@@ -216,4 +227,19 @@ public class ScenarioContext {
         return decisionReplies;
     }
 
+    public void setAllDecisionRepliesResponse(AllDecisionRepliesResponse allDecisionRepliesResponse) {
+        this.allDecisionRepliesResponse = allDecisionRepliesResponse;
+    }
+
+    public AllDecisionRepliesResponse getAllDecisionRepliesResponse() {
+        return allDecisionRepliesResponse;
+    }
+
+    public void setDecisionReplyResponse(DecisionReplyResponse decisionReplyResponse) {
+        this.decisionReplyResponse = decisionReplyResponse;
+    }
+
+    public DecisionReplyResponse getDecisionReplyResponse() {
+        return decisionReplyResponse;
+    }
 }
