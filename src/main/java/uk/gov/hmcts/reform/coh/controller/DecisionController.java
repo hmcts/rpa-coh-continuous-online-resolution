@@ -72,7 +72,13 @@ public class DecisionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/decisions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createDecision(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
+    public ResponseEntity createDecision(UriComponentsBuilder uriBuilder,
+                                         @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
+                                         @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
+
+        if(authorReferenceId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+        }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (optionalDecision.isPresent()) {
@@ -97,6 +103,7 @@ public class DecisionController {
         Decision decision = new Decision();
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        decision.setAuthorReferenceId(authorReferenceId);
         decision.addDecisionStateHistory(optionalDecisionState.get());
         decision = decisionService.createDecision(decision);
 
@@ -134,7 +141,12 @@ public class DecisionController {
             @ApiResponse(code = 422, message = "Validation Error")
     })
     @PutMapping(value = "/decisions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateDecision(@PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
+    public ResponseEntity updateDecision(@RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
+                                         @PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
+
+        if(authorReferenceId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+        }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
@@ -167,6 +179,7 @@ public class DecisionController {
         // Update the decision
         decision.addDecisionStateHistory(optionalDecisionState.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        decision.setAuthorReferenceId(authorReferenceId);
         decisionService.updateDecision(decision);
 
         try {
@@ -200,8 +213,9 @@ public class DecisionController {
                                           @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
+
         if(authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Author reference id is not valid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
         }
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())

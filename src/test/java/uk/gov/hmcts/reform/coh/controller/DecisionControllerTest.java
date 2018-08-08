@@ -135,7 +135,8 @@ public class DecisionControllerTest {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -150,13 +151,27 @@ public class DecisionControllerTest {
     }
 
     @Test
+    public void testCreateDecisionWithEmptyAuthorReferenceThrows400() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, ""))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        assertEquals("Authorization author id must not be empty", result.getResponse().getContentAsString());
+    }
+
+    @Test
     public void testCreateDuplicateDecision() throws Exception {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
 
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isConflict());
     }
 
@@ -166,7 +181,8 @@ public class DecisionControllerTest {
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -179,7 +195,8 @@ public class DecisionControllerTest {
         given(decisionStateService.retrieveDecisionStateByState("decision_drafted")).willReturn(Optional.empty());
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
 
@@ -192,7 +209,8 @@ public class DecisionControllerTest {
         request.setDecisionHeader(null);
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -205,7 +223,8 @@ public class DecisionControllerTest {
         request.setDecisionText(null);
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -218,7 +237,8 @@ public class DecisionControllerTest {
         request.setDecisionReason(null);
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -231,7 +251,8 @@ public class DecisionControllerTest {
         request.setDecisionAward(null);
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -276,7 +297,8 @@ public class DecisionControllerTest {
         given(decisionService.retrieveByOnlineHearingIdAndDecisionId(decisionUUID, decisionUUID)).willReturn(Optional.empty());
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
@@ -289,7 +311,8 @@ public class DecisionControllerTest {
         decisionState.setState("foo");
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isConflict())
                 .andReturn()
                 .getResponse()
@@ -302,7 +325,8 @@ public class DecisionControllerTest {
         updateDecisionRequest.setState("foo");
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -316,11 +340,25 @@ public class DecisionControllerTest {
         updateDecisionRequest.setDecisionHeader(null);
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
                 .getContentAsString().equalsIgnoreCase("Decision header is required");
+    }
+
+    @Test
+    public void testUpdateDecisionWithEmptyAuthorReferenceThrows400() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request))
+                .header(IDAM_AUTHORIZATION, ""))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        assertEquals("Authorization author id must not be empty", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -330,7 +368,8 @@ public class DecisionControllerTest {
         updateDecisionRequest.setDecisionText(null);
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -344,7 +383,8 @@ public class DecisionControllerTest {
         updateDecisionRequest.setDecisionReason(null);
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -360,7 +400,8 @@ public class DecisionControllerTest {
         updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUE_PENDING.getStateName());
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isOk());
     }
 
@@ -389,6 +430,19 @@ public class DecisionControllerTest {
         }catch(MalformedURLException e){
             fail();
         }
+    }
+
+    @Test
+    public void testCreateDecisionReplyWithEmptyAuthorReferenceThrows400() throws Exception {
+        
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
+                .header(IDAM_AUTHORIZATION, ""))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+
+        assertEquals("Authorization author id must not be empty", result.getResponse().getContentAsString());
     }
 
     @Test
