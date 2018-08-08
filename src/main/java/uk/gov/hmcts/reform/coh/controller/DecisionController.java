@@ -167,8 +167,8 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
-        // check that the state is 'decision_issue_pending'
-        if (!request.getState().equals(DecisionsStates.DECISION_ISSUE_PENDING.getStateName())){
+        // check that the state is 'decision_issue_pending' or 'decision_drafted'
+        if (!request.getState().equals(DecisionsStates.DECISION_ISSUE_PENDING.getStateName())||!request.getState().equals(DecisionsStates.DECISION_DRAFTED.getStateName())){
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         } else {
             // If a decision is issued, then there is a deadline to accept or reject it
