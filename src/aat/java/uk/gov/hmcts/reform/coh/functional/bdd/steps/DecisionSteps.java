@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.NotSupportedException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -140,6 +141,8 @@ public class DecisionSteps extends BaseSteps {
             }catch (HttpClientErrorException e){
                 testContext.getHttpContext().setResponseBodyAndStatesForException(e);
             }
+        }else{
+            throw new NotSupportedException("Method not support: " + type);
         }
     }
 
