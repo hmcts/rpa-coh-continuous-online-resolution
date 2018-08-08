@@ -283,9 +283,4 @@ public class DecisionSteps extends BaseSteps {
         assertEquals(expectedDecisionReply.getDecisionReply(), decisionReplyResponse.getDecisionReply());
         assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
     }
-
-    @Given("^clear decision replies$")
-    public void testScenarioVariablesAreCleared() {
-        testContext.getScenarioContext().clearDecisionReplies();
-    }
 }
