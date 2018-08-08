@@ -334,6 +334,19 @@ public class DecisionControllerTest {
     }
 
     @Test
+    public void testUpdateDecisionToDecisionIssuedFails() throws Exception {
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+        updateDecisionRequest.setState("decision_issued");
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Invalid state");
+    }
+
+    @Test
     public void testUpdateWithEmptyDecisionHeader() throws Exception {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
