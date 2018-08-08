@@ -55,7 +55,8 @@ public class ScenarioContext {
         return sessionEventForwardingRegisters;
     }
 
-    public void setSessionEventForwardingRegisters(Set<SessionEventForwardingRegister> sessionEventForwardingRegisters) {
+    public void setSessionEventForwardingRegisters(
+        Set<SessionEventForwardingRegister> sessionEventForwardingRegisters) {
         this.sessionEventForwardingRegisters = sessionEventForwardingRegisters;
     }
 
@@ -216,6 +217,7 @@ public class ScenarioContext {
 
         decisionReplies.add(decisionReply);
     }
+
     public void setDecisionReplies(List<DecisionReply> decisionReplies) {
 
         this.decisionReplies = decisionReplies;
@@ -236,6 +238,7 @@ public class ScenarioContext {
     public void setDecisionReplyResponse(DecisionReplyResponse decisionReplyResponse) {
         this.decisionReplyResponse = decisionReplyResponse;
     }
+
     public DecisionReplyResponse getDecisionReplyResponse() {
         return decisionReplyResponse;
     }
