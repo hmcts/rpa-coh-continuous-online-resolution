@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.controller.decision;
+package uk.gov.hmcts.reform.coh.states;
 
 public enum DecisionsStates {
 
