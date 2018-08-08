@@ -78,7 +78,7 @@ public class DecisionController {
                                          @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
 
         if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
@@ -146,7 +146,7 @@ public class DecisionController {
                                          @PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
 
         if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
@@ -215,7 +215,7 @@ public class DecisionController {
                                           @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
 
         if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization author id must not be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
         }
 
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())

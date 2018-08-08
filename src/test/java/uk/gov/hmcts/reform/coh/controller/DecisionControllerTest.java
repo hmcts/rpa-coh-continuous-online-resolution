@@ -541,27 +541,30 @@ public class DecisionControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        AllDecisionRepliesResponse allDecisionRepliesResponse = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), AllDecisionRepliesResponse.class);
+        AllDecisionRepliesResponse allDecisionRepliesResponse =
+                JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), AllDecisionRepliesResponse.class);
+
         assertEquals(decisionReplies.size(), allDecisionRepliesResponse.getDecisionReplyList().size());
 
         int n = 0;
-        for(DecisionReply expectedReply : decisionReplies) {
-            assertEquals(expectedReply.getId().toString(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReplyId());
+        for (DecisionReply expectedReply : decisionReplies) {
+            DecisionReplyResponse decisionReplyResponse = allDecisionRepliesResponse.getDecisionReplyList().get(n);
 
-            assertEquals(expectedReply.getDecision().getDecisionId().toString(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionId());
+            assertNotNull(decisionReplyResponse);
 
-            assertEquals(expectedReply.getAuthorReferenceId(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getAuthorReference());
+            assertEquals(expectedReply.getId().toString(), decisionReplyResponse.getDecisionReplyId());
 
-            assertEquals(DecisionsStates.DECISIONS_ACCEPTED.getStateName(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReply());
+            assertEquals(expectedReply.getDecision().getDecisionId().toString(), decisionReplyResponse.getDecisionId());
 
-            assertEquals(expectedReply.getDecisionReplyReason(),
-                    allDecisionRepliesResponse.getDecisionReplyList().get(n).getDecisionReplyReason());
+            assertEquals(expectedReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+
+            assertEquals(DecisionsStates.DECISIONS_ACCEPTED.getStateName(), decisionReplyResponse.getDecisionReply());
+
+            assertEquals(expectedReply.getDecisionReplyReason(), decisionReplyResponse.getDecisionReplyReason());
+
             n++;
         }
+        assertEquals(decisionReplies.size(), n);
     }
 
     @Test
