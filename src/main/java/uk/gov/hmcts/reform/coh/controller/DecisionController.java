@@ -251,11 +251,8 @@ public class DecisionController {
 
     @ApiOperation(value = "Get all replies to decision", notes = "A GET request is used to get all replies to a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Online hearing not found"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 200, message = "Success", response = AllDecisionRepliesResponse.class),
+            @ApiResponse(code = 404, message = "Online hearing not found")
     })
     @GetMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllDecisionReplies(@PathVariable UUID onlineHearingId) {
@@ -283,11 +280,8 @@ public class DecisionController {
 
     @ApiOperation(value = "Get a replies to decision", notes = "A GET request is used to get a reply to a decision")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Success", response = CreateDecisionResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Online hearing not found"),
-            @ApiResponse(code = 422, message = "Validation error")
+            @ApiResponse(code = 200, message = "Success", response = DecisionReplyResponse.class),
+            @ApiResponse(code = 404, message = "Online hearing not found")
     })
     @GetMapping(value = "/decisionreplies/{decisionReplyId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getADecisionReply(@PathVariable UUID onlineHearingId, @PathVariable UUID decisionReplyId) {
