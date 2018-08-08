@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -61,22 +60,22 @@ public class DeadlineController {
 
         try {
             DeadlineExtensionHelper helper  = questionService.requestDeadlineExtension(optionalOnlineHearing.get());
+            if (helper.getTotal() < 1 || helper.getEligible() < 1) {
+                return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No questions to extend deadline for");
+            }
             queueSessionEvent(optionalOnlineHearing.get(), helper);
         } catch (Exception e) {
             log.error("Request failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Request failed. " + e.getMessage());
-        } catch (NoQuestionsAsked e) {
-            log.warn("Deadline extension request for hearing without questions; hearingId={}", onlineHearingId);
-            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No questions to extend deadline for.");
         }
+
         return ResponseEntity.ok().build();
     }
 
     private void queueSessionEvent(OnlineHearing onlineHearing, DeadlineExtensionHelper helper) {
 
-        if ((helper.getEligible() <= 0)
-            || (helper.getGranted() <=0 && helper.getDenied() <= 0)) {
-
+        if ((helper.getEligible() < 1)
+            || (helper.getGranted() < 1 && helper.getDenied() < 1)) {
             // Nothing was eligible for extension or (nothing was granted or denied)
             return;
         }

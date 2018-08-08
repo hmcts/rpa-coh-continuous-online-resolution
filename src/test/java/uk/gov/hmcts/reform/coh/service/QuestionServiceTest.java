@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.coh.service;
 
 import com.google.common.collect.ImmutableList;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
+import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import javax.persistence.EntityNotFoundException;
@@ -41,6 +41,9 @@ public class QuestionServiceTest {
     @Mock
     private QuestionRoundService questionRoundService;
 
+    @Mock
+    private QuestionDeadlineUtils utils;
+
     private QuestionService questionService;
 
     private QuestionState drafted = new QuestionState("question_drafted");
@@ -68,7 +71,7 @@ public class QuestionServiceTest {
         deniedState = mockQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
         when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)).thenReturn(deniedState);
 
-        questionService = new QuestionService(questionRepository, questionStateService, questionRoundService);
+        questionService = new QuestionService(questionRepository, questionStateService, questionRoundService, utils);
         given(questionRoundService.isQrValidTransition(any(Question.class), any(OnlineHearing.class))).willReturn(true);
         given(questionRoundService.isQrValidState(any(Question.class), any(OnlineHearing.class))).willReturn(true);
 
@@ -77,6 +80,8 @@ public class QuestionServiceTest {
         question = new Question();
         question.setQuestionState(drafted);
         when(questionRepository.save(question)).thenReturn(question);
+
+        when(utils.isEligibleForDeadlineExtension(any())).thenReturn(true);
     }
 
     @Test
@@ -166,13 +171,9 @@ public class QuestionServiceTest {
         verify(questionRepository, times(1)).save(question);
     }
 
-    @Test(expected = NoQuestionsAsked.class)
-    public void testRequestingDeadlineExtensionWithNullOnlineHearing() throws NoQuestionsAsked {
-        questionService.requestDeadlineExtension(null);
-    }
-
     @Test
-    public void testRequestingDeadlineExtensionForExpiredQuestion() throws NoQuestionsAsked {
+    public void testRequestingDeadlineExtensionForExpiredQuestion() {
+        when(utils.isEligibleForDeadlineExtension(any())).thenReturn(false);
         Question mockedQuestion = expiredQuestion();
         when(questionRepository.findAllByOnlineHearing(onlineHearing)).thenReturn(
             ImmutableList.of(mockedQuestion)
@@ -184,7 +185,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForIssuedQuestion() throws NoQuestionsAsked {
+    public void testRequestingDeadlineExtensionForIssuedQuestion() throws Throwable {
         Question mockedQuestion = notExpiredQuestion();
         doReturn(issuedState).when(mockedQuestion).getQuestionState();
 
@@ -200,7 +201,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForGrantedQuestion() throws NoQuestionsAsked {
+    public void testRequestingDeadlineExtensionForGrantedQuestion() throws Throwable {
         Question mockedQuestion = notExpiredQuestion();
         doReturn(grantedState).when(mockedQuestion).getQuestionState();
 
@@ -216,7 +217,7 @@ public class QuestionServiceTest {
     }
 
     @Test
-    public void testRequestingDeadlineExtensionForPendingQuestion() throws NoQuestionsAsked {
+    public void testRequestingDeadlineExtensionForPendingQuestion() throws Throwable {
         Question mockedQuestion = notExpiredQuestion();
         QuestionState pendingState = mockQuestionState(QuestionStates.ISSUE_PENDING);
         doReturn(pendingState).when(mockedQuestion).getQuestionState();
