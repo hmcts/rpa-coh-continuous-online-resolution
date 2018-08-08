@@ -37,9 +37,6 @@ public class DeadlineController {
     @Autowired
     private SessionEventService sessionEventService;
 
-    public DeadlineController() {
-    }
-
     @ApiOperation(value = "Request deadline extension",
         notes = "A PUT request to extend the deadline of questions.")
     @ApiResponses(value = {
