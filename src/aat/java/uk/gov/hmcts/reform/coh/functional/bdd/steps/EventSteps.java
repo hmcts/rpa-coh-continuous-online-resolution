@@ -8,7 +8,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -97,8 +96,6 @@ public class EventSteps extends BaseSteps {
     @When("^a POST request is sent to register$")
     public void aPostRequestIsSentToRegister() throws IOException {
         String json = JsonUtils.toJson(testContext.getScenarioContext().getEventRegistrationRequest());
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
             response = restTemplate.exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
@@ -161,8 +158,6 @@ public class EventSteps extends BaseSteps {
         resetSessionEventRequest.setEventType(eventType);
         json = JsonUtils.toJson(resetSessionEventRequest);
 
-        HttpHeaders header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
             response = restTemplate.exchange(baseUrl + endpoint + "/reset", HttpMethod.PUT, request, String.class);

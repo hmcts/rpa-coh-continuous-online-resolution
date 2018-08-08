@@ -63,7 +63,7 @@ public class DeadlineSteps extends BaseSteps {
 
         UUID hearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
         String endpoint = "/continuous-online-hearings/" + hearingId + "/questions-deadline-extension";
-        HttpEntity<String> request = new HttpEntity<>("");
+        HttpEntity<String> request = new HttpEntity<>("", header);
 
         setupRestTemplate();
 
