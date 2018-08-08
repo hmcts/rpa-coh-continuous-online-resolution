@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.decisionreplies;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DecisionReplyResponse {
@@ -18,6 +19,18 @@ public class DecisionReplyResponse {
 
     @JsonProperty("author_reference")
     private String authorReference;
+
+    @JsonProperty(value = "uri")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String uri;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 
     public String getDecisionReplyId() {
         return decisionReplyId;
