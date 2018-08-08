@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.coh.controller.exceptions;
+package uk.gov.hmcts.reform.coh.handlers;
 
 import gherkin.deps.com.google.gson.JsonObject;
 import org.springframework.stereotype.Component; 

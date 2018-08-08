@@ -7,13 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.controller.exceptions.IdamHeaderInterceptor;
+import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
+import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.service.*;
@@ -50,6 +51,9 @@ public class BaseSteps {
     private DecisionService decisionService;
 
     @Autowired
+    private DecisionReplyRepository decisionReplyRepository;
+
+    @Autowired
     private SessionEventService sessionEventService;
 
     @Autowired
@@ -71,6 +75,7 @@ public class BaseSteps {
 
         endpoints.put("online hearing", "/continuous-online-hearings");
         endpoints.put("decision", "/continuous-online-hearings/onlineHearing_id/decisions");
+        endpoints.put("decisionreply", "/continuous-online-hearings/onlineHearing_id/decisionreplies");
         endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
         endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
         endpoints.put("conversations", "/continuous-online-hearings/onlineHearing_id/conversations");
@@ -90,6 +95,13 @@ public class BaseSteps {
     }
 
     public void cleanup() {
+        for(DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
+            try {
+                decisionReplyRepository.deleteById(decisionReply.getId());
+            }catch (Exception e) {
+                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+            }
+        }
         if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
@@ -99,8 +111,7 @@ public class BaseSteps {
                 }
             }
         }
-
-        // Delete all decisions
+                // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
             try {

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.utils;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
@@ -36,8 +37,10 @@ public class ScenarioContext {
     private List<String> caseIds;
 
     private UpdateQuestionRequest updateQuestionRequest;
+    private DecisionReplyRequest decisionReplyRequest;
 
     private List<Jurisdiction> jurisdictions;
+    private List<DecisionReply> decisionReplies = new ArrayList<>();
     private EventRegistrationRequest eventRegistrationRequest;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
@@ -157,6 +160,7 @@ public class ScenarioContext {
         updateQuestionRequest = null;
         eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
+        decisionReplyRequest = null;
     }
 
     public UpdateOnlineHearingRequest getUpdateOnlineHearingRequest() {
@@ -190,4 +194,26 @@ public class ScenarioContext {
     public void setIdamServiceRef(String idamServiceRef) {
         this.idamServiceRef = idamServiceRef;
     }
+
+    public void setCurrentDecisionReplyRequest(DecisionReplyRequest decisionReplyRequest) {
+        this.decisionReplyRequest = decisionReplyRequest;
+    }
+
+    public DecisionReplyRequest getCurrentDecisionReplyRequest() {
+        return decisionReplyRequest;
+    }
+
+    public void addDecisionReply(DecisionReply decisionReply) {
+
+        decisionReplies.add(decisionReply);
+    }
+    public void setDecisionReplies(List<DecisionReply> decisionReplies) {
+
+        this.decisionReplies = decisionReplies;
+    }
+
+    public List<DecisionReply> getDecisionReplies() {
+        return decisionReplies;
+    }
+
 }

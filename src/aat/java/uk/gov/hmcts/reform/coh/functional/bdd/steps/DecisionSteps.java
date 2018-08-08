@@ -12,16 +12,24 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.controller.DecisionController;
 import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.NotSupportedException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -32,6 +40,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class DecisionSteps extends BaseSteps {
+
+    @Autowired
+    private DecisionReplyRepository decisionReplyRepository;
 
     @Autowired
     public DecisionSteps(TestContext testContext){
@@ -54,6 +65,18 @@ public class DecisionSteps extends BaseSteps {
         testContext.getScenarioContext().setCurrentDecisionRequest(decisionRequest);
     }
 
+    @Given("^a standard decision reply$")
+    public void aStandardDecisionReply() throws Throwable {
+        DecisionReplyRequest decisionReplyRequest = JsonUtils.toObjectFromTestName("decision/standard_decision_reply", DecisionReplyRequest.class);
+        testContext.getScenarioContext().setCurrentDecisionReplyRequest(decisionReplyRequest);
+    }
+
+    @And("^the decision reply is ' \"([^\"]*)\" '$")
+    public void theDecisionReplyIs(String decisionReply) {
+        DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
+        decisionReplyRequest.setDecisionReply(decisionReply);
+    }
+
     @Given("^a standard decision for update$")
     public void a_standard_decision_for_update() throws IOException {
         UpdateDecisionRequest decisionRequest = JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
@@ -70,7 +93,7 @@ public class DecisionSteps extends BaseSteps {
 
         RestTemplate restTemplate = getRestTemplate();
         ResponseEntity<String> response = null;
-
+        testContext.getScenarioContext().setDecisionReplies(new ArrayList<>());
         String endpoint = getEndpoint();
         try {
             if ("GET".equalsIgnoreCase(type)) {
@@ -94,6 +117,35 @@ public class DecisionSteps extends BaseSteps {
             testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
         }
     }
+
+    @And("^a (.*) request is sent for a decision reply$")
+    public void aPOSTRequestIsSentForADecisionReply(String type) throws Throwable {
+        RestTemplate restTemplate = getRestTemplate();
+        ResponseEntity<String> response = null;
+
+        String endpoint = getReplyEndpoint();
+
+        if(type.equalsIgnoreCase("POST")) {
+            String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentDecisionReplyRequest());
+            HttpEntity<String> request = new HttpEntity<>(json, header);
+
+            try {
+                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+                CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionReplyResponse.class);
+
+                DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionReplyResponse.getDecisionReplyId())
+                        .orElseThrow(() -> new EntityNotFoundException());
+
+                testContext.getScenarioContext().addDecisionReply(decisionReply);
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            }catch (HttpClientErrorException e){
+                testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+            }
+        }else{
+            throw new NotSupportedException("Method not support: " + type);
+        }
+    }
+
 
     @Then("^the response contains the decision UUID$")
     public void the_response_contains_the_decision_UUID() throws IOException {
@@ -141,6 +193,14 @@ public class DecisionSteps extends BaseSteps {
 
     private String getEndpoint() {
         String endpoint = getEndpoints().get("decision");
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
+
+        return endpoint;
+    }
+
+    private String getReplyEndpoint() {
+        String endpoint = getEndpoints().get("decisionreply");
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
 
