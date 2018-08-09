@@ -522,6 +522,7 @@ public class DecisionControllerTest {
         decisionReply.setAuthorReferenceId("some author");
         decisionReply.setDecisionReply(true);
         decisionReply.setDecisionReplyReason("some reason");
+        decisionReply.setDateOccured(new Date());
         decisionReplies.add(decisionReply);
 
         decisionReply = new DecisionReply();
@@ -530,6 +531,7 @@ public class DecisionControllerTest {
         decisionReply.setAuthorReferenceId("some author 1");
         decisionReply.setDecisionReply(true);
         decisionReply.setDecisionReplyReason("some reason 1");
+        decisionReply.setDateOccured(new Date());
         decisionReplies.add(decisionReply);
 
         given(decisionReplyService.findAllDecisionReplyByDecision(any(Decision.class))).willReturn(decisionReplies);
@@ -615,6 +617,7 @@ public class DecisionControllerTest {
         decisionReply.setAuthorReferenceId("some author");
         decisionReply.setDecisionReply(true);
         decisionReply.setDecisionReplyReason("some reason");
+        decisionReply.setDateOccured(new Date());
 
         given(decisionReplyService.findByDecisionReplyId(decisionReplyId)).willReturn(Optional.of(decisionReply));
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
