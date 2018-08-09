@@ -62,7 +62,9 @@ public class QuestionRoundController {
         List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
 
         for (QuestionRound round : questionRounds) {
-            List<Question> questions = round.getQuestionList();
+            if (questionRoundService.hasAllQuestionsAnswered(round)) {
+                round.setQuestionRoundState("questions_answered");
+            }
         }
 
         QuestionRoundsResponse questionRoundsResponse = new QuestionRoundsResponse();

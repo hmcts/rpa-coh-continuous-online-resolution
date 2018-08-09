@@ -17,6 +17,7 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
+    private AnswerService answerService;
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
     public static final String ISSUE_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
@@ -24,9 +25,12 @@ public class QuestionRoundService {
     public QuestionRoundService() {}
 
     @Autowired
-    public QuestionRoundService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
+    public QuestionRoundService(QuestionRepository questionRepository,
+                                QuestionStateService questionStateService,
+                                AnswerService answerService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
+        this.answerService = answerService;
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
@@ -200,7 +204,12 @@ public class QuestionRoundService {
 
     public boolean hasAllQuestionsAnswered(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
-        
+        for (Question question: questions) {
+            List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+           if (answers.isEmpty()) {
+               return false;
+            }
+        }
         return true;
     }
 }
