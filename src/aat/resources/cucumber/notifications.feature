@@ -28,3 +28,17 @@ Feature: Event Notification Scheduler
     And an event has been queued for this online hearing of event type question_deadline_extension_granted
     When the notification scheduler runs
     Then the event status is event_forwarding_success
+
+  Scenario: Notification for Question Deadline Extension Denied
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And a standard question
+    And the post request is sent to create the question
+    When the put request is sent to issue the question round ' "1" '
+    And deadline extension is requested
+    And deadline extension is requested again
+    And question states are question_deadline_extension_denied
+    And an event has been queued for this online hearing of event type question_deadline_extension_denied
+    When the notification scheduler runs
+    Then the event status is event_forwarding_success
