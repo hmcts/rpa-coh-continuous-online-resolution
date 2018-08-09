@@ -20,9 +20,21 @@ public class DecisionReplyResponse {
     @JsonProperty("author_reference")
     private String authorReference;
 
+    @JsonProperty(value = "decision_reply_date")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String decisionReplyDate;
+
     @JsonProperty(value = "uri")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String uri;
+
+    public String getDecisionReplyDate() {
+        return decisionReplyDate;
+    }
+
+    public void setDecisionReplyDate(String decisionReplyDate) {
+        this.decisionReplyDate = decisionReplyDate;
+    }
 
     public String getUri() {
         return uri;

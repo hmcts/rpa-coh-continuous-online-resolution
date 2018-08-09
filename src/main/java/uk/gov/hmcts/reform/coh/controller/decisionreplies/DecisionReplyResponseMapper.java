@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.decisionreplies;
 
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 
 import java.util.function.BiConsumer;
@@ -11,7 +12,8 @@ public enum DecisionReplyResponseMapper {
     DECISION_REPLY_ID(dr -> dr.getId().toString(), DecisionReplyResponse::setDecisionReplyId),
     DECISION_ID(dr -> dr.getDecision().getDecisionId().toString(), DecisionReplyResponse::setDecisionId),
     DECISION_REPLY_REASON(dr -> dr.getDecisionReplyReason(), DecisionReplyResponse::setDecisionReplyReason),
-    AUTHOR_REFERENCE(dr -> dr.getAuthorReferenceId(), DecisionReplyResponse::setAuthorReference);
+    AUTHOR_REFERENCE(dr -> dr.getAuthorReferenceId(), DecisionReplyResponse::setAuthorReference),
+    REPLY_DATE(dr -> CohISO8601DateFormat.format(dr.getDateOccured()), DecisionReplyResponse::setDecisionReplyDate);
 
     private Function<DecisionReply, String> decisionReply;
     private BiConsumer<DecisionReplyResponse, String> setter;
