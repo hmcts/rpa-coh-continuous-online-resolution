@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.apache.commons.lang3.time.DateUtils;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
@@ -58,7 +60,7 @@ public class DeadlineSteps extends BaseSteps {
     }
 
     @When("^deadline extension is requested(?: again)?$")
-    public void deadlineExtensionIsRequested() {
+    public void deadlineExtensionIsRequested() throws Exception {
         job.execute();
 
         UUID hearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
@@ -67,12 +69,16 @@ public class DeadlineSteps extends BaseSteps {
 
         setupRestTemplate();
 
-        ResponseEntity<String> response =
-            restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+        }
 
         restoreRestTemplate();
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
     }
 
     private void setupRestTemplate() {
@@ -128,4 +134,10 @@ public class DeadlineSteps extends BaseSteps {
             );
         }
     }
+
+    @And("^the response message is '(.*)'$")
+    public void theResponseMessageIsr(String message) {
+        assertEquals(message, testContext.getHttpContext().getRawResponseString());
+    }
+
 }
