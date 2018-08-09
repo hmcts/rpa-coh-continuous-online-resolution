@@ -33,6 +33,15 @@ Feature: Decisions features
     When a PUT request is sent for a decision
     Then the response code is 422
 
+  Scenario: Update to decision_issued
+    And a standard decision
+    And a POST request is sent for a decision
+    And the response code is 201
+    Given a standard decision for update
+    And the update decision state is decision_issued
+    When a PUT request is sent for a decision
+    Then the response code is 422
+
   Scenario: Update decision state to issued
     And a standard decision
     And a POST request is sent for a decision

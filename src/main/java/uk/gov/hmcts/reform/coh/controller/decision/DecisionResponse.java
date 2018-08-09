@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.controller.decision;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 
 import java.util.ArrayList;
@@ -41,6 +42,11 @@ public class DecisionResponse {
     @JsonProperty(value = "uri")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String uri;
+
+    @JsonProperty(value = "decision_replies")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<DecisionReplyResponse> decisionReplyResponses;
+
 
     public String getDecisionId() {
         return decisionId;
@@ -129,4 +135,13 @@ public class DecisionResponse {
     public void setUri(String uri) {
         this.uri = uri;
     }
+
+    public void setDecisionReplies(List<DecisionReplyResponse> decisionReplyResponses) {
+        this.decisionReplyResponses = decisionReplyResponses;
+    }
+
+    public List<DecisionReplyResponse> getDecisionReplyResponses() {
+        return decisionReplyResponses;
+    }
+
 }

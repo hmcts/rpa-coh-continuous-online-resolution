@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.conversations.AnswerConversationMapper;
 import uk.gov.hmcts.reform.coh.controller.conversations.DecisionConversationMapper;
+import uk.gov.hmcts.reform.coh.controller.conversations.DecisionReplyConversationMapper;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingMapper;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
@@ -23,9 +25,11 @@ import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Decision;
+import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.service.DecisionReplyService;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
@@ -44,6 +48,9 @@ public class ConversationsController {
 
     @Autowired
     private DecisionService decisionService;
+
+    @Autowired
+    private DecisionReplyService decisionReplyService;
 
     @Autowired
     private QuestionService questionService;
@@ -87,8 +94,22 @@ public class ConversationsController {
         if(optDecision.isPresent()) {
             DecisionResponse decisionResponse = new DecisionResponse();
             DecisionConversationMapper.map(optDecision.get(), decisionResponse);
+            mapDecisionReplies(optDecision.get(), decisionResponse);
             response.setDecisionResponse(decisionResponse);
         }
+    }
+
+    private void mapDecisionReplies(Decision decision, DecisionResponse response) {
+        List<DecisionReply> decisionReplies = decisionReplyService.findAllDecisionReplyByDecision(decision);
+        response.setDecisionReplies(
+            decisionReplies.stream()
+                        .map(dr -> {
+                            DecisionReplyResponse drr = new DecisionReplyResponse();
+                            DecisionReplyConversationMapper.map(dr, drr);
+                            return drr;
+                        })
+                        .collect(Collectors.toList())
+        );
     }
 
     public void mapQuestions(OnlineHearing onlineHearing, OnlineHearingResponse response) {

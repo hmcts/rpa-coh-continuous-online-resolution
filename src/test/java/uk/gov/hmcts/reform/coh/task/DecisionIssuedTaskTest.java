@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;

@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 
 import javax.validation.Valid;
 import java.util.Date;
@@ -166,15 +167,18 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
+        // check that the state is 'decision_issue_pending' or 'decision_drafted'
+        if (!request.getState().equals(DecisionsStates.DECISION_ISSUE_PENDING.getStateName())&&!request.getState().equals(DecisionsStates.DECISION_DRAFTED.getStateName())){
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
+        } else {
+            // If a decision is issued, then there is a deadline to accept or reject it
+            decision.setDeadlineExpiryDate(ExpiryCalendar.getDeadlineExpiryDate());
+        }
+
         // The remaining validation is same as DecisionRequest for create
         ValidationResult result = validation.execute(DecisionRequestValidator.values(), request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
-        }
-
-        // If a decision is issued, then there is a deadline to accept or reject it
-        if (request.getState().equals(DecisionsStates.DECISION_ISSUE_PENDING.getStateName())) {
-            decision.setDeadlineExpiryDate(ExpiryCalendar.getDeadlineExpiryDate());
         }
 
         // Update the decision
