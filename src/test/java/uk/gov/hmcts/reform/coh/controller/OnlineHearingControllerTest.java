@@ -294,7 +294,7 @@ public class OnlineHearingControllerTest {
     @Test
     public void testUpdateNonExistentOnlineHearing() throws Exception {
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.empty());
-        updateOnlineHearingRequest.setState(OnlineHearingStates.QUESTIONS_ISSUED.getStateName());
+        updateOnlineHearingRequest.setState(OnlineHearingStates.STARTED.getStateName());
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)

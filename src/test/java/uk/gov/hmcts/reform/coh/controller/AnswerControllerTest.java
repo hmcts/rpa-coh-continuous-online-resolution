@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
-import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -38,7 +37,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,9 +61,6 @@ public class AnswerControllerTest {
 
     @Mock
     private AnswerStateService answerStateService;
-
-    @Mock
-    private AnswersReceivedTask answersReceivedTask;
 
     @Mock
     private SessionEventService sessionEventService;
@@ -266,7 +261,6 @@ public class AnswerControllerTest {
         assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
         assertEquals(AnswerStates.DRAFTED.getStateName(), answer.getAnswerState().getState());
         verify(sessionEventService, times(0)).createSessionEvent(any(OnlineHearing.class), anyString());
-        verify(answersReceivedTask, times(0)).execute(any(OnlineHearing.class));
     }
 
     @Test
@@ -290,7 +284,6 @@ public class AnswerControllerTest {
         assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
         assertEquals(AnswerStates.SUBMITTED.getStateName(), answer.getAnswerState().getState());
         verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
-        verify(answersReceivedTask, times(1)).execute(any(OnlineHearing.class));
     }
 
     @Test
@@ -362,7 +355,6 @@ public class AnswerControllerTest {
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
-        doNothing().when(answersReceivedTask).execute(any(OnlineHearing.class));
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
@@ -379,13 +371,11 @@ public class AnswerControllerTest {
         savedAnswer.setAnswerId(UUID.randomUUID());
         savedAnswer.setAnswerState(submittedState);
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willReturn(savedAnswer);
-        doNothing().when(answersReceivedTask).execute(any(OnlineHearing.class));
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
                 .andExpect(status().isOk());
         verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
-        verify(answersReceivedTask, times(1)).execute(any(OnlineHearing.class));
     }
 
     @Test
