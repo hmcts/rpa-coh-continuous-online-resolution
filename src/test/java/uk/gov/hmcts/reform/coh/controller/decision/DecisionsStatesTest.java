@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.decision;
 
 import org.junit.Test;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 
 import static org.junit.Assert.assertEquals;
 

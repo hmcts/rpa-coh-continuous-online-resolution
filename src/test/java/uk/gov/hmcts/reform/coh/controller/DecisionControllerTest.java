@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
@@ -334,6 +334,20 @@ public class DecisionControllerTest {
     }
 
     @Test
+    public void testUpdateDecisionToDecisionIssuedFails() throws Exception {
+        given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
+        updateDecisionRequest.setState("decision_issued");
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Invalid state");
+    }
+
+    @Test
     public void testUpdateWithEmptyDecisionHeader() throws Exception {
 
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
@@ -398,7 +412,7 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         given(decisionStateService.retrieveDecisionStateByState("decision_issue_pending")).willReturn(Optional.of(decisionState));
         updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUE_PENDING.getStateName());
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
+            mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
                 .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
