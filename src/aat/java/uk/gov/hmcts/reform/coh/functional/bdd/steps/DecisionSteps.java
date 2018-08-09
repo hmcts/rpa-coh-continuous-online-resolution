@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;

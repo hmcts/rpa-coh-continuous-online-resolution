@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.coh.controller.decisionreplies;
 
-import uk.gov.hmcts.reform.coh.controller.decision.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
