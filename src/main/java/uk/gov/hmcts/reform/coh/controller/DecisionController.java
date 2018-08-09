@@ -105,7 +105,6 @@ public class DecisionController {
         Decision decision = new Decision();
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
-        decision.setAuthorReferenceId(authorReferenceId);
         decision.addDecisionStateHistory(optionalDecisionState.get());
         decision = decisionService.createDecision(decision);
 
