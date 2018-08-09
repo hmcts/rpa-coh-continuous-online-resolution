@@ -197,4 +197,10 @@ public class QuestionRoundService {
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
         return issueQuestionRound(questionState, questions);
     }
+
+    public boolean hasAllQuestionsAnswered(QuestionRound questionRound) {
+        List<Question> questions = questionRound.getQuestionList();
+        
+        return true;
+    }
 }
