@@ -204,7 +204,7 @@ public class DecisionSteps extends BaseSteps {
     @And("^the decision state name is (.*)")
     public void the_question_id_matches(String stateName) throws Throwable {
         DecisionResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
-        assertEquals(stateName, response.getDecisionState().getStateName());
+        assertEquals(stateName, response.getDecisionState().getName());
     }
 
     @And("^the decision expiry date is 7 days in the future")
@@ -221,7 +221,7 @@ public class DecisionSteps extends BaseSteps {
     @And("^the decision state timestamp is today$")
     public void the_question_state_timestamp_is_today() throws Throwable {
         DecisionResponse decision = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
-        assertTrue(decision.getDecisionState().getStateDatetime().contains(df.format(new Date())));
+        assertTrue(decision.getDecisionState().getDatetime().contains(df.format(new Date())));
     }
 
     private String getEndpoint() {

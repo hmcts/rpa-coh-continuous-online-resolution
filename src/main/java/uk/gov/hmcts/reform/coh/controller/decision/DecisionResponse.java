@@ -37,7 +37,7 @@ public class DecisionResponse {
     private List<StateResponse> histories = new ArrayList<>();
 
     @JsonProperty(value = "decision_state")
-    private DecisionState decisionState = new DecisionState();
+    private StateResponse decisionState = new StateResponse();
 
     @JsonProperty(value = "uri")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -104,20 +104,20 @@ public class DecisionResponse {
         this.deadlineExpiryDate = deadlineExpiryDate;
     }
 
-    public DecisionState getDecisionState() {
+    public StateResponse getDecisionState() {
         return decisionState;
     }
 
-    public void setDecisionState(DecisionState decisionState) {
+    public void setDecisionState(StateResponse decisionState) {
         this.decisionState = decisionState;
     }
 
     public void setDecisionStateName(String stateName) {
-        getDecisionState().setStateName(stateName);
+        decisionState.setName(stateName);
     }
 
     public void setDecisionStateDatetime(String stateDatetime) {
-        getDecisionState().setStateDatetime(stateDatetime);
+        decisionState.setDatetime(stateDatetime);
     }
 
     public List<StateResponse> getHistories() {
@@ -144,29 +144,4 @@ public class DecisionResponse {
         return decisionReplyResponses;
     }
 
-    public static class DecisionState {
-
-        @JsonProperty(value = "state_name")
-        private String stateName;
-
-        @JsonProperty(value = "state_datetime")
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        private String stateDatetime;
-
-        public String getStateName() {
-            return stateName;
-        }
-
-        public void setStateName(String stateName) {
-            this.stateName = stateName;
-        }
-
-        public String getStateDatetime() {
-            return stateDatetime;
-        }
-
-        public void setStateDatetime(String stateDatetime) {
-            this.stateDatetime = stateDatetime;
-        }
-    }
 }

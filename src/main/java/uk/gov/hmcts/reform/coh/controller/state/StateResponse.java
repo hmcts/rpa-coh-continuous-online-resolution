@@ -2,11 +2,15 @@ package uk.gov.hmcts.reform.coh.controller.state;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.text.WordUtils;
 
 public class StateResponse {
 
     @JsonProperty(value = "state_name")
     private String name;
+
+    @JsonProperty(value = "state_desc")
+    private String stateDesc;
 
     @JsonProperty(value = "state_datetime")
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
@@ -18,6 +22,7 @@ public class StateResponse {
     public StateResponse(String name, String datetime) {
         this.name = name;
         this.datetime = datetime;
+        this.stateDesc = getStateDesc();
     }
 
     public String getDatetime() {
@@ -36,4 +41,7 @@ public class StateResponse {
         this.name = name;
     }
 
+    public String getStateDesc() {
+        return WordUtils.capitalize(name.replaceAll("_", " "));
+    }
 }
