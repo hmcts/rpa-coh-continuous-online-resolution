@@ -21,6 +21,9 @@ public class OnlineHearingPanelMember {
     @Column(name = "identity_reference")
     private String identityToken;
 
+    @Column(name = "role")
+    private String role;
+
     public Long getOnlineHearingPanelId() {
         return onlineHearingPanelId;
     }
@@ -51,5 +54,13 @@ public class OnlineHearingPanelMember {
 
     public void setIdentityToken(String identityToken) {
         this.identityToken = identityToken;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

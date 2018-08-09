@@ -7,6 +7,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -260,6 +261,18 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(count, getQuestionFromConversationResponse(0).getAnswers().get(0).getHistories().size());
     }
 
+    @And("^the panel member name is '(.*)'$")
+    public void thePanelMemberNameIs(String name) throws Throwable {
+
+        assertEquals(name, getOnlineHearingResponse().getPanel().get(0).getName());
+    }
+
+    @And("^the panel member role is '(.*)'$")
+    public void thePanelMemberRoleIs(String role) throws Throwable {
+
+        assertEquals(role, getOnlineHearingResponse().getPanel().get(0).getRole());
+    }
+
     private ConversationResponse getConversationResponse() throws IOException {
         return JsonUtils
             .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), ConversationResponse.class);
@@ -297,6 +310,11 @@ public class OnlineHearingSteps extends BaseSteps {
 
     private String getExpectedAnswerUri(UUID onlineHearingId, UUID questionId, UUID answerId) {
         return CohUriBuilder.buildAnswerGet(onlineHearingId, questionId, answerId);
+    }
+
+    private OnlineHearingResponse getOnlineHearingResponse() throws Exception {
+        String rawResponseString = testContext.getHttpContext().getRawResponseString();
+        return JsonUtils.toObjectFromJson(rawResponseString, OnlineHearingResponse.class);
     }
 
     private String getExpectedDecisionReplyUri(UUID onlineHearingId, UUID decisionReplyId) {

@@ -5,7 +5,8 @@
   "panel": [
     {
       "identity_token": "judge_123",
-      "name": "Judge Dredd"
+      "name": "Judge Dredd",
+      "role": "Judge"
     }
   ]
 }

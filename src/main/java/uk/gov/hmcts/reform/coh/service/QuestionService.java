@@ -7,11 +7,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
+import uk.gov.hmcts.reform.coh.controller.state.DeadlineExtensionHelper;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.service.exceptions.NoQuestionsAsked;
+import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +39,9 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     private final QuestionStateService questionStateService;
+
+    private QuestionDeadlineUtils deadlineUtils;
+
     private QuestionState issued;
     private QuestionState extensionGranted;
     private QuestionState extensionDenied;
@@ -49,10 +53,11 @@ public class QuestionService {
 
     @Autowired
     public QuestionService(QuestionRepository questionRepository, QuestionStateService questionStateService,
-                           QuestionRoundService questionRoundService) {
+                           QuestionRoundService questionRoundService, QuestionDeadlineUtils deadlineUtils) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
         this.questionRoundService = questionRoundService;
+        this.deadlineUtils = deadlineUtils;
     }
 
     @Transactional
@@ -124,30 +129,38 @@ public class QuestionService {
     }
 
     @Transactional
-    public void requestDeadlineExtension(OnlineHearing onlineHearing) throws NoQuestionsAsked {
+    public DeadlineExtensionHelper requestDeadlineExtension(OnlineHearing onlineHearing) {
         List<Question> questions = findAllQuestionsByOnlineHearing(onlineHearing)
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
-        if (questions.isEmpty()) {
-            throw new NoQuestionsAsked();
-        }
-
-        issued = questionStateService.fetchQuestionState(ISSUED);
-        extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
-        extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
-
         Instant now = Instant.now();
         extension = Duration.ofDays(extensionDays);
+        List<Question> filteredQuestions = questions
+                .stream()
+                .filter(q -> deadlineUtils.isEligibleForDeadlineExtension(q))
+                .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
+                .collect(Collectors.toList());
 
-        questions.stream()
-            .filter(question -> now.isBefore(question.getDeadlineExpiryDate().toInstant()))
-            .forEach(question -> {
-                if (shouldGrantExtensionTo(question)) {
-                    grantDeadlineExtension(question);
-                } else if (shouldDenyExtensionTo(question)) {
-                    denyDeadlineExtension(question);
-                }
-            });
+        DeadlineExtensionHelper helper = new DeadlineExtensionHelper(questions.size(), filteredQuestions.size(), 0, 0);
+        if (filteredQuestions.size() > 0) {
+
+            issued = questionStateService.fetchQuestionState(ISSUED);
+            extensionGranted = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_GRANTED);
+            extensionDenied = questionStateService.fetchQuestionState(QUESTION_DEADLINE_EXTENSION_DENIED);
+
+            filteredQuestions.stream()
+                    .forEach(question -> {
+                        if (shouldGrantExtensionTo(question)) {
+                            helper.getAndIncrementGranted();
+                            grantDeadlineExtension(question);
+                        } else if (shouldDenyExtensionTo(question)) {
+                            helper.getAndIncrementDenied();
+                            denyDeadlineExtension(question);
+                        }
+                    });
+        }
+
+        return helper;
     }
 
     private boolean shouldGrantExtensionTo(Question question) {
