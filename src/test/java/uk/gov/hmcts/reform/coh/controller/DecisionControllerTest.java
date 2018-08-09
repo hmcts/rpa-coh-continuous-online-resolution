@@ -337,9 +337,10 @@ public class DecisionControllerTest {
     public void testUpdateDecisionToDecisionIssuedFails() throws Exception {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         updateDecisionRequest.setState("decision_issued");
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint)
+        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(updateDecisionRequest)))
+                .content(JsonUtils.toJson(updateDecisionRequest))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -411,7 +412,7 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         given(decisionStateService.retrieveDecisionStateByState("decision_issue_pending")).willReturn(Optional.of(decisionState));
         updateDecisionRequest.setState(DecisionsStates.DECISION_ISSUE_PENDING.getStateName());
-        mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
+            mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
                 .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
