@@ -107,9 +107,9 @@ deadline:
 
 event-scheduler:
     event-notifier:
-      fixed-delay: 600000
+      fixed-delay: 60000
     event-trigger:
-      fixed-delay: 600000
+      fixed-delay: 60000
 
 #
 #toggle:
