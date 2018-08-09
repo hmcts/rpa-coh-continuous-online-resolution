@@ -23,4 +23,8 @@ public class CohUriBuilder {
 
         return String.format("/continuous-online-hearings/%s/questions/%s/answers/%s", onlineHearingId, questionId, answerId);
     }
+
+    public static String buildDecisionReplyGet(UUID onlineHearingId, UUID decisionReplyId) {
+        return String.format("/continuous-online-hearings/%s/decisionreplies/%s", onlineHearingId, decisionReplyId);
+    }
 }

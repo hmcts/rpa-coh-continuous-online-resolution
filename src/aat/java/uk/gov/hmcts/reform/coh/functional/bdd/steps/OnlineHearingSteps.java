@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
@@ -33,7 +34,7 @@ public class OnlineHearingSteps extends BaseSteps {
     private UpdateOnlineHearingRequest request;
 
     @Autowired
-    public OnlineHearingSteps(TestContext testContext){
+    public OnlineHearingSteps(TestContext testContext) {
         super(testContext);
     }
 
@@ -49,7 +50,8 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @Given("^a standard online hearing$")
     public void a_standard_online_hearing() throws IOException {
-        OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        OnlineHearingRequest onlineHearingRequest = JsonUtils
+            .toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
         testContext.getScenarioContext().setCurrentOnlineHearingRequest(onlineHearingRequest);
     }
 
@@ -70,16 +72,20 @@ public class OnlineHearingSteps extends BaseSteps {
             if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-                testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
+                testContext.getScenarioContext()
+                    .addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
             } else if ("POST".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(json, header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-                testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
+                testContext.getScenarioContext()
+                    .addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
             } else if ("PUT".equalsIgnoreCase(type)) {
                 HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
-                String onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId().toString();
-                response = restTemplate.exchange(baseUrl + endpoint + "/" + onlineHearingId, HttpMethod.PUT, request, String.class);
+                String onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId()
+                    .toString();
+                response = restTemplate
+                    .exchange(baseUrl + endpoint + "/" + onlineHearingId, HttpMethod.PUT, request, String.class);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             }
 
@@ -112,7 +118,7 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     public String getPutRequest() throws Exception {
-        return  JsonUtils.toJson(testContext.getScenarioContext().getUpdateOnlineHearingRequest());
+        return JsonUtils.toJson(testContext.getScenarioContext().getUpdateOnlineHearingRequest());
     }
 
     @And("^the request contains a random UUID$")
@@ -122,31 +128,35 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @Given("^a standard update online hearing request$")
     public void a_standard_update_online_hearing_request() throws IOException {
-        UpdateOnlineHearingRequest request = JsonUtils.toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
+        UpdateOnlineHearingRequest request = JsonUtils
+            .toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
         testContext.getScenarioContext().setUpdateOnlineHearingRequest(request);
     }
 
     @And("^the update online hearing state is (.*)$")
-    public void the_update_online_hearing_state_is (String stateName) {
+    public void the_update_online_hearing_state_is(String stateName) {
         testContext.getScenarioContext().getUpdateOnlineHearingRequest().setState(stateName);
     }
 
     @Then("^the response contains (\\d) online hearings$")
     public void the_response_contains_no_online_hearings(int count) throws IOException {
-        OnlineHearingsResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
+        OnlineHearingsResponse response = JsonUtils
+            .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
         assertEquals(count, response.getOnlineHearingResponses().size());
     }
 
     @Then("^the response contains online hearing with case '(.*)'$")
     public void the_response_contains_online_hearing_with_case(String caseId) throws IOException {
-        OnlineHearingsResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
+        OnlineHearingsResponse response = JsonUtils
+            .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingsResponse.class);
         assertTrue(response.getOnlineHearingResponses().stream().anyMatch(o -> caseId.equalsIgnoreCase(o.getCaseId())));
     }
 
 
     @Then("^the online hearing state is '(.*)'$")
-    public void the_online_hearing_state_is (String state) throws IOException {
-        OnlineHearingResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
+    public void the_online_hearing_state_is(String state) throws IOException {
+        OnlineHearingResponse response = JsonUtils
+            .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
         assertEquals(state, response.getCurrentState().getName());
     }
 
@@ -194,6 +204,21 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(count, response.getOnlineHearing().getDecisionResponse().getHistories().size());
     }
 
+    @And("^the conversation response contains (\\d+) decision replies$")
+    public void theConversationResponseContainsDecisionReplies(int count) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        assertEquals(count, response.getOnlineHearing().getDecisionResponse().getDecisionReplyResponses().size());
+    }
+
+    @And("^the conversation response contains a decision reply with the correct uri$")
+    public void theConversationResponseContainsADecisionReplyWithTheCorrectUri() throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        String uri = getExpectedDecisionReplyUri(response.getOnlineHearing().getOnlineHearingId(),
+            UUID.fromString(getDecisionReplyFromConversationResponse(0).getDecisionReplyId())
+        );
+        assertEquals(uri, getDecisionReplyFromConversationResponse(0).getUri());
+    }
+
     @And("^the conversation response contains (\\d) question$")
     public void theResponseContainsAQuestion(int count) throws Throwable {
         ConversationResponse response = getConversationResponse();
@@ -204,13 +229,13 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the conversation response contains a question with the correct uri$")
     public void theConversationResponseContainsAQuestionWithAUri() throws Throwable {
         ConversationResponse response = getConversationResponse();
-        String uri = getExpectedQuestionUri(response.getOnlineHearing().getOnlineHearingId(), UUID.fromString(getQuestionFromConversationResponse(0).getQuestionId()));
+        String uri = getExpectedQuestionUri(response.getOnlineHearing().getOnlineHearingId(),
+            UUID.fromString(getQuestionFromConversationResponse(0).getQuestionId()));
         assertEquals(uri, getConversationResponse().getOnlineHearing().getQuestions().get(0).getUri());
     }
 
     @And("^the conversation response contains a question with (\\d) history entries$")
     public void theResponseContainsAQuestionWithHistory(int count) throws Throwable {
-        ConversationResponse response = getConversationResponse();
         assertEquals(count, getQuestionFromConversationResponse(0).getHistories().size());
     }
 
@@ -225,8 +250,8 @@ public class OnlineHearingSteps extends BaseSteps {
     public void theConversationResponseContainsAnAnswerWithAUri() throws Throwable {
         ConversationResponse response = getConversationResponse();
         String uri = getExpectedAnswerUri(response.getOnlineHearing().getOnlineHearingId(),
-                UUID.fromString(getQuestionFromConversationResponse(0).getQuestionId()),
-                UUID.fromString(getAnswerFromConversationResponse(0).getAnswerId())
+            UUID.fromString(getQuestionFromConversationResponse(0).getQuestionId()),
+            UUID.fromString(getAnswerFromConversationResponse(0).getAnswerId())
         );
         assertEquals(uri, getAnswerFromConversationResponse(0).getUri());
     }
@@ -249,7 +274,8 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     private ConversationResponse getConversationResponse() throws IOException {
-        return JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), ConversationResponse.class);
+        return JsonUtils
+            .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), ConversationResponse.class);
     }
 
     private QuestionResponse getQuestionFromConversationResponse(int index) throws IOException {
@@ -262,6 +288,12 @@ public class OnlineHearingSteps extends BaseSteps {
         ConversationResponse response = getConversationResponse();
 
         return response.getOnlineHearing().getQuestions().get(index).getAnswers().get(index);
+    }
+
+    private DecisionReplyResponse getDecisionReplyFromConversationResponse(int index) throws IOException {
+        ConversationResponse response = getConversationResponse();
+
+        return response.getOnlineHearing().getDecisionResponse().getDecisionReplyResponses().get(index);
     }
 
     private String getExpectedOnlineHearingUri(UUID onlineHearingId) {
@@ -282,6 +314,10 @@ public class OnlineHearingSteps extends BaseSteps {
 
     private OnlineHearingResponse getOnlineHearingResponse() throws Exception {
         String rawResponseString = testContext.getHttpContext().getRawResponseString();
-        return  JsonUtils.toObjectFromJson(rawResponseString, OnlineHearingResponse.class);
+        return JsonUtils.toObjectFromJson(rawResponseString, OnlineHearingResponse.class);
+    }
+
+    private String getExpectedDecisionReplyUri(UUID onlineHearingId, UUID decisionReplyId) {
+        return CohUriBuilder.buildDecisionReplyGet(onlineHearingId, decisionReplyId);
     }
 }

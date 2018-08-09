@@ -17,16 +17,19 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.service.DecisionReplyService;
 import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
+import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -35,8 +38,10 @@ import java.util.*;
 
 import static java.util.Arrays.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,6 +63,9 @@ public class ConversationsControllerTest {
 
     @Mock
     private AnswerService answerService;
+
+    @Mock
+    private DecisionReplyService decisionReplyService;
 
     @InjectMocks
     private ConversationsController conversationController;
@@ -97,7 +105,7 @@ public class ConversationsControllerTest {
         onlineHearing.setOnlineHearingId(onlineHearingUuid);
         onlineHearing.setStartDate(new Date());
 
-        OnlineHearingState  onlineHearingState = new OnlineHearingState();
+        OnlineHearingState onlineHearingState = new OnlineHearingState();
         onlineHearingState.setState(STARTED_STATE);
         onlineHearing.setOnlineHearingState(onlineHearingState);
 
@@ -129,6 +137,23 @@ public class ConversationsControllerTest {
         decisionStateHistory.setDecisionstate(decisionState);
         decision.setDecisionStateHistories(asList(decisionStateHistory));
 
+        DecisionReply decisionReply = new DecisionReply();
+        decisionReply.setDecision(decision);
+        decisionReply.setDateOccured(new Date());
+        decisionReply.setDecisionReply(true);
+        decisionReply.setAuthorReferenceId("author ref id");
+        decisionReply.setDecisionReplyReason("decision reply reason");
+        decisionReply.setId(UUID.randomUUID());
+
+        DecisionReply decisionReply2 = new DecisionReply();
+        decisionReply2.setDecision(decision);
+        decisionReply2.setDateOccured(new Date());
+        decisionReply2.setDecisionReply(false);
+        decisionReply2.setAuthorReferenceId("author ref id");
+        decisionReply2.setDecisionReplyReason("decision reply reason");
+        decisionReply2.setId(UUID.randomUUID());
+
+        decision.setDecisionReplies(asList(decisionReply, decisionReply2));
         QuestionState issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
 
@@ -164,18 +189,20 @@ public class ConversationsControllerTest {
 
         when(onlineHearingService.retrieveOnlineHearing(onlineHearingUuid)).thenReturn(Optional.of(onlineHearing));
         when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.of(decision));
-        when(questionService.findAllQuestionsByOnlineHearing(onlineHearing)).thenReturn(Optional.of(asList(question1, question2)));
+        when(questionService.findAllQuestionsByOnlineHearing(onlineHearing))
+            .thenReturn(Optional.of(asList(question1, question2)));
         when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(asList(answer1));
         when(answerService.retrieveAnswersByQuestion(question2)).thenReturn(asList(answer1));
+        when(decisionReplyService.findAllDecisionReplyByDecision(decision)).thenReturn(asList(decisionReply));
     }
 
     @Test
     public void testOnlineHearingNotFound() throws Exception {
         when(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).thenReturn(Optional.empty());
         mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isNotFound());
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(""))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -193,6 +220,19 @@ public class ConversationsControllerTest {
     public void testDecisionFound() throws Exception {
         ConversationResponse response = submitGet();
         assertDecision(response);
+    }
+
+    @Test
+    public void testDecisionRepliesFound() throws Exception {
+        ConversationResponse response = submitGet();
+        assertDecisionReplies(response);
+    }
+
+    @Test
+    public void testDecisionRepliesNotFound() throws Exception {
+        when(decisionReplyService.findAllDecisionReplyByDecision(decision)).thenReturn(Collections.emptyList());
+        ConversationResponse response = submitGet();
+        assertQuestionWithoutDecisionReplies(response);
     }
 
     @Test
@@ -215,15 +255,16 @@ public class ConversationsControllerTest {
         ConversationResponse response = submitGet();
         assertOnlineHearing(response);
         assertDecision(response);
+        assertDecisionReplies(response);
         assertQuestionswithAnswers(response);
     }
 
     private ConversationResponse submitGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get((ENDPOINT))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isOk())
-                .andReturn();
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(""))
+            .andExpect(status().isOk())
+            .andReturn();
 
         return JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), ConversationResponse.class);
     }
@@ -255,6 +296,38 @@ public class ConversationsControllerTest {
         assertNotNull(decisionResponse.getDecisionState().getStateDatetime());
     }
 
+    private void assertDecisionReplies(ConversationResponse response) {
+        List<DecisionReplyResponse> decisionReplyResponses = response.getOnlineHearing().getDecisionResponse()
+            .getDecisionReplyResponses();
+        assertFalse(decisionReplyResponses.isEmpty());
+        assertEquals(decisionReplyResponses.size(), 1);
+
+        int n = 0;
+        for (DecisionReplyResponse replyResponse : decisionReplyResponses) {
+            DecisionReply expectedReply = decision.getDecisionReplies().get(n);
+
+            String replyState =
+                expectedReply.getDecisionReply()
+                    ? DecisionsStates.DECISIONS_ACCEPTED.getStateName()
+                    : DecisionsStates.DECISIONS_REJECTED.getStateName();
+
+            assertEquals(replyState, replyResponse.getDecisionReply());
+            assertEquals(CohISO8601DateFormat.format(expectedReply.getDateOccured()),
+                replyResponse.getDecisionReplyDate());
+            assertEquals(expectedReply.getDecision().getDecisionId().toString(), replyResponse.getDecisionId());
+            assertEquals(expectedReply.getAuthorReferenceId(), replyResponse.getAuthorReference());
+            assertEquals(expectedReply.getId().toString(), replyResponse.getDecisionReplyId());
+            assertEquals(expectedReply.getDecisionReplyReason(), replyResponse.getDecisionReplyReason());
+            n++;
+        }
+    }
+
+    private void assertQuestionWithoutDecisionReplies(ConversationResponse response) {
+        List<DecisionReplyResponse> decisionReplyResponses = response.getOnlineHearing().getDecisionResponse()
+            .getDecisionReplyResponses();
+        assertNull(decisionReplyResponses);
+    }
+
     private void assertQuestionswithAnswers(ConversationResponse response) {
         assertQuestions(response, true);
     }
@@ -278,7 +351,8 @@ public class ConversationsControllerTest {
                 assertNotNull(answerResponse.getStateResponse().getDatetime());
                 assertEquals(1, answerResponse.getHistories().size());
                 assertEquals(ANSWER_DRAFTED, answerResponse.getHistories().get(0).getName());
-                assertEquals(answerResponse.getStateResponse().getDatetime(), answerResponse.getHistories().get(0).getDatetime());
+                assertEquals(answerResponse.getStateResponse().getDatetime(),
+                    answerResponse.getHistories().get(0).getDatetime());
             } else {
                 assertNull(question.getAnswers());
             }
