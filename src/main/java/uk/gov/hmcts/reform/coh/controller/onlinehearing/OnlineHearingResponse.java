@@ -136,6 +136,7 @@ public class OnlineHearingResponse implements Serializable {
         private String name;
 
         @JsonProperty("role")
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         private String role;
 
         public PanelMember() {

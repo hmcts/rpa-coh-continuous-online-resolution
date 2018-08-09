@@ -143,7 +143,6 @@ public class OnlineHearingSteps extends BaseSteps {
         assertTrue(response.getOnlineHearingResponses().stream().anyMatch(o -> caseId.equalsIgnoreCase(o.getCaseId())));
     }
 
-
     @Then("^the online hearing state is '(.*)'$")
     public void the_online_hearing_state_is (String state) throws IOException {
         OnlineHearingResponse response = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
@@ -154,6 +153,13 @@ public class OnlineHearingSteps extends BaseSteps {
     public void theResponseContainsAnOnlineHearing() throws Throwable {
         ConversationResponse response = getConversationResponse();
         assertNotNull(response.getOnlineHearing());
+    }
+
+    @And("^the conversation response contains an online hearing with state desc of '(.*)'$")
+    public void theConversationResponseContainsAnOnlineHearingWithStateDesc(String desc) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        String uri = getExpectedOnlineHearingUri(response.getOnlineHearing().getOnlineHearingId());
+        assertEquals(desc, getConversationResponse().getOnlineHearing().getCurrentState().getStateDesc());
     }
 
     @And("^the conversation response contains an online hearing with the correct uri$")
@@ -167,6 +173,12 @@ public class OnlineHearingSteps extends BaseSteps {
     public void theResponseContainsAnOnlineHearingWithHistory(int count) throws Throwable {
         ConversationResponse response = getConversationResponse();
         assertEquals(count, response.getOnlineHearing().getHistories().size());
+    }
+
+    @And("^the conversation response contains an online hearing with 1 history entry  with state desc of '(.*)'$")
+    public void theResponseContainsAnOnlineHearingWithHistory(String stateName) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        assertEquals(stateName, response.getOnlineHearing().getHistories().get(0).getStateDesc());
     }
 
     @And("^the conversation response contains a decision$")
@@ -188,6 +200,19 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(uri, getConversationResponse().getOnlineHearing().getDecisionResponse().getUri());
     }
 
+    @And("^the conversation response contains a decision with state desc of '(.*)'$")
+    public void theConversationResponseContainsADecisionWithStateDesc(String stateDesc) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        String uri = getExpectedDecisionUri(response.getOnlineHearing().getOnlineHearingId());
+        assertEquals(stateDesc, getConversationResponse().getOnlineHearing().getDecisionResponse().getDecisionState().getStateDesc());
+    }
+
+    @And("^the conversation response contains a decision with 1 history entry with state desc of '(.*)'$")
+    public void theResponseContainsADecisionWithHistory(String stateDesc) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        assertEquals(stateDesc, response.getOnlineHearing().getDecisionResponse().getHistories().get(0).getStateDesc());
+    }
+
     @And("^the conversation response contains a decision with (\\d) history entries$")
     public void theResponseContainsADecisionWithHistory(int count) throws Throwable {
         ConversationResponse response = getConversationResponse();
@@ -206,6 +231,19 @@ public class OnlineHearingSteps extends BaseSteps {
         ConversationResponse response = getConversationResponse();
         String uri = getExpectedQuestionUri(response.getOnlineHearing().getOnlineHearingId(), UUID.fromString(getQuestionFromConversationResponse(0).getQuestionId()));
         assertEquals(uri, getConversationResponse().getOnlineHearing().getQuestions().get(0).getUri());
+    }
+
+    @And("^the conversation response contains a question with state desc of '(.*)'$")
+    public void theConversationResponseContainsAQuestionWithAStateDesc(String stateDesc) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        String uri = getExpectedQuestionUri(response.getOnlineHearing().getOnlineHearingId(), UUID.fromString(getQuestionFromConversationResponse(0).getQuestionId()));
+        assertEquals(stateDesc, getConversationResponse().getOnlineHearing().getQuestions().get(0).getCurrentState().getStateDesc());
+    }
+
+    @And("^the conversation response contains a question with 1 history entry with state desc of '(.*)'$")
+    public void theResponseContainsAQuestionWithHistory(String stateName) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        assertEquals(stateName, getQuestionFromConversationResponse(0).getHistories().get(0).getStateDesc());
     }
 
     @And("^the conversation response contains a question with (\\d) history entries$")
@@ -231,9 +269,20 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(uri, getAnswerFromConversationResponse(0).getUri());
     }
 
+    @And("^the conversation response contains an answer with state desc of '(.*)'$")
+    public void theConversationResponseContainsAnAnswerWithAStateDesc(String stateDesc) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        assertEquals(stateDesc, getAnswerFromConversationResponse(0).getStateResponse().getStateDesc());
+    }
+
     @And("^the conversation response contains an answer with (\\d) history entries$")
     public void theResponseContainsAnAnswerWithHistory(int count) throws Throwable {
         assertEquals(count, getQuestionFromConversationResponse(0).getAnswers().get(0).getHistories().size());
+    }
+
+    @And("^the conversation response contains an answer with 1 history entry with state desc of '(.*)'$")
+    public void theResponseContainsAnAnswerWithHistoryStateDesc(String stateDesc) throws Throwable {
+        assertEquals(stateDesc, getQuestionFromConversationResponse(0).getAnswers().get(0).getHistories().get(0).getStateDesc());
     }
 
     @And("^the panel member name is '(.*)'$")

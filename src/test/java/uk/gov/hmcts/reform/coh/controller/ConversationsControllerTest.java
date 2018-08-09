@@ -251,8 +251,8 @@ public class ConversationsControllerTest {
         assertEquals("Decision reason", decisionResponse.getDecisionReason());
         assertEquals("Decision award", decisionResponse.getDecisionAward());
         assertEquals(CohISO8601DateFormat.format(expiryDate), decisionResponse.getDeadlineExpiryDate());
-        assertEquals(decisionState.getState(), decisionResponse.getDecisionState().getStateName());
-        assertNotNull(decisionResponse.getDecisionState().getStateDatetime());
+        assertEquals(decisionState.getState(), decisionResponse.getDecisionState().getName());
+        assertNotNull(decisionResponse.getDecisionState().getDatetime());
     }
 
     private void assertQuestionswithAnswers(ConversationResponse response) {
