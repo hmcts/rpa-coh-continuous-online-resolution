@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import java.util.stream.Collectors;
 
 public class OnlineHearingMapper {
+
     public static void map(OnlineHearingResponse response, OnlineHearing onlineHearing) {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         response.setCaseId(onlineHearing.getCaseId());
@@ -16,7 +17,7 @@ public class OnlineHearingMapper {
         }
         response.setPanel(onlineHearing.getPanelMembers()
                 .stream()
-                .map( p -> new OnlineHearingResponse.PanelMember(p.getFullName()))
+                .map( p -> new OnlineHearingResponse.PanelMember(p.getFullName(), p.getRole()))
                 .collect(Collectors.toList()));
         response.getCurrentState().setName(onlineHearing.getOnlineHearingState().getState());
 

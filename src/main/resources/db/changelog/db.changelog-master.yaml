@@ -8,4 +8,8 @@ databaseChangeLog:
 
   - include:
       relativeToChangelogFile: true
+      file: db.changelog-diff-20180807-1930.yaml
+
+  - include:
+      relativeToChangelogFile: true
       file: db-data-changelog.yaml

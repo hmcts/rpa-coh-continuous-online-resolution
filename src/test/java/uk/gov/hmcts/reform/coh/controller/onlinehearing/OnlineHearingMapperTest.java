@@ -53,6 +53,7 @@ public class OnlineHearingMapperTest {
 
         OnlineHearingPanelMember member = new OnlineHearingPanelMember();
         member.setFullName("foo bar");
+        member.setRole("judge");
         onlineHearing.setPanelMembers(Arrays.asList(member));
     }
 
@@ -66,6 +67,7 @@ public class OnlineHearingMapperTest {
         assertEquals(CohISO8601DateFormat.format(endDate.getTime()), response.getEndDate());
         assertEquals(1, response.getPanel().size());
         assertEquals("foo bar", response.getPanel().get(0).getName());
+        assertEquals("judge", response.getPanel().get(0).getRole());
         assertEquals(startState.getState(), response.getCurrentState().getName());
         assertEquals(2, response.getHistories().size());
         assertEquals(relistedState.getState(), response.getHistories().get(1).getName());

@@ -1,0 +1,11 @@
+databaseChangeLog:
+- changeSet:
+    id: 1533666669528-1
+    author: johnho (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: role
+            type: varchar(255)
+        tableName: online_hearing_panel_member

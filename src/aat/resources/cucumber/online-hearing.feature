@@ -23,6 +23,8 @@ Feature: Online hearing
     Then the response code is 200
     And the response contains the following text '"case_123" '
     And the response contains 1 panel member
+    And the panel member name is 'Judge Dredd'
+    And the panel member role is 'Judge'
 
   Scenario: Update online hearing state to relisted
     Given a standard update online hearing request
