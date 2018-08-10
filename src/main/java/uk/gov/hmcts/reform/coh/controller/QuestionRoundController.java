@@ -63,7 +63,9 @@ public class QuestionRoundController {
 
         for (QuestionRound round : questionRounds) {
             if (questionRoundService.hasAllQuestionsAnswered(round)) {
-                round.setQuestionRoundState("questions_answered");
+                QuestionRoundState state = new QuestionRoundState();
+                state.setState("questions_answered");
+                round.setQuestionRoundState(state);
             }
         }
 
