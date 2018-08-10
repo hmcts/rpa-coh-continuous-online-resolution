@@ -71,20 +71,18 @@ info:
     name: ${PACKAGES_NAME:cor}
 #    version: ${PACKAGES_VERSION:unknown}
 
-#auth:
-#  idam:
-#    client:
-#      baseUrl: ${IDAM_USER_BASE_URI:http://localhost:4501}
-#  provider:
-#    service:
-#      client:
-#        baseUrl: ${S2S_BASE_URI:http://localhost:4502}
-#
-#
-#authorization:
-#  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:solicitor}
-#  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw}
-#
+auth:
+  idam:
+    client:
+      baseUrl: ${IDAM_USER_BASE_URI:http://localhost:4501}
+  provider:
+    service:
+      client:
+        baseUrl: ${IDAM_S2S_BASE_URI:http://localhost:4502}
+
+authorization:
+  roles: ${AUTHORIZATION_ROLES:solicitor}
+  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw}
 
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
