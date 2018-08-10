@@ -281,7 +281,7 @@ public class DecisionControllerTest {
         assertEquals(expected.getDecisionReason(), actual.getDecisionReason());
         assertEquals(expected.getDecisionAward(), actual.getDecisionAward());
         assertEquals(expected.getDeadlineExpiryDate(), actual.getDeadlineExpiryDate());
-        assertEquals(expected.getDecisionState().getStateName(), actual.getDecisionState().getStateName());
+        assertEquals(expected.getDecisionState().getName(), actual.getDecisionState().getName());
     }
 
     @Test

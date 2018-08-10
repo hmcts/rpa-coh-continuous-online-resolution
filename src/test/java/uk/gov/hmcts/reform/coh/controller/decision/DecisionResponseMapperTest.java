@@ -70,10 +70,10 @@ public class DecisionResponseMapperTest {
         assertEquals(decision.getDecisionReason(), response.getDecisionReason());
         assertEquals(decision.getDecisionAward(), response.getDecisionAward());
         assertEquals(CohISO8601DateFormat.format(decision.getDeadlineExpiryDate()), response.getDeadlineExpiryDate());
-        assertEquals(decision.getDecisionstate().getState(), response.getDecisionState().getStateName());
+        assertEquals(decision.getDecisionstate().getState(), response.getDecisionState().getName());
 
         // This checks the sorting works
-        assertEquals(CohISO8601DateFormat.format(history2.getDateOccured()), response.getDecisionState().getStateDatetime());
+        assertEquals(CohISO8601DateFormat.format(history2.getDateOccured()), response.getDecisionState().getDatetime());
     }
 
     @Test
@@ -116,6 +116,6 @@ public class DecisionResponseMapperTest {
 
 
         // This checks the sorting works
-        assertNull(response.getDecisionState().getStateDatetime());
+        assertNull(response.getDecisionState().getDatetime());
     }
 }
