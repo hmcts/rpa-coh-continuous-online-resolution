@@ -58,9 +58,10 @@ public class ConversationsController {
     @Autowired
     private AnswerService answerService;
 
+
     @ApiOperation(value = "Get a conversation", notes = "A GET request to retrieve an online hearing conversation")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 200, message = "OK", response =  ConversationResponse.class),
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)

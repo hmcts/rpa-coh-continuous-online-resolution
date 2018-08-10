@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 1533894083096-1
+    author: johnho (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: relist_reason
+            type: CLOB
+        tableName: online_hearing
+
