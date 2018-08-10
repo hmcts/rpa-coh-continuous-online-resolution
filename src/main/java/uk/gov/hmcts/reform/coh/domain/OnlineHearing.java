@@ -1,8 +1,5 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
 
 import java.util.ArrayList;
@@ -46,6 +43,9 @@ public class OnlineHearing {
     @JoinColumn(name = "online_hearing_state_id")
     private OnlineHearingState onlineHearingState;
 
+    @Column(name = "relist_reason", columnDefinition="CLOB")
+    private String relistReason;
+
     public void setOnlineHearingStateHistories(List<OnlineHearingStateHistory> onlineHearingStateHistories) {
         this.onlineHearingStateHistories = onlineHearingStateHistories;
     }
@@ -75,7 +75,6 @@ public class OnlineHearing {
     public void setCaseId(String caseId) {
         this.caseId = caseId;
     }
-
 
     public List<OnlineHearingPanelMember> getPanelMembers() {
         return panelMembers;
@@ -151,5 +150,13 @@ public class OnlineHearing {
 
     public String getJurisdictionName() {
         return this.jurisdictionName;
+    }
+
+    public String getRelistReason() {
+        return relistReason;
+    }
+
+    public void setRelistReason(String relistReason) {
+        this.relistReason = relistReason;
     }
 }

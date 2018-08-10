@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
@@ -50,6 +51,10 @@ public class OnlineHearingResponse implements Serializable {
     @JsonProperty(value = "questions")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<QuestionResponse> questions;
+
+    @JsonProperty(value = "relist_reason")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String relistReason;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -129,6 +134,14 @@ public class OnlineHearingResponse implements Serializable {
 
     public void setQuestions(List<QuestionResponse> questions) {
         this.questions = questions;
+    }
+
+    public String getRelistReason() {
+        return relistReason;
+    }
+
+    public void setRelistReason(String relistReason) {
+        this.relistReason = relistReason;
     }
 
     public static class PanelMember {
