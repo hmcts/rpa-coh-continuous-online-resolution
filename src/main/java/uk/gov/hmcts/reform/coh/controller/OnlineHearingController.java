@@ -23,11 +23,15 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.*;
 
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.*;
+
 @RestController
 @RequestMapping("/continuous-online-hearings")
 public class OnlineHearingController {
 
     private static final String STARTING_STATE = OnlineHearingStates.STARTED.getStateName();
+
+    private static Set<String> permittedUpdateStates;
 
     @Autowired
     private OnlineHearingService onlineHearingService;
@@ -49,7 +53,7 @@ public class OnlineHearingController {
             @ApiResponse(code = 404, message = "Not Found")
     })
     @GetMapping(value = "{onlineHearingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<OnlineHearingResponse> retrieveOnlineHearing(@PathVariable String onlineHearingId ) {
+    public ResponseEntity<OnlineHearingResponse> retrieveOnlineHearing(@PathVariable String onlineHearingId) {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.fromString(onlineHearingId));
@@ -102,20 +106,21 @@ public class OnlineHearingController {
             @ApiImplicitParam(name = "jurisdiction", value = "Accepted value is SSCS", required = true),
             @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true),
             @ApiImplicitParam(name = "panel", value = "Panel members", required = true),
-            @ApiImplicitParam(name = "panel.identity_token", value = "IDAM Token of Panel Member", required = true),
             @ApiImplicitParam(name = "panel.name", value = "Name of Panel Member", required = true),
+            @ApiImplicitParam(name = "panel.identity_token", value = "IDAM Token of Panel Member"),
+            @ApiImplicitParam(name = "panel.role", value = "The role of the Panel Member"),
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createOnlineHearing(UriComponentsBuilder uriBuilder, @RequestBody OnlineHearingRequest body) {
 
         if (!onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList(body.getCaseId())).isEmpty()) {
-             return new ResponseEntity<>("Duplicate case found", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Duplicate case found", HttpStatus.CONFLICT);
         }
 
         OnlineHearing onlineHearing = new OnlineHearing();
         Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
-        ValidationResult validationResult = validate(body, onlineHearingState,jurisdiction );
+        ValidationResult validationResult = validate(body, onlineHearingState, jurisdiction);
         if (!validationResult.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
         }
@@ -172,28 +177,51 @@ public class OnlineHearingController {
     public ResponseEntity updateOnlineHearingState(@PathVariable UUID onlineHearingId, @RequestBody UpdateOnlineHearingRequest request) {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
-        if (!optionalOnlineHearing.isPresent()){
+        if (!optionalOnlineHearing.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
         }
 
         Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(request.getState());
 
-        if (!optionalOnlineHearingState.isPresent()){
+        if (!optionalOnlineHearingState.isPresent()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         }
 
-        if (!optionalOnlineHearingState.get().getState().equals(OnlineHearingStates.RELISTED.getStateName())){
+        OnlineHearing onlineHearing = optionalOnlineHearing.get();
+        if (!isPermittedUpdateState(request.getState())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Changing Online hearing state to " + request.getState() + " is not permitted");
         }
+        if (!isOnlineHearingStillLive(onlineHearing)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Online hearing has already ended");
+        }
 
-        OnlineHearing onlineHearing = optionalOnlineHearing.get();
         onlineHearing.setOnlineHearingState(optionalOnlineHearingState.get());
+        if (RELISTED.getStateName().equals(request.getState())) {
+            onlineHearing.setEndDate((new GregorianCalendar(TimeZone.getTimeZone("GMT")).getTime()));
+            onlineHearing.setRelistReason(request.getReason());
+        }
         onlineHearing.registerStateChange();
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.ok("Online hearing updated");
     }
 
+    private boolean isPermittedUpdateState(String state) {
+        if (permittedUpdateStates == null) {
+            permittedUpdateStates = new HashSet<>();
+            permittedUpdateStates.add(RELISTED.getStateName());
+        }
+
+        return permittedUpdateStates.contains(state);
+    }
+
+    private boolean isOnlineHearingStillLive(OnlineHearing onlineHearing) {
+        if (onlineHearing.getEndDate() != null) {
+            return false;
+        }
+
+        return true;
+    }
 
     private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
         ValidationResult result = new ValidationResult();

@@ -7,7 +7,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -138,6 +137,11 @@ public class OnlineHearingSteps extends BaseSteps {
         testContext.getScenarioContext().getUpdateOnlineHearingRequest().setState(stateName);
     }
 
+    @And("^the relist reason is '(.*)'$")
+    public void theRelistReasonIs(String reason) throws Exception {
+        testContext.getScenarioContext().getUpdateOnlineHearingRequest().setReason(reason);
+    }
+
     @Then("^the response contains (\\d) online hearings$")
     public void the_response_contains_no_online_hearings(int count) throws IOException {
         OnlineHearingsResponse response = JsonUtils
@@ -153,10 +157,8 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     @Then("^the online hearing state is '(.*)'$")
-    public void the_online_hearing_state_is(String state) throws IOException {
-        OnlineHearingResponse response = JsonUtils
-            .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), OnlineHearingResponse.class);
-        assertEquals(state, response.getCurrentState().getName());
+    public void the_online_hearing_state_is(String state) throws Exception {
+        assertEquals(state, getOnlineHearingResponse().getCurrentState().getName());
     }
 
     @And("^the conversation response contains an online hearing$")
@@ -320,6 +322,16 @@ public class OnlineHearingSteps extends BaseSteps {
     public void thePanelMemberRoleIs(String role) throws Throwable {
 
         assertEquals(role, getOnlineHearingResponse().getPanel().get(0).getRole());
+    }
+
+    @And("^the online hearing end date is not null$")
+    public void theOnlineHearingExpiryDateIsNotNull() throws Throwable {
+        assertNotNull(getOnlineHearingResponse().getEndDate());
+    }
+
+    @And("^the online hearing reason is '(.*)'$")
+    public void theOnlineHearingReasonIsReason(String reason) throws Throwable {
+        assertEquals(reason, getOnlineHearingResponse().getRelistReason());
     }
 
     private ConversationResponse getConversationResponse() throws IOException {
