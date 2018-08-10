@@ -73,6 +73,19 @@ info:
     project: ${PACKAGES_PROJECT:coh}
     name: ${PACKAGES_NAME:cor}
 
+auth:
+  idam:
+    client:
+      baseUrl: ${IDAM_USER_BASE_URI:http://localhost:4501}
+  provider:
+    service:
+      client:
+        baseUrl: ${IDAM_S2S_BASE_URI:http://localhost:4502}
+
+authorization:
+  roles: ${AUTHORIZATION_ROLES:solicitor}
+  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw}
+
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
   application-insights:
