@@ -19,7 +19,7 @@ Feature: Answers
     And the response headers contains a location to the created entity
     And send get request to the location
     And the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     And there is no event queued for this online hearing of event type answers_submitted
     When the get request is sent to retrieve the submitted question
     And the question state name is question_issued
@@ -28,7 +28,7 @@ Feature: Answers
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
-    And wait until the event is processed
+    And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
     And the endpoint is for submitting an answer
@@ -37,7 +37,7 @@ Feature: Answers
     And the response headers contains a location to the created entity
     And send get request to the location
     And the response code is 200
-    And wait until the event is processed
+    And the notification scheduler runs
     And an event has been queued for this online hearing of event type answers_submitted
     When the get request is sent to retrieve the submitted question
     And the question state name is question_answered
