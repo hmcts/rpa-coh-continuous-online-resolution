@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 import java.util.List;
@@ -8,15 +9,19 @@ import java.util.List;
 public class OnlineHearingRequest {
 
     @JsonProperty("case_id")
+    @ApiModelProperty(required = true)
     private String caseId;
 
     @JsonProperty("jurisdiction")
+    @ApiModelProperty(required = true)
     private String jurisdiction;
 
     @JsonProperty("start_date")
+    @ApiModelProperty(required = true)
     private Date startDate;
 
     @JsonProperty("panel")
+    @ApiModelProperty(required = true)
     private List<PanelMember> panel;
 
     @JsonProperty("state")
@@ -64,9 +69,11 @@ public class OnlineHearingRequest {
 
     public static class PanelMember {
 
+        @ApiModelProperty(required = true)
         @JsonProperty("identity_token")
         private String identityToken;
 
+        @ApiModelProperty(required = true)
         @JsonProperty("name")
         private String name;
 
