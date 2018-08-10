@@ -7,11 +7,22 @@ public class UpdateOnlineHearingRequest {
     @JsonProperty(value = "online_hearing_state")
     private String state;
 
+    @JsonProperty(value = "reason")
+    private String reason;
+
     public String getState() {
         return state;
     }
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }
