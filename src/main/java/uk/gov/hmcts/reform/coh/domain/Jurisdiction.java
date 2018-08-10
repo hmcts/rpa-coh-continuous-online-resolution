@@ -13,7 +13,7 @@ public class Jurisdiction {
     @Column(name = "jurisdiction_id")
     private Long jurisdictionId;
 
-    @Column(name = "jurisdiction_name")
+    @Column(name = "jurisdiction_name", unique = true)
     private String jurisdictionName;
 
     @Column(name = "max_question_rounds")
