@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class UpdateDecisionRequest extends DecisionRequest {
 
+    @ApiModelProperty(required = true, allowableValues = "decision_issue_pending, decision_drafted")
     @JsonProperty(value = "decision_state")
     private String state;
 
