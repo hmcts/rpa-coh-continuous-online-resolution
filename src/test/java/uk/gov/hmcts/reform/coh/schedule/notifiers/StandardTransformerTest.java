@@ -53,5 +53,6 @@ public class StandardTransformerTest {
         List<String> supports = standardTransformer.supports();
         assertTrue(supports.contains(EventTypes.ANSWERS_SUBMITTED.getEventType()));
         assertTrue(supports.contains(EventTypes.QUESTION_DEADLINE_ELAPSED.getEventType()));
+        assertTrue(supports.contains(EventTypes.QUESTION_DEADLINE_EXTENSION_DENIED.getEventType()));
     }
 }

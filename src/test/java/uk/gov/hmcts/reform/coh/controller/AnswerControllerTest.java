@@ -298,7 +298,7 @@ public class AnswerControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        assertEquals("{\"answer_id\":\"" + uuid +"\",\"answer_text\":\"foo\",\"current_answer_state\":{\"state_name\":\"answer_drafted\"}}", response);
+        assertEquals("{\"answer_id\":\"" + uuid +"\",\"answer_text\":\"foo\",\"current_answer_state\":{\"state_name\":\"answer_drafted\",\"state_desc\":\"Answer Drafted\"}}", response);
         AnswerResponse getAnswer = JsonUtils.toObjectFromJson(response, AnswerResponse.class);
         assertEquals(uuid.toString(), getAnswer.getAnswerId());
         assertEquals("foo", getAnswer.getAnswerText());
