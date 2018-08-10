@@ -1,0 +1,10 @@
+databaseChangeLog:
+- changeSet:
+    id: 1533912702120-1
+    author: phill (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: jurisdiction_name
+        constraintName: UC_JURISDICTIONJURISDICTION_NAME_COL
+        tableName: jurisdiction
+
