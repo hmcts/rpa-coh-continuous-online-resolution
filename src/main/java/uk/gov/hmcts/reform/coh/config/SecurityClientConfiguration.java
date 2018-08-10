@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import uk.gov.hmcts.reform.auth.checker.core.RequestAuthorizer;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 import javax.servlet.http.HttpServletRequest;
 
 @Configuration
+@Profile("!cucumber")
 public class SecurityClientConfiguration {
 
     @Value("${authorization.roles}")
