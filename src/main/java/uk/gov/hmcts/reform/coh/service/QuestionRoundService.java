@@ -34,7 +34,7 @@ public class QuestionRoundService {
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED);
+        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED) || questionRoundState.getState().equals("questions_answered");
     }
 
     public boolean isFirstRound(int currentRoundNumber) {
