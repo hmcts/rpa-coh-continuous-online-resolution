@@ -1,6 +1,6 @@
 Feature: Question Round Logic
 
-  Scenario: Create question round from 1 to 3
+  Scenario: Create question round from 1 to 4 for unlimited rounds
     Given a standard online hearing is created
     And a standard question
     Given the question round is ' "1" '
@@ -19,6 +19,12 @@ Feature: Question Round Logic
     When the post request is sent to create the question
     Then the response code is 201
     When the put request is sent to issue the question round ' "3" '
+    Then the response code is 200
+    And the notification scheduler runs
+    Given the question round is ' "4" '
+    When the post request is sent to create the question
+    Then the response code is 201
+    When the put request is sent to issue the question round ' "4" '
     Then the response code is 200
 
   Scenario: If no jurisdiction question round limit is set then still validate question round
