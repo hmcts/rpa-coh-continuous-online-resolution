@@ -11,7 +11,7 @@ public class DecisionReplyRequest {
     @JsonProperty("decision_reply")
     @NotNull(message = "Decision reply required")
     @NotBlank(message = "Decision reply required")
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = true, allowableValues = "decision_accepted, decision_rejected")
     private String decisionReply;
 
     @JsonProperty("decision_reply_reason")

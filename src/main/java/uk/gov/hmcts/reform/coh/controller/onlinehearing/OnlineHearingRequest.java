@@ -13,11 +13,11 @@ public class OnlineHearingRequest {
     private String caseId;
 
     @JsonProperty("jurisdiction")
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = true, allowableValues = "SSCS")
     private String jurisdiction;
 
     @JsonProperty("start_date")
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(value = "The start date of the online resolution")
     private Date startDate;
 
     @JsonProperty("panel")

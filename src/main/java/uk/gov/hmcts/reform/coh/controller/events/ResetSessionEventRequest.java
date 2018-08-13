@@ -9,7 +9,7 @@ public class ResetSessionEventRequest {
 
     @JsonProperty("jurisdiction")
     @NotNull(message = "Jurisdiction Required")
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(required = true, allowableValues = "SSCS")
     private String jurisdiction;
 
     @JsonProperty("event_type")
