@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 public class UpdateOnlineHearingRequest {
 
     @JsonProperty(value = "online_hearing_state")
+    @ApiModelProperty(required = true, allowableValues = "continuous_online_hearing_relisted")
     private String state;
 
     @JsonProperty(value = "reason")
