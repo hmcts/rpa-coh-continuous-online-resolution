@@ -17,24 +17,24 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
-    private AnswerService answerService;
+
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
     public static final String ISSUE_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
+    public static final String QUESTIONS_ANSWERED = "questions_answered";
+
 
     public QuestionRoundService() {}
 
     @Autowired
     public QuestionRoundService(QuestionRepository questionRepository,
-                                QuestionStateService questionStateService,
-                                AnswerService answerService) {
+                                QuestionStateService questionStateService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
-        this.answerService = answerService;
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED) || questionRoundState.getState().equals("questions_answered");
+        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED) || questionRoundState.getState().equals(QUESTIONS_ANSWERED);
     }
 
     public boolean isFirstRound(int currentRoundNumber) {
@@ -48,7 +48,7 @@ public class QuestionRoundService {
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
         if(!isFirstRound(currentRoundNumber) && isIncremented(question.getQuestionRound(), currentRoundNumber)
-                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName())){
+                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName()) && !currentState.getState().equals(QUESTIONS_ANSWERED)){
             throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
 
@@ -124,6 +124,12 @@ public class QuestionRoundService {
             }
             return new QuestionRoundState(optionalDraftedState.get());
         }
+        boolean answered = hasAllQuestionsAnswered(questionRound);
+        if (answered) {
+            QuestionRoundState state = new QuestionRoundState();
+            state.setState(QUESTIONS_ANSWERED);
+            return state;
+            }
         return new QuestionRoundState(questions.get(0).getQuestionState());
     }
 
@@ -205,9 +211,9 @@ public class QuestionRoundService {
     public boolean hasAllQuestionsAnswered(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
         for (Question question: questions) {
-            List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
-           if (answers.isEmpty()) {
-               return false;
+            QuestionState questionState = question.getQuestionState();
+            if (!questionState.getState().equals(QuestionStates.ANSWERED.getStateName())) {
+                return false;
             }
         }
         return true;
