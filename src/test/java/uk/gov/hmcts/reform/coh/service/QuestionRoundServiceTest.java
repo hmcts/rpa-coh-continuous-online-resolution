@@ -36,6 +36,7 @@ public class QuestionRoundServiceTest {
     private QuestionState submittedState;
     private QuestionState issuedState;
     private QuestionState issuedPendingState;
+    private QuestionRoundState questionsAnsweredState;
     private List<Question> questionRound1Questions;
 
     @Mock
@@ -48,6 +49,7 @@ public class QuestionRoundServiceTest {
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
     private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
+    private static final String questionsAnsweredStateName = "questions_answered";
 
     @Before
     public void setup(){
@@ -259,6 +261,13 @@ public class QuestionRoundServiceTest {
         QuestionRoundState questionRoundState = new QuestionRoundState();
         questionRoundState.setState(submittedState);
         assertFalse(questionRoundService.isState(questionRoundState, draftedState));
+    }
+
+    @Test
+    public void testQuestionRoundStateIsQuestionsAnsweredWhenAllQuestionsAnswered() {
+        QuestionRoundState questionRoundState = new QuestionRoundState();
+        questionRoundState.setState("questions_answered");
+        assertTrue(questionRoundService.isState(questionRoundState, ));
     }
 
     @Test
