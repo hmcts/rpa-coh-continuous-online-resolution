@@ -19,16 +19,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
-import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -56,6 +50,9 @@ public class QuestionRoundControllerTest {
 
     @Mock
     private SessionEventService sessionEventService;
+
+    @Mock
+    private AnswerService answerService;
 
     @InjectMocks
     private QuestionRoundController questionRoundController;
@@ -126,6 +123,7 @@ public class QuestionRoundControllerTest {
     @Test
     public void testGetAllQuestionRounds() throws Exception {
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);
+        given(answerService.retrieveAnswersByQuestion(any(Question.class))).willReturn((Collections.emptyList()));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))

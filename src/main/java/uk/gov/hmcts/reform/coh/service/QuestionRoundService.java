@@ -124,12 +124,19 @@ public class QuestionRoundService {
             }
             return new QuestionRoundState(optionalDraftedState.get());
         }
-        boolean answered = hasAllQuestionsAnswered(questionRound);
-        if (answered) {
-            QuestionRoundState state = new QuestionRoundState();
+
+        QuestionRoundState state = new QuestionRoundState();
+        if (hasAllQuestionsAnswered(questionRound)) {
             state.setState(QUESTIONS_ANSWERED);
             return state;
-            }
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.DEADLINE_ELAPSED)) {
+            state.setState(QuestionStates.DEADLINE_ELAPSED.getStateName());
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)) {
+            state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName());
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)) {
+            state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
+        }
+
         return new QuestionRoundState(questions.get(0).getQuestionState());
     }
 
@@ -217,5 +224,16 @@ public class QuestionRoundService {
             }
         }
         return true;
+    }
+
+    public boolean hasQuestionRoundAQuestionState(QuestionRound questionRound, QuestionStates state) {
+        List<Question> questions = questionRound.getQuestionList();
+        for (Question question: questions) {
+            QuestionState questionState = question.getQuestionState();
+            if (questionState.getState().equals(state.getStateName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

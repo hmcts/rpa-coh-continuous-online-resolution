@@ -267,7 +267,7 @@ public class QuestionRoundServiceTest {
     public void testQuestionRoundStateIsQuestionsAnsweredWhenAllQuestionsAnswered() {
         QuestionRoundState questionRoundState = new QuestionRoundState();
         questionRoundState.setState("questions_answered");
-        assertTrue(questionRoundService.isState(questionRoundState, ));
+        assertTrue(questionRoundService.isState(questionRoundState, new QuestionState("questions_answered")));
     }
 
     @Test
