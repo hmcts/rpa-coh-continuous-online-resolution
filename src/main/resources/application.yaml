@@ -85,12 +85,6 @@ info:
 #  idam-roles-whitelist: ${IDAM_ROLES_WHITELIST:solicitor}
 #  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw}
 #
-info:
-  app:
-    environment: ${PACKAGES_ENVIRONMENT:local}
-    project: ${PACKAGES_PROJECT:coh}
-    name: ${PACKAGES_NAME:cor}
-#    version: ${PACKAGES_VERSION:unknown}
 
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
