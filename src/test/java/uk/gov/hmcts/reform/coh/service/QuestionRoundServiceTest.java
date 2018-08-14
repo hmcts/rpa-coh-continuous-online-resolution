@@ -37,6 +37,7 @@ public class QuestionRoundServiceTest {
     private QuestionState issuedState;
     private QuestionState issuedPendingState;
     private QuestionState answeredState;
+    private QuestionState deadlineElapsedState;
     private List<Question> questionRound1Questions;
 
     @Mock
@@ -49,6 +50,7 @@ public class QuestionRoundServiceTest {
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
     private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
+    private static final String deadlineElapsedStateName = QuestionStates.DEADLINE_ELAPSED.getStateName();
     private static final String getQuestionsAnsweredStateName = QuestionStates.ANSWERED.getStateName();
     private static final String questionsAnsweredStateName = "questions_answered";
 
@@ -71,6 +73,7 @@ public class QuestionRoundServiceTest {
         issuedPendingState.setState(issuedPendingStateName);
 
         answeredState = new QuestionState(getQuestionsAnsweredStateName);
+        deadlineElapsedState = new QuestionState(deadlineElapsedStateName);
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
@@ -482,6 +485,16 @@ public class QuestionRoundServiceTest {
         QuestionRound questionRound = new QuestionRound();
         questionRound.setQuestionList(questionRound1Questions);
         assertEquals("questions_answered", questionRoundService.retrieveQuestionRoundState(questionRound).getState());
+    }
+
+    @Test
+    public void testWhenOneQuestionDeadlineElapsed() {
+        for (Question question : questionRound1Questions) {
+            question.setQuestionState(deadlineElapsedState);
+        }
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(questionRound1Questions);
+        assertEquals(deadlineElapsedStateName, questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 }
 
