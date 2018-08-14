@@ -26,7 +26,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
             .addFilter(filter)
             .authorizeRequests()
-            .anyRequest()
+            .antMatchers("/continuous-online-hearings**")
             .authenticated();
     }
 }
