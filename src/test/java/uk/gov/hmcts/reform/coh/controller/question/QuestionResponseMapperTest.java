@@ -3,9 +3,7 @@ package uk.gov.hmcts.reform.coh.controller.question;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
-import uk.gov.hmcts.reform.coh.domain.Question;
-import uk.gov.hmcts.reform.coh.domain.QuestionState;
-import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
+import uk.gov.hmcts.reform.coh.domain.*;
 
 import java.util.*;
 
@@ -36,6 +34,13 @@ public class QuestionResponseMapperTest {
         question.setQuestionText("question text");
         question.setOwnerReferenceId("bar");
         question.setQuestionState(state);
+
+        AnswerState answerState = new AnswerState();
+        answerState.setState("foo");
+        Answer answer = new Answer();
+        answer.answerText("foo").answerId(UUID.randomUUID());
+        answer.setAnswerState(answerState);
+        question.setAnswers(Arrays.asList(answer));
     }
 
     @Test
@@ -67,6 +72,7 @@ public class QuestionResponseMapperTest {
         assertEquals(question.getQuestionText(), response.getQuestionBodyText());
         assertEquals(question.getOwnerReferenceId(), response.getOwnerReference());
         assertEquals(state.getState(), response.getCurrentState().getName());
+        assertEquals(1, question.getAnswers().size());
 
         // This checks the sorting works
         assertEquals(CohISO8601DateFormat.format(history2.getDateOccurred()), response.getCurrentState().getDatetime());

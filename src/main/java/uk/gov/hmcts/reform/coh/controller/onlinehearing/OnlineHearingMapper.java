@@ -37,5 +37,7 @@ public class OnlineHearingMapper {
                     })
                     .collect(Collectors.toList()));
         }
+
+        response.setRelistReason(onlineHearing.getRelistReason());
     }
 }

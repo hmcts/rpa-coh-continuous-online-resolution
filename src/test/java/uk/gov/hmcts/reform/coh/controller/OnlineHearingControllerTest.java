@@ -41,6 +41,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -104,8 +105,8 @@ public class OnlineHearingControllerTest {
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
         given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
-        given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.ofNullable(onlineHearingState));
-
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(STARTED.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(RELISTED.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
     }
 
     @Test
@@ -320,8 +321,23 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
+    public void testUpdateOnlineHearingAlreadyEnded() throws Exception {
+        onlineHearing.setEndDate(new Date());
+        updateOnlineHearingRequest.setState(RELISTED.getStateName());
+        given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(updateOnlineHearingRequest)))
+                .andExpect(status().isConflict())
+                .andReturn()
+                .getResponse()
+                .getContentAsString().equalsIgnoreCase("Online hearing has already ended");
+    }
+
+    @Test
     public void testUpdateOnlineHearing() throws Exception {
-        String stateName = OnlineHearingStates.RELISTED.getStateName();
+        String stateName = RELISTED.getStateName();
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
         onlineHearingState.setState(stateName);
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(stateName)).willReturn(Optional.of(onlineHearingState));

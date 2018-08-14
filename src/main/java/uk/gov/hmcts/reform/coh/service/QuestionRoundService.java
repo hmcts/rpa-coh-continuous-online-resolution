@@ -17,20 +17,24 @@ public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
     private QuestionStateService questionStateService;
+
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
     public static final String ISSUE_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
     public static final String ISSUED = QuestionStates.ISSUED.getStateName();
+    public static final String QUESTIONS_ANSWERED = "questions_answered";
+
 
     public QuestionRoundService() {}
 
     @Autowired
-    public QuestionRoundService(QuestionRepository questionRepository, QuestionStateService questionStateService) {
+    public QuestionRoundService(QuestionRepository questionRepository,
+                                QuestionStateService questionStateService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED);
+        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED) || questionRoundState.getState().equals(QUESTIONS_ANSWERED);
     }
 
     public boolean isFirstRound(int currentRoundNumber) {
@@ -44,7 +48,7 @@ public class QuestionRoundService {
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
         if(!isFirstRound(currentRoundNumber) && isIncremented(question.getQuestionRound(), currentRoundNumber)
-                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName())){
+                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName()) && !currentState.getState().equals(QUESTIONS_ANSWERED)){
             throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
 
@@ -120,7 +124,21 @@ public class QuestionRoundService {
             }
             return new QuestionRoundState(optionalDraftedState.get());
         }
-        return new QuestionRoundState(questions.get(0).getQuestionState());
+
+        QuestionRoundState state = new QuestionRoundState();
+        if (hasAllQuestionsAnswered(questionRound)) {
+            state.setState(QUESTIONS_ANSWERED);
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.DEADLINE_ELAPSED)) {
+            state.setState(QuestionStates.DEADLINE_ELAPSED.getStateName());
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)) {
+            state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName());
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)) {
+            state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
+        } else {
+            state.setState(questions.get(0).getQuestionState());
+        }
+
+        return state;
     }
 
     protected boolean isState(Question question, QuestionState questionState) {
@@ -196,5 +214,27 @@ public class QuestionRoundService {
     public List<Question> issueQuestionRound(OnlineHearing onlineHearing, QuestionState questionState, int questionRoundNumber) {
         List<Question> questions = getQuestionsByQuestionRound(onlineHearing, questionRoundNumber);
         return issueQuestionRound(questionState, questions);
+    }
+
+    public boolean hasAllQuestionsAnswered(QuestionRound questionRound) {
+        List<Question> questions = questionRound.getQuestionList();
+        for (Question question: questions) {
+            QuestionState questionState = question.getQuestionState();
+            if (!questionState.getState().equals(QuestionStates.ANSWERED.getStateName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean hasQuestionRoundAQuestionState(QuestionRound questionRound, QuestionStates state) {
+        List<Question> questions = questionRound.getQuestionList();
+        for (Question question: questions) {
+            QuestionState questionState = question.getQuestionState();
+            if (questionState.getState().equals(state.getStateName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

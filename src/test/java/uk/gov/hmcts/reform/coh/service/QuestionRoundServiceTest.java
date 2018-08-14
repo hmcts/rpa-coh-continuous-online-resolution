@@ -36,6 +36,8 @@ public class QuestionRoundServiceTest {
     private QuestionState submittedState;
     private QuestionState issuedState;
     private QuestionState issuedPendingState;
+    private QuestionState answeredState;
+    private QuestionState deadlineElapsedState;
     private List<Question> questionRound1Questions;
 
     @Mock
@@ -48,6 +50,9 @@ public class QuestionRoundServiceTest {
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
     private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
+    private static final String deadlineElapsedStateName = QuestionStates.DEADLINE_ELAPSED.getStateName();
+    private static final String getQuestionsAnsweredStateName = QuestionStates.ANSWERED.getStateName();
+    private static final String questionsAnsweredStateName = "questions_answered";
 
     @Before
     public void setup(){
@@ -66,6 +71,9 @@ public class QuestionRoundServiceTest {
         issuedPendingState = new QuestionState();
         issuedPendingState.setQuestionStateId(3);
         issuedPendingState.setState(issuedPendingStateName);
+
+        answeredState = new QuestionState(getQuestionsAnsweredStateName);
+        deadlineElapsedState = new QuestionState(deadlineElapsedStateName);
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
@@ -259,6 +267,13 @@ public class QuestionRoundServiceTest {
         QuestionRoundState questionRoundState = new QuestionRoundState();
         questionRoundState.setState(submittedState);
         assertFalse(questionRoundService.isState(questionRoundState, draftedState));
+    }
+
+    @Test
+    public void testQuestionRoundStateIsQuestionsAnsweredWhenAllQuestionsAnswered() {
+        QuestionRoundState questionRoundState = new QuestionRoundState();
+        questionRoundState.setState(questionsAnsweredStateName );
+        assertTrue(questionRoundService.isState(questionRoundState, new QuestionState(questionsAnsweredStateName )));
     }
 
     @Test
@@ -460,6 +475,26 @@ public class QuestionRoundServiceTest {
     @Test
     public void testIsFirstRoundReturnsFalseIfQuestionRoundIsNotZero() {
         assertFalse(questionRoundService.isFirstRound(1));
+    }
+
+    @Test
+    public void testWhenAllQuestionsAnswered() {
+        for (Question question : questionRound1Questions) {
+            question.setQuestionState(answeredState);
+        }
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(questionRound1Questions);
+        assertEquals("questions_answered", questionRoundService.retrieveQuestionRoundState(questionRound).getState());
+    }
+
+    @Test
+    public void testWhenOneQuestionDeadlineElapsed() {
+        for (Question question : questionRound1Questions) {
+            question.setQuestionState(deadlineElapsedState);
+        }
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(questionRound1Questions);
+        assertEquals(deadlineElapsedStateName, questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 }
 

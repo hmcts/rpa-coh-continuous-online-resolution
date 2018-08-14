@@ -14,10 +14,7 @@ import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponseMa
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
-import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.service.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +32,9 @@ public class QuestionRoundController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
+
+    @Autowired
+    private AnswerService answerService;
 
     @Autowired
     private SessionEventService sessionEventService;
@@ -60,6 +60,9 @@ public class QuestionRoundController {
 
         onlineHearing = optionalOnlineHearing.get();
         List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
+
+        // For each QR map answers to questions.
+        questionRounds.forEach(qr -> qr.getQuestionList().forEach(q -> q.setAnswers(answerService.retrieveAnswersByQuestion(q))));
 
         QuestionRoundsResponse questionRoundsResponse = new QuestionRoundsResponse();
 
