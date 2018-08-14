@@ -128,16 +128,17 @@ public class QuestionRoundService {
         QuestionRoundState state = new QuestionRoundState();
         if (hasAllQuestionsAnswered(questionRound)) {
             state.setState(QUESTIONS_ANSWERED);
-            return state;
         } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.DEADLINE_ELAPSED)) {
             state.setState(QuestionStates.DEADLINE_ELAPSED.getStateName());
         } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED)) {
             state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName());
         } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)) {
             state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
+        } else {
+            state.setState(questions.get(0).getQuestionState());
         }
 
-        return new QuestionRoundState(questions.get(0).getQuestionState());
+        return state;
     }
 
     protected boolean isState(Question question, QuestionState questionState) {
