@@ -55,6 +55,9 @@ public class Question {
     )
     private List<QuestionStateHistory> questionStateHistories = new ArrayList<>();
 
+    @Transient
+    private List<Answer> answers;
+
     public Question() {}
 
     public UUID getQuestionId() {
@@ -218,5 +221,13 @@ public class Question {
     public Question questionStateHistories(List<QuestionStateHistory> questionStateHistories) {
         this.questionStateHistories = questionStateHistories;
         return this;
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 }

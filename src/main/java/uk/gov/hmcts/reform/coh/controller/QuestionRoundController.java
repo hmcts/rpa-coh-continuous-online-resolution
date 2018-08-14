@@ -37,6 +37,9 @@ public class QuestionRoundController {
     private QuestionService questionService;
 
     @Autowired
+    private AnswerService answerService;
+
+    @Autowired
     private SessionEventService sessionEventService;
 
     @ApiOperation("Get all question rounds")
@@ -60,6 +63,8 @@ public class QuestionRoundController {
 
         onlineHearing = optionalOnlineHearing.get();
         List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
+
+        questionRounds.forEach(qr -> qr.getQuestionList().forEach(q -> q.setAnswers(answerService.retrieveAnswersByQuestion(q))));
 
         QuestionRoundsResponse questionRoundsResponse = new QuestionRoundsResponse();
 
