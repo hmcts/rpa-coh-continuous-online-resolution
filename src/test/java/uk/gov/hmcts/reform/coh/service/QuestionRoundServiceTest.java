@@ -36,7 +36,7 @@ public class QuestionRoundServiceTest {
     private QuestionState submittedState;
     private QuestionState issuedState;
     private QuestionState issuedPendingState;
-    private QuestionRoundState questionsAnsweredState;
+    private QuestionState answeredState;
     private List<Question> questionRound1Questions;
 
     @Mock
@@ -49,6 +49,7 @@ public class QuestionRoundServiceTest {
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
     private static final String issuedPendingStateName = QuestionStates.ISSUE_PENDING.getStateName();
+    private static final String getQuestionsAnsweredStateName = QuestionStates.ANSWERED.getStateName();
     private static final String questionsAnsweredStateName = "questions_answered";
 
     @Before
@@ -68,6 +69,8 @@ public class QuestionRoundServiceTest {
         issuedPendingState = new QuestionState();
         issuedPendingState.setQuestionStateId(3);
         issuedPendingState.setState(issuedPendingStateName);
+
+        answeredState = new QuestionState(getQuestionsAnsweredStateName);
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
@@ -266,8 +269,8 @@ public class QuestionRoundServiceTest {
     @Test
     public void testQuestionRoundStateIsQuestionsAnsweredWhenAllQuestionsAnswered() {
         QuestionRoundState questionRoundState = new QuestionRoundState();
-        questionRoundState.setState("questions_answered");
-        assertTrue(questionRoundService.isState(questionRoundState, new QuestionState("questions_answered")));
+        questionRoundState.setState(questionsAnsweredStateName );
+        assertTrue(questionRoundService.isState(questionRoundState, new QuestionState(questionsAnsweredStateName )));
     }
 
     @Test
@@ -469,6 +472,16 @@ public class QuestionRoundServiceTest {
     @Test
     public void testIsFirstRoundReturnsFalseIfQuestionRoundIsNotZero() {
         assertFalse(questionRoundService.isFirstRound(1));
+    }
+
+    @Test
+    public void testWhenAllQuestionsAnswered() {
+        for (Question question : questionRound1Questions) {
+            question.setQuestionState(answeredState);
+        }
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(questionRound1Questions);
+        assertEquals("questions_answered", questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
 }
 

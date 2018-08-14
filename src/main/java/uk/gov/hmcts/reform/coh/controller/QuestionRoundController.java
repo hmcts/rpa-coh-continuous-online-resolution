@@ -34,9 +34,6 @@ public class QuestionRoundController {
     private OnlineHearingService onlineHearingService;
 
     @Autowired
-    private QuestionService questionService;
-
-    @Autowired
     private AnswerService answerService;
 
     @Autowired
