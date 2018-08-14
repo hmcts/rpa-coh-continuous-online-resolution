@@ -29,7 +29,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static uk.gov.hmcts.reform.coh.events.EventTypes.QUESTION_ROUND_ISSUED;
-import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.QUESTIONS_ISSUED;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
 
 @RunWith(SpringRunner.class)
@@ -58,15 +57,11 @@ public class QuestionRoundSentTaskTest {
         startedState = new OnlineHearingState();
         startedState.setState(STARTED.getStateName());
 
-        OnlineHearingState issuedState = new OnlineHearingState();
-        issuedState.setState(QUESTIONS_ISSUED.getStateName());
-
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingState(startedState);
 
         given(onlineHearingService.updateOnlineHearing(onlineHearing)).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(onlineHearing));
-        given(onlineHearingStateService.retrieveOnlineHearingStateByState(QUESTIONS_ISSUED.getStateName())).willReturn(Optional.of(issuedState));
 
         QuestionState issuedPending = new QuestionState();
         issuedPending.setState(QuestionStates.ISSUE_PENDING.getStateName());
@@ -105,7 +100,7 @@ public class QuestionRoundSentTaskTest {
 
     @Test
     public void testOnlineHearingStateQuestionIssuedStateNotFound() {
-        given(onlineHearingStateService.retrieveOnlineHearingStateByState(QUESTIONS_ISSUED.getStateName())).willReturn(Optional.empty());
+        given(onlineHearingStateService.retrieveOnlineHearingStateByState(STARTED.getStateName())).willReturn(Optional.empty());
         questionRoundSentTask.execute(onlineHearing);
         assertEquals(startedState, onlineHearing.getOnlineHearingState());
     }

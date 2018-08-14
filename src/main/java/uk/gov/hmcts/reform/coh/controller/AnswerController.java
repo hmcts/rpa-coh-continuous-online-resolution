@@ -24,7 +24,6 @@ import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
-import uk.gov.hmcts.reform.coh.task.AnswersReceivedTask;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,9 +49,6 @@ public class AnswerController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
-
-    @Autowired
-    private AnswersReceivedTask answersReceivedTask;
 
     @Autowired
     private SessionEventService sessionEventService;
@@ -242,7 +238,6 @@ public class AnswerController {
                 log.error("Exception trying to get question state: " + e.getMessage());
             }
             sessionEventService.createSessionEvent(onlineHearing, EventTypes.ANSWERS_SUBMITTED.getEventType());
-            answersReceivedTask.execute(onlineHearing);
         }
     }
 
