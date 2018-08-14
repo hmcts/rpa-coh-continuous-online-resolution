@@ -38,7 +38,7 @@ deadline:
 
 event-scheduler:
     event-notifier:
-      fixed-delay: 360000
+      fixed-delay: 60000
     event-trigger:
       fixed-delay: 360000
 
