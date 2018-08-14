@@ -64,6 +64,7 @@ public class QuestionRoundController {
         onlineHearing = optionalOnlineHearing.get();
         List<QuestionRound> questionRounds = questionRoundService.getAllQuestionRounds(onlineHearing);
 
+        // For each QR map answers to questions.
         questionRounds.forEach(qr -> qr.getQuestionList().forEach(q -> q.setAnswers(answerService.retrieveAnswersByQuestion(q))));
 
         QuestionRoundsResponse questionRoundsResponse = new QuestionRoundsResponse();
