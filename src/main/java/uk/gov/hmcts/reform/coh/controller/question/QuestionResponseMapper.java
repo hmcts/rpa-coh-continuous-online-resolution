@@ -6,7 +6,9 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -41,6 +43,17 @@ public enum QuestionResponseMapper {
         }
         if (question.getDeadlineExpiryDate() != null) {
             response.setDeadlineExpiryDate(question.getDeadlineExpiryDate());
+        }
+
+        List<Answer> answers = question.getAnswers();
+        if (answers != null && !answers.isEmpty()) {
+            List<AnswerResponse> answerResponses = new ArrayList<>();
+            for (Answer answer : answers) {
+                AnswerResponse answerResponse = new AnswerResponse();
+                AnswerResponseMapper.map(answer, answerResponse);
+                answerResponses.add(answerResponse);
+            }
+            response.setAnswers(answerResponses);
         }
     }
 
