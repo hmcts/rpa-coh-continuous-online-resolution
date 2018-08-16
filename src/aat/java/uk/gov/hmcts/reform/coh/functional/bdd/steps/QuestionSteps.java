@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -40,7 +41,7 @@ import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
-public class QuestionSteps extends BaseSteps{
+public class QuestionSteps extends BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
     private String ENDPOINT = "/continuous-online-hearings";
@@ -444,5 +445,69 @@ public class QuestionSteps extends BaseSteps{
         AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
         List<AnswerResponse> answers = allQuestionsResponse.getQuestions().get(questionOrd-1).getAnswers();
         assertEquals(answers.size(), numAnswers);
+    }
+
+    @Then("^the question round has a state of '(.*)'$")
+    public void theQuestionRoundHasAStateOf(String qrState) throws Exception {
+        assertEquals(qrState, getQuestionRoundResponse().getQuestionRoundState().getState());
+    }
+
+    @And("^the question round has (\\d+) question$")
+    public void theQuestionRoundHasNQuestion(int count) throws Exception {
+        assertEquals(count, getQuestionRoundResponse().getQuestionList().size());
+    }
+
+    @And("^all questions in the question round have a state of '(.*)'$")
+    public void allQuestionsInTheQuestionsRoundHaveAStateOf(String state) throws Exception {
+        allQuestionsHaveAStateOf(getQuestionRoundResponse().getQuestionList(), state);
+    }
+
+    @And("^all questions in the question rounds have a state of '(.*)'$")
+    public void allQuestionsInTheQuestionsRoundsHaveAStateOf(String state) throws Exception {
+        getQuestionRoundsResponse().getQuestionRounds().forEach(qr -> allQuestionsHaveAStateOf(qr.getQuestionList(), state));
+    }
+
+    private void allQuestionsHaveAStateOf(List<QuestionResponse> responses, String state) {
+        responses.forEach(q -> assertEquals(state, q.getCurrentState().getName()));
+    }
+
+    @And("^all questions in the question round have an answer$")
+    public void allQuestionsInTheQuestionRoundHaveAnAnswer() throws Exception {
+        nQuestionsInTheQuestionRoundHaveNAnswer(getQuestionRoundResponse().getQuestionList(), getQuestionRoundResponse().getQuestionList().size());
+    }
+
+    @And("^(\\d+) questions in the question round has an answer$")
+    public void nQuestionsInTheQuestionRoundHaveAnAnswer(int count) throws Exception {
+        nQuestionsInTheQuestionRoundHaveNAnswer(getQuestionRoundResponse().getQuestionList(), count);
+    }
+
+    @And("^all questions in the question rounds have an answer$")
+    public void allQuestionsInTheQuestionRoundsHaveAnAnswer() throws Exception {
+        getQuestionRoundsResponse()
+                .getQuestionRounds()
+                .forEach(qr ->
+                        nQuestionsInTheQuestionRoundHaveNAnswer(qr.getQuestionList(), qr.getQuestionList().size())
+                );
+    }
+
+    public void nQuestionsInTheQuestionRoundHaveNAnswer(List<QuestionResponse> questions, int count)  {
+        assertEquals(count, questions.stream().filter(q -> !(q.getAnswers() == null || q.getAnswers().isEmpty())).count());
+    }
+
+    @And("^(\\d+) question in the question round has a state of '(.*)'$")
+    public void questionInTheQuestionRoundHasAStateOfQuestion_answered(int count, String state) throws Exception {
+        assertEquals(count, getQuestionRoundResponse().getQuestionList().stream().filter(q -> q.getCurrentState().getName().equals(state)).count());
+    }
+
+    private QuestionRoundResponse getQuestionRoundResponse() throws Exception {
+
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return JsonUtils.toObjectFromJson(rawJson, QuestionRoundResponse.class);
+    }
+
+    private QuestionRoundsResponse getQuestionRoundsResponse() throws Exception {
+
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return JsonUtils.toObjectFromJson(rawJson, QuestionRoundsResponse.class);
     }
 }

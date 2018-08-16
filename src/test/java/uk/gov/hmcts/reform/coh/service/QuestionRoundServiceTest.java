@@ -46,6 +46,8 @@ public class QuestionRoundServiceTest {
     @Mock
     private QuestionStateService questionStateService;
 
+    @Mock
+    private AnswerService answerService;
 
     private static final String draftedStateName = QuestionStates.DRAFTED.getStateName();
     private static final String issuedStateName = QuestionStates.ISSUED.getStateName();
@@ -98,7 +100,7 @@ public class QuestionRoundServiceTest {
         given(questionStateService.retrieveQuestionStateByStateName("question_submitted")).willReturn(Optional.of(submittedState));
         given(questionRepository.findAllByOnlineHearingOrderByQuestionRoundDesc(any(OnlineHearing.class))).willReturn(questions);
         given(questionRepository.findByOnlineHearingAndQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questionRound1Questions);
-        QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService);
+        QuestionRoundService questionRoundServiceImpl = new QuestionRoundService(questionRepository, questionStateService, answerService);
         questionRoundService = spy(questionRoundServiceImpl);
 
         onlineHearing = new OnlineHearing();
