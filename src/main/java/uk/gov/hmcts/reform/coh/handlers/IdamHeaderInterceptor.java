@@ -19,13 +19,13 @@ public class IdamHeaderInterceptor extends HandlerInterceptorAdapter {
         response.setContentType("application/json"); 
         response.setCharacterEncoding("utf-8"); 
  
-//        if(request.getHeader(IDAM_AUTHORIZATION) == null || request.getHeader(IDAM_SERVICE_AUTHORIZATION) == null) {
-//            JsonObject jsonObject = new JsonObject();
-//            jsonObject.addProperty("error_message","Missing required IDAM headers.");
-//            response.getWriter().write(jsonObject.toString());
-//            response.setStatus(400);
-//            return false;
-//        }
+        if(request.getHeader(IDAM_AUTHORIZATION) == null || request.getHeader(IDAM_SERVICE_AUTHORIZATION) == null) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("error_message","Missing required IDAM headers.");
+            response.getWriter().write(jsonObject.toString());
+            response.setStatus(400);
+            return false;
+        }
         return true; 
     } 
 }
