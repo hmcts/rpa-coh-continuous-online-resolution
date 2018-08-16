@@ -190,7 +190,7 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the conversation response contains an online hearing with 1 history entry  with state desc of '(.*)'$")
     public void theResponseContainsAnOnlineHearingWithHistory(String stateName) throws Throwable {
         ConversationResponse response = getConversationResponse();
-        assertEquals(stateName, response.getOnlineHearing().getHistories().get(0).getStateDesc());
+        assertTrue(response.getOnlineHearing().getHistories().stream().anyMatch(h -> h.getStateDesc().equals(stateName)));
     }
 
     @And("^the conversation response contains a decision$")
@@ -222,7 +222,7 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the conversation response contains a decision with 1 history entry with state desc of '(.*)'$")
     public void theResponseContainsADecisionWithHistory(String stateDesc) throws Throwable {
         ConversationResponse response = getConversationResponse();
-        assertEquals(stateDesc, response.getOnlineHearing().getDecisionResponse().getHistories().get(0).getStateDesc());
+        assertTrue(response.getOnlineHearing().getDecisionResponse().getHistories().stream().anyMatch(h -> h.getStateDesc().equals(stateDesc)));
     }
 
     @And("^the conversation response contains a decision with (\\d) history entries$")
@@ -271,7 +271,7 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the conversation response contains a question with 1 history entry with state desc of '(.*)'$")
     public void theResponseContainsAQuestionWithHistory(String stateName) throws Throwable {
         ConversationResponse response = getConversationResponse();
-        assertEquals(stateName, getQuestionFromConversationResponse(0).getHistories().get(0).getStateDesc());
+        assertTrue(getQuestionFromConversationResponse(0).getHistories().stream().anyMatch(h -> h.getStateDesc().equals(stateName)));
     }
 
     @And("^the conversation response contains a question with (\\d) history entries$")
