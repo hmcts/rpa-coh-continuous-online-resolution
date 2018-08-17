@@ -63,6 +63,7 @@ public class BaseSteps {
     String baseUrl;
 
     protected TestContext testContext;
+    
     protected HttpHeaders header;
 
     @Autowired
@@ -95,15 +96,15 @@ public class BaseSteps {
     }
 
     public void cleanup() {
-        for(DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
+        for (DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
             try {
                 decisionReplyRepository.deleteById(decisionReply.getId());
-            }catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
 
-        if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
                     sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
