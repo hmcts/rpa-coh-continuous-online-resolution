@@ -86,12 +86,12 @@ public class BaseSteps {
                 sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl).replace("https", "http")));
         sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
 
-        testContext.getScenarioContext().setIdamAuthorRef("bearer judge_123_idam");
-        testContext.getScenarioContext().setIdamServiceRef("idam-service-ref-id");
+        testContext.getHttpContext().setIdamAuthorRef("bearer judge_123_idam");
+        testContext.getHttpContext().setIdamServiceRef("idam-service-ref-id");
         header = new HttpHeaders();
         header.add("Content-Type", "application/json");
-        header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
-        header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getScenarioContext().getIdamServiceRef());
+        header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getHttpContext().getIdamAuthorRef());
+        header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
     }
 
     public void cleanup() {
@@ -102,6 +102,7 @@ public class BaseSteps {
                 log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
+
         if(testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
                 try {
@@ -111,7 +112,8 @@ public class BaseSteps {
                 }
             }
         }
-                // Delete all decisions
+
+        // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
             try {
