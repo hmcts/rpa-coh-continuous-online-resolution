@@ -8,9 +8,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -27,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -145,36 +141,27 @@ public class ApiSteps extends BaseSteps {
     @When("^a get request is sent to ' \"([^\"]*)\"' for the saved online hearing$")
     public void a_get_request_is_sent_to(String endpoint) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        HttpGet request = new HttpGet(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString());
-        request.addHeader("content-type", "application/json");
-        request
-            .addHeader(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
-        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION,
-            testContext.getScenarioContext().getIdamServiceRef());
-
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
+        String url = baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString();
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        RestTemplate restTemplate = getRestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
     }
 
     @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
     public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
-        HttpGet request = new HttpGet(baseUrl + endpoint);
-        request.addHeader("content-type", "application/json");
-        request
-            .addHeader(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getScenarioContext().getIdamAuthorRef());
-        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION,
-            testContext.getScenarioContext().getIdamServiceRef());
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
+        RestTemplate restTemplate = getRestTemplate();
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
     }
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
-        HttpPost request = new HttpPost(baseUrl + endpoint);
-        request.addHeader("content-type", "application/json");
-        request.addHeader(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION,
-            testContext.getScenarioContext().getIdamServiceRef());
-        StringEntity params = new StringEntity(json.toString());
-        request.setEntity(params);
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(httpClient.execute(request));
+        RestTemplate restTemplate = getRestTemplate();
+        HttpEntity<String> request = new HttpEntity<>(json.toString(), header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
     }
 
     @Then("^the response code is (\\d+)$")

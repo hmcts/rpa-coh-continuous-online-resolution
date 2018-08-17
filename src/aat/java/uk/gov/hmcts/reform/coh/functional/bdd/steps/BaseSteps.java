@@ -111,7 +111,8 @@ public class BaseSteps {
                 }
             }
         }
-                // Delete all decisions
+
+        // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
             try {
