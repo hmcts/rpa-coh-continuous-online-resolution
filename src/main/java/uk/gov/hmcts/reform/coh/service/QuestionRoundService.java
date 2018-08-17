@@ -16,7 +16,10 @@ import java.util.*;
 public class QuestionRoundService {
 
     private QuestionRepository questionRepository;
+
     private QuestionStateService questionStateService;
+
+    private AnswerService answerService;
 
     public static final String DRAFTED = QuestionStates.DRAFTED.getStateName();
     public static final String ISSUE_PENDING = QuestionStates.ISSUE_PENDING.getStateName();
@@ -28,9 +31,11 @@ public class QuestionRoundService {
 
     @Autowired
     public QuestionRoundService(QuestionRepository questionRepository,
-                                QuestionStateService questionStateService) {
+                                QuestionStateService questionStateService,
+                                AnswerService answerService) {
         this.questionRepository = questionRepository;
         this.questionStateService = questionStateService;
+        this.answerService = answerService;
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
@@ -117,13 +122,16 @@ public class QuestionRoundService {
     @Transactional
     public QuestionRoundState retrieveQuestionRoundState(QuestionRound questionRound) {
         List<Question> questions = questionRound.getQuestionList();
-        if(questions.isEmpty()) {
+        if (questions.isEmpty()) {
             Optional<QuestionState> optionalDraftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED);
-            if(!optionalDraftedState.isPresent()) {
+            if (!optionalDraftedState.isPresent()) {
                 throw new NoSuchElementException("Error: Required state not found.");
             }
             return new QuestionRoundState(optionalDraftedState.get());
         }
+
+        // For each QR map answers to questions. JPA multi-bag bug workaround
+        questionRound.getQuestionList().forEach(q -> q.setAnswers(answerService.retrieveAnswersByQuestion(q)));
 
         QuestionRoundState state = new QuestionRoundState();
         if (hasAllQuestionsAnswered(questionRound)) {
