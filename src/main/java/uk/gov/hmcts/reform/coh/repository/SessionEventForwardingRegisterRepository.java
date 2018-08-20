@@ -7,6 +7,7 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegisterId;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,4 +15,6 @@ public interface SessionEventForwardingRegisterRepository
         extends CrudRepository<SessionEventForwardingRegister, SessionEventForwardingRegisterId> {
 
     Optional<SessionEventForwardingRegister> findByJurisdictionAndSessionEventType(Jurisdiction jurisdiction, SessionEventType sessionEventType);
+
+    List<SessionEventForwardingRegister> findByJurisdiction(Jurisdiction jurisdiction);
 }

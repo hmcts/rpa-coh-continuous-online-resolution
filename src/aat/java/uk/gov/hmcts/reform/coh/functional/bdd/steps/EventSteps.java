@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -49,8 +48,6 @@ public class EventSteps extends BaseSteps {
     private ResponseEntity<String> response;
     private String endpoint = "/continuous-online-hearings/events";
 
-    private Jurisdiction jurisdiction;
-
     @Autowired
     public EventSteps(TestContext testContext) {
         super(testContext);
@@ -59,30 +56,18 @@ public class EventSteps extends BaseSteps {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        jurisdiction = new Jurisdiction();
-    }
-
-    @After("@events")
-    public void jurisdictionCleanUp() {
-
-        Optional<SessionEventType> sessionEventType = sessionEventTypeRespository.findByEventTypeName("question_round_issued");
-
-
-        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterRepository
-                .findByJurisdictionAndSessionEventType(jurisdiction, sessionEventType.get());
-
-        sessionEventForwardingRegister.ifPresent(sessionEventForwardingRegister1 -> sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister1));
     }
 
     @And("^jurisdiction ' \"([^\"]*)\", with id ' \"(\\d+)\" ' and max question rounds ' \"(\\d+)\" ' is created$")
     public void aJurisdictionNamedWithUrlAndMaxQuestionRoundsIsCreated(String jurisdictionName, Long id,  int maxQuestionRounds) {
-        jurisdiction = new Jurisdiction();
+        Jurisdiction jurisdiction = new Jurisdiction();
 
         jurisdiction.setJurisdictionId(id);
         jurisdiction.setJurisdictionName(jurisdictionName);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
         testContext.getScenarioContext().getEventRegistrationRequest().setJurisdiction(jurisdiction.getJurisdictionName());
+        testContext.getScenarioContext().addJurisdiction(jurisdiction);
     }
 
     @Given("^a conflicting request to subscribe to question round issued$")
