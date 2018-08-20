@@ -223,8 +223,9 @@ public class ApiSteps extends BaseSteps {
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) throws Throwable {
-        HttpEntity<String> request = new HttpEntity<>(json.toString(), header);
         RestTemplate restTemplate = getRestTemplate();
+        HttpEntity<String> request = new HttpEntity<>(json.toString(), header);
+
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
     }
