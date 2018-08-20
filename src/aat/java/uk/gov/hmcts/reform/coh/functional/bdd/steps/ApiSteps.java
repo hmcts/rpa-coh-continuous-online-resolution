@@ -38,7 +38,6 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -184,7 +183,7 @@ public class ApiSteps extends BaseSteps {
         if (jurisdictions != null && !jurisdictions.isEmpty()) {
             for (Jurisdiction jurisdiction : jurisdictions) {
                 try {
-                    StreamSupport.stream(sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction).spliterator(), false)
+                    sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction)
                             .forEach(sessionEventForwardingRegisterRepository::delete);
                     jurisdictionRepository.delete(jurisdiction);
                 } catch (DataIntegrityViolationException e) {
