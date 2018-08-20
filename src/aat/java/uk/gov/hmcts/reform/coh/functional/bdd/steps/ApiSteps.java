@@ -8,9 +8,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,11 +88,7 @@ public class ApiSteps extends BaseSteps {
 
     private JSONObject json;
 
-    private CloseableHttpClient httpClient;
-
     private RestTemplate restTemplate;
-
-    private Set<String> caseIds;
 
     @Autowired
     public ApiSteps(TestContext testContext) {
@@ -105,13 +98,6 @@ public class ApiSteps extends BaseSteps {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        caseIds = new HashSet<>();
-        httpClient = HttpClientBuilder
-            .create()
-            .setSslcontext(new SSLContextBuilder()
-                .loadTrustMaterial(null, TestTrustManager.getInstance().getTrustStrategy())
-                .build())
-            .build();
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
     }
 
@@ -198,7 +184,6 @@ public class ApiSteps extends BaseSteps {
     @When("^a get request is sent to ' \"([^\"]*)\"' for the saved online hearing$")
     public void a_get_request_is_sent_to(String endpoint) throws Throwable {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        RestTemplate restTemplate = getRestTemplate();
         HttpEntity<String> request = new HttpEntity<>("", header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString(), HttpMethod.GET, request, String.class);
 
@@ -207,15 +192,13 @@ public class ApiSteps extends BaseSteps {
 
     @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
     public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
-        RestTemplate restTemplate = getRestTemplate();
         HttpEntity<String> request = new HttpEntity<>("", header);
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
     }
 
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
-    public void a_post_request_is_sent_to(String endpoint) throws Throwable {
-        RestTemplate restTemplate = getRestTemplate();
+    public void a_post_request_is_sent_to(String endpoint) {
         HttpEntity<String> request = new HttpEntity<>(json.toString(), header);
 
         ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
@@ -223,12 +206,12 @@ public class ApiSteps extends BaseSteps {
     }
 
     @Then("^the response code is (\\d+)$")
-    public void the_response_code_is(int responseCode) throws Throwable {
+    public void the_response_code_is(int responseCode) {
         assertEquals("Response status code", responseCode, testContext.getHttpContext().getHttpResponseStatusCode());
     }
 
     @Then("^the response contains the following text '\"([^\"]*)\" '$")
-    public void the_response_contains_the_following_text(String text) throws IOException {
+    public void the_response_contains_the_following_text(String text) {
         assertTrue(testContext.getHttpContext().getRawResponseString().contains(text));
     }
 
@@ -306,12 +289,12 @@ public class ApiSteps extends BaseSteps {
     public void theJurisdictionIsRegisteredToReceiveQuestionRoundIssuedEvents(String eventType) {
 
         SessionEventType sessionEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
         Jurisdiction testJurisdiction = jurisdictionRepository.findByJurisdictionName("SSCS")
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
         SessionEventForwardingRegister templateEFR = sessionEventForwardingRegisterRepository
             .findByJurisdictionAndSessionEventType(testJurisdiction, sessionEventType)
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
 
         SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
             .jurisdiction(testContext.getScenarioContext().getCurrentJurisdiction())
@@ -382,12 +365,12 @@ public class ApiSteps extends BaseSteps {
     @And("^the event has been set to forwarding_state_pending of event type (.*)$")
     public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
         SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
 
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         Jurisdiction jurisdiction = jurisdictionRepository
             .findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
 
         SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
             jurisdiction.getJurisdictionId(), expectedEventType.getEventTypeId());
@@ -405,12 +388,12 @@ public class ApiSteps extends BaseSteps {
     @And("^the event type (.*) has been set to retries of (\\d+)$")
     public void theEventHasBeenSetToRetriesOf(String eventType, int expectedRetries) {
         SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
 
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         Jurisdiction jurisdiction = jurisdictionRepository
             .findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(EntityNotFoundException::new);
 
         SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
             jurisdiction.getJurisdictionId(), expectedEventType.getEventTypeId());
