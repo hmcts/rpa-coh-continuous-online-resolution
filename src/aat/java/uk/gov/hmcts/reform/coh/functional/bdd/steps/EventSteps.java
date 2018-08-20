@@ -145,7 +145,7 @@ public class EventSteps extends BaseSteps {
         try {
             response = getRestTemplate().exchange(baseUrl + endpoint + "/reset", HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        }catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
         }
     }
