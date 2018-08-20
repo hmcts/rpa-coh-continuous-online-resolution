@@ -12,10 +12,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingReque
 import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ScenarioContext {
@@ -37,6 +34,8 @@ public class ScenarioContext {
     private Decision currentDecision;
 
     private List<String> caseIds;
+
+    private List<UUID> answerIds;
 
     private UpdateQuestionRequest updateQuestionRequest;
     private DecisionReplyRequest decisionReplyRequest;
@@ -146,6 +145,21 @@ public class ScenarioContext {
         caseIds.add(caseId);
     }
 
+    public List<UUID> getAnswerIds() {
+        return answerIds;
+    }
+
+    public void setAnswerIds(List<UUID> answerIds) {
+        this.answerIds = answerIds;
+    }
+
+    public void addAnswerId(UUID answerId) {
+        if (answerIds == null) {
+            answerIds = new ArrayList<>();
+        }
+        answerIds.add(answerId);
+    }
+
     public void setJurisdictions(List<Jurisdiction> jurisdictions) {
         this.jurisdictions = jurisdictions;
     }
@@ -164,7 +178,7 @@ public class ScenarioContext {
         eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
         decisionReplyRequest = null;
-
+        answerIds = null;
     }
 
     public void clearDecisionReplies() {

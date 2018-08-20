@@ -56,8 +56,6 @@ public class AnswerSteps extends BaseSteps{
 
     private List<UUID> questionIds;
 
-    private List<UUID> answerIds;
-
     private OnlineHearing onlineHearing;
 
     @Autowired
@@ -87,7 +85,6 @@ public class AnswerSteps extends BaseSteps{
         currentAnswerId = null;
 
         questionIds = new ArrayList<>();
-        answerIds = new ArrayList<>();
     }
 
     @After
@@ -97,8 +94,11 @@ public class AnswerSteps extends BaseSteps{
          * to be deleted after test completion. Delete in reverse order for
          * FK constrains
          */
-        for (UUID answerId : answerIds) {
-            answerService.deleteAnswer(new Answer().answerId(answerId));
+        List<UUID> answerIds = testContext.getScenarioContext().getAnswerIds();
+        if (answerIds!= null && !answerIds.isEmpty()) {
+            for (UUID answerId : testContext.getScenarioContext().getAnswerIds()) {
+                answerService.deleteAnswer(new Answer().answerId(answerId));
+            }
         }
 
         for (UUID questionId : questionIds) {
@@ -192,6 +192,7 @@ public class AnswerSteps extends BaseSteps{
         }
 
         if ("answer".equalsIgnoreCase(entity)) {
+            List<UUID> answerIds = testContext.getScenarioContext().getAnswerIds();
             UUID currentAnswerId = answerIds.get(answerIds.size() - 1);
             endpoint += "/" + currentAnswerId;
         }
@@ -242,7 +243,7 @@ public class AnswerSteps extends BaseSteps{
 
             Optional<UUID> optAnswerId = getAnswerId(response.getBody());
             if (optAnswerId.isPresent()) {
-                answerIds.add(optAnswerId.get());
+                testContext.getScenarioContext().addAnswerId(optAnswerId.get());
             }
         } catch (HttpClientErrorException hcee) {
             httpResponseCode = hcee.getRawStatusCode();

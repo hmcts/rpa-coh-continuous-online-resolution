@@ -60,7 +60,7 @@ Feature: Event features
   @events
   Scenario: Subscribe to an event
     Given a standard event register request
-    And jurisdiction ' "PIP", with id ' "42" ' and max question rounds ' "5" ' is created
+    And jurisdiction ' "Long", with id ' "42" ' and max question rounds ' "5" ' is created
     When a POST request is sent to register
     Then the response code is 200
 
