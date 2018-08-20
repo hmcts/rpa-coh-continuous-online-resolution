@@ -127,16 +127,6 @@ public class ApiSteps extends BaseSteps {
             }
         }
 
-        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
-            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
-                try {
-                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
-                } catch (DataIntegrityViolationException e) {
-                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
-                }
-            }
-        }
-
         // Delete all decisions
         if (testContext.getScenarioContext().getCurrentDecision() != null) {
             Decision decision = testContext.getScenarioContext().getCurrentDecision();
@@ -193,6 +183,7 @@ public class ApiSteps extends BaseSteps {
                 }
             }
         }
+
         for (Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()) {
             try {
                 jurisdictionRepository.delete(jurisdiction);
