@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
 @SpringBootTest
-public class DeadlineSteps extends BaseSteps {
+public class DeadlineSteps extends ApiSteps {
 
     @Autowired
     private EventNotifierJob job;
@@ -61,7 +61,7 @@ public class DeadlineSteps extends BaseSteps {
 
         try {
             ResponseEntity<String> response =
-                    restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
+                    getRestTemplate().exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
@@ -72,10 +72,10 @@ public class DeadlineSteps extends BaseSteps {
     }
 
     private void setupRestTemplate() {
-        oldErrorHandler = restTemplate.getErrorHandler();
+        oldErrorHandler = getRestTemplate().getErrorHandler();
 
         // valid response codes from the endpoint are not errors
-        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+        getRestTemplate().setErrorHandler(new ResponseErrorHandler() {
 
             @Override
             public boolean hasError(ClientHttpResponse response) throws IOException {
@@ -94,7 +94,7 @@ public class DeadlineSteps extends BaseSteps {
     }
 
     private void restoreRestTemplate() {
-        restTemplate.setErrorHandler(oldErrorHandler);
+        getRestTemplate().setErrorHandler(oldErrorHandler);
     }
 
     @Then("^question states are (.*)$")

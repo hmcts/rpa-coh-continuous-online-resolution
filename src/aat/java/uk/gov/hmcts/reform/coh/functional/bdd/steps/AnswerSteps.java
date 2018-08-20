@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
-public class AnswerSteps extends BaseSteps{
+public class AnswerSteps extends ApiSteps {
     private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
 
     private ResponseEntity<String> response;
@@ -94,7 +94,7 @@ public class AnswerSteps extends BaseSteps{
         updateEndpointWithOnlineHearingId();
 
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
-        response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
+        response = getRestTemplate().exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
         CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();

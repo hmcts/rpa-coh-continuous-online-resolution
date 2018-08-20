@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventSteps extends BaseSteps {
+public class EventSteps extends ApiSteps {
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
@@ -54,7 +54,6 @@ public class EventSteps extends BaseSteps {
     @Autowired
     public EventSteps(TestContext testContext) {
         super(testContext);
-        restTemplate = getRestTemplate();
     }
 
     @Before
@@ -98,7 +97,7 @@ public class EventSteps extends BaseSteps {
         String json = JsonUtils.toJson(testContext.getScenarioContext().getEventRegistrationRequest());
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
-            response = restTemplate.exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
+            response = getRestTemplate().exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         } catch (HttpClientErrorException hcee) {
@@ -160,7 +159,7 @@ public class EventSteps extends BaseSteps {
 
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
-            response = restTemplate.exchange(baseUrl + endpoint + "/reset", HttpMethod.PUT, request, String.class);
+            response = getRestTemplate().exchange(baseUrl + endpoint + "/reset", HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         }catch (HttpClientErrorException e) {

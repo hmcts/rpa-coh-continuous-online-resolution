@@ -40,7 +40,7 @@ import static junit.framework.TestCase.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
-public class QuestionSteps extends BaseSteps {
+public class QuestionSteps extends ApiSteps {
     private static final Logger log = LoggerFactory.getLogger(QuestionSteps.class);
 
     private String ENDPOINT = "/continuous-online-hearings";
@@ -80,7 +80,7 @@ public class QuestionSteps extends BaseSteps {
         onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         int httpResponseCode = 0;
         try{
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
             String json = response.getBody();
             CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
             questionIds.add(createQuestionResponse.getQuestionId());
@@ -99,7 +99,7 @@ public class QuestionSteps extends BaseSteps {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
 
             HttpEntity<String> request = new HttpEntity<>("", header);
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.GET, request, String.class);
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.GET, request, String.class);
 
            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
@@ -113,7 +113,7 @@ public class QuestionSteps extends BaseSteps {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             Question question = testContext.getScenarioContext().getCurrentQuestion();
             HttpEntity<String> request = new HttpEntity<>("", header);
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), HttpMethod.GET, request, String.class);
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), HttpMethod.GET, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
             testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
@@ -139,7 +139,7 @@ public class QuestionSteps extends BaseSteps {
     @When("^the get request is sent to get all question rounds$")
     public void theGetRequestIsSentToGetAllQuestionRounds() {
         HttpEntity<String> request = new HttpEntity<>("", header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
 
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
@@ -152,7 +152,7 @@ public class QuestionSteps extends BaseSteps {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
 
         HttpEntity<String> request = new HttpEntity<>("", header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
 
         testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         testContext.getHttpContext().setRawResponseString(response.getBody());
@@ -167,7 +167,7 @@ public class QuestionSteps extends BaseSteps {
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             HttpEntity<String> request = new HttpEntity<>(json, header);
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
                     HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setRawResponseString(response.getBody());
             testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
@@ -334,7 +334,7 @@ public class QuestionSteps extends BaseSteps {
 
         try{
             HttpEntity<String> request = new HttpEntity<>(json, header);
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
                     HttpMethod.PUT, request, String.class);
 
             testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
@@ -350,7 +350,7 @@ public class QuestionSteps extends BaseSteps {
         try {
             Question question = testContext.getScenarioContext().getCurrentQuestion();
             HttpEntity<String> request = new HttpEntity<>("", header);
-            ResponseEntity<String> response = restTemplate.exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(),
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(),
                     HttpMethod.DELETE, request, String.class);
 
             testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
