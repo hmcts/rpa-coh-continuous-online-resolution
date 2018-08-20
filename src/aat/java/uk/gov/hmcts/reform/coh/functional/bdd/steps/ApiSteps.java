@@ -38,6 +38,7 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -95,7 +96,6 @@ public class ApiSteps extends BaseSteps {
     private RestTemplate restTemplate;
 
     private Set<String> caseIds;
-    private List<Jurisdiction> jurisdictions;
 
     @Autowired
     public ApiSteps(TestContext testContext) {
@@ -113,8 +113,6 @@ public class ApiSteps extends BaseSteps {
                 .build())
             .build();
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
-        jurisdictions = new ArrayList<>();
-        testContext.getScenarioContext().setJurisdictions(jurisdictions);
     }
 
     @After
@@ -182,12 +180,17 @@ public class ApiSteps extends BaseSteps {
             }
         }
 
-        for (Jurisdiction jurisdiction : testContext.getScenarioContext().getJurisdictions()) {
-            try {
-                jurisdictionRepository.delete(jurisdiction);
-            } catch (DataIntegrityViolationException e) {
-                log.error(
-                    "Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+        List<Jurisdiction> jurisdictions = testContext.getScenarioContext().getJurisdictions();
+        if (jurisdictions != null && !jurisdictions.isEmpty()) {
+            for (Jurisdiction jurisdiction : jurisdictions) {
+                try {
+                    StreamSupport.stream(sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction).spliterator(), false)
+                            .forEach(sessionEventForwardingRegisterRepository::delete);
+                    jurisdictionRepository.delete(jurisdiction);
+                } catch (DataIntegrityViolationException e) {
+                    log.error(
+                            "Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
             }
         }
     }
@@ -295,7 +298,8 @@ public class ApiSteps extends BaseSteps {
         jurisdiction.setJurisdictionName(jurisdictionName);
         jurisdiction.setMaxQuestionRounds(maxQuestionRounds);
         jurisdictionRepository.save(jurisdiction);
-        jurisdictions.add(jurisdiction);
+        testContext.getScenarioContext().addJurisdiction(jurisdiction);
+        testContext.getScenarioContext().setCurrentJurisdiction(jurisdiction);
     }
 
 
@@ -311,7 +315,7 @@ public class ApiSteps extends BaseSteps {
             .orElseThrow(() -> new EntityNotFoundException());
 
         SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
-            .jurisdiction(jurisdictions.get(0))
+            .jurisdiction(testContext.getScenarioContext().getCurrentJurisdiction())
             .sessionEventType(sessionEventType)
             .forwardingEndpoint(templateEFR.getForwardingEndpoint())
             .maximumRetries(templateEFR.getMaximumRetries())

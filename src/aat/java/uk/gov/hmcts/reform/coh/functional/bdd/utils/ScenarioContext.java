@@ -25,6 +25,8 @@ public class ScenarioContext {
 
     private Answer currentAnswer;
 
+    private Jurisdiction currentJurisdiction;
+
     private DecisionRequest currentDecisionRequest;
 
     private UpdateDecisionRequest updateDecisionRequest;
@@ -108,6 +110,14 @@ public class ScenarioContext {
         this.currentAnswer = currentAnswer;
     }
 
+    public Jurisdiction getCurrentJurisdiction() {
+        return currentJurisdiction;
+    }
+
+    public void setCurrentJurisdiction(Jurisdiction currentJurisdiction) {
+        this.currentJurisdiction = currentJurisdiction;
+    }
+
     public DecisionRequest getCurrentDecisionRequest() {
         return currentDecisionRequest;
     }
@@ -169,12 +179,16 @@ public class ScenarioContext {
         questionIds.add(questionId);
     }
 
-    public void setJurisdictions(List<Jurisdiction> jurisdictions) {
-        this.jurisdictions = jurisdictions;
-    }
-
     public List<Jurisdiction> getJurisdictions() {
         return jurisdictions;
+    }
+
+    public void addJurisdiction(Jurisdiction jurisdiction) {
+        if (jurisdictions == null) {
+            jurisdictions = new ArrayList<>();
+        }
+
+        jurisdictions.add(jurisdiction);
     }
 
     public void clear() {

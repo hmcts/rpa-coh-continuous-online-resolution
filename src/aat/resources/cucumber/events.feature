@@ -57,7 +57,6 @@ Feature: Event features
     When a POST request is sent to register
     Then the response code is 409
 
-  @events
   Scenario: Subscribe to an event
     Given a standard event register request
     And jurisdiction ' "Long", with id ' "42" ' and max question rounds ' "5" ' is created
