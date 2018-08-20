@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.*;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
@@ -109,7 +110,7 @@ public class DecisionController {
         decision = decisionService.createDecision(decision);
 
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/decisions").buildAndExpand(onlineHearingId);
+                uriBuilder.path(CohUriBuilder.buildDecisionGet(onlineHearingId)).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decision.getDecisionId()));
     }
