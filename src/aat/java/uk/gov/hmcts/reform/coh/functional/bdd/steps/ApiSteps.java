@@ -31,8 +31,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -74,6 +73,21 @@ public class ApiSteps extends BaseSteps {
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
 
+    @Autowired
+    private QuestionService questionService;
+
+    @Autowired
+    private AnswerService answerService;
+
+    @Autowired
+    private AnswerRepository answerRepository;
+
+    @Autowired
+    private DecisionService decisionService;
+
+    @Autowired
+    private DecisionReplyRepository decisionReplyRepository;
+
     private JSONObject json;
 
     private CloseableHttpClient httpClient;
@@ -105,18 +119,69 @@ public class ApiSteps extends BaseSteps {
 
     @After
     public void cleanUp() {
-        for (String caseId : caseIds) {
+        for (DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
             try {
-                OnlineHearing onlineHearing = new OnlineHearing();
-                onlineHearing.setCaseId(caseId);
-                onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
-                onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-                onlineHearingService.deleteByCaseId(caseId);
-            } catch (DataIntegrityViolationException e) {
-                log.error(
-                    "Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                decisionReplyRepository.deleteById(decisionReply.getId());
+            } catch (Exception e) {
+                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
             }
         }
+
+        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
+            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
+                try {
+                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
+                } catch (DataIntegrityViolationException e) {
+                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
+            }
+        }
+
+        // Delete all decisions
+        if (testContext.getScenarioContext().getCurrentDecision() != null) {
+            Decision decision = testContext.getScenarioContext().getCurrentDecision();
+            try {
+                decisionService.deleteDecisionById(decision.getDecisionId());
+            }
+            catch (Exception e) {
+                log.debug("Unable to delete decision: " + decision.getDecisionId());
+            }
+        }
+
+        if (testContext.getScenarioContext().getCaseIds() != null) {
+
+            for (String caseId : testContext.getScenarioContext().getCaseIds()) {
+                try {
+                    OnlineHearing onlineHearing = new OnlineHearing();
+                    onlineHearing.setCaseId(caseId);
+                    onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
+
+                    // Delete all the Q & A
+                    Optional<List<Question>> questionList = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
+                    if (questionList.isPresent()) {
+                        for (Question question : questionList.get()) {
+                            List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
+                            if (!answers.isEmpty()) {
+                                for (Answer answer : answers) {
+                                    answerRepository.delete(answer);
+                                }
+                            }
+                            questionService.deleteQuestion(question);
+                        }
+                    }
+
+                    // First delete event linked to an online hearing
+                    sessionEventService.deleteByOnlineHearing(onlineHearing);
+
+                    // Now delete the panel members
+                    onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
+                    onlineHearingService.deleteByCaseId(caseId);
+                } catch (DataIntegrityViolationException e) {
+                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
+                }
+            }
+        }
+
         if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
             for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext()
                 .getSessionEventForwardingRegisters()) {

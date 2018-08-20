@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import cucumber.api.PendingException;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -40,11 +39,6 @@ public class OnlineHearingSteps extends BaseSteps {
     @Before
     public void setup() throws Exception {
         super.setup();
-    }
-
-    @After
-    public void cleanup() {
-        super.cleanup();
     }
 
     @Given("^a standard online hearing$")

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -24,11 +23,7 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -52,11 +47,6 @@ public class DeadlineSteps extends BaseSteps {
     @Before
     public void setup() throws Exception {
         super.setup();
-    }
-
-    @After
-    public void cleanup() {
-        super.cleanup();
     }
 
     @When("^deadline extension is requested(?: again)?$")

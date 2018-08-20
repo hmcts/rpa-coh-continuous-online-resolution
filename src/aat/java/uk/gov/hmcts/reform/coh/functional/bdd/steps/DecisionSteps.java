@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -12,8 +11,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.controller.DecisionController;
-import uk.gov.hmcts.reform.coh.controller.decision.*;
+import uk.gov.hmcts.reform.coh.controller.decision.CreateDecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
+import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.CreateDecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyRequest;
@@ -29,7 +30,6 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.NotSupportedException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -52,11 +52,6 @@ public class DecisionSteps extends BaseSteps {
     @Before
     public void setup() throws Exception {
         super.setup();
-    }
-
-    @After
-    public void cleanup() {
-        super.cleanup();
     }
 
     @Given("^a standard decision$")

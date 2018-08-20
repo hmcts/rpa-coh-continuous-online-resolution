@@ -4,24 +4,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.repository.AnswerRepository;
-import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
+import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
-import uk.gov.hmcts.reform.coh.service.*;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(BaseSteps.class);
@@ -31,30 +29,6 @@ public class BaseSteps {
     protected static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     private Map<String, String> endpoints = new HashMap<String, String>();
-
-    @Autowired
-    private OnlineHearingService onlineHearingService;
-
-    @Autowired
-    private QuestionService questionService;
-
-    @Autowired
-    private AnswerService answerService;
-
-    @Autowired
-    private AnswerRepository answerRepository;
-
-    @Autowired
-    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
-
-    @Autowired
-    private DecisionService decisionService;
-
-    @Autowired
-    private DecisionReplyRepository decisionReplyRepository;
-
-    @Autowired
-    private SessionEventService sessionEventService;
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
@@ -93,71 +67,6 @@ public class BaseSteps {
         header.add("Content-Type", "application/json");
         header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getHttpContext().getIdamAuthorRef());
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
-    }
-
-    public void cleanup() {
-        for (DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
-            try {
-                decisionReplyRepository.deleteById(decisionReply.getId());
-            } catch (Exception e) {
-                log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
-            }
-        }
-
-        if (testContext.getScenarioContext().getSessionEventForwardingRegisters() != null) {
-            for (SessionEventForwardingRegister sessionEventForwardingRegister : testContext.getScenarioContext().getSessionEventForwardingRegisters()) {
-                try {
-                    sessionEventForwardingRegisterRepository.delete(sessionEventForwardingRegister);
-                } catch (DataIntegrityViolationException e) {
-                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
-                }
-            }
-        }
-
-        // Delete all decisions
-        if (testContext.getScenarioContext().getCurrentDecision() != null) {
-            Decision decision = testContext.getScenarioContext().getCurrentDecision();
-            try {
-                decisionService.deleteDecisionById(decision.getDecisionId());
-            }
-            catch (Exception e) {
-                log.debug("Unable to delete decision: " + decision.getDecisionId());
-            }
-        }
-
-        if (testContext.getScenarioContext().getCaseIds() != null) {
-
-            for (String caseId : testContext.getScenarioContext().getCaseIds()) {
-                try {
-                    OnlineHearing onlineHearing = new OnlineHearing();
-                    onlineHearing.setCaseId(caseId);
-                    onlineHearing = onlineHearingService.retrieveOnlineHearingByCaseId(onlineHearing);
-
-                    // Delete all the Q & A
-                    Optional<List<Question>> questionList = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
-                    if (questionList.isPresent()) {
-                        for (Question question : questionList.get()) {
-                            List<Answer> answers = answerService.retrieveAnswersByQuestion(question);
-                            if (!answers.isEmpty()) {
-                                for (Answer answer : answers) {
-                                    answerRepository.delete(answer);
-                                }
-                            }
-                            questionService.deleteQuestion(question);
-                        }
-                    }
-
-                    // First delete event linked to an online hearing
-                    sessionEventService.deleteByOnlineHearing(onlineHearing);
-
-                    // Now delete the panel members
-                    onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
-                    onlineHearingService.deleteByCaseId(caseId);
-                } catch (DataIntegrityViolationException e) {
-                    log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
-                }
-            }
-        }
     }
 
     OnlineHearing createOnlineHearingFromResponse(CreateOnlineHearingResponse response) {

@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -81,31 +80,6 @@ public class AnswerSteps extends BaseSteps{
 
         currentQuestionId = null;
         currentAnswerId = null;
-    }
-
-    @After
-    public void cleanUp() {
-        /**
-         * For each test run, answers are attached to questions. These need
-         * to be deleted after test completion. Delete in reverse order for
-         * FK constrains
-         */
-        List<UUID> answerIds = testContext.getScenarioContext().getAnswerIds();
-        if (answerIds!= null && !answerIds.isEmpty()) {
-            for (UUID answerId : testContext.getScenarioContext().getAnswerIds()) {
-                answerService.deleteAnswer(new Answer().answerId(answerId));
-            }
-        }
-
-        List<UUID> questionIds = testContext.getScenarioContext().getQuestionIds();
-        if (questionIds != null && !questionIds.isEmpty()) {
-            for (UUID questionId : questionIds) {
-                Optional<Question> question = questionService.retrieveQuestionById(questionId);
-                if (question.isPresent()) {
-                    questionService.deleteQuestion(question.get());
-                }
-            }
-        }
     }
 
     /**

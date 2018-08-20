@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -72,11 +71,6 @@ public class QuestionSteps extends BaseSteps {
     public void setup() throws Exception {
         super.setup();
         questionIds = new ArrayList<>();
-    }
-
-    @After
-    public void cleanUp() {
-        super.cleanup();
     }
 
     @And("^the post request is sent to create the question$")
