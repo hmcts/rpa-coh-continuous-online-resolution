@@ -83,7 +83,7 @@ public class OnlineHearingSteps extends BaseSteps {
             }
 
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hcee.getRawStatusCode());
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
@@ -106,7 +106,7 @@ public class OnlineHearingSteps extends BaseSteps {
             }
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 

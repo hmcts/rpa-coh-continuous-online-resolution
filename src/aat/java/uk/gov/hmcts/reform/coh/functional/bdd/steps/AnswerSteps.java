@@ -20,14 +20,13 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.CreateQuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
-import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -56,16 +55,10 @@ public class AnswerSteps extends BaseSteps {
     private OnlineHearing onlineHearing;
 
     @Autowired
-    private QuestionService questionService;
-
-    @Autowired
     private AnswerService answerService;
 
     @Autowired
     private OnlineHearingRepository onlineHearingRepository;
-
-    @Autowired
-    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
     @Autowired
     public AnswerSteps(TestContext testContext) {
@@ -195,7 +188,6 @@ public class AnswerSteps extends BaseSteps {
 
         String json = JsonUtils.toJson(answerRequest);
 
-        int httpResponseCode = 0;
         RestTemplate restTemplate = getRestTemplate();
         try {
             if ("GET".equalsIgnoreCase(type)) {
@@ -212,16 +204,15 @@ public class AnswerSteps extends BaseSteps {
                 HttpEntity<String> request = new HttpEntity<>(json, header);
                 response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             }
-            httpResponseCode = response.getStatusCodeValue();
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
             Optional<UUID> optAnswerId = getAnswerId(response.getBody());
             if (optAnswerId.isPresent()) {
                 testContext.getScenarioContext().addAnswerId(optAnswerId.get());
             }
         } catch (HttpClientErrorException hcee) {
-            httpResponseCode = hcee.getRawStatusCode();
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
-        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
     }
 
     @Then("^there are (\\d+) answers$")
@@ -255,8 +246,7 @@ public class AnswerSteps extends BaseSteps {
         AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
 
         try {
-            ISO8601DateFormat df = new ISO8601DateFormat();
-            df.parse(response.getStateResponse().getDatetime());
+            CohISO8601DateFormat.parse(response.getStateResponse().getDatetime());
             assertTrue(true);
         }
         catch (Exception e) {

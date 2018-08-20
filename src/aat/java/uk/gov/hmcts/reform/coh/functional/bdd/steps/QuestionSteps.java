@@ -20,9 +20,6 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingPanelMemberRepository;
-import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -48,16 +45,7 @@ public class QuestionSteps extends BaseSteps {
     private boolean allQuestionRounds;
 
     @Autowired
-    private OnlineHearingRepository onlineHearingRepository;
-
-    @Autowired
-    private JurisdictionRepository jurisdictionRepository;
-
-    @Autowired
     private QuestionRepository questionRepository;
-
-    @Autowired
-    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
     @Autowired
     public QuestionSteps(TestContext testContext) {
@@ -75,19 +63,16 @@ public class QuestionSteps extends BaseSteps {
         String jsonBody = JsonUtils.toJson(questionRequest);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
         onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        int httpResponseCode = 0;
         try{
             ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.POST, request, String.class);
             String json = response.getBody();
             CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
             questionIds.add(createQuestionResponse.getQuestionId());
-            httpResponseCode = response.getStatusCodeValue();
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             testContext.getScenarioContext().setCurrentQuestion(extractQuestion(createQuestionResponse));
-        } catch (HttpClientErrorException hsee) {
-            httpResponseCode = hsee.getRawStatusCode();
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
-        testContext.getHttpContext().setHttpResponseStatusCode(httpResponseCode);
     }
 
     @And("^the get request is sent to retrieve all questions$")
@@ -99,8 +84,8 @@ public class QuestionSteps extends BaseSteps {
             ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions", HttpMethod.GET, request, String.class);
 
            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        } catch (HttpClientErrorException hsee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
@@ -112,8 +97,8 @@ public class QuestionSteps extends BaseSteps {
             HttpEntity<String> request = new HttpEntity<>("", header);
             ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(), HttpMethod.GET, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        } catch (HttpClientErrorException hsee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
@@ -134,25 +119,23 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @When("^the get request is sent to get all question rounds$")
-    public void theGetRequestIsSentToGetAllQuestionRounds() {
+    public void theGetRequestIsSentToGetAllQuestionRounds() throws Exception {
         HttpEntity<String> request = new HttpEntity<>("", header);
         ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
         allQuestionRounds = true;
     }
 
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
-    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
+    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) throws Exception {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
 
         HttpEntity<String> request = new HttpEntity<>("", header);
         ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
 
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
         allQuestionRounds = false;
     }
@@ -166,10 +149,9 @@ public class QuestionSteps extends BaseSteps {
             HttpEntity<String> request = new HttpEntity<>(json, header);
             ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
                     HttpMethod.PUT, request, String.class);
-            testContext.getHttpContext().setRawResponseString(response.getBody());
-            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hsee);
         }
     }
 
@@ -334,15 +316,14 @@ public class QuestionSteps extends BaseSteps {
             ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
                     HttpMethod.PUT, request, String.class);
 
-            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-            testContext.getHttpContext().setRawResponseString(response.getBody());
-        } catch (HttpClientErrorException hsee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
     @When("^the delete question request is sent$")
-    public void the_delete_question_request_is_sent() {
+    public void the_delete_question_request_is_sent() throws Exception {
 
         try {
             Question question = testContext.getScenarioContext().getCurrentQuestion();
@@ -350,10 +331,9 @@ public class QuestionSteps extends BaseSteps {
             ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(),
                     HttpMethod.DELETE, request, String.class);
 
-            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-            testContext.getHttpContext().setRawResponseString(response.getBody());
-        } catch (HttpClientErrorException hsee) {
-            testContext.getHttpContext().setHttpResponseStatusCode(hsee.getRawStatusCode());
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 

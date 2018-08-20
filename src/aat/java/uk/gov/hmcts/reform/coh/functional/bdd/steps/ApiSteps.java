@@ -262,7 +262,7 @@ public class ApiSteps extends BaseSteps {
             testContext.getScenarioContext()
                 .setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
@@ -279,7 +279,6 @@ public class ApiSteps extends BaseSteps {
             .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
         String responseString = response.getBody();
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         CreateOnlineHearingResponse newOnlineHearing = JsonUtils
             .toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
         testContext.getScenarioContext().setCurrentOnlineHearing(new OnlineHearing());
@@ -347,15 +346,14 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^send get request to the location$")
-    public void sendGetRequestToTheLocation() {
+    public void sendGetRequestToTheLocation() throws Exception {
         ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
         HttpHeaders headers = responseEntity.getHeaders();
         String urlToLocation = headers.get("Location").get(0);
 
         HttpEntity<String> request = new HttpEntity<>("", header);
         ResponseEntity<String> response = restTemplate.exchange(urlToLocation, HttpMethod.GET, request, String.class);
-        testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        testContext.getHttpContext().setRawResponseString(response.getBody());
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
     }
 
     @When("^an event has been queued for this online hearing of event type (.*)$")

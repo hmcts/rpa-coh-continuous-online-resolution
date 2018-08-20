@@ -64,7 +64,7 @@ public class DeadlineSteps extends BaseSteps {
                     getRestTemplate().exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
 
         restoreRestTemplate();
