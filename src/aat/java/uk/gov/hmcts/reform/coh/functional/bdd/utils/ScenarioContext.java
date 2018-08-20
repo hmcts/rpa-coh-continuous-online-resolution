@@ -37,6 +37,8 @@ public class ScenarioContext {
 
     private List<UUID> answerIds;
 
+    private List<UUID> questionIds;
+
     private UpdateQuestionRequest updateQuestionRequest;
     private DecisionReplyRequest decisionReplyRequest;
 
@@ -149,15 +151,22 @@ public class ScenarioContext {
         return answerIds;
     }
 
-    public void setAnswerIds(List<UUID> answerIds) {
-        this.answerIds = answerIds;
-    }
-
     public void addAnswerId(UUID answerId) {
         if (answerIds == null) {
             answerIds = new ArrayList<>();
         }
         answerIds.add(answerId);
+    }
+
+    public List<UUID> getQuestionIds() {
+        return questionIds;
+    }
+
+    public void addQuestionId(UUID questionId) {
+        if (questionIds == null) {
+            questionIds = new ArrayList<>();
+        }
+        questionIds.add(questionId);
     }
 
     public void setJurisdictions(List<Jurisdiction> jurisdictions) {

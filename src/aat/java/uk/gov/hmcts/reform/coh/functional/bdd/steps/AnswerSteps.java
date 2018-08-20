@@ -54,8 +54,6 @@ public class AnswerSteps extends BaseSteps{
 
     private AnswerRequest answerRequest;
 
-    private List<UUID> questionIds;
-
     private OnlineHearing onlineHearing;
 
     @Autowired
@@ -83,8 +81,6 @@ public class AnswerSteps extends BaseSteps{
 
         currentQuestionId = null;
         currentAnswerId = null;
-
-        questionIds = new ArrayList<>();
     }
 
     @After
@@ -101,10 +97,13 @@ public class AnswerSteps extends BaseSteps{
             }
         }
 
-        for (UUID questionId : questionIds) {
-            Optional<Question> question = questionService.retrieveQuestionById(questionId);
-            if (question.isPresent()) {
-                questionService.deleteQuestion(question.get());
+        List<UUID> questionIds = testContext.getScenarioContext().getQuestionIds();
+        if (questionIds != null && !questionIds.isEmpty()) {
+            for (UUID questionId : questionIds) {
+                Optional<Question> question = questionService.retrieveQuestionById(questionId);
+                if (question.isPresent()) {
+                    questionService.deleteQuestion(question.get());
+                }
             }
         }
     }
@@ -125,7 +124,7 @@ public class AnswerSteps extends BaseSteps{
         String json = response.getBody();
         CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
-        questionIds.add(createQuestionResponse.getQuestionId());
+        testContext.getScenarioContext().addQuestionId(createQuestionResponse.getQuestionId());
         Question question = new Question();
         question.setQuestionId(createQuestionResponse.getQuestionId());
         testContext.getScenarioContext().setCurrentQuestion(question);
