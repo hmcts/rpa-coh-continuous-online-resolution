@@ -12,10 +12,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.UpdateOnlineHearingReque
 import uk.gov.hmcts.reform.coh.controller.question.UpdateQuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ScenarioContext {
@@ -38,6 +35,10 @@ public class ScenarioContext {
 
     private List<String> caseIds;
 
+    private List<UUID> answerIds;
+
+    private List<UUID> questionIds;
+
     private UpdateQuestionRequest updateQuestionRequest;
     private DecisionReplyRequest decisionReplyRequest;
 
@@ -48,8 +49,6 @@ public class ScenarioContext {
     private DecisionReplyResponse decisionReplyResponse;
 
     private Set<SessionEventForwardingRegister> sessionEventForwardingRegisters = new HashSet<>();
-    private String idamAuthorRef;
-    private String idamServiceRef;
 
     public Set<SessionEventForwardingRegister> getSessionEventForwardingRegisters() {
         return sessionEventForwardingRegisters;
@@ -148,6 +147,28 @@ public class ScenarioContext {
         caseIds.add(caseId);
     }
 
+    public List<UUID> getAnswerIds() {
+        return answerIds;
+    }
+
+    public void addAnswerId(UUID answerId) {
+        if (answerIds == null) {
+            answerIds = new ArrayList<>();
+        }
+        answerIds.add(answerId);
+    }
+
+    public List<UUID> getQuestionIds() {
+        return questionIds;
+    }
+
+    public void addQuestionId(UUID questionId) {
+        if (questionIds == null) {
+            questionIds = new ArrayList<>();
+        }
+        questionIds.add(questionId);
+    }
+
     public void setJurisdictions(List<Jurisdiction> jurisdictions) {
         this.jurisdictions = jurisdictions;
     }
@@ -166,7 +187,7 @@ public class ScenarioContext {
         eventRegistrationRequest = null;
         sessionEventForwardingRegisters = null;
         decisionReplyRequest = null;
-
+        answerIds = null;
     }
 
     public void clearDecisionReplies() {
@@ -187,22 +208,6 @@ public class ScenarioContext {
 
     public EventRegistrationRequest getEventRegistrationRequest() {
         return eventRegistrationRequest;
-    }
-
-    public String getIdamAuthorRef() {
-        return idamAuthorRef;
-    }
-
-    public void setIdamAuthorRef(String idamAuthorRef) {
-        this.idamAuthorRef = idamAuthorRef;
-    }
-
-    public String getIdamServiceRef() {
-        return idamServiceRef;
-    }
-
-    public void setIdamServiceRef(String idamServiceRef) {
-        this.idamServiceRef = idamServiceRef;
     }
 
     public void setCurrentDecisionReplyRequest(DecisionReplyRequest decisionReplyRequest) {

@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -39,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
-public class AnswerSteps extends BaseSteps{
+public class AnswerSteps extends BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
 
     private ResponseEntity<String> response;
@@ -53,10 +52,6 @@ public class AnswerSteps extends BaseSteps{
     private Map<String, String> endpoints = new HashMap<String, String>();
 
     private AnswerRequest answerRequest;
-
-    private List<UUID> questionIds;
-
-    private List<UUID> answerIds;
 
     private OnlineHearing onlineHearing;
 
@@ -85,28 +80,6 @@ public class AnswerSteps extends BaseSteps{
 
         currentQuestionId = null;
         currentAnswerId = null;
-
-        questionIds = new ArrayList<>();
-        answerIds = new ArrayList<>();
-    }
-
-    @After
-    public void cleanUp() {
-        /**
-         * For each test run, answers are attached to questions. These need
-         * to be deleted after test completion. Delete in reverse order for
-         * FK constrains
-         */
-        for (UUID answerId : answerIds) {
-            answerService.deleteAnswer(new Answer().answerId(answerId));
-        }
-
-        for (UUID questionId : questionIds) {
-            Optional<Question> question = questionService.retrieveQuestionById(questionId);
-            if (question.isPresent()) {
-                questionService.deleteQuestion(question.get());
-            }
-        }
     }
 
     /**
@@ -121,11 +94,11 @@ public class AnswerSteps extends BaseSteps{
         updateEndpointWithOnlineHearingId();
 
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
-        response = restTemplate.exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
+        response = getRestTemplate().exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
         String json = response.getBody();
         CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
-        questionIds.add(createQuestionResponse.getQuestionId());
+        testContext.getScenarioContext().addQuestionId(createQuestionResponse.getQuestionId());
         Question question = new Question();
         question.setQuestionId(createQuestionResponse.getQuestionId());
         testContext.getScenarioContext().setCurrentQuestion(question);
@@ -192,6 +165,7 @@ public class AnswerSteps extends BaseSteps{
         }
 
         if ("answer".equalsIgnoreCase(entity)) {
+            List<UUID> answerIds = testContext.getScenarioContext().getAnswerIds();
             UUID currentAnswerId = answerIds.get(answerIds.size() - 1);
             endpoint += "/" + currentAnswerId;
         }
@@ -242,7 +216,7 @@ public class AnswerSteps extends BaseSteps{
 
             Optional<UUID> optAnswerId = getAnswerId(response.getBody());
             if (optAnswerId.isPresent()) {
-                answerIds.add(optAnswerId.get());
+                testContext.getScenarioContext().addAnswerId(optAnswerId.get());
             }
         } catch (HttpClientErrorException hcee) {
             httpResponseCode = hcee.getRawStatusCode();

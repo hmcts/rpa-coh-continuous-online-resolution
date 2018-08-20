@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -24,11 +23,7 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,11 +49,6 @@ public class DeadlineSteps extends BaseSteps {
         super.setup();
     }
 
-    @After
-    public void cleanup() {
-        super.cleanup();
-    }
-
     @When("^deadline extension is requested(?: again)?$")
     public void deadlineExtensionIsRequested() throws Exception {
         job.execute();
@@ -71,7 +61,7 @@ public class DeadlineSteps extends BaseSteps {
 
         try {
             ResponseEntity<String> response =
-                    restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
+                    getRestTemplate().exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
@@ -82,10 +72,10 @@ public class DeadlineSteps extends BaseSteps {
     }
 
     private void setupRestTemplate() {
-        oldErrorHandler = restTemplate.getErrorHandler();
+        oldErrorHandler = getRestTemplate().getErrorHandler();
 
         // valid response codes from the endpoint are not errors
-        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+        getRestTemplate().setErrorHandler(new ResponseErrorHandler() {
 
             @Override
             public boolean hasError(ClientHttpResponse response) throws IOException {
@@ -104,7 +94,7 @@ public class DeadlineSteps extends BaseSteps {
     }
 
     private void restoreRestTemplate() {
-        restTemplate.setErrorHandler(oldErrorHandler);
+        getRestTemplate().setErrorHandler(oldErrorHandler);
     }
 
     @Then("^question states are (.*)$")

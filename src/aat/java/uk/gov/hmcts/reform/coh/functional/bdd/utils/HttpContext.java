@@ -11,6 +11,9 @@ import java.io.IOException;
 @Component
 public class HttpContext {
 
+    private String idamAuthorRef;
+    private String idamServiceRef;
+
     private String rawResponseString;
     private int httpResponseStatusCode;
     private ResponseEntity responseEntity;
@@ -49,5 +52,21 @@ public class HttpContext {
 
     public void setHttpResponseStatusCode(int httpResponseStatusCode) {
         this.httpResponseStatusCode = httpResponseStatusCode;
+    }
+
+    public String getIdamAuthorRef() {
+        return idamAuthorRef;
+    }
+
+    public void setIdamAuthorRef(String idamAuthorRef) {
+        this.idamAuthorRef = idamAuthorRef;
+    }
+
+    public String getIdamServiceRef() {
+        return idamServiceRef;
+    }
+
+    public void setIdamServiceRef(String idamServiceRef) {
+        this.idamServiceRef = idamServiceRef;
     }
 }
