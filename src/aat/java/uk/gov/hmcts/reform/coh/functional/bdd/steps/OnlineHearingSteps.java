@@ -27,7 +27,7 @@ import java.util.UUID;
 import static junit.framework.TestCase.*;
 import static org.junit.Assert.assertNull;
 
-public class OnlineHearingSteps extends ApiSteps {
+public class OnlineHearingSteps extends BaseSteps {
 
     private UpdateOnlineHearingRequest request;
 

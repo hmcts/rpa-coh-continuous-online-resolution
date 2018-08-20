@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
-public class AnswerSteps extends ApiSteps {
+public class AnswerSteps extends BaseSteps {
     private static final Logger log = LoggerFactory.getLogger(AnswerSteps.class);
 
     private ResponseEntity<String> response;

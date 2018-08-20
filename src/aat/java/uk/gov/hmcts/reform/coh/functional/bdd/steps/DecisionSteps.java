@@ -39,7 +39,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class DecisionSteps extends ApiSteps {
+public class DecisionSteps extends BaseSteps {
 
     @Autowired
     private DecisionReplyRepository decisionReplyRepository;

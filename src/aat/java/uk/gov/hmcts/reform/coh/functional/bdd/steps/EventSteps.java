@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventSteps extends ApiSteps {
+public class EventSteps extends BaseSteps {
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;

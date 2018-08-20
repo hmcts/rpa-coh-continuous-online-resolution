@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
 @SpringBootTest
-public class DeadlineSteps extends ApiSteps {
+public class DeadlineSteps extends BaseSteps {
 
     @Autowired
     private EventNotifierJob job;
