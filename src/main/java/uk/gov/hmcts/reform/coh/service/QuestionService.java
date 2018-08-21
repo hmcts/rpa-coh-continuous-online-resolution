@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -132,7 +131,7 @@ public class QuestionService {
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
         Instant now = Instant.now();
-        extension = Duration.ofDays(ExpiryCalendar.deadlineExtensionDays);
+        extension = Duration.ofDays(ExpiryCalendar.INSTANCE.getDeadlineExtensionDays());
         List<Question> filteredQuestions = questions
                 .stream()
                 .filter(q -> deadlineUtils.isEligibleForDeadlineExtension(q))

@@ -108,7 +108,7 @@ public class DeadlineSteps extends BaseSteps {
         List<QuestionResponse> questionResponses = allQuestionsResponse.getQuestions();
 
         Calendar expectedExpiryDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.deadlineExtensionDays + ExpiryCalendar.deadlineExtensionDays); // deadline for answer + extension
+        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.INSTANCE.getDeadlineExtensionDays() *2 ); // deadline for answer + extension
         expectedExpiryDate.set(Calendar.HOUR_OF_DAY, 23);
         expectedExpiryDate.set(Calendar.MINUTE, 59);
         expectedExpiryDate.set(Calendar.SECOND, 59);

@@ -206,7 +206,7 @@ public class QuestionRoundService {
 
     public List<Question> issueQuestionRound(QuestionState questionState, List<Question> questions) {
         List<Question> modifiedQuestion = new ArrayList<>();
-        Date expiryDate = ExpiryCalendar.getDeadlineExpiryDate();
+        Date expiryDate = ExpiryCalendar.INSTANCE.getDeadlineExpiryDate();
         questions.forEach(q -> {
             q.setQuestionState(questionState);
             q.updateQuestionStateHistory(questionState);

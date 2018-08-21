@@ -103,7 +103,8 @@ app-insights:
   telemetry-component: on
 
 deadline:
-  extension-days: 7 # This must be updated in the AAT config too
+  extension-days: 7
+  # This must be updated in the AAT config too
 
 event-scheduler:
     event-notifier:
