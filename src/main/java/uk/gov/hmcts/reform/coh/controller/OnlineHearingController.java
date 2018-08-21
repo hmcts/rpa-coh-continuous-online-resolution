@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -158,7 +159,7 @@ public class OnlineHearingController {
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}").buildAndExpand(response.getOnlineHearingId());
+                uriBuilder.path(CohUriBuilder.buildOnlineHearingGet(onlineHearing.getOnlineHearingId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(response);
     }
