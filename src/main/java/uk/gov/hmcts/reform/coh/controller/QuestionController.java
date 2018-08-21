@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.QuestionValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
@@ -146,7 +147,7 @@ public class QuestionController {
         response.setQuestionId(question.getQuestionId());
 
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/questions/{id}").buildAndExpand(onlineHearingId, question.getQuestionId());
+                uriBuilder.path(CohUriBuilder.buildQuestionGet(onlineHearingId, question.getQuestionId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(response);
     }

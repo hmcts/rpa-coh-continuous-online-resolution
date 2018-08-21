@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
@@ -111,7 +112,7 @@ public class AnswerController {
         }
 
         UriComponents uriComponents =
-                uriBuilder.path("/continuous-online-hearings/{onlineHearingId}/questions/{questionId}/answers/{answerId}").buildAndExpand(onlineHearingId, questionId, answerResponse.getAnswerId());
+                uriBuilder.path(CohUriBuilder.buildAnswerGet(onlineHearingId, questionId, answerResponse.getAnswerId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(answerResponse);
     }
