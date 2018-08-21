@@ -18,8 +18,6 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohRequestEndpoint;
-import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohRequestFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
