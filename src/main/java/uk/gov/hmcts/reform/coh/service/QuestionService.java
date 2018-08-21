@@ -131,7 +131,7 @@ public class QuestionService {
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
         Instant now = Instant.now();
-        extension = Duration.ofDays(ExpiryCalendar.INSTANCE.getDeadlineExtensionDays());
+        extension = Duration.ofDays(ExpiryCalendar.getInstance().getDeadlineExtensionDays());
         List<Question> filteredQuestions = questions
                 .stream()
                 .filter(q -> deadlineUtils.isEligibleForDeadlineExtension(q))

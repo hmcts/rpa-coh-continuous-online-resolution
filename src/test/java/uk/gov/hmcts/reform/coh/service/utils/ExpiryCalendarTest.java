@@ -14,12 +14,12 @@ public class ExpiryCalendarTest {
     @Test
     public void testGetDeadlineReturnsDateOf7DaysAway() {
         Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        calendar.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.INSTANCE.getDeadlineExtensionDays());
+        calendar.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.getInstance().getDeadlineExtensionDays());
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
 
-        Date deadlineExpiryDate = ExpiryCalendar.INSTANCE.getDeadlineExpiryDate();
+        Date deadlineExpiryDate = ExpiryCalendar.getInstance().getDeadlineExpiryDate();
         assertEquals(calendar.getTime().toString(), deadlineExpiryDate.toString());
     }
 }

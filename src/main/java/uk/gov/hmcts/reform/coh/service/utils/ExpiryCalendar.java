@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class ExpiryCalendar {
 
-    public static ExpiryCalendar INSTANCE;
+    private static ExpiryCalendar INSTANCE;
 
     @Value("${deadline.extension-days}")
     private int deadlineExtensionDays;
@@ -20,6 +20,10 @@ public class ExpiryCalendar {
     @PostConstruct
     public void init() {
         INSTANCE = this;
+    }
+
+    public static ExpiryCalendar getInstance() {
+        return INSTANCE;
     }
 
     public int getDeadlineExtensionDays() {
