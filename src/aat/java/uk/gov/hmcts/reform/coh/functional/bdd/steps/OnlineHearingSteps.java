@@ -373,7 +373,7 @@ public class OnlineHearingSteps extends BaseSteps {
         if ("PUT".equalsIgnoreCase(method)) {
             json = getPutRequest();
         } else if ("POST".equalsIgnoreCase(method)) {
-            json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());;
+            json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
         }
 
         return json;
