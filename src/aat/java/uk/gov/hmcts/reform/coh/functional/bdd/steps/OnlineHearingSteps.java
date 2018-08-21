@@ -18,6 +18,8 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohRequestEndpoint;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohRequestFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -54,32 +56,16 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     @When("^a (.*) request is sent for online hearings$")
-    public void send_request_online_hearing(String type) throws Exception {
+    public void send_request_online_hearing(String method) throws Exception {
 
-        RestTemplate restTemplate = getRestTemplate();
-        ResponseEntity<String> response = null;
-
-        String endpoint = getEndpoints().get("online hearing");
         try {
-            String json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());
-            if ("GET".equalsIgnoreCase(type)) {
-                response = restTemplate.getForEntity(baseUrl + endpoint, String.class);
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-                testContext.getScenarioContext()
-                    .addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
-            } else if ("POST".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>(json, header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-                testContext.getScenarioContext()
-                    .addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
-            } else if ("PUT".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
-                String onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId()
-                    .toString();
-                response = restTemplate
-                    .exchange(baseUrl + endpoint + "/" + onlineHearingId, HttpMethod.PUT, request, String.class);
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+            ResponseEntity responseEntity = sendRequest("online hearings", method, getOnlineHearingRequest(method));
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(responseEntity);
+
+            if ("POST".equals(method)) {
+                CreateOnlineHearingResponse createOnlineHearingResponse = JsonUtils.toObjectFromJson(responseEntity.getBody().toString(), CreateOnlineHearingResponse.class);
+                testContext.getScenarioContext().setCurrentOnlineHearing(createOnlineHearingFromResponse(createOnlineHearingResponse));
+                testContext.getScenarioContext().addCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId());
             }
 
         } catch (HttpClientErrorException hcee) {
@@ -374,5 +360,24 @@ public class OnlineHearingSteps extends BaseSteps {
 
     private String getExpectedDecisionReplyUri(UUID onlineHearingId, UUID decisionReplyId) {
         return CohUriBuilder.buildDecisionReplyGet(onlineHearingId, decisionReplyId);
+    }
+
+    private OnlineHearing createOnlineHearingFromResponse(CreateOnlineHearingResponse response) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(UUID.fromString(response.getOnlineHearingId()));
+
+        return onlineHearing;
+    }
+
+    private String getOnlineHearingRequest(String method) throws  Exception {
+        String json = "";
+
+        if ("PUT".equalsIgnoreCase(method)) {
+            json = getPutRequest();
+        } else if ("POST".equalsIgnoreCase(method)) {
+            json = JsonUtils.toJson(testContext.getScenarioContext().getCurrentOnlineHearingRequest());;
+        }
+
+        return json;
     }
 }

@@ -4,12 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohRequestEndpoint;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohRequestFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
@@ -68,18 +73,14 @@ public class BaseSteps {
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
     }
 
-    OnlineHearing createOnlineHearingFromResponse(CreateOnlineHearingResponse response) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(UUID.fromString(response.getOnlineHearingId()));
+    protected ResponseEntity sendRequest(String entity, String methodType, String payload) throws Exception {
+        HttpMethod method = HttpMethod.valueOf(methodType);
 
-        return onlineHearing;
-    }
+        CohRequestEndpoint endpoint = CohRequestFactory.getRequestEndpoint(entity);
+        String url = endpoint.getUrl(method, testContext);
+        HttpEntity<String> request = new HttpEntity<>(payload, header);
 
-    OnlineHearing createOnlineHearingFromResponse(OnlineHearingResponse response) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(response.getOnlineHearingId());
-
-        return onlineHearing;
+        return restTemplate.exchange(url, method, request, String.class);
     }
 
     public RestTemplate getRestTemplate() {
