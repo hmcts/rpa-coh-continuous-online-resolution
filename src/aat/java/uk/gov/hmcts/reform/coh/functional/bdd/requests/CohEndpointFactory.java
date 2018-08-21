@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class CohRequestFactory {
+public class CohEndpointFactory {
 
     @Autowired
-    private List<CohRequestEndpoint> requestEndpoints;
+    private List<CohEndpointHandler> requestEndpoints;
 
-    private static final Map<String, CohRequestEndpoint> mappedRequestEndpoints = new HashMap<>();
+    private static final Map<String, CohEndpointHandler> mappedRequestEndpoints = new HashMap<>();
 
     @PostConstruct
     public void setRequestEndpoints() {
         requestEndpoints.forEach(r -> mappedRequestEndpoints.put(r.supports(), r));
     }
 
-    public static CohRequestEndpoint getRequestEndpoint(String type) {
+    public static CohEndpointHandler getRequestEndpoint(String type) {
         return mappedRequestEndpoints.get(type);
     }
 }

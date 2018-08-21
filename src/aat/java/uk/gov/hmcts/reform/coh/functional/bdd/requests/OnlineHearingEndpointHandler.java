@@ -8,7 +8,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
 @Component
-public class OnlineHearingRequestHandler extends AbstractRequestEndpoint {
+public class OnlineHearingEndpointHandler extends AbstractRequestEndpoint {
 
     @Override
     public String getUrl(HttpMethod method, TestContext testContext) {
