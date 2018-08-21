@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequestMapper;
@@ -102,8 +103,8 @@ public class DecisionServiceTest {
     @Test
     public void testDeadlineExpiryDate() {
         DateFormat df = new SimpleDateFormat("yyyyMMDDHHmmss");
-        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        calendar.add(Calendar.DAY_OF_YEAR, 7);
+        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        calendar.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.deadlineExtensionDays);
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);

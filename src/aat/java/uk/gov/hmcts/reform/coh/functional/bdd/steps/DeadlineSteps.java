@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
+import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class DeadlineSteps extends BaseSteps {
         List<QuestionResponse> questionResponses = allQuestionsResponse.getQuestions();
 
         Calendar expectedExpiryDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, 7 + 7); // deadline for answer + extension
+        expectedExpiryDate.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.deadlineExtensionDays + ExpiryCalendar.deadlineExtensionDays); // deadline for answer + extension
         expectedExpiryDate.set(Calendar.HOUR_OF_DAY, 23);
         expectedExpiryDate.set(Calendar.MINUTE, 59);
         expectedExpiryDate.set(Calendar.SECOND, 59);

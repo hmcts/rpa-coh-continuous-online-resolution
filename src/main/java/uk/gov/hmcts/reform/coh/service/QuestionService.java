@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 
 import java.time.Duration;
@@ -45,9 +46,6 @@ public class QuestionService {
     private QuestionState issued;
     private QuestionState extensionGranted;
     private QuestionState extensionDenied;
-
-    @Value("${deadline.extension-days}")
-    private int extensionDays = 7;
 
     private Duration extension;
 
@@ -134,7 +132,7 @@ public class QuestionService {
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
         Instant now = Instant.now();
-        extension = Duration.ofDays(extensionDays);
+        extension = Duration.ofDays(ExpiryCalendar.deadlineExtensionDays);
         List<Question> filteredQuestions = questions
                 .stream()
                 .filter(q -> deadlineUtils.isEligibleForDeadlineExtension(q))
