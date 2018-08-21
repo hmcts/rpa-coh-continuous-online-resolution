@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BaseSteps {
-    private static final Logger log = LoggerFactory.getLogger(BaseSteps.class);
 
     protected RestTemplate restTemplate;
 

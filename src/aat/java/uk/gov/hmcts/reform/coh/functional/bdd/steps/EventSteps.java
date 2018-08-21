@@ -84,9 +84,8 @@ public class EventSteps extends BaseSteps {
         try {
             response = getRestTemplate().exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
@@ -146,9 +145,8 @@ public class EventSteps extends BaseSteps {
         try {
             response = getRestTemplate().exchange(baseUrl + endpoint + "/reset", HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            testContext.getHttpContext().setHttpResponseStatusCode(response.getStatusCodeValue());
-        }catch (HttpClientErrorException e) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+        } catch (HttpClientErrorException e) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
         }
     }
 
@@ -173,6 +171,4 @@ public class EventSteps extends BaseSteps {
         }
 
     }
-
-
 }

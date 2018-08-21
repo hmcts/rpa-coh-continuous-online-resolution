@@ -109,7 +109,7 @@ public class DecisionSteps extends BaseSteps {
             }
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
-            testContext.getHttpContext().setResponseBodyAndStatesForException(hcee);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
     }
 
@@ -120,7 +120,7 @@ public class DecisionSteps extends BaseSteps {
 
         String endpoint = getReplyEndpoint();
 
-        if(type.equalsIgnoreCase("POST")) {
+        if (type.equalsIgnoreCase("POST")) {
             DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
             String json = JsonUtils.toJson(decisionReplyRequest);
             HttpEntity<String> request = new HttpEntity<>(json, header);
@@ -134,10 +134,10 @@ public class DecisionSteps extends BaseSteps {
 
                 testContext.getScenarioContext().addDecisionReply(decisionReply);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            }catch (HttpClientErrorException e){
-                testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+            } catch (HttpClientErrorException e){
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
             }
-        }else if(type.equalsIgnoreCase("GET")) {
+        } else if(type.equalsIgnoreCase("GET")) {
             HttpEntity<String> request = new HttpEntity<>("", header);
 
             try {
@@ -146,10 +146,10 @@ public class DecisionSteps extends BaseSteps {
                 DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
                 testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            }catch (HttpClientErrorException e) {
-                testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+            } catch (HttpClientErrorException e) {
+                testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
             }
-        }else{
+        } else {
             throw new NotSupportedException("Method not support: " + type);
         }
     }
@@ -168,8 +168,8 @@ public class DecisionSteps extends BaseSteps {
             AllDecisionRepliesResponse allDecisionRepliesResponse = JsonUtils.toObjectFromJson(response.getBody(), AllDecisionRepliesResponse.class);
             testContext.getScenarioContext().setAllDecisionRepliesResponse(allDecisionRepliesResponse);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-        }catch (HttpClientErrorException e){
-            testContext.getHttpContext().setResponseBodyAndStatesForException(e);
+        } catch (HttpClientErrorException e) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
         }
     }
 
