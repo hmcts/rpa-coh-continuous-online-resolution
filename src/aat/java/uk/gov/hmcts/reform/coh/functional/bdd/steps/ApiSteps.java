@@ -181,22 +181,6 @@ public class ApiSteps extends BaseSteps {
         }
     }
 
-    @When("^a get request is sent to ' \"([^\"]*)\"' for the saved online hearing$")
-    public void a_get_request_is_sent_to(String endpoint) throws Throwable {
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        HttpEntity<String> request = new HttpEntity<>("", header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint + "/" + onlineHearing.getOnlineHearingId().toString(), HttpMethod.GET, request, String.class);
-
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-    }
-
-    @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
-    public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
-        HttpEntity<String> request = new HttpEntity<>("", header);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
-        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-    }
-
     @When("^a post request is sent to ' \"([^\"]*)\"'$")
     public void a_post_request_is_sent_to(String endpoint) {
         HttpEntity<String> request = new HttpEntity<>(json.toString(), header);

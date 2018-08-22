@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 public class OnlineHearingMapper {
 
+    private OnlineHearingMapper() {}
+
     public static void map(OnlineHearingResponse response, OnlineHearing onlineHearing) {
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         response.setCaseId(onlineHearing.getCaseId());

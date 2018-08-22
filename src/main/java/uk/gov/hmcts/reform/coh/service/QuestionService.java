@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.coh.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -12,6 +11,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 
 import java.time.Duration;
@@ -46,9 +46,6 @@ public class QuestionService {
     private QuestionState extensionGranted;
     private QuestionState extensionDenied;
 
-    @Value("${deadline.extension-days}")
-    private int extensionDays = 7;
-
     private Duration extension;
 
     @Autowired
@@ -78,8 +75,8 @@ public class QuestionService {
     }
 
     @Transactional
-    public Optional<Question> retrieveQuestionById(final UUID question_id){
-        Optional<Question> question = questionRepository.findById(question_id);
+    public Optional<Question> retrieveQuestionById(final UUID questionId){
+        Optional<Question> question = questionRepository.findById(questionId);
 
         if (!question.isPresent()) {
             return question;
@@ -134,7 +131,7 @@ public class QuestionService {
             .orElseThrow(() -> new RuntimeException("Could not retrieve questions"));
 
         Instant now = Instant.now();
-        extension = Duration.ofDays(extensionDays);
+        extension = Duration.ofDays(ExpiryCalendar.getInstance().getDeadlineExtensionDays());
         List<Question> filteredQuestions = questions
                 .stream()
                 .filter(q -> deadlineUtils.isEligibleForDeadlineExtension(q))

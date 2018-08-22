@@ -69,17 +69,16 @@ public class BaseSteps {
     }
 
     protected ResponseEntity sendRequest(CohEntityTypes entity, String methodType, String payload) {
-        return sendRequest(entity.toString(), methodType,  payload);
+        return sendRequest(entity.toString(), methodType, payload);
     }
 
     protected ResponseEntity sendRequest(String entity, String methodType, String payload) {
         HttpMethod method = HttpMethod.valueOf(methodType);
 
         CohEndpointHandler endpoint = CohEndpointFactory.getRequestEndpoint(entity);
-        String url = endpoint.getUrl(method, testContext);
         HttpEntity<String> request = new HttpEntity<>(payload, header);
 
-        return restTemplate.exchange(url, method, request, String.class);
+        return restTemplate.exchange(endpoint.getUrl(method, testContext), method, request, String.class);
     }
 
     public RestTemplate getRestTemplate() {

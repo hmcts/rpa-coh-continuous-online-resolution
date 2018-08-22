@@ -52,7 +52,7 @@ Feature: Decisions features
     When a GET request is sent for a decision
     And the decision state name is decision_issue_pending
     And the decision expiry date is 7 days in the future
-    When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
+    When a GET request is sent for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_started'
     And an event has been queued for this online hearing of event type decision_issued
 

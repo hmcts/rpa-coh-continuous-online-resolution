@@ -19,7 +19,7 @@ Feature: Online hearing
   Scenario: Retrieve online hearing
     And the response contains the following text '"online_hearing_id" '
     And the response contains the online hearing UUID
-    When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
+    When a GET request is sent for the saved online hearing
     Then the response code is 200
     And the response contains the following text '"case_123" '
     And the response contains 1 panel member
@@ -33,7 +33,7 @@ Feature: Online hearing
     And a PUT request is sent for online hearing
     Then the response code is 200
     And the response contains the following text '"Online hearing updated" '
-    When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
+    When a GET request is sent for the saved online hearing
     Then the response code is 200
     And the online hearing end date is not null
     And the online hearing reason is 'reason'

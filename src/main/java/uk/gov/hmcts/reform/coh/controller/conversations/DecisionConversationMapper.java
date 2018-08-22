@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 public class DecisionConversationMapper {
 
+    private DecisionConversationMapper() {}
+
     public static void map(Decision decision, DecisionResponse response) {
 
         DecisionResponseMapper.map(decision, response);

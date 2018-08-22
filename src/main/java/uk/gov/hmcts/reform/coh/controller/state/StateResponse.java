@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.text.WordUtils;
 
-public class StateResponse {
+import java.io.Serializable;
+
+public class StateResponse implements Serializable {
 
     @JsonProperty(value = "state_name")
     private String name;

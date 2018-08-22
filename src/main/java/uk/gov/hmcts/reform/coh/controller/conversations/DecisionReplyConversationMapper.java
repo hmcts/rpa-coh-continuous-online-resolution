@@ -8,6 +8,8 @@ import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 
 public class DecisionReplyConversationMapper {
 
+    private DecisionReplyConversationMapper() {}
+
     public static void map(DecisionReply decisionReply, DecisionReplyResponse response) {
         DecisionReplyResponseMapper.map(decisionReply, response);
 

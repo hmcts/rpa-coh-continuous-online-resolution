@@ -10,6 +10,8 @@ import java.util.Objects;
 
 public class JsonUtils {
 
+    private JsonUtils() {}
+
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private static ClassLoader classLoader = JsonUtils.class.getClassLoader();
