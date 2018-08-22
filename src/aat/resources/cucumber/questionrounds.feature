@@ -190,7 +190,7 @@ Feature: Question Round Logic
     And the question round ' "1" ' is ' "question_issued" '
     And each question in the question round has a history of at least ' "2" ' events
     And each question in the question round has a correct deadline expiry date
-    And a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
+    And a GET request is sent for the saved online hearing
     Then the online hearing state is 'continuous_online_hearing_started'
     And an event has been queued for this online hearing of event type question_round_issued
 

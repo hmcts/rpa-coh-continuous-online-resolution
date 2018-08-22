@@ -54,6 +54,18 @@ public class OnlineHearingSteps extends BaseSteps {
         testContext.getScenarioContext().getCurrentOnlineHearingRequest().setCaseId(caseId);
     }
 
+    @When("^a (.*) request is sent for the saved online hearing$")
+    public void a_get_request_is_sent_to(String method) throws Throwable {
+        send_request_online_hearing(method);
+    }
+
+    @When("^a get request is sent to ' \"([^\"]*)\"' for the online hearing$")
+    public void a_filter_get_request_is_sent_to(String endpoint) throws Throwable {
+        HttpEntity<String> request = new HttpEntity<>("", header);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+    }
+
     @When("^a (.*) request is sent for online hearing$")
     public void send_request_online_hearing(String method) throws Exception {
 
