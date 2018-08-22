@@ -15,7 +15,7 @@ public class DecisionEndpointHandler extends AbstractRequestEndpoint {
 
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         String url;
-        if (HttpMethod.POST.equals(method) || HttpMethod.GET.equals(method)) {
+        if (HttpMethod.POST.equals(method) || HttpMethod.GET.equals(method) || HttpMethod.PUT.equals(method)) {
             url = CohUriBuilder.buildDecisionGet(onlineHearing.getOnlineHearingId());
         } else {
             throw new NotImplementedException(String.format("Http method %s not implemented for %s", method, getClass()));
