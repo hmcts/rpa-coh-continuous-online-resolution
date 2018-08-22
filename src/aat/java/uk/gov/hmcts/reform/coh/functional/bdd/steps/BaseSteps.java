@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
@@ -65,6 +66,10 @@ public class BaseSteps {
         header.add("Content-Type", "application/json");
         header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getHttpContext().getIdamAuthorRef());
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
+    }
+
+    protected ResponseEntity sendRequest(CohEntityTypes entity, String methodType, String payload) {
+        return sendRequest(entity.toString(), methodType,  payload);
     }
 
     protected ResponseEntity sendRequest(String entity, String methodType, String payload) {
