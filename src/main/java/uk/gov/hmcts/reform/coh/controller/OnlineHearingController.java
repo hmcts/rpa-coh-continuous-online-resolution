@@ -242,9 +242,9 @@ public class OnlineHearingController {
             result.setReason("Jurisdiction is not valid");
         } else {
             for (OnlineHearingRequest.PanelMember member : request.getPanel()) {
-                if (StringUtils.isEmpty(member.getIdentityToken()) || StringUtils.isEmpty(member.getName())) {
+                if (StringUtils.isEmpty(member.getName())) {
                     result.setValid(false);
-                    result.setReason("The panel member identity and name are required");
+                    result.setReason("The panel member name is required");
                     break;
                 }
             }
