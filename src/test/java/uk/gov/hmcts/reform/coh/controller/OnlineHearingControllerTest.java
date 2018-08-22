@@ -215,7 +215,7 @@ public class OnlineHearingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
-        assertEquals("The panel member identity and name are required", result.getResponse().getContentAsString());
+        assertEquals("The panel member name is required", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -223,11 +223,9 @@ public class OnlineHearingControllerTest {
 
         onlineHearingRequest.getPanel().get(0).setIdentityToken(null);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn();
-        assertEquals("The panel member identity and name are required", result.getResponse().getContentAsString());
+                .andExpect(status().isCreated());
     }
 
     @Test
