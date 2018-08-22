@@ -85,7 +85,7 @@ public class DecisionSteps extends BaseSteps {
     }
 
     @When("^a (.*) request is sent for a decision$")
-    public void send_request(String method) throws Exception {
+    public void sendDecisionRequest(String method) throws Exception {
 
         testContext.getScenarioContext().clearDecisionReplies();
         try {
