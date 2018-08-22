@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 public class QuestionConversationMapper {
 
+    private QuestionConversationMapper() {}
+
     public static void map(Question question, QuestionResponse response) {
         QuestionResponseMapper.map(question, response);
 
