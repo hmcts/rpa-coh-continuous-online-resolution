@@ -300,7 +300,7 @@ public class ConversationsControllerTest {
         List<DecisionReplyResponse> decisionReplyResponses = response.getOnlineHearing().getDecisionResponse()
             .getDecisionReplyResponses();
         assertFalse(decisionReplyResponses.isEmpty());
-        assertEquals(decisionReplyResponses.size(), 1);
+        assertEquals(1, decisionReplyResponses.size());
 
         int n = 0;
         for (DecisionReplyResponse replyResponse : decisionReplyResponses) {

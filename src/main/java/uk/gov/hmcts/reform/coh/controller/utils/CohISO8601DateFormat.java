@@ -7,6 +7,8 @@ import java.util.Date;
 
 public class CohISO8601DateFormat {
 
+    private CohISO8601DateFormat() {}
+
     private static final ISO8601DateFormat df = new ISO8601DateFormat();
 
     public static String format(Date date) {

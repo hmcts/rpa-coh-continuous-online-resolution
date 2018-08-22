@@ -4,7 +4,9 @@ import org.apache.commons.validator.routines.IntegerValidator;
 
 public class ValidatorUtils {
 
-    public final static boolean isPositiveInteger(String candidate) {
+    private ValidatorUtils() {}
+
+    public static final boolean isPositiveInteger(String candidate) {
 
         return IntegerValidator.getInstance().isValid(candidate)
                     && IntegerValidator.getInstance().minValue(Integer.parseInt(candidate), 0);

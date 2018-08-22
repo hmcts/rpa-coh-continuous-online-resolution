@@ -75,8 +75,8 @@ public class QuestionService {
     }
 
     @Transactional
-    public Optional<Question> retrieveQuestionById(final UUID question_id){
-        Optional<Question> question = questionRepository.findById(question_id);
+    public Optional<Question> retrieveQuestionById(final UUID questionId){
+        Optional<Question> question = questionRepository.findById(questionId);
 
         if (!question.isPresent()) {
             return question;
