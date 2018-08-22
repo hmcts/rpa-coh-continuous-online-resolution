@@ -19,9 +19,7 @@ public class QuestionEndpointHandler extends AbstractRequestEndpoint {
         String url = null;
         if (HttpMethod.POST.equals(method)) {
             url = CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId());
-        } else if (HttpMethod.GET.equals(method)) {
-            url = CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId());
-        } else if (HttpMethod.PUT.equals(method)) {
+        } else if (HttpMethod.GET.equals(method) || HttpMethod.PUT.equals(method) || HttpMethod.DELETE.equals(method)) {
             url = CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId());
         } else {
             throw new NotImplementedException(String.format("Http method %s not implemented for %s", method, getClass()));

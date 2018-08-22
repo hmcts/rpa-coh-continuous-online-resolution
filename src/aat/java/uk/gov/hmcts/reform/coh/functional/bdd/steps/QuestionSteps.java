@@ -64,7 +64,7 @@ public class QuestionSteps extends BaseSteps {
     @And("^the post request is sent to create the question$")
     public void theDraftAQuestion() throws Throwable {
         try{
-            ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, "POST", toJson(questionRequest));
+            ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), toJson(questionRequest));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             CreateQuestionResponse createQuestionResponse = getCreateQuestionResponse();
             questionIds.add(createQuestionResponse.getQuestionId());
@@ -91,7 +91,7 @@ public class QuestionSteps extends BaseSteps {
     @And("^the get request is sent to retrieve the submitted question$")
     public void get_the_submitted_question() {
         try {
-            ResponseEntity<String> response = sendRequest(CohEntityTypes.QUESTION, "GET", "");
+            ResponseEntity<String> response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.GET.name(), "");
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
@@ -299,13 +299,9 @@ public class QuestionSteps extends BaseSteps {
 
     @When("^the put request to update the question is sent$")
     public void thePutRequestToUpdateTheQuestionIsSent() throws Throwable {
-        String json = toJson(testContext.getScenarioContext().getUpdateQuestionRequest());
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        try{
-            HttpEntity<String> request = new HttpEntity<>(json, header);
-            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + questionIds.get(0),
-                    HttpMethod.PUT, request, String.class);
-
+        try {
+            String json = toJson(testContext.getScenarioContext().getUpdateQuestionRequest());
+            ResponseEntity<String> response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.PUT.name(), json);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
