@@ -44,6 +44,7 @@ public class CohUriBuilder {
     }
 
     public static String buildDecisionReplyGet(UUID onlineHearingId, UUID decisionReplyId) {
+
         return buildDecisionReplyPost(onlineHearingId) + decisionReplyId;
     }
 }
