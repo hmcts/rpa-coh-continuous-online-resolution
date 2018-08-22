@@ -19,3 +19,6 @@ event-scheduler:
 #     properties:
 #       hiberante:
 #         dialect: org.hibernate.dialect.H2Dialect
+
+deadline:
+  extension-days: 7
