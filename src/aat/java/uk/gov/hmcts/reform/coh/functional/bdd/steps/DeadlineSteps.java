@@ -100,7 +100,7 @@ public class DeadlineSteps extends BaseSteps {
     @Then("^question states are (.*)$")
     public void questionsDeadlinesHaveBeenSuccessfullyExtended(String questionExpectedState) throws Throwable {
         // load questions into scenario context
-        questionSteps.getAlQuestionsForOnlineHearing();
+        questionSteps.getAllQuestionsForOnlineHearing();
 
         String rawJson = testContext.getHttpContext().getRawResponseString();
         AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);

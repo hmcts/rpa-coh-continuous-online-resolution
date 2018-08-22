@@ -75,7 +75,7 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @And("^the get request is sent to retrieve all questions$")
-    public void getAlQuestionsForOnlineHearing() {
+    public void getAllQuestionsForOnlineHearing() {
         try {
             HttpEntity<String> request = new HttpEntity<>("", header);
             ResponseEntity<String> response = getRestTemplate().exchange(getAllQuestionsEndpoint(), HttpMethod.GET, request, String.class);
