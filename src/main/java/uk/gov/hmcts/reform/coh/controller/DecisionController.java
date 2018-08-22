@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
 import static uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RestController
@@ -44,7 +45,6 @@ public class DecisionController {
     private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
     private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
-    private static final String ONLINE_HEARING_NOT_FOUND = "Online hearing not found";
     private static final String UNABLE_TO_FIND_DECISION = "Unable to find decision";
     private static final String MISSING_AUTHOR_MESSAGE = "Authorization author id must not be empty";
 

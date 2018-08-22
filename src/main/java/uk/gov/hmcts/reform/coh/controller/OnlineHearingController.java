@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.*;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.*;
 
 @RestController
@@ -179,7 +180,7 @@ public class OnlineHearingController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(request.getState());

@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.QUESTION_NOT_FOUND;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class QuestionController {
@@ -43,9 +46,6 @@ public class QuestionController {
     private Validation validation = new Validation();
 
     private AnswerService answerService;
-
-    private static final String QUESTION_NOT_FOUND = "Question not found";
-    private static final String ONLINE_HEARING_NOT_FOUND = "Online hearing not found";
 
     @Autowired
     public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService, AnswerService answerService) {

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class QuestionRoundController {
@@ -35,8 +37,6 @@ public class QuestionRoundController {
 
     @Autowired
     private SessionEventService sessionEventService;
-
-    private static final String ONLINE_HEARING_NOT_FOUND = "Online hearing not found";
 
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {
