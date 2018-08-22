@@ -36,6 +36,8 @@ public class QuestionRoundController {
     @Autowired
     private SessionEventService sessionEventService;
 
+    private static final String ONLINE_HEARING_NOT_FOUND = "Online hearing not found";
+
     @ApiOperation("Get all question rounds")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = QuestionRoundsResponse.class),
@@ -52,7 +54,7 @@ public class QuestionRoundController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         onlineHearing = optionalOnlineHearing.get();
@@ -85,7 +87,7 @@ public class QuestionRoundController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         onlineHearing = optionalOnlineHearing.get();
@@ -113,7 +115,7 @@ public class QuestionRoundController {
         onlineHearing.setOnlineHearingId(onlineHearingId);
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if(!optionalOnlineHearing.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
         onlineHearing = optionalOnlineHearing.get();
 
