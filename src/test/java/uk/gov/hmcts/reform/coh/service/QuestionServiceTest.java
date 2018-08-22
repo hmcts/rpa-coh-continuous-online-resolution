@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
@@ -11,6 +12,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
@@ -30,6 +32,9 @@ import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
 
 @RunWith(SpringRunner.class)
 public class QuestionServiceTest {
+
+    @InjectMocks
+    private ExpiryCalendar expiryCalendar;
 
     @Mock
     private QuestionRepository questionRepository;
@@ -57,6 +62,8 @@ public class QuestionServiceTest {
 
     @Before
     public void setup() {
+        expiryCalendar.init();
+
         ONE = UUID.randomUUID();
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(ONE);
