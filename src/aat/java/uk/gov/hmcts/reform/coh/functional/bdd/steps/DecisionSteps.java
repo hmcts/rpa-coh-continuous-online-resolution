@@ -106,21 +106,17 @@ public class DecisionSteps extends BaseSteps {
     @And("^a (.*) request is sent for a decision reply$")
     public void aPOSTRequestIsSentForADecisionReply(String type) throws Throwable {
         RestTemplate restTemplate = getRestTemplate();
-        ResponseEntity<String> response = null;
-
-        String endpoint = getReplyEndpoint();
 
         if (type.equalsIgnoreCase("POST")) {
             DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
             String json = JsonUtils.toJson(decisionReplyRequest);
-            HttpEntity<String> request = new HttpEntity<>(json, header);
 
             try {
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-                CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionReplyResponse.class);
+                ResponseEntity response = sendRequest(CohEntityTypes.DECISION_REPLY, HttpMethod.POST.name(), json);
+                CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateDecisionReplyResponse.class);
 
                 DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionReplyResponse.getDecisionReplyId())
-                        .orElseThrow(() -> new EntityNotFoundException());
+                        .orElseThrow(EntityNotFoundException::new);
 
                 testContext.getScenarioContext().addDecisionReply(decisionReply);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
@@ -128,12 +124,9 @@ public class DecisionSteps extends BaseSteps {
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
             }
         } else if(type.equalsIgnoreCase("GET")) {
-            HttpEntity<String> request = new HttpEntity<>("", header);
-
             try {
-                String uuid = testContext.getScenarioContext().getDecisionReplies().get(0).getId().toString();
-                response = restTemplate.exchange(baseUrl + endpoint + "/" + uuid, HttpMethod.GET, request, String.class);
-                DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody(), DecisionReplyResponse.class);
+                ResponseEntity response = sendRequest(CohEntityTypes.DECISION_REPLY, HttpMethod.GET.name(), "");
+                DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), DecisionReplyResponse.class);
                 testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
                 testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             } catch (HttpClientErrorException e) {
