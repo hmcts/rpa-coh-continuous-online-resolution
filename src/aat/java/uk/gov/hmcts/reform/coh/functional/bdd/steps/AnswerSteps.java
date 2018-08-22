@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
@@ -91,9 +92,7 @@ public class AnswerSteps extends BaseSteps {
         CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         testContext.getScenarioContext().addQuestionId(createQuestionResponse.getQuestionId());
-        Question question = new Question();
-        question.setQuestionId(createQuestionResponse.getQuestionId());
-        testContext.getScenarioContext().setCurrentQuestion(question);
+        testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
     }
 
     @Given("^a standard answer$")
