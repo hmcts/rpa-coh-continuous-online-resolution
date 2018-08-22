@@ -11,7 +11,7 @@ public class CohUriBuilder {
 
     public static String buildOnlineHearingGet(UUID onlineHearingId) {
 
-        return String.format(buildOnlineHearingPost() + "/%s", onlineHearingId);
+        return buildOnlineHearingPost() + "/" + onlineHearingId;
     }
 
     public static String buildQuestionPost(UUID onlineHearingId) {
@@ -21,7 +21,7 @@ public class CohUriBuilder {
 
     public static String buildQuestionGet(UUID onlineHearingId, UUID questionId) {
 
-        return String.format(buildQuestionPost(onlineHearingId) + "/%s", questionId);
+        return buildQuestionPost(onlineHearingId) + "/" + questionId;
     }
 
     public static String buildDecisionGet(UUID onlineHearingId) {
@@ -36,14 +36,15 @@ public class CohUriBuilder {
 
     public static String buildAnswerGet(UUID onlineHearingId, UUID questionId, UUID answerId) {
 
-        return String.format(buildAnswerPost(onlineHearingId, questionId) + "/%s", answerId);
+        return buildAnswerPost(onlineHearingId, questionId) + "/" + answerId;
     }
 
     public static String buildDecisionReplyPost(UUID onlineHearingId) {
-        return buildOnlineHearingGet(onlineHearingId) + "/decisionreplies/";
+        return buildOnlineHearingGet(onlineHearingId) + "/decisionreplies";
     }
 
     public static String buildDecisionReplyGet(UUID onlineHearingId, UUID decisionReplyId) {
-        return String.format(buildDecisionReplyPost(onlineHearingId) + "/%s", decisionReplyId);
+
+        return buildDecisionReplyPost(onlineHearingId) + "/" + decisionReplyId;
     }
 }

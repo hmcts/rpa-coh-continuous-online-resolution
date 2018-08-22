@@ -30,7 +30,7 @@ Feature: Online hearing
     Given a standard update online hearing request
     And the update online hearing state is continuous_online_hearing_relisted
     And the relist reason is 'reason'
-    And a PUT request is sent for online hearings
+    And a PUT request is sent for online hearing
     Then the response code is 200
     And the response contains the following text '"Online hearing updated" '
     When a get request is sent to ' "/continuous-online-hearings"' for the saved online hearing
@@ -42,26 +42,26 @@ Feature: Online hearing
     Given a standard update online hearing request
     And the update online hearing state is continuous_online_hearing_relisted
     And the relist reason is 'reason'
-    And a PUT request is sent for online hearings
+    And a PUT request is sent for online hearing
     Then the response code is 200
     And the response contains the following text '"Online hearing updated" '
-    And a PUT request is sent for online hearings
+    And a PUT request is sent for online hearing
     Then the response code is 409
 
   Scenario: Update with invalid online hearing state
     Given a standard update online hearing request
     And the update online hearing state is foo
-    And a PUT request is sent for online hearings
+    And a PUT request is sent for online hearing
     Then the response code is 422
     
   Scenario: Update with starting state
     Given a standard update online hearing request
     And the update online hearing state is continuous_online_hearing_started
-    And a PUT request is sent for online hearings
+    And a PUT request is sent for online hearing
     Then the response code is 409
 
   Scenario: Update non-existent online hearing
     And the update online hearing state is continuous_online_hearing_answers_sent
     And the request contains a random UUID
-    And a PUT request is sent for online hearings
+    And a PUT request is sent for online hearing
     Then the response code is 404

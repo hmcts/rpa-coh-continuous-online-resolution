@@ -1,15 +1,15 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
@@ -19,7 +19,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class BaseSteps {
 
@@ -68,18 +67,14 @@ public class BaseSteps {
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
     }
 
-    OnlineHearing createOnlineHearingFromResponse(CreateOnlineHearingResponse response) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(UUID.fromString(response.getOnlineHearingId()));
+    protected ResponseEntity sendRequest(String entity, String methodType, String payload) {
+        HttpMethod method = HttpMethod.valueOf(methodType);
 
-        return onlineHearing;
-    }
+        CohEndpointHandler endpoint = CohEndpointFactory.getRequestEndpoint(entity);
+        String url = endpoint.getUrl(method, testContext);
+        HttpEntity<String> request = new HttpEntity<>(payload, header);
 
-    OnlineHearing createOnlineHearingFromResponse(OnlineHearingResponse response) {
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(response.getOnlineHearingId());
-
-        return onlineHearing;
+        return restTemplate.exchange(url, method, request, String.class);
     }
 
     public RestTemplate getRestTemplate() {
