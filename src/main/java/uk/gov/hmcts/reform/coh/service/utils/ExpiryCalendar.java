@@ -14,7 +14,7 @@ public class ExpiryCalendar {
 
     private static ExpiryCalendar INSTANCE;
 
-    @Value("${deadline.extension-days}")
+    @Value("${deadline.extension-days:7}")
     private int deadlineExtensionDays;
 
     @PostConstruct
