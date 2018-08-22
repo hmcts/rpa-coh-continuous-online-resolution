@@ -44,6 +44,8 @@ public class DecisionController {
     private static final String STARTING_STATE = DecisionsStates.DECISION_DRAFTED.getStateName();
 
     private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
+    private static final String ONLINE_HEARING_NOT_FOUND = "Online hearing not found";
+    private static final String UNABLE_TO_FIND_DECISION = "Unable to find decision";
     private static final String MISSING_AUTHOR_MESSAGE = "Authorization author id must not be empty";
 
     private OnlineHearingService onlineHearingService;
@@ -90,7 +92,7 @@ public class DecisionController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         ValidationResult result = validation.execute(DecisionRequestValidator.values(), request);
@@ -127,7 +129,7 @@ public class DecisionController {
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UNABLE_TO_FIND_DECISION);
         }
 
         DecisionResponse decisionResponse = new DecisionResponse();
@@ -152,7 +154,7 @@ public class DecisionController {
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Decision not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UNABLE_TO_FIND_DECISION);
         }
 
         // Only draft decisions can be updated
@@ -228,12 +230,12 @@ public class DecisionController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UNABLE_TO_FIND_DECISION);
         }
 
         Decision decision = optionalDecision.get();
@@ -262,12 +264,12 @@ public class DecisionController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UNABLE_TO_FIND_DECISION);
         }
 
         List<DecisionReply> decisionReplies = decisionReplyService.findAllDecisionReplyByDecision(optionalDecision.get());
@@ -291,12 +293,12 @@ public class DecisionController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Unable to find decision");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UNABLE_TO_FIND_DECISION);
         }
 
         Optional<DecisionReply> optionalDecisionReply = decisionReplyService.findByDecisionReplyId(decisionReplyId);
