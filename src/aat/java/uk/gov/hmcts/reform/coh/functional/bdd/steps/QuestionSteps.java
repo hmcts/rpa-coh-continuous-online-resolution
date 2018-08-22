@@ -75,10 +75,8 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @And("^the get request is sent to retrieve all questions$")
-    public void get_all_questions_for_a_online_hearing() {
+    public void getAlQuestionsForOnlineHearing() {
         try {
-            OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-
             HttpEntity<String> request = new HttpEntity<>("", header);
             ResponseEntity<String> response = getRestTemplate().exchange(getAllQuestionsEndpoint(), HttpMethod.GET, request, String.class);
 
@@ -89,7 +87,7 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @And("^the get request is sent to retrieve the submitted question$")
-    public void get_the_submitted_question() {
+    public void getTheSubmittedQuestion() {
         try {
             ResponseEntity<String> response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.GET.name(), "");
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
