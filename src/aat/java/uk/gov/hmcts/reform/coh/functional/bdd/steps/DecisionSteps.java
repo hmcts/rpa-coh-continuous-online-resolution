@@ -196,8 +196,7 @@ public class DecisionSteps extends BaseSteps {
         expiry.add(Calendar.DAY_OF_YEAR, 7);
         DecisionResponse decision = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertNotNull(decision.getDeadlineExpiryDate());
-       /*TO DO Fix assert */
-        // assertTrue(decision.getDeadlineExpiryDate().contains(df.format(expiry.getTime())));
+        assertTrue(decision.getDeadlineExpiryDate().contains(df.format(expiry.getTime())));
     }
 
 
