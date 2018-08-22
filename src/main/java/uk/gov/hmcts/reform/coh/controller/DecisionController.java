@@ -172,7 +172,7 @@ public class DecisionController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
         } else {
             // If a decision is issued, then there is a deadline to accept or reject it
-            decision.setDeadlineExpiryDate(ExpiryCalendar.getDeadlineExpiryDate());
+            decision.setDeadlineExpiryDate(ExpiryCalendar.getInstance().getDeadlineExpiryDate());
         }
 
         // The remaining validation is same as DecisionRequest for create
