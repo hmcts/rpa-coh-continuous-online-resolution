@@ -207,7 +207,7 @@ public class OnlineHearingController {
         return ResponseEntity.ok("Online hearing updated");
     }
 
-    private boolean isPermittedUpdateState(String state) {
+    private synchronized boolean isPermittedUpdateState(String state) {
         if (permittedUpdateStates == null) {
             permittedUpdateStates = new HashSet<>();
             permittedUpdateStates.add(RELISTED.getStateName());
@@ -217,11 +217,7 @@ public class OnlineHearingController {
     }
 
     private boolean isOnlineHearingStillLive(OnlineHearing onlineHearing) {
-        if (onlineHearing.getEndDate() != null) {
-            return false;
-        }
-
-        return true;
+        return onlineHearing.getEndDate() == null;
     }
 
     private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
