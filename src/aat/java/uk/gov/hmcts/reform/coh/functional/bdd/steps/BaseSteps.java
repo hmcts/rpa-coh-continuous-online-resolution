@@ -67,7 +67,7 @@ public class BaseSteps {
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
     }
 
-    protected ResponseEntity sendRequest(String entity, String methodType, String payload) throws Exception {
+    protected ResponseEntity sendRequest(String entity, String methodType, String payload) {
         HttpMethod method = HttpMethod.valueOf(methodType);
 
         CohEndpointHandler endpoint = CohEndpointFactory.getRequestEndpoint(entity);
