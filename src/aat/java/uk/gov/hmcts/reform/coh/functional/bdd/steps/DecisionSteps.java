@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -104,36 +105,29 @@ public class DecisionSteps extends BaseSteps {
     }
 
     @And("^a (.*) request is sent for a decision reply$")
-    public void aPOSTRequestIsSentForADecisionReply(String type) throws Throwable {
+    public void aPOSTRequestIsSentForADecisionReply(String method) throws Throwable {
         RestTemplate restTemplate = getRestTemplate();
 
-        if (type.equalsIgnoreCase("POST")) {
-            DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
-            String json = JsonUtils.toJson(decisionReplyRequest);
+        String payload = getDecisionReplyRequest(method);
+        try {
+            ResponseEntity response = sendRequest(CohEntityTypes.DECISION_REPLY, HttpMethod.POST.name(), payload);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
-            try {
-                ResponseEntity response = sendRequest(CohEntityTypes.DECISION_REPLY, HttpMethod.POST.name(), json);
+
+            if (method.equalsIgnoreCase("POST")) {
+
                 CreateDecisionReplyResponse createDecisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateDecisionReplyResponse.class);
 
                 DecisionReply decisionReply = decisionReplyRepository.findById(createDecisionReplyResponse.getDecisionReplyId())
                         .orElseThrow(EntityNotFoundException::new);
 
                 testContext.getScenarioContext().addDecisionReply(decisionReply);
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            } catch (HttpClientErrorException e){
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
-            }
-        } else if(type.equalsIgnoreCase("GET")) {
-            try {
-                ResponseEntity response = sendRequest(CohEntityTypes.DECISION_REPLY, HttpMethod.GET.name(), "");
+            } else if (method.equalsIgnoreCase("GET")) {
                 DecisionReplyResponse decisionReplyResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), DecisionReplyResponse.class);
                 testContext.getScenarioContext().setDecisionReplyResponse(decisionReplyResponse);
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            } catch (HttpClientErrorException e) {
-                testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
             }
-        } else {
-            throw new NotSupportedException("Method not support: " + type);
+        } catch (HttpClientErrorException e){
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
         }
     }
 
@@ -271,6 +265,16 @@ public class DecisionSteps extends BaseSteps {
             return getPostRequest();
         } else if (HttpMethod.PUT.name().equalsIgnoreCase(method)) {
             return getPutRequest();
+        } else {
+            return "";
+        }
+    }
+
+    private String getDecisionReplyRequest(String method) throws Exception {
+
+        if (HttpMethod.POST.name().equalsIgnoreCase(method)) {
+            DecisionReplyRequest decisionReplyRequest = testContext.getScenarioContext().getCurrentDecisionReplyRequest();
+            return JsonUtils.toJson(decisionReplyRequest);
         } else {
             return "";
         }
