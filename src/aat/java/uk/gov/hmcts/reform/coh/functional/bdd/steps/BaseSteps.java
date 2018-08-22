@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
@@ -67,14 +68,17 @@ public class BaseSteps {
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
     }
 
+    protected ResponseEntity sendRequest(CohEntityTypes entity, String methodType, String payload) {
+        return sendRequest(entity.toString(), methodType, payload);
+    }
+
     protected ResponseEntity sendRequest(String entity, String methodType, String payload) {
         HttpMethod method = HttpMethod.valueOf(methodType);
 
         CohEndpointHandler endpoint = CohEndpointFactory.getRequestEndpoint(entity);
-        String url = endpoint.getUrl(method, testContext);
         HttpEntity<String> request = new HttpEntity<>(payload, header);
 
-        return restTemplate.exchange(url, method, request, String.class);
+        return restTemplate.exchange(endpoint.getUrl(method, testContext), method, request, String.class);
     }
 
     public RestTemplate getRestTemplate() {

@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
@@ -84,30 +85,19 @@ public class DecisionSteps extends BaseSteps {
     }
 
     @When("^a (.*) request is sent for a decision$")
-    public void send_request(String type) throws Exception {
+    public void send_request(String method) throws Exception {
 
-        RestTemplate restTemplate = getRestTemplate();
-        ResponseEntity<String> response = null;
         testContext.getScenarioContext().clearDecisionReplies();
-        String endpoint = getEndpoint();
         try {
-            if ("GET".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>("", header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
-            } else if ("POST".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>(getPostRequest(), header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
+            ResponseEntity response = sendRequest(CohEntityTypes.DECISION, method, getDecisionRequest(method));
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
-                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody(), CreateDecisionResponse.class);
+            if ("POST".equalsIgnoreCase(method)) {
+                CreateDecisionResponse createDecisionResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateDecisionResponse.class);
                 Decision decision = new Decision();
                 decision.setDecisionId(createDecisionResponse.getDecisionId());
                 testContext.getScenarioContext().setCurrentDecision(decision);
-            } else if ("PUT".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>(getPutRequest(), header);
-                String decisionId = testContext.getScenarioContext().getCurrentDecision().getDecisionId().toString();
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
             }
-            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
@@ -173,8 +163,6 @@ public class DecisionSteps extends BaseSteps {
         }
     }
 
-
-
     @Then("^the response contains the decision UUID$")
     public void the_response_contains_the_decision_UUID() throws IOException {
         String responseString = testContext.getHttpContext().getRawResponseString();
@@ -217,14 +205,6 @@ public class DecisionSteps extends BaseSteps {
     public void the_question_state_timestamp_is_today() throws Throwable {
         DecisionResponse decision = JsonUtils.toObjectFromJson(testContext.getHttpContext().getRawResponseString(), DecisionResponse.class);
         assertTrue(decision.getDecisionState().getDatetime().contains(df.format(new Date())));
-    }
-
-    private String getEndpoint() {
-        String endpoint = getEndpoints().get("decision");
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
-
-        return endpoint;
     }
 
     private String getReplyEndpoint() {
@@ -292,5 +272,15 @@ public class DecisionSteps extends BaseSteps {
                         : DecisionsStates.DECISIONS_REJECTED.getStateName();
         assertEquals(replyState, decisionReplyResponse.getDecisionReply());
         assertEquals(expectedDecisionReply.getAuthorReferenceId(), decisionReplyResponse.getAuthorReference());
+    }
+
+    private String getDecisionRequest(String method) throws Exception {
+        if (HttpMethod.POST.name().equalsIgnoreCase(method)) {
+            return getPostRequest();
+        } else if (HttpMethod.PUT.name().equalsIgnoreCase(method)) {
+            return getPutRequest();
+        } else {
+            return "";
+        }
     }
 }

@@ -26,6 +26,6 @@ public class DecisionEndpointHandler extends AbstractRequestEndpoint {
 
     @Override
     public String supports() {
-        return CohEntityTypes.DECISION.getString();
+        return CohEntityTypes.DECISION.toString();
     }
 }
