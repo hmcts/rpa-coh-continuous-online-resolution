@@ -1,16 +1,13 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -144,7 +141,7 @@ public class OnlineHearingResponse implements Serializable {
         this.relistReason = relistReason;
     }
 
-    public static class PanelMember {
+    public static class PanelMember implements Serializable {
         @JsonProperty("name")
         private String name;
 

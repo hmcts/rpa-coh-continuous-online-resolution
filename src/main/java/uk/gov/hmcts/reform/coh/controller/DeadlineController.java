@@ -22,6 +22,8 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class DeadlineController {
@@ -52,7 +54,7 @@ public class DeadlineController {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
 
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         try {

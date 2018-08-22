@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.QUESTION_NOT_FOUND;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class QuestionController {
@@ -69,7 +72,7 @@ public class QuestionController {
         Optional<List<Question>> optionalQuestions = questionService.findAllQuestionsByOnlineHearing(onlineHearing);
 
         if (!optionalQuestions.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(QUESTION_NOT_FOUND);
         }
 
         List<Question> questions = optionalQuestions.get();
@@ -104,7 +107,7 @@ public class QuestionController {
         QuestionResponse questionResponse = new QuestionResponse();
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         if (!optionalQuestion.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Question not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(QUESTION_NOT_FOUND);
         }
 
         Question question = optionalQuestion.get();
@@ -130,7 +133,7 @@ public class QuestionController {
 
         Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
         if (!savedOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         ValidationResult result = validation.execute(QuestionValidator.values(), request);
@@ -177,7 +180,7 @@ public class QuestionController {
             // This will block on multiple update attempts.
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
             if (!optionalQuestion.isPresent()) {
-                return new ResponseEntity<>("Question not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(QUESTION_NOT_FOUND, HttpStatus.NOT_FOUND);
             }
             Question savedQuestion = optionalQuestion.get();
 
@@ -212,7 +215,7 @@ public class QuestionController {
         Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
 
         if (!savedOnlineHearing.isPresent()) {
-            return new ResponseEntity<>("Online hearing not found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ONLINE_HEARING_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         synchronized (QuestionController.class) {

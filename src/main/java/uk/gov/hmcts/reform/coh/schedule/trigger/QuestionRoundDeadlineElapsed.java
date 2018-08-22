@@ -77,7 +77,7 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
     public List<OnlineHearing> retrieveQuestionsDeadlineExpiredAndQuestionStateDistinct(List<Question> questions) {
 
         return questions.stream()
-                .map(q -> q.getOnlineHearing())
+                .map(Question::getOnlineHearing)
                 .distinct()
                 .collect(Collectors.toList());
     }

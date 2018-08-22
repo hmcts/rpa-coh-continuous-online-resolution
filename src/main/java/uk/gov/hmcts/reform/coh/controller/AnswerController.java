@@ -31,6 +31,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}/questions/{questionId}/answers")
 public class AnswerController {
@@ -72,7 +74,7 @@ public class AnswerController {
         }
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         CreateAnswerResponse answerResponse = new CreateAnswerResponse();
@@ -183,7 +185,7 @@ public class AnswerController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Online hearing not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         ValidationResult validationResult = validate(request);

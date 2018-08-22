@@ -6,10 +6,11 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class QuestionResponse extends QuestionRequest {
+public class QuestionResponse extends QuestionRequest implements Serializable {
 
     @JsonProperty(value = "question_id")
     private String questionId;

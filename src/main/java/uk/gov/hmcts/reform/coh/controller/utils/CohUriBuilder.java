@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public class CohUriBuilder {
 
+    private CohUriBuilder() {}
+
     public static String buildOnlineHearingPost() {
 
         return "/continuous-online-hearings";

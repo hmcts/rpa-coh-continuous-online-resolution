@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DecisionResponse {
+public class DecisionResponse implements Serializable {
 
     @JsonProperty(value = "decision_id")
     private String decisionId;

@@ -14,6 +14,7 @@ public class QuestionRequestMapper {
     public QuestionRequestMapper(Question question, OnlineHearing onlineHearing, QuestionRequest questionRequest) {
         this.questionRequest = questionRequest;
         this.question = question;
+        this.onlineHearing = onlineHearing;
     }
 
     public void map() {
