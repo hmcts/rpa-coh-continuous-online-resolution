@@ -30,6 +30,6 @@ public class OnlineHearingEndpointHandler extends AbstractRequestEndpoint {
 
     @Override
     public String supports() {
-        return "online hearings";
+        return CohEntityTypes.ONLINE_HEARING.getString();
     }
 }

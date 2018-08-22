@@ -18,7 +18,7 @@ Feature: Online hearing filter feature
   Scenario: Search for multiple online hearings by case id
     And a standard online hearing
     And the case id is 'case_456'
-    And a POST request is sent for online hearings
+    And a POST request is sent for online hearing
     When a get request is sent to ' "/continuous-online-hearings?case_id=case_123&case_id=case_456"' for the online hearing
     And the response contains 2 online hearings
     And the response contains online hearing with case 'case_123'

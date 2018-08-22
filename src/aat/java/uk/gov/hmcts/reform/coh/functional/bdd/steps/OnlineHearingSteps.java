@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -53,11 +54,11 @@ public class OnlineHearingSteps extends BaseSteps {
         testContext.getScenarioContext().getCurrentOnlineHearingRequest().setCaseId(caseId);
     }
 
-    @When("^a (.*) request is sent for online hearings$")
+    @When("^a (.*) request is sent for online hearing$")
     public void send_request_online_hearing(String method) throws Exception {
 
         try {
-            ResponseEntity responseEntity = sendRequest("online hearings", method, getOnlineHearingRequest(method));
+            ResponseEntity responseEntity = sendRequest(CohEntityTypes.ONLINE_HEARING.getString(), method, getOnlineHearingRequest(method));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(responseEntity);
 
             if ("POST".equals(method)) {
