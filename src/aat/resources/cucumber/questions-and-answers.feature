@@ -15,8 +15,7 @@ Feature: Question Round Get
     And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     Then the response code is 201
     And the notification scheduler runs
     When the get request is sent to get question round ' "1" '
@@ -33,8 +32,7 @@ Feature: Question Round Get
     And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     Then the response code is 201
     And the notification scheduler runs
     When the get request is sent to get question round ' "1" '
@@ -67,8 +65,7 @@ Feature: Question Round Get
     And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     And the notification scheduler runs
     And a standard question
     And the question round is ' "2" '
@@ -76,9 +73,8 @@ Feature: Question Round Get
     And the put request is sent to issue the question round ' "2" '
     And a standard answer
     And the answer state is answer_submitted
-    And the endpoint is for submitting an answer
     And the notification scheduler runs
-    And a POST request is sent
+    And a POST request is sent for an answer
     When the get request is sent to get all question rounds
     And the number of questions rounds is ' "2" '
     And all questions in the question rounds have a state of 'question_answered'

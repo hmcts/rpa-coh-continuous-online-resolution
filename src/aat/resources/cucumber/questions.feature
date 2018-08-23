@@ -46,7 +46,7 @@ Feature: Questions feature
     And the response code is 200
     And a standard answer
     And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     Then the response code is 201
     When the get request is sent to retrieve all questions
     And the response contains the following text '"answer_text" '
