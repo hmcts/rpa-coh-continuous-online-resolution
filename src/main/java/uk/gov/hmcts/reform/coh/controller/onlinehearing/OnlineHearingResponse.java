@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 public class OnlineHearingResponse implements Serializable {
 
+    @ApiModelProperty
     @JsonProperty("online_hearing_id")
     private UUID onlineHearingId;
 
