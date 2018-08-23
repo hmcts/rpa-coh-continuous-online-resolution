@@ -20,8 +20,7 @@ Feature: Event features
     And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the response code is 201
     And an event has been queued for this online hearing of event type answers_submitted
     And the notification scheduler runs
@@ -52,6 +51,7 @@ Feature: Event features
     And the post request is sent to create the online hearing
     When the put request is sent to reset the events of type question_round_issued
     Then the response code is 424
+
   Scenario: Subscribe to a duplicate event
     Given a conflicting request to subscribe to question round issued
     When a POST request is sent to register

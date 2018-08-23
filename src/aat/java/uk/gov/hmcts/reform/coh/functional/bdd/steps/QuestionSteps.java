@@ -62,11 +62,11 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @And("^the post request is sent to create the question$")
-    public void theDraftAQuestion() throws Throwable {
+    public void theDraftAQuestion() throws Exception {
         try{
             ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), toJson(questionRequest));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
-            CreateQuestionResponse createQuestionResponse = getCreateQuestionResponse();
+            CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(response.getBody().toString());
             questionIds.add(createQuestionResponse.getQuestionId());
             testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
         } catch (HttpClientErrorException hcee) {
@@ -437,11 +437,6 @@ public class QuestionSteps extends BaseSteps {
     @And("^(\\d+) question in the question round has a state of '(.*)'$")
     public void questionInTheQuestionRoundHasAStateOfQuestion_answered(int count, String state) throws Exception {
         assertEquals(count, getQuestionRoundResponse().getQuestionList().stream().filter(q -> q.getCurrentState().getName().equals(state)).count());
-    }
-
-    private CreateQuestionResponse getCreateQuestionResponse() throws Exception {
-        String response = testContext.getHttpContext().getRawResponseString();
-        return toObjectFromJson(response, CreateQuestionResponse.class);
     }
 
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {

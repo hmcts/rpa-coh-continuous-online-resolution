@@ -3,8 +3,7 @@ Feature: Answers
   Scenario: Submit an answer for unknown question
     Given a standard online hearing is created
     Given a standard answer
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     Then the response code is 404
 
   Scenario: Submit a drafted answer for a question
@@ -13,8 +12,7 @@ Feature: Answers
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     And a standard answer
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     Then the response code is 201
     And the response headers contains a location to the created entity
     And send get request to the location
@@ -31,8 +29,7 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     Then the response code is 201
     And the response headers contains a location to the created entity
     And send get request to the location
@@ -48,11 +45,9 @@ Feature: Answers
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     And a standard answer
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the response code is 201
-    And the endpoint is for retrieving an answer
-    When a GET request is sent
+    When a GET request is sent for an answer
     And the response code is 200
     And the answer response answer text is 'string'
     And the answer response answer state is 'answer_drafted'
@@ -65,8 +60,7 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is empty
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for an answer
     Then the response code is 422
 
   Scenario: Update a drafted answer
@@ -76,12 +70,10 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is 'foo'
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the response code is 201
-    And an update to the answer is required
     And the answer text is 'bar'
-    When a PUT request is sent
+    When a PUT request is sent for an answer
     Then the response code is 200
     And the answer text is 'bar'
     And there is no event queued for this online hearing of event type answers_submitted
@@ -93,12 +85,10 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is 'foo'
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the response code is 201
-    And an update to the answer is required
     And the answer state is answer_submitted
-    When a PUT request is sent
+    When a PUT request is sent for an answer
     Then the response code is 200
     And an event has been queued for this online hearing of event type answers_submitted
 
@@ -109,15 +99,13 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is 'foo'
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the response code is 201
-    And an update to the answer is required
     And the answer state is answer_submitted
-    When a PUT request is sent
+    When a PUT request is sent for an answer
     Then the response code is 200
     And the answer state is answer_drafted
-    When a PUT request is sent
+    When a PUT request is sent for an answer
     Then the response code is 422
 
   Scenario: Update unknown answer
@@ -128,8 +116,7 @@ Feature: Answers
     And a standard answer
     And an unknown answer identifier
     And the answer text is 'foo'
-    And the endpoint is for submitting an answer
-    When a PUT request is sent
+    When a PUT request is sent for an answer
     Then the response code is 404
 
   Scenario: Attempt to create multiple answers
@@ -139,8 +126,7 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is 'foo'
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the answer text is 'bar'
-    When a POST request is sent
+    When a POST request is sent for an answer
     And the response code is 409

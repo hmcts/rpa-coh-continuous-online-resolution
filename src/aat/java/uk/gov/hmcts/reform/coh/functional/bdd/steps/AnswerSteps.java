@@ -8,12 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
@@ -22,7 +20,8 @@ import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
+import uk.gov.hmcts.reform.coh.functional.bdd.responses.AnswerResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
@@ -79,17 +78,17 @@ public class AnswerSteps extends BaseSteps {
      * Creates a question to be used for testing with an answer
      */
     @Given("^a valid question$")
-    public void an_existing_question() throws IOException {
+    public void anExistingQuestion() throws Exception {
         QuestionRequest questionRequest = JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
 
-        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
-        response = getRestTemplate().exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
-        String json = response.getBody();
-        CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), JsonUtils.toJson(questionRequest));
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        String json = response.getBody().toString();
+        CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(json);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         testContext.getScenarioContext().addQuestionId(createQuestionResponse.getQuestionId());
         testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
@@ -171,46 +170,25 @@ public class AnswerSteps extends BaseSteps {
         }
     }
 
-    @Given("^an update to the answer is required$")
-    public void an_update_to_the_answer_is_required() {
-        try {
-            CreateAnswerResponse answerResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
-            this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
-        } catch (Exception e) {
-            log.error("Exception " + e.getMessage());
-        }
-    }
-
-    @When("^a (.*) request is sent$")
-    public void send_request(String type) throws IOException {
+    @When("^a (.*) request is sent for an answer$")
+    public void aRequestIsSentForAnswer(String method) throws Exception {
 
         String json = JsonUtils.toJson(answerRequest);
-
-        RestTemplate restTemplate = getRestTemplate();
         try {
-            if ("GET".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>("", header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
-            } else if ("POST".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>(json, header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.POST, request, String.class);
-            } else if ("PUT".equalsIgnoreCase(type)) {
-                /**
-                 * This is a workaround for https://jira.spring.io/browse/SPR-15347
-                 *
-                 **/
-                HttpEntity<String> request = new HttpEntity<>(json, header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.PUT, request, String.class);
-            }
+            ResponseEntity response = sendRequest(CohEntityTypes.ANSWER, method, json);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
-            Optional<UUID> optAnswerId = getAnswerId(response.getBody());
-            if (optAnswerId.isPresent()) {
-                testContext.getScenarioContext().addAnswerId(optAnswerId.get());
+            if (HttpMethod.POST.name().equalsIgnoreCase(method)) {
+                testContext.getScenarioContext().setCurrentAnswer(AnswerResponseUtils.getAnswer(getCreateAnswerResponse()));
             }
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
+    }
+
+    private CreateAnswerResponse getCreateAnswerResponse() throws Exception {
+        String json = testContext.getHttpContext().getRawResponseString();
+        return JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);
     }
 
     @Then("^there are (\\d+) answers$")
@@ -223,25 +201,18 @@ public class AnswerSteps extends BaseSteps {
 
     @Then("^the answer response answer text is '(.*)'$")
     public void the_answer_text_is(String text) throws Throwable {
-        String json = response.getBody();
-        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
-
-        assertEquals("Answer text", text, response.getAnswerText());
+        assertEquals("Answer text", text, getAnswerResponse().getAnswerText());
     }
 
     @Then("^the answer response answer state is '(.*)'$")
     public void the_answer_state_is(String text) throws Throwable {
-        String json = response.getBody();
-        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
-
-        assertEquals("Answer state name", text, response.getStateResponse().getName());
+        assertEquals("Answer state name", text, getAnswerResponse().getStateResponse().getName());
     }
 
 
     @Then("^the answer response answer state datetime is a valid ISO8601 date$")
     public void the_answer_state_datetime_is_iso8601() throws Throwable {
-        String json = response.getBody();
-        AnswerResponse response = JsonUtils.toObjectFromJson(json, AnswerResponse.class);
+        AnswerResponse response = getAnswerResponse();
 
         try {
             CohISO8601DateFormat.parse(response.getStateResponse().getDatetime());
@@ -250,6 +221,11 @@ public class AnswerSteps extends BaseSteps {
         catch (Exception e) {
             assertTrue(false);
         }
+    }
+
+    private AnswerResponse getAnswerResponse() throws Exception {
+        String json = testContext.getHttpContext().getRawResponseString();
+        return JsonUtils.toObjectFromJson(json, AnswerResponse.class);
     }
 
     /**

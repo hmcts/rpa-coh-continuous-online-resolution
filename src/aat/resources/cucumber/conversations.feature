@@ -6,8 +6,7 @@ Feature: Conversations
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     Given a standard answer
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the notification scheduler runs
     Given a standard decision
     And a POST request is sent for a decision
@@ -52,8 +51,7 @@ Feature: Conversations
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     Given a standard answer
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for an answer
     And the notification scheduler runs
     When a GET request is sent for a conversation
     Then the response code is 200
