@@ -313,7 +313,7 @@ public class ApiSteps extends BaseSteps {
     }
 
     @And("^send get request to the location$")
-    public void sendGetRequestToTheLocation() throws Exception {
+    public void sendGetRequestToTheLocation() {
         ResponseEntity responseEntity = testContext.getHttpContext().getResponseEntity();
         HttpHeaders headers = responseEntity.getHeaders();
         String urlToLocation = headers.get("Location").get(0);
