@@ -4,7 +4,8 @@ public enum CohEntityTypes {
     ONLINE_HEARING,
     QUESTION,
     ANSWER,
-    DECISION;
+    DECISION,
+    DECISION_REPLY;
 
     public String getString() {
         return name().replaceAll("_", " ").toLowerCase();
