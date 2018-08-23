@@ -78,7 +78,7 @@ public class AnswerSteps extends BaseSteps {
      * Creates a question to be used for testing with an answer
      */
     @Given("^a valid question$")
-    public void an_existing_question() throws Exception {
+    public void anExistingQuestion() throws Exception {
         QuestionRequest questionRequest = JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
