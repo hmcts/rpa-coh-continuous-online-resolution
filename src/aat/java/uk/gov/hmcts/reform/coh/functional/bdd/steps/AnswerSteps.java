@@ -196,6 +196,22 @@ public class AnswerSteps extends BaseSteps {
         }
     }
 
+    @When("^a (.*) request is sent for answer$")
+    public void aRequestIsSentForAnswer(String method) throws Exception {
+
+        String json = JsonUtils.toJson(answerRequest);
+        try {
+            ResponseEntity response = sendRequest(CohEntityTypes.ANSWER, method, json);
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+
+            if (HttpMethod.POST.name().equalsIgnoreCase(method)) {
+                testContext.getScenarioContext().setCurrentAnswer(AnswerResponseUtils.getAnswer(getCreateAnswerResponse()));
+            }
+        } catch (HttpClientErrorException hcee) {
+            testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
+        }
+    }
+
     private CreateAnswerResponse getCreateAnswerResponse() throws Exception {
         String json = testContext.getHttpContext().getRawResponseString();
         return JsonUtils.toObjectFromJson(json, CreateAnswerResponse.class);

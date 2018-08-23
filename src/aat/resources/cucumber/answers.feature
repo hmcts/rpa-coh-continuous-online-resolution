@@ -48,10 +48,9 @@ Feature: Answers
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     And a standard answer
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for answer
     And the response code is 201
-    When a GET request is sent
+    When a GET request is sent for answer
     And the response code is 200
     And the answer response answer text is 'string'
     And the answer response answer state is 'answer_drafted'
@@ -64,8 +63,7 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is empty
-    And the endpoint is for submitting an answer
-    When a POST request is sent
+    When a POST request is sent for answer
     Then the response code is 422
 
   Scenario: Update a drafted answer
@@ -75,12 +73,11 @@ Feature: Answers
     And the notification scheduler runs
     And a standard answer
     And the answer text is 'foo'
-    And the endpoint is for submitting an answer
-    And a POST request is sent
+    And a POST request is sent for answer
     And the response code is 201
     And an update to the answer is required
     And the answer text is 'bar'
-    When a PUT request is sent
+    When a PUT request is sent for answer
     Then the response code is 200
     And the answer text is 'bar'
     And there is no event queued for this online hearing of event type answers_submitted
