@@ -142,19 +142,19 @@ public class DecisionSteps extends BaseSteps {
     }
 
     @Then("^the response contains the decision UUID$")
-    public void the_response_contains_the_decision_UUID() throws Exception {
+    public void theResponseContainsTheDecisionUUID() throws Exception {
         CreateDecisionResponse response = getCreateDecisionResponse();
         assertNotNull(response.getDecisionId());
     }
 
     @And("^the decision id matches$")
-    public void the_question_id_matches() throws Exception {
+    public void theQuestionIdMatches() throws Exception {
         DecisionResponse response = getDecisionResponse();
         assertEquals(testContext.getScenarioContext().getCurrentDecision().getDecisionId().toString(), response.getDecisionId());
     }
 
     @And("^the decision state name is (.*)")
-    public void the_question_id_matches(String stateName) throws Exception {
+    public void theDecisionStateNameIs(String stateName) throws Exception {
         DecisionResponse response = getDecisionResponse();
         assertEquals(stateName, response.getDecisionState().getName());
     }
