@@ -170,16 +170,6 @@ public class AnswerSteps extends BaseSteps {
         }
     }
 
-    @Given("^an update to the answer is required$")
-    public void an_update_to_the_answer_is_required() {
-        try {
-            CreateAnswerResponse answerResponse = JsonUtils.toObjectFromJson(response.getBody().toString(), CreateAnswerResponse.class);
-            this.endpoint = endpoint + "/" + answerResponse.getAnswerId();
-        } catch (Exception e) {
-            log.error("Exception " + e.getMessage());
-        }
-    }
-
     @When("^a (.*) request is sent$")
     public void send_request(String method) throws Exception {
 
