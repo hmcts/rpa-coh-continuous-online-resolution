@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
@@ -79,17 +80,17 @@ public class AnswerSteps extends BaseSteps {
      * Creates a question to be used for testing with an answer
      */
     @Given("^a valid question$")
-    public void an_existing_question() throws IOException {
+    public void an_existing_question() throws Exception {
         QuestionRequest questionRequest = JsonUtils.toObjectFromTestName("question/standard_question_v_0_0_5", QuestionRequest.class);
 
         String onlineHearingCaseId = testContext.getScenarioContext().getCurrentOnlineHearing().getCaseId();
         onlineHearing = onlineHearingRepository.findByCaseId(onlineHearingCaseId).get();
         updateEndpointWithOnlineHearingId();
 
-        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(questionRequest), header);
-        response = getRestTemplate().exchange(baseUrl + endpoints.get("question"), HttpMethod.POST, request, String.class);
-        String json = response.getBody();
-        CreateQuestionResponse createQuestionResponse = JsonUtils.toObjectFromJson(json, CreateQuestionResponse.class);
+        ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), JsonUtils.toJson(questionRequest));
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
+        String json = response.getBody().toString();
+        CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(json);
         this.currentQuestionId = createQuestionResponse.getQuestionId();
         testContext.getScenarioContext().addQuestionId(createQuestionResponse.getQuestionId());
         testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
