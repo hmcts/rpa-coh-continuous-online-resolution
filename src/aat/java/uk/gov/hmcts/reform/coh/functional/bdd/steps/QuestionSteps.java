@@ -108,7 +108,7 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @When("^the get request is sent to get all question rounds$")
-    public void theGetRequestIsSentToGetAllQuestionRounds() throws Exception {
+    public void theGetRequestIsSentToGetAllQuestionRounds() {
         HttpEntity<String> request = new HttpEntity<>("", header);
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing), HttpMethod.GET, request, String.class);
@@ -119,7 +119,7 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
-    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) throws Exception {
+    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
 
         HttpEntity<String> request = new HttpEntity<>("", header);
@@ -302,7 +302,7 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @When("^the delete question request is sent$")
-    public void the_delete_question_request_is_sent() throws Exception {
+    public void the_delete_question_request_is_sent() {
 
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
