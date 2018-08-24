@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGet;
+import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGetAll;
 import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
 
 @ContextConfiguration
@@ -109,7 +111,7 @@ public class QuestionSteps extends BaseSteps {
     public void theGetRequestIsSentToGetAllQuestionRounds() throws Exception {
         HttpEntity<String> request = new HttpEntity<>("", header);
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing), HttpMethod.GET, request, String.class);
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
@@ -121,7 +123,7 @@ public class QuestionSteps extends BaseSteps {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
 
         HttpEntity<String> request = new HttpEntity<>("", header);
-        ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing, questionRoundN), HttpMethod.GET, request, String.class);
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
@@ -135,7 +137,7 @@ public class QuestionSteps extends BaseSteps {
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             HttpEntity<String> request = new HttpEntity<>(json, header);
-            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+            ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing, questionRoundN),
                     HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
@@ -441,5 +443,16 @@ public class QuestionSteps extends BaseSteps {
     private String getAllQuestionsEndpoint() {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         return baseUrl + CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId());
+    }
+
+    private String getQuestionRoundEndpoint(OnlineHearing onlineHearing) {
+        return getQuestionRoundEndpoint(onlineHearing, null);
+    }
+
+    private String getQuestionRoundEndpoint(OnlineHearing onlineHearing, Integer round) {
+        UUID onlineHearingId = onlineHearing.getOnlineHearingId();
+        String url = round == null ? buildQuestionRoundGetAll(onlineHearingId) : buildQuestionRoundGet(onlineHearingId, round);
+
+        return baseUrl + url;
     }
 }
