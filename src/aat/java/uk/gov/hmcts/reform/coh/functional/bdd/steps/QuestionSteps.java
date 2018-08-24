@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -24,12 +25,8 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -342,8 +339,6 @@ public class QuestionSteps extends BaseSteps {
         expectedExpiryDate.set(Calendar.MINUTE, 59);
         expectedExpiryDate.set(Calendar.SECOND, 59);
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
         List<QuestionResponse> questionsWithNullExpiry = questionResponses.stream()
                 .filter(q -> q.getDeadlineExpiryDate() == null )
                 .collect(Collectors.toList());
@@ -351,11 +346,7 @@ public class QuestionSteps extends BaseSteps {
         assertEquals(0, questionsWithNullExpiry.size());
 
         for (QuestionResponse questionResponse : questionResponses) {
-            try {
-                assertEquals(expectedExpiryDate.getTime(), df.parse(questionResponse.getDeadlineExpiryDate()));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            assertEquals(CohISO8601DateFormat.format(expectedExpiryDate.getTime()), questionResponse.getDeadlineExpiryDate());
         }
     }
 
