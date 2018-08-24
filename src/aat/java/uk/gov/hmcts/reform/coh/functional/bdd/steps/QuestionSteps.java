@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -24,17 +25,15 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
-import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGet;
+import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGetAll;
 import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
 
 @ContextConfiguration
@@ -42,9 +41,7 @@ import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
 public class QuestionSteps extends BaseSteps {
 
     private String ENDPOINT = "/continuous-online-hearings";
-    private Question question;
     private QuestionRequest questionRequest;
-    private List<UUID> questionIds;
     private boolean allQuestionRounds;
 
     @Autowired
@@ -58,7 +55,6 @@ public class QuestionSteps extends BaseSteps {
     @Before
     public void setup() throws Exception {
         super.setup();
-        questionIds = new ArrayList<>();
     }
 
     @And("^the post request is sent to create the question$")
@@ -67,7 +63,6 @@ public class QuestionSteps extends BaseSteps {
             ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), toJson(questionRequest));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(response.getBody().toString());
-            questionIds.add(createQuestionResponse.getQuestionId());
             testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
@@ -108,15 +103,15 @@ public class QuestionSteps extends BaseSteps {
 
     @Then("^the question state is ' \"([^\"]*)\" '$")
     public void theQuestionStateIs(String expectedState) {
-       String state = question.getQuestionState().getState();
+       String state = testContext.getScenarioContext().getCurrentQuestion().getQuestionState().getState();
        assertEquals(expectedState, state);
     }
 
     @When("^the get request is sent to get all question rounds$")
-    public void theGetRequestIsSentToGetAllQuestionRounds() throws Exception {
+    public void theGetRequestIsSentToGetAllQuestionRounds() {
         HttpEntity<String> request = new HttpEntity<>("", header);
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds", HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing), HttpMethod.GET, request, String.class);
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
@@ -124,11 +119,11 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @When("^the get request is sent to get question round ' \"([^\"]*)\" '$")
-    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) throws Exception {
+    public void theGetRequestIsSentToGetQuestionRound(int questionRoundN) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
 
         HttpEntity<String> request = new HttpEntity<>("", header);
-        ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN, HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing, questionRoundN), HttpMethod.GET, request, String.class);
 
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
@@ -142,7 +137,7 @@ public class QuestionSteps extends BaseSteps {
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             HttpEntity<String> request = new HttpEntity<>(json, header);
-            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questionrounds/" + questionRoundN,
+            ResponseEntity<String> response = getRestTemplate().exchange(getQuestionRoundEndpoint(onlineHearing, questionRoundN),
                     HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hsee) {
@@ -307,7 +302,7 @@ public class QuestionSteps extends BaseSteps {
     }
 
     @When("^the delete question request is sent$")
-    public void the_delete_question_request_is_sent() throws Exception {
+    public void the_delete_question_request_is_sent() {
 
         try {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
@@ -346,8 +341,6 @@ public class QuestionSteps extends BaseSteps {
         expectedExpiryDate.set(Calendar.MINUTE, 59);
         expectedExpiryDate.set(Calendar.SECOND, 59);
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
         List<QuestionResponse> questionsWithNullExpiry = questionResponses.stream()
                 .filter(q -> q.getDeadlineExpiryDate() == null )
                 .collect(Collectors.toList());
@@ -355,11 +348,7 @@ public class QuestionSteps extends BaseSteps {
         assertEquals(0, questionsWithNullExpiry.size());
 
         for (QuestionResponse questionResponse : questionResponses) {
-            try {
-                assertEquals(expectedExpiryDate.getTime(), df.parse(questionResponse.getDeadlineExpiryDate()));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            assertEquals(CohISO8601DateFormat.format(expectedExpiryDate.getTime()), questionResponse.getDeadlineExpiryDate());
         }
     }
 
@@ -454,5 +443,16 @@ public class QuestionSteps extends BaseSteps {
     private String getAllQuestionsEndpoint() {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         return baseUrl + CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId());
+    }
+
+    private String getQuestionRoundEndpoint(OnlineHearing onlineHearing) {
+        return getQuestionRoundEndpoint(onlineHearing, null);
+    }
+
+    private String getQuestionRoundEndpoint(OnlineHearing onlineHearing, Integer round) {
+        UUID onlineHearingId = onlineHearing.getOnlineHearingId();
+        String url = round == null ? buildQuestionRoundGetAll(onlineHearingId) : buildQuestionRoundGet(onlineHearingId, round);
+
+        return baseUrl + url;
     }
 }

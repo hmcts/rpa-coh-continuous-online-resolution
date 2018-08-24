@@ -26,6 +26,16 @@ public class CohUriBuilder {
         return buildQuestionPost(onlineHearingId) + "/" + questionId;
     }
 
+    public static String buildQuestionRoundGetAll(UUID onlineHearingId) {
+
+        return buildOnlineHearingGet(onlineHearingId) + "/questionrounds/";
+    }
+
+    public static String buildQuestionRoundGet(UUID onlineHearingId, Integer round) {
+
+        return buildQuestionRoundGetAll(onlineHearingId) + round;
+    }
+
     public static String buildDecisionGet(UUID onlineHearingId) {
 
         return buildOnlineHearingGet(onlineHearingId) + "/decisions";
