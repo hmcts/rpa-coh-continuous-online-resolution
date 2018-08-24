@@ -42,9 +42,7 @@ import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
 public class QuestionSteps extends BaseSteps {
 
     private String ENDPOINT = "/continuous-online-hearings";
-    private Question question;
     private QuestionRequest questionRequest;
-    private List<UUID> questionIds;
     private boolean allQuestionRounds;
 
     @Autowired
@@ -58,7 +56,6 @@ public class QuestionSteps extends BaseSteps {
     @Before
     public void setup() throws Exception {
         super.setup();
-        questionIds = new ArrayList<>();
     }
 
     @And("^the post request is sent to create the question$")
@@ -67,7 +64,6 @@ public class QuestionSteps extends BaseSteps {
             ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), toJson(questionRequest));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(response.getBody().toString());
-            questionIds.add(createQuestionResponse.getQuestionId());
             testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
@@ -108,7 +104,7 @@ public class QuestionSteps extends BaseSteps {
 
     @Then("^the question state is ' \"([^\"]*)\" '$")
     public void theQuestionStateIs(String expectedState) {
-       String state = question.getQuestionState().getState();
+       String state = testContext.getScenarioContext().getCurrentQuestion().getQuestionState().getState();
        assertEquals(expectedState, state);
     }
 
