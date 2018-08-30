@@ -57,6 +57,7 @@ public class EventNotifierJob {
     public void execute() {
 
         List<SessionEvent> sessionEvents = getPendingSessionEvents();
+        log.debug("Pending session events found: " + sessionEvents.size());
         for (SessionEvent sessionEvent : sessionEvents) {
             log.info(String.format("Processing session event: %s", sessionEvent.getEventId()));
 
