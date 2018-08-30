@@ -18,6 +18,9 @@ public class QuestionRoundResponse {
     @JsonProperty("question_round_state")
     private QuestionRoundState questionRoundState  = new QuestionRoundState();
 
+    @JsonProperty(value = "deadline_extension_count")
+    private Integer deadlineExtCount;
+
     public QuestionRoundResponse(){
         questionList = new ArrayList<>();
     }
@@ -50,5 +53,12 @@ public class QuestionRoundResponse {
         questionList.add(questionResponse);
     }
 
+    public Integer getDeadlineExtCount() {
+        return deadlineExtCount;
+    }
+
+    public void setDeadlineExtCount(Integer deadlineExtCount) {
+        this.deadlineExtCount = deadlineExtCount;
+    }
 
 }
