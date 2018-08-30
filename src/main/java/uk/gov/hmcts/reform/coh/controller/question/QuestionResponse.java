@@ -19,6 +19,13 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String deadlineExpiryDate;
 
+    public void setDeadlineExpiryDate(String deadlineExpiryDate) {
+        this.deadlineExpiryDate = deadlineExpiryDate;
+    }
+
+    @JsonProperty(value = "deadline_extension_count")
+    private String deadlineExtCount;
+
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
 
@@ -40,6 +47,14 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
 
     public void setDeadlineExpiryDate(Date deadlineExpiryDate) {
         this.deadlineExpiryDate = CohISO8601DateFormat.format(deadlineExpiryDate);
+    }
+
+    public String getDeadlineExtCount() {
+        return deadlineExtCount;
+    }
+
+    public void setDeadlineExtCount(String deadlineExtCount) {
+        this.deadlineExtCount = deadlineExtCount;
     }
 
     public String getQuestionId() {
