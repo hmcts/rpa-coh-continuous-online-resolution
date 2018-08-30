@@ -39,7 +39,7 @@ public class Question {
     private Date deadlineExpiryDate;
 
     @Column(name = "deadline_ext_count")
-    private int deadlineExtCout;
+    private int deadlineExtCount;
 
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "question_state_id")
@@ -95,12 +95,16 @@ public class Question {
         this.deadlineExpiryDate = deadlineExpiryDate;
     }
 
-    public int getDeadlineExtCout() {
-        return deadlineExtCout;
+    public int getDeadlineExtCount() {
+        return deadlineExtCount;
     }
 
-    public void setDeadlineExtCout(int deadlineExtCout) {
-        this.deadlineExtCout = deadlineExtCout;
+    public void setDeadlineExtCount(int deadlineExtCount) {
+        this.deadlineExtCount = deadlineExtCount;
+    }
+
+    public void incrementDeadlineExtCount() {
+        this.deadlineExtCount += 1;
     }
 
     public String getAuthorReferenceId() {
