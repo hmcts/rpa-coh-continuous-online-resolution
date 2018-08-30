@@ -103,6 +103,10 @@ public class Question {
         this.deadlineExtCount = deadlineExtCount;
     }
 
+    public void incrementDeadlineExtCount() {
+        this.deadlineExtCount += 1;
+    }
+
     public String getAuthorReferenceId() {
         return authorReferenceId;
     }
