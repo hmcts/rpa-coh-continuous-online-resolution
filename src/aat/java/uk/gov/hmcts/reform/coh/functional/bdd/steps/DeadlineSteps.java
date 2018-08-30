@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -103,9 +104,7 @@ public class DeadlineSteps extends BaseSteps {
         // load questions into scenario context
         questionSteps.getAllQuestionsForOnlineHearing();
 
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse allQuestionsResponse = JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
-        List<QuestionResponse> questionResponses = allQuestionsResponse.getQuestions();
+        List<QuestionResponse> questionResponses = getAllQuestionsResponse().getQuestions();
 
         Calendar expectedExpiryDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         expectedExpiryDate.add(Calendar.DAY_OF_YEAR, ExpiryCalendar.getInstance().getDeadlineExtensionDays() *2 ); // deadline for answer + extension
@@ -131,4 +130,13 @@ public class DeadlineSteps extends BaseSteps {
         assertEquals(message, testContext.getHttpContext().getRawResponseString());
     }
 
+    @And("^question deadline extendion count is (\\d+)$")
+    public void questionDeadlineExtendionCountIs(int count) throws Throwable {
+        getAllQuestionsResponse().getQuestions().forEach(q -> assertEquals(count, Integer.parseInt(q.getDeadlineExtCount())));
+    }
+
+    private AllQuestionsResponse getAllQuestionsResponse() throws Exception {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return JsonUtils.toObjectFromJson(rawJson, AllQuestionsResponse.class);
+    }
 }
