@@ -29,7 +29,7 @@ public class QuestionIssuedTransformer implements EventTransformer<OnlineHearing
         request.setCaseId(onlineHearing.getCaseId());
         request.setOnlineHearingId(onlineHearing.getOnlineHearingId());
         request.setEventType(QUESTION_ROUND_ISSUED.getEventType());
-        if (qrQuestions.size() > 0) {
+        if (qrQuestions.size() > 0 && qrQuestions.get(0).getDeadlineExpiryDate() != null) {
             request.setExpiryDate(df.format(qrQuestions.get(0).getDeadlineExpiryDate()));
         }
         return request; 
