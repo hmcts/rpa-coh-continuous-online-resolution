@@ -10,6 +10,7 @@ Feature: Deadline Extension
     And deadline extension is requested
     Then the response code is 200
     And question states are question_deadline_extension_granted
+    And question deadline extendion count is 1
     And question history has at least 2 events
     And an event has been queued for this online hearing of event type question_deadline_extension_granted
 

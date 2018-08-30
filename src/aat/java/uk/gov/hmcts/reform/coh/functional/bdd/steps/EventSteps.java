@@ -104,13 +104,16 @@ public class EventSteps extends BaseSteps {
 
         SessionEventForwardingRegister register = optSessionEventForwardingRegister.get();
         String originalEndpoint = register.getForwardingEndpoint();
-        register.setForwardingEndpoint("https://0.0.0.0/nowhere");
-        sessionEventForwardingRegisterRepository.save(register);
-        for (int i = 0; i < register.getMaximumRetries()+2; i++) {
-            job.execute();
+        try {
+            register.setForwardingEndpoint("https://0.0.0.0/nowhere");
+            sessionEventForwardingRegisterRepository.save(register);
+            for (int i = 0; i < register.getMaximumRetries() + 2; i++) {
+                job.execute();
+            }
+        } finally {
+            register.setForwardingEndpoint(originalEndpoint);
+            sessionEventForwardingRegisterRepository.save(register);
         }
-        register.setForwardingEndpoint(originalEndpoint);
-        sessionEventForwardingRegisterRepository.save(register);
     }
 
     @Then("^the event status is (.*)$")
