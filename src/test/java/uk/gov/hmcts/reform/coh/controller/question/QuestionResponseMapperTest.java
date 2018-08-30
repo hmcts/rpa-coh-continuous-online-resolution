@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 
 import java.util.*;
 
@@ -24,16 +26,8 @@ public class QuestionResponseMapperTest {
         state = new QuestionState();
         state.setState("foo");
 
-        questionUuid = UUID.randomUUID();
-
-        question = new Question();
-        question.setQuestionId(questionUuid);
-        question.setQuestionRound(1);
-        question.setQuestionOrdinal(1);
-        question.setQuestionHeaderText("question header");
-        question.setQuestionText("question text");
-        question.setOwnerReferenceId("bar");
-        question.setQuestionState(state);
+        question = QuestionEntityUtils.createTestQuestion();
+        questionUuid = question.getQuestionId();
 
         AnswerState answerState = new AnswerState();
         answerState.setState("foo");
@@ -71,8 +65,9 @@ public class QuestionResponseMapperTest {
         assertEquals(question.getQuestionHeaderText(), response.getQuestionHeaderText());
         assertEquals(question.getQuestionText(), response.getQuestionBodyText());
         assertEquals(question.getOwnerReferenceId(), response.getOwnerReference());
-        assertEquals(state.getState(), response.getCurrentState().getName());
+        assertEquals(QuestionStates.DRAFTED.getStateName(), response.getCurrentState().getName());
         assertEquals(1, question.getAnswers().size());
+        assertEquals("1", response.getDeadlineExtCount());
 
         // This checks the sorting works
         assertEquals(CohISO8601DateFormat.format(history2.getDateOccurred()), response.getCurrentState().getDatetime());
