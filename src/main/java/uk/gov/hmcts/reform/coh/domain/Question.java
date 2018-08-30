@@ -34,9 +34,12 @@ public class Question {
     @Column(name = "question_round")
     private Integer questionRound;
 
-    @Column(name = "deadline_expiry_date ")
+    @Column(name = "deadline_expiry_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deadlineExpiryDate;
+
+    @Column(name = "deadline_ext_count")
+    private int deadlineExtCout;
 
     @ManyToOne(fetch = EAGER)
     @JoinColumn(name = "question_state_id")
@@ -90,6 +93,14 @@ public class Question {
 
     public void setDeadlineExpiryDate(Date deadlineExpiryDate) {
         this.deadlineExpiryDate = deadlineExpiryDate;
+    }
+
+    public int getDeadlineExtCout() {
+        return deadlineExtCout;
+    }
+
+    public void setDeadlineExtCout(int deadlineExtCout) {
+        this.deadlineExtCout = deadlineExtCout;
     }
 
     public String getAuthorReferenceId() {
