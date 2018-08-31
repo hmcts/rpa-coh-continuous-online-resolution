@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.Optional;
@@ -116,19 +117,28 @@ public class EventForwardingController {
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No registers for this jurisdiction & event type");
         }
 
-        Optional<SessionEventForwardingState> pendingEventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());
-        if(!pendingEventForwardingState.isPresent()) {
-            log.error("Pending event forwarding state was not found in the database");
+        try {
+            SessionEventForwardingState pendingEventForwardingState = getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_PENDING);
+
+            SessionEventForwardingState failedEventForwardingState = getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_FAILED);
+
+            sessionEventService.retrieveAllByEventForwardingRegister(sessionEventForwardingRegister.get()).stream()
+                    .filter((se -> se.getSessionEventForwardingState().equals(failedEventForwardingState)))
+                    .forEach(se -> {
+                        se.setSessionEventForwardingState(pendingEventForwardingState);
+                        se.setRetries(0);
+                        sessionEventService.updateSessionEvent(se);
+                    });
+        } catch (EntityNotFoundException enfe) {
+            log.error("Pending event forwarding state was not found in the database. Exception is " + enfe);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We have encounter an error. Please contact support.");
         }
 
-        sessionEventService.retrieveAllByEventForwardingRegister(sessionEventForwardingRegister.get()).stream()
-                .forEach(se -> {
-                            se.setSessionEventForwardingState(pendingEventForwardingState.get());
-                            se.setRetries(0);
-                            sessionEventService.updateSessionEvent(se);
-                        });
-
         return ResponseEntity.status(HttpStatus.OK).body("");
+    }
+
+    private SessionEventForwardingState getSessionEventForwardingState(SessionEventForwardingStates state) throws EntityNotFoundException{
+        Optional<SessionEventForwardingState> eventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(state.getStateName());
+        return eventForwardingState.orElseThrow(() -> new EntityNotFoundException("Unable to find SessionEventForwardingStates: " + state.getStateName()));
     }
 }
