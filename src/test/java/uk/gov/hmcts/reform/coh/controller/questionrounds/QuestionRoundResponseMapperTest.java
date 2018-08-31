@@ -37,7 +37,7 @@ public class QuestionRoundResponseMapperTest {
         assertEquals("1", qrr.getQuestionRound());
         assertEquals(2, qrr.getQuestionList().size());
         assertEquals(new Integer(2), qrr.getDeadlineExtCount());
-        assertEquals(1, Integer.parseInt(qrr.getQuestionList().get(0).getDeadlineExtCount()));
-        assertEquals(2, Integer.parseInt(qrr.getQuestionList().get(1).getDeadlineExtCount()));
+        assertEquals(1, qrr.getQuestionList().get(0).getDeadlineExtCount());
+        assertEquals(2, qrr.getQuestionList().get(1).getDeadlineExtCount());
     }
 }

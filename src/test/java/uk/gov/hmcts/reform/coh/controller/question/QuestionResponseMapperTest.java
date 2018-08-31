@@ -67,7 +67,7 @@ public class QuestionResponseMapperTest {
         assertEquals(question.getOwnerReferenceId(), response.getOwnerReference());
         assertEquals(QuestionStates.DRAFTED.getStateName(), response.getCurrentState().getName());
         assertEquals(1, question.getAnswers().size());
-        assertEquals("1", response.getDeadlineExtCount());
+        assertEquals(1, response.getDeadlineExtCount());
 
         // This checks the sorting works
         assertEquals(CohISO8601DateFormat.format(history2.getDateOccurred()), response.getCurrentState().getDatetime());

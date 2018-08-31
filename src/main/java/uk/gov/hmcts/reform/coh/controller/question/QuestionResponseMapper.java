@@ -16,7 +16,6 @@ public enum QuestionResponseMapper {
 
     QUESTION_ID((Question q) -> q.getQuestionId().toString(), QuestionResponse::setQuestionId),
     QUESTION_ROUND((Question q) -> q.getQuestionRound().toString(), QuestionResponse::setQuestionRound),
-    QUESTION_DEADLINE_EXT_COUNT((Question q) -> Integer.toString(q.getDeadlineExtCount()), QuestionResponse::setDeadlineExtCount),
     QUESTION_ORDINAL((Question q) -> Integer.toString(q.getQuestionOrdinal()), QuestionRequest::setQuestionOrdinal),
     QUESTION_HEADER_TEXT(Question::getQuestionHeaderText, QuestionRequest::setQuestionHeaderText),
     QUESTION_BODY_TEXT(Question::getQuestionText, QuestionRequest::setQuestionBodyText),
@@ -56,6 +55,7 @@ public enum QuestionResponseMapper {
             }
             response.setAnswers(answerResponses);
         }
+        response.setDeadlineExtCount(question.getDeadlineExtCount());
     }
 
     public static void map(Question question, QuestionResponse response, Answer answer) {

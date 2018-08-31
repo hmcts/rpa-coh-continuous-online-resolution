@@ -132,7 +132,7 @@ public class DeadlineSteps extends BaseSteps {
 
     @And("^question deadline extendion count is (\\d+)$")
     public void questionDeadlineExtendionCountIs(int count) throws Throwable {
-        getAllQuestionsResponse().getQuestions().forEach(q -> assertEquals(count, Integer.parseInt(q.getDeadlineExtCount())));
+        getAllQuestionsResponse().getQuestions().forEach(q -> assertEquals(count, q.getDeadlineExtCount()));
     }
 
     private AllQuestionsResponse getAllQuestionsResponse() throws Exception {

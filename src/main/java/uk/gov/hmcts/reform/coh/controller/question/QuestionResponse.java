@@ -24,7 +24,7 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
     }
 
     @JsonProperty(value = "deadline_extension_count")
-    private String deadlineExtCount;
+    private int deadlineExtCount;
 
     @JsonProperty(value = "current_question_state")
     private StateResponse currentState = new StateResponse();
@@ -49,11 +49,11 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
         this.deadlineExpiryDate = CohISO8601DateFormat.format(deadlineExpiryDate);
     }
 
-    public String getDeadlineExtCount() {
+    public int getDeadlineExtCount() {
         return deadlineExtCount;
     }
 
-    public void setDeadlineExtCount(String deadlineExtCount) {
+    public void setDeadlineExtCount(int deadlineExtCount) {
         this.deadlineExtCount = deadlineExtCount;
     }
 
