@@ -178,6 +178,12 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(count, response.getOnlineHearing().getHistories().size());
     }
 
+    @And("^the conversation response contains an online hearing with at least (\\d) history entries$")
+    public void theResponseContainsAnOnlineHearingWithAtLeastHistory(int count) throws Throwable {
+        ConversationResponse response = getConversationResponse();
+        assertTrue(count <= response.getOnlineHearing().getHistories().size());
+    }
+
     @And("^the conversation response contains an online hearing with 1 history entry  with state desc of '(.*)'$")
     public void theResponseContainsAnOnlineHearingWithHistory(String stateName) throws Throwable {
         ConversationResponse response = getConversationResponse();

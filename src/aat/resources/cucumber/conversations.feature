@@ -22,10 +22,9 @@ Feature: Conversations
     When a GET request is sent for a conversation
     Then the response code is 200
     And the conversation response contains an online hearing
-    And the conversation response contains an online hearing with 2 history entries
+    And the conversation response contains an online hearing with at least 2 history entries
     And the conversation response contains an online hearing with the correct uri
     And the conversation response contains an online hearing with state desc of 'Continuous Online Hearing Decision Issued'
-    And the conversation response contains an online hearing with 2 history entries
     And the conversation response contains an online hearing with 1 history entry  with state desc of 'Continuous Online Hearing Started'
     And the conversation response contains a decision
     And the conversation response contains a decision with the correct uri
