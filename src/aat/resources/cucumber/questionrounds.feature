@@ -159,6 +159,7 @@ Feature: Question Round Logic
     And the current question round is ' "2" '
     And the next question round is ' "2" '
     And the max question round is ' "2" '
+    And the deadline extension count is 0
 
   Scenario: Get a question round for an online hearing
     Given a standard online hearing is created

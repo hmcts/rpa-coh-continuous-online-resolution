@@ -27,11 +27,15 @@ public enum QuestionRoundResponseMapper {
         }
 
         List<Question> questions = questionRound.getQuestionList();
+        Integer maxDeadlineExtensionCount = 0;
         for (Question question : questions) {
             QuestionResponse questionResponse = new QuestionResponse();
             QuestionResponseMapper.map(question, questionResponse);
             questionRoundResponse.addQuestionResponse(questionResponse);
+            maxDeadlineExtensionCount = maxDeadlineExtensionCount < question.getDeadlineExtCount() ? question.getDeadlineExtCount() : maxDeadlineExtensionCount;
         }
+
+        questionRoundResponse.setDeadlineExtCount(maxDeadlineExtensionCount);
     }
 
     public void set(QuestionRound questionRound, QuestionRoundResponse questionRoundResponse) {
