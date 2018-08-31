@@ -19,10 +19,6 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String deadlineExpiryDate;
 
-    public void setDeadlineExpiryDate(String deadlineExpiryDate) {
-        this.deadlineExpiryDate = deadlineExpiryDate;
-    }
-
     @JsonProperty(value = "deadline_extension_count")
     private int deadlineExtCount;
 
@@ -43,6 +39,10 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
 
     public String getDeadlineExpiryDate() {
         return deadlineExpiryDate;
+    }
+
+    public void setDeadlineExpiryDate(String deadlineExpiryDate) {
+        this.deadlineExpiryDate = deadlineExpiryDate;
     }
 
     public void setDeadlineExpiryDate(Date deadlineExpiryDate) {

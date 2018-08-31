@@ -18,7 +18,7 @@ public class QuestionRoundResponseMapperTest {
     private QuestionRound qr;
 
     @Before
-    public void setup() {
+    public void setUp() {
         qr = new QuestionRound();
         qr.setQuestionRoundNumber(1);
         qr.setQuestionRoundState(new QuestionRoundState(new QuestionState("foo")));
