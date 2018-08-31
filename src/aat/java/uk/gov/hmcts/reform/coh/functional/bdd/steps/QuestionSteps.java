@@ -428,6 +428,12 @@ public class QuestionSteps extends BaseSteps {
         assertEquals(count, getQuestionRoundResponse().getQuestionList().stream().filter(q -> q.getCurrentState().getName().equals(state)).count());
     }
 
+    @And("^the deadline extension count is (\\d+)$")
+    public void theDeadlineExtensionCountIs(int count) throws Exception {
+        QuestionRoundsResponse qrr = getQuestionRoundsResponse();
+        assertEquals(count, qrr.getQuestionRounds().get(0).getDeadlineExtCount().intValue());
+    }
+
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {
 
         String rawJson = testContext.getHttpContext().getRawResponseString();

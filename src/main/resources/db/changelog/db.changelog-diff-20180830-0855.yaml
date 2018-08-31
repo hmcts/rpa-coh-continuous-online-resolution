@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 1535615762114-1
+    author: johnho (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: deadline_ext_count
+            type: int4
+        tableName: question
+

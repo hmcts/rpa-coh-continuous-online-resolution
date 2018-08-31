@@ -172,6 +172,7 @@ public class QuestionService {
         question.setDeadlineExpiryDate(newDeadline(question));
         question.setQuestionState(extensionGranted);
         question.updateQuestionStateHistory(extensionGranted);
+        question.incrementDeadlineExtCount();
         questionRepository.save(question);
     }
 
