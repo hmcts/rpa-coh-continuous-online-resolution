@@ -351,10 +351,10 @@ public class ApiSteps extends BaseSteps {
         List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
 
         long count = sessionEvents.stream()
-                .filter(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType))
-                .filter(se -> se.getSessionEventForwardingState().getForwardingStateName()
-                        .equalsIgnoreCase(forwardingState))
-        .count();
+                .filter(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType) &&
+                        se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(forwardingState)
+                )
+                .count();
 
         assertTrue(count > 0);
     }
