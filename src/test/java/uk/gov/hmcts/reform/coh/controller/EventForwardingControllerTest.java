@@ -129,10 +129,11 @@ public class EventForwardingControllerTest {
                 .content(json))
                 .andExpect(status().is2xxSuccessful());
 
-        verify(sessionEventService, times(sessionEventList.size())).updateSessionEvent(any(SessionEvent.class));
-        boolean isReset = sessionEventList.stream()
-                .allMatch(se -> se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));
-        assertTrue(isReset);
+        verify(sessionEventService, times(1)).updateSessionEvent(any(SessionEvent.class));
+        long count = sessionEventList.stream()
+                .filter(se -> {return se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());})
+                .count();
+        assertTrue(count == 1);
     }
 
     @Test
