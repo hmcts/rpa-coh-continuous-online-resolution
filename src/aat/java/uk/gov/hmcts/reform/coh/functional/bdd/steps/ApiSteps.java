@@ -29,7 +29,6 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.*;
-import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
@@ -346,27 +345,18 @@ public class ApiSteps extends BaseSteps {
         assertTrue(hasEvent);
     }
 
-    @And("^the event has been set to forwarding_state_pending of event type (.*)$")
-    public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String eventType) {
-        SessionEventType expectedEventType = sessionEventTypeRespository.findByEventTypeName(eventType)
-            .orElseThrow(EntityNotFoundException::new);
-
+    @And("^the event has been set to (.*) of event type (.*)$")
+    public void thePutRequestIsSentToResetTheEventsOfTypeAnswerSubmitted(String forwardingState, String eventType) {
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        Jurisdiction jurisdiction = jurisdictionRepository
-            .findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
-            .orElseThrow(EntityNotFoundException::new);
-
-        SessionEventForwardingRegisterId sessionEventForwardingRegisterId = new SessionEventForwardingRegisterId(
-            jurisdiction.getJurisdictionId(), expectedEventType.getEventTypeId());
-
         List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
-        boolean hasEvent = sessionEvents.stream()
-            .filter(se -> se.getSessionEventForwardingRegister().getEventForwardingRegisterId()
-                .equals(sessionEventForwardingRegisterId))
-            .allMatch(se -> se.getSessionEventForwardingState().getForwardingStateName()
-                .equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));
 
-        assertTrue(hasEvent);
+        long count = sessionEvents.stream()
+                .filter(se -> se.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName().equalsIgnoreCase(eventType) &&
+                        se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(forwardingState)
+                )
+                .count();
+
+        assertTrue(count == 1);
     }
 
     @And("^the event type (.*) has been set to retries of (\\d+)$")

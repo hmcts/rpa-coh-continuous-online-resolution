@@ -20,4 +20,6 @@ public interface SessionEventRepository extends CrudRepository<SessionEvent, UUI
     void deleteByOnlineHearing(OnlineHearing onlineHearing);
 
     List<SessionEvent> findAllBySessionEventForwardingRegister(SessionEventForwardingRegister sessionEventForwardingRegister);
+
+    List<SessionEvent> findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(SessionEventForwardingRegister sessionEventForwardingRegister, SessionEventForwardingState eventForwardingState);
 }

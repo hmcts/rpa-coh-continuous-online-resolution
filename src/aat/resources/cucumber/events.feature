@@ -26,10 +26,10 @@ Feature: Event features
     And the notification scheduler runs
     When the put request is sent to reset the events of type answers_submitted
     Then the response code is 200
-    And the event has been set to forwarding_state_pending of event type answers_submitted
+    And the event has been set to event_forwarding_success of event type answers_submitted
     And the event type answers_submitted has been set to retries of 0
 
-  Scenario: Reset question_issued event state
+  Scenario: Reset question_issued event state when not failed
     Given a standard online hearing is created
     And a valid question
     And the put request is sent to issue the question round ' "1" '
@@ -37,7 +37,17 @@ Feature: Event features
     And an event has been queued for this online hearing of event type question_round_issued
     When the put request is sent to reset the events of type question_round_issued
     Then the response code is 200
-    And the event has been set to forwarding_state_pending of event type question_round_issued
+    And the event has been set to event_forwarding_success of event type question_round_issued
+
+  Scenario: Reset question_issued event state when failed
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And an event has been queued for this online hearing of event type question_round_issued
+    When the notification scheduler fails to send after configured retries for 'SSCS' and event type 'question_round_issued'
+    When the put request is sent to reset the events of type question_round_issued
+    Then the response code is 200
+    And the event has been set to event_forwarding_pending of event type question_round_issued
 
   Scenario: Reset events for event type which does not exist
     Given a standard online hearing is created
