@@ -54,12 +54,12 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
         }
 
         // Update the decision pending state to issued
-        Optional<DecisionState> optDecisonState = decisionStateService.retrieveDecisionStateByState(DecisionsStates.DECISION_ISSUED.getStateName());
-        if (!optDecisonState.isPresent()) {
+        Optional<DecisionState> optDecisionState = decisionStateService.retrieveDecisionStateByState(DecisionsStates.DECISION_ISSUED.getStateName());
+        if (!optDecisionState.isPresent()) {
             log.error(String.format("Unable to find decision state : %s", DecisionsStates.DECISION_ISSUED.getStateName()));
             return;
         }
-        DecisionState decisionIssuedState = optDecisonState.get();
+        DecisionState decisionIssuedState = optDecisionState.get();
         log.info(String.format("Updating decision state to : %s", decisionIssuedState.getState()));
         Decision decision = optDecision.get();
         decision.addDecisionStateHistory(decisionIssuedState);
