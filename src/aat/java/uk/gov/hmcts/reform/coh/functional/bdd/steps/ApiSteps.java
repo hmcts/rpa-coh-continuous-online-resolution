@@ -89,6 +89,8 @@ public class ApiSteps extends BaseSteps {
 
     private RestTemplate restTemplate;
 
+    private Map<SessionEventForwardingRegister, String> originalSettings = new HashMap<>();
+
     @Autowired
     public ApiSteps(TestContext testContext) {
         super(testContext);
@@ -98,10 +100,28 @@ public class ApiSteps extends BaseSteps {
     public void setUp() throws Exception {
         super.setup();
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
+
+        // For testing purposes, we want to hit the dummy notification endpoint
+        Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
+        sessionEventForwardingRegisters.iterator()
+                .forEachRemaining(
+                        sefr -> {
+                            originalSettings.put(sefr, sefr.getForwardingEndpoint());
+                            sefr.setForwardingEndpoint(testNotificationUrl.replace("${base-urls.test-url}", baseUrl).replace("https", "http"));
+                        });
+        sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
     }
 
     @After
     public void cleanUp() {
+
+        // Set the forwarding endpoints back to original
+        originalSettings.forEach( (k, v) -> k.setForwardingEndpoint(v));
+        sessionEventForwardingRegisterRepository.saveAll(originalSettings.keySet());
+
+        /**
+         * Now start cleaning up test data
+         */
         for (DecisionReply decisionReply : testContext.getScenarioContext().getDecisionReplies()) {
             try {
                 decisionReplyRepository.deleteById(decisionReply.getId());
