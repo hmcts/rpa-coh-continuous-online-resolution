@@ -31,6 +31,9 @@ public class BaseSteps {
     @Value("${base-urls.test-url}")
     String baseUrl;
 
+    @Value("${aat.test-notification-endpoint}")
+    String testNotificationUrl;
+
     protected TestContext testContext;
     
     protected HttpHeaders header;
@@ -42,12 +45,6 @@ public class BaseSteps {
 
     public void setup() throws Exception {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
-
-        Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
-
-        sessionEventForwardingRegisters.iterator().forEachRemaining(
-                sefr -> sefr.setForwardingEndpoint(sefr.getForwardingEndpoint().replace("${base-urls.test-url}", baseUrl).replace("https", "http")));
-        sessionEventForwardingRegisterRepository.saveAll(sessionEventForwardingRegisters);
 
         testContext.getHttpContext().setIdamAuthorRef("bearer judge_123_idam");
         testContext.getHttpContext().setIdamServiceRef("idam-service-ref-id");

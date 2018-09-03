@@ -122,6 +122,7 @@ public class EventForwardingControllerTest {
     public void testResetSessionEvents() throws Exception {
 
         given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(any(SessionEventForwardingRegister.class))).willReturn(Optional.of(sessionEventForwardingRegister));
+        given(sessionEventService.findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(any(SessionEventForwardingRegister.class), any(SessionEventForwardingState.class))).willReturn(sessionEventList);
         String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
 
         mockMvc.perform(put(ENDPOINT + "/reset")
@@ -129,10 +130,12 @@ public class EventForwardingControllerTest {
                 .content(json))
                 .andExpect(status().is2xxSuccessful());
 
-        verify(sessionEventService, times(sessionEventList.size())).updateSessionEvent(any(SessionEvent.class));
-        boolean isReset = sessionEventList.stream()
-                .allMatch(se -> se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()));
-        assertTrue(isReset);
+        int size = sessionEventList.size();
+        verify(sessionEventService, times(size)).updateSessionEvent(any(SessionEvent.class));
+        long count = sessionEventList.stream()
+                .filter(se -> {return se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());})
+                .count();
+        assertTrue(count == size);
     }
 
     @Test

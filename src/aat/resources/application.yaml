@@ -53,3 +53,6 @@ azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
   application-insights:
     instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:dummy}
+
+aat:
+  test-notification-endpoint: ${base-urls.test-url}/SSCS/notifications
