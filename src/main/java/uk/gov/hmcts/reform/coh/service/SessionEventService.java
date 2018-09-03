@@ -92,4 +92,8 @@ public class SessionEventService {
     public List<SessionEvent> retrieveAllByEventForwardingRegister(SessionEventForwardingRegister sessionEventForwardingRegister) {
         return sessionEventRepository.findAllBySessionEventForwardingRegister(sessionEventForwardingRegister);
     }
+    public List<SessionEvent> findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(SessionEventForwardingRegister sessionEventForwardingRegister, SessionEventForwardingState eventForwardingState) {
+        return sessionEventRepository.findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(sessionEventForwardingRegister, eventForwardingState);
+    }
+
 }
