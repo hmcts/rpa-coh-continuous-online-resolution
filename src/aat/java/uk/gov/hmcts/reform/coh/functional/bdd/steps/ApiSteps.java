@@ -356,7 +356,7 @@ public class ApiSteps extends BaseSteps {
                 )
                 .count();
 
-        assertTrue(count > 0);
+        assertTrue(count == 1);
     }
 
     @And("^the event type (.*) has been set to retries of (\\d+)$")
