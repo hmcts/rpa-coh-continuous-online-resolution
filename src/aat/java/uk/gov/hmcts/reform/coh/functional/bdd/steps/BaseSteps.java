@@ -8,8 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
-import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
@@ -18,16 +18,12 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterReposito
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BaseSteps {
 
     protected RestTemplate restTemplate;
 
     protected static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-    private Map<String, String> endpoints = new HashMap<String, String>();
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
