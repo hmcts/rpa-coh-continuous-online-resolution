@@ -47,13 +47,6 @@ public class BaseSteps {
     public void setup() throws Exception {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
 
-        endpoints.put("online hearing", "/continuous-online-hearings");
-        endpoints.put("decision", "/continuous-online-hearings/onlineHearing_id/decisions");
-        endpoints.put("decisionreply", "/continuous-online-hearings/onlineHearing_id/decisionreplies");
-        endpoints.put("question", "/continuous-online-hearings/onlineHearing_id/questions");
-        endpoints.put("answer", "/continuous-online-hearings/onlineHearing_id/questions/question_id/answers");
-        endpoints.put("conversations", "/continuous-online-hearings/onlineHearing_id/conversations");
-
         Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
 
         sessionEventForwardingRegisters.iterator().forEachRemaining(
@@ -83,9 +76,5 @@ public class BaseSteps {
 
     public RestTemplate getRestTemplate() {
         return restTemplate;
-    }
-
-    public Map<String, String> getEndpoints() {
-        return endpoints;
     }
 }

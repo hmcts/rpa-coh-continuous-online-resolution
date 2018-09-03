@@ -59,4 +59,9 @@ public class CohUriBuilder {
 
         return buildDecisionReplyPost(onlineHearingId) + "/" + decisionReplyId;
     }
+
+    public static String buildConversationsGet(UUID onlineHearingId) {
+
+        return buildOnlineHearingGet(onlineHearingId) + "/conversations";
+    }
 }
