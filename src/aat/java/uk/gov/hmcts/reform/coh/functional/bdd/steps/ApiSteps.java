@@ -88,8 +88,6 @@ public class ApiSteps extends BaseSteps {
 
     private JSONObject json;
 
-    private RestTemplate restTemplate;
-
     @Autowired
     public ApiSteps(TestContext testContext) {
         super(testContext);
@@ -98,7 +96,6 @@ public class ApiSteps extends BaseSteps {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
     }
 
     @After
