@@ -3,8 +3,22 @@ Feature: Triggers
   Scenario: Trigger Question Deadline Elapsed
     Given a standard online hearing is created
     And a valid question
-    And the put request is sent to issue the question round ' "1" '
+    When the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     Given the question expiry date has expired
     And the trigger scheduler runs
+    When the get request is sent to retrieve the submitted question
+    Then the question state name is question_deadline_elapsed
 
+  Scenario: Trigger Question Deadline Elapsed For Extended Deadlines
+    Given a standard online hearing is created
+    And a valid question
+    When the put request is sent to issue the question round ' "1" '
+    And the notification scheduler runs
+    And deadline extension is requested
+    When the get request is sent to retrieve the submitted question
+    Then the question state name is question_deadline_extension_granted
+    Given the question expiry date has expired
+    And the trigger scheduler runs
+    When the get request is sent to retrieve the submitted question
+    Then the question state name is question_deadline_elapsed

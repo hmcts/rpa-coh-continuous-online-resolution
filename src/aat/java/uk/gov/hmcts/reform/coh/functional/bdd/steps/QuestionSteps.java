@@ -466,9 +466,8 @@ public class QuestionSteps extends BaseSteps {
 
     @Given("^the question expiry date has expired$")
     public void theQuestionExpiryDateHasExpired() {
-        Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
-        Question question = testContext.getScenarioContext().getCurrentQuestion();
-        question.setDeadlineExpiryDate(Date.from(past));
+        Question question = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId()).get();
+        question.setDeadlineExpiryDate(new Date());
         questionRepository.save(question);
     }
 }
