@@ -10,15 +10,13 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.DEADLINE_ELAPSED;
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.*;
 
 @Component
 public class QuestionRoundDeadlineElapsed implements EventTrigger {
@@ -42,29 +40,22 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
         log.info(String.format("Executing %s", this.getClass()));
 
         Calendar calendar = new GregorianCalendar();
-        Optional<QuestionState> issuedState = stateService.retrieveQuestionStateByStateName(ISSUED.getStateName());
-        if (!issuedState.isPresent()) {
-            log.error(String.format("Unable to find question state: %s", ISSUED.getStateName()));
-            return;
-        }
 
-        Optional<QuestionState> elapsedState = stateService.retrieveQuestionStateByStateName(DEADLINE_ELAPSED.getStateName());
-        if (!elapsedState.isPresent()) {
-            log.error(String.format("Unable to find question state: %s", DEADLINE_ELAPSED.getStateName()));
-            return;
-        }
+        QuestionState issuedState = getQuestionStateByStateName(ISSUED);
+        QuestionState grantedState = getQuestionStateByStateName(QUESTION_DEADLINE_EXTENSION_GRANTED);
+        QuestionState elapsedState = getQuestionStateByStateName(DEADLINE_ELAPSED);
 
         // For each question, update the state to elapsed
-        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredAndQuestionState(calendar.getTime(), issuedState.get());
+        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredAndQuestionStates(calendar.getTime(), Arrays.asList(issuedState, grantedState));
         questions.forEach(q -> {
-            q.setQuestionState(elapsedState.get());
+            q.setQuestionState(elapsedState);
             questionService.updateQuestionForced(q);
             log.info(String.format("Updated question %s to %s", q.getQuestionId(), elapsedState));
         });
 
         // Only create one one session event per online hearing in case there's many rounds
         List<OnlineHearing> onlineHearings = retrieveQuestionsDeadlineExpiredAndQuestionStateDistinct(questions);
-        onlineHearings.forEach( o -> {
+        onlineHearings.forEach(o -> {
             Optional<OnlineHearing> onlineHearing = onlineHearingService.retrieveOnlineHearing(o);
             log.info(String.format("Online hearing %s found", o.getOnlineHearingId()));
             if (onlineHearing.isPresent()) {
@@ -80,5 +71,10 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
                 .map(Question::getOnlineHearing)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private QuestionState getQuestionStateByStateName(QuestionStates state) throws EntityNotFoundException {
+        Optional<QuestionState> issuedState = stateService.retrieveQuestionStateByStateName(state.getStateName());
+        return issuedState.orElseThrow(() -> new EntityNotFoundException("Unable to find question state: " + state.getStateName()));
     }
 }
