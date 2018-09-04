@@ -87,8 +87,6 @@ public class ApiSteps extends BaseSteps {
 
     private JSONObject json;
 
-    private RestTemplate restTemplate;
-
     private Map<SessionEventForwardingRegister, String> originalSettings = new HashMap<>();
 
     @Autowired
@@ -99,7 +97,6 @@ public class ApiSteps extends BaseSteps {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
 
         // For testing purposes, we want to hit the dummy notification endpoint
         Iterable<SessionEventForwardingRegister> sessionEventForwardingRegisters = sessionEventForwardingRegisterRepository.findAll();
