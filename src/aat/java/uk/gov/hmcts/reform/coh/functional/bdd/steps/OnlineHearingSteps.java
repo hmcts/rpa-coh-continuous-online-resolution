@@ -85,22 +85,10 @@ public class OnlineHearingSteps extends BaseSteps {
     }
 
     @When("^a (.*) request is sent for a conversation")
-    public void send_request(String type) throws Exception {
-
-        RestTemplate restTemplate = getRestTemplate();
-        ResponseEntity<String> response = null;
-
-        String endpoint = getEndpoints().get("conversations");
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
-        endpoint = endpoint.replaceAll("onlineHearing_id", String.valueOf(onlineHearing.getOnlineHearingId()));
+    public void send_request(String method) {
 
         try {
-            if ("GET".equalsIgnoreCase(type)) {
-                HttpEntity<String> request = new HttpEntity<>("", header);
-                response = restTemplate.exchange(baseUrl + endpoint, HttpMethod.GET, request, String.class);
-            } else {
-                throw new PendingException("Only GET is supported for conversations");
-            }
+            ResponseEntity<String> response = sendRequest(CohEntityTypes.CONVERSATIONS, method, "");
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
