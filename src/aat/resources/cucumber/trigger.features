@@ -1,0 +1,10 @@
+Feature: Triggers
+
+  Scenario: Trigger Question Deadline Elapsed
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And the notification scheduler runs
+    Given the question expiry date has expired
+    And the trigger scheduler runs
+

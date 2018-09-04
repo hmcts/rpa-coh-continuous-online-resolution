@@ -27,6 +27,8 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,11 +61,11 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^the post request is sent to create the question$")
     public void theDraftAQuestion() throws Exception {
-        try{
+        try {
             ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), toJson(questionRequest));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(response.getBody().toString());
-            testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
+            testContext.getScenarioContext().setCurrentQuestion(questionRepository.findById(createQuestionResponse.getQuestionId()).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
@@ -460,5 +462,13 @@ public class QuestionSteps extends BaseSteps {
         String url = round == null ? buildQuestionRoundGetAll(onlineHearingId) : buildQuestionRoundGet(onlineHearingId, round);
 
         return baseUrl + url;
+    }
+
+    @Given("^the question expiry date has expired$")
+    public void theQuestionExpiryDateHasExpired() {
+        Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
+        Question question = testContext.getScenarioContext().getCurrentQuestion();
+        question.setDeadlineExpiryDate(Date.from(past));
+        questionRepository.save(question);
     }
 }
