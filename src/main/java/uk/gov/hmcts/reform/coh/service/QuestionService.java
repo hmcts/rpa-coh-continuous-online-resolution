@@ -95,9 +95,9 @@ public class QuestionService {
     }
 
     @Transactional
-    public List<Question> retrieveQuestionsDeadlineExpiredAndQuestionState(Date threshold, QuestionState questionState) {
+    public List<Question> retrieveQuestionsDeadlineExpiredAndQuestionStates(Date threshold, List<QuestionState> questionStates) {
 
-        return questionRepository.findAllByDeadlineExpiryDateLessThanEqualAndQuestionState(threshold, questionState);
+        return questionRepository.findAllByDeadlineExpiryDateLessThanEqualAndQuestionStateIn(threshold, questionStates);
     }
 
     @Transactional

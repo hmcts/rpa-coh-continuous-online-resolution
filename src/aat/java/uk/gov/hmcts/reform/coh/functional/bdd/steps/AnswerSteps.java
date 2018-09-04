@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.responses.AnswerResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
+import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -44,6 +45,9 @@ public class AnswerSteps extends BaseSteps {
     private OnlineHearingRepository onlineHearingRepository;
 
     @Autowired
+    private QuestionRepository questionRepository;
+
+    @Autowired
     public AnswerSteps(TestContext testContext) {
         super(testContext);
     }
@@ -63,9 +67,11 @@ public class AnswerSteps extends BaseSteps {
         ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), JsonUtils.toJson(questionRequest));
         testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         String json = response.getBody().toString();
+
+
         CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(json);
         testContext.getScenarioContext().addQuestionId(createQuestionResponse.getQuestionId());
-        testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
+        testContext.getScenarioContext().setCurrentQuestion(questionRepository.findById(createQuestionResponse.getQuestionId()).get());
     }
 
     @Given("^a standard answer$")
