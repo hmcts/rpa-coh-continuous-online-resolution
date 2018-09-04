@@ -9,13 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
-import uk.gov.hmcts.reform.coh.controller.validators.QuestionValidator;
-import uk.gov.hmcts.reform.coh.controller.validators.Validation;
-import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
+import uk.gov.hmcts.reform.coh.controller.validators.*;
 import uk.gov.hmcts.reform.coh.domain.Answer;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -26,10 +25,7 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
 import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.QUESTION_NOT_FOUND;
@@ -46,6 +42,9 @@ public class QuestionController {
     private Validation validation = new Validation();
 
     private AnswerService answerService;
+
+    @Autowired
+    private BiValidator<OnlineHearing, QuestionRequest> questionRequestBiValidator;
 
     @Autowired
     public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService, AnswerService answerService) {
@@ -136,7 +135,7 @@ public class QuestionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
-        ValidationResult result = validation.execute(QuestionValidator.values(), request);
+        ValidationResult result = validation.execute(new BiValidator[]{questionRequestBiValidator}, onlineHearing, request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }

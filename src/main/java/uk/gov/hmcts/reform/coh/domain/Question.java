@@ -34,6 +34,12 @@ public class Question {
     @Column(name = "question_round")
     private Integer questionRound;
 
+    @ElementCollection
+    @CollectionTable(name = "linked_questions",
+            joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "linked_question_id")
+    private Set<UUID> linkedQuestions;
+
     @Column(name = "deadline_expiry_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date deadlineExpiryDate;
@@ -85,6 +91,14 @@ public class Question {
 
     public void setQuestionHeaderText(String questionHeaderText) {
         this.questionHeaderText = questionHeaderText;
+    }
+
+    public Set<UUID> getLinkedQuestions() {
+        return linkedQuestions;
+    }
+
+    public void setLinkedQuestions(Set<UUID> linkedQuestions) {
+        this.linkedQuestions = linkedQuestions;
     }
 
     public Date getDeadlineExpiryDate() {
@@ -210,6 +224,11 @@ public class Question {
 
     public Question questionRound(int questionRound) {
         this.questionRound = questionRound;
+        return this;
+    }
+
+    public Question linkedQuestions(Set<UUID> linkedQuestions) {
+        this.linkedQuestions = linkedQuestions;
         return this;
     }
 
