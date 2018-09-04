@@ -74,7 +74,7 @@ public class QuestionRoundDeadlineElapsed implements EventTrigger {
     }
 
     private QuestionState getQuestionStateByStateName(QuestionStates state) throws EntityNotFoundException {
-        Optional<QuestionState> issuedState = stateService.retrieveQuestionStateByStateName(state.getStateName());
-        return issuedState.orElseThrow(() -> new EntityNotFoundException("Unable to find question state: " + state.getStateName()));
+        Optional<QuestionState> questionState = stateService.retrieveQuestionStateByStateName(state.getStateName());
+        return questionState.orElseThrow(() -> new EntityNotFoundException("Unable to find question state: " + state.getStateName()));
     }
 }
