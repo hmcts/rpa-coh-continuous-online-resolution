@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -32,8 +31,6 @@ public class LinkedQuestionValidatorTest {
 
     private OnlineHearing onlineHearing;
 
-    private Question question;
-
     private Validation validation;
 
     private BiValidator[] validators;
@@ -50,7 +47,7 @@ public class LinkedQuestionValidatorTest {
     public void setUp() throws Exception {
         request = JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
         onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
-        question = QuestionEntityUtils.createTestQuestion();
+        Question question = QuestionEntityUtils.createTestQuestion();
         question.setOnlineHearing(onlineHearing);
         validation = new Validation();
         validators = new BiValidator[] {validator};
