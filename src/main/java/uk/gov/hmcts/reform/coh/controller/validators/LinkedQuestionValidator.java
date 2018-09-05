@@ -28,7 +28,7 @@ public class LinkedQuestionValidator implements BiValidator<OnlineHearing, Quest
                 .stream()
                 .filter(id -> {
                     Optional<Question> q = questionRepository.findById(id);
-                    return !q.isPresent() || !q.get().getOnlineHearing().equals(onlineHearing);})
+                    return !q.isPresent() || isLinkedQuestionPartOfSameOnlineHearing(q.get(), onlineHearing);})
                 .collect(Collectors.toList());
 
         if (!questions.isEmpty()) {
@@ -48,5 +48,9 @@ public class LinkedQuestionValidator implements BiValidator<OnlineHearing, Quest
     @Override
     public String getMessage() {
         return message;
+    }
+
+    private boolean isLinkedQuestionPartOfSameOnlineHearing(Question q, OnlineHearing o) {
+        return (q.getOnlineHearing() == null) || q.getOnlineHearing().equals(o);
     }
 }

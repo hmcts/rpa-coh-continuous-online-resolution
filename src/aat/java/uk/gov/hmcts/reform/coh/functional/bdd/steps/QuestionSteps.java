@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -221,8 +222,7 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^the response contains (\\d) questions$")
     public void the_response_contains_n_questions(int count) throws Throwable {
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse questionResponses = toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse questionResponses = getAllQuestionsResponse();
         assertEquals(count, questionResponses.getQuestions().size());
     }
 
@@ -354,8 +354,7 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^question history has at least (\\d+) events$")
     public void questionHistoryHasAtLeastEvents(int expectedNumberOfEvents) throws Throwable {
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse allQuestionsResponse = toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse allQuestionsResponse = getAllQuestionsResponse();
         List<QuestionResponse> questions = allQuestionsResponse.getQuestions();
 
         boolean allMatch = questions.stream()
@@ -370,8 +369,7 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^question (\\d+) contains (\\d+) answer$")
     public void questionContainsAnswer(int questionOrd, int numAnswers) throws Throwable {
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse allQuestionsResponse = toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse allQuestionsResponse = getAllQuestionsResponse();
         List<AnswerResponse> answers = allQuestionsResponse.getQuestions().get(questionOrd-1).getAnswers();
         assertEquals(answers.size(), numAnswers);
     }
@@ -434,6 +432,14 @@ public class QuestionSteps extends BaseSteps {
         assertEquals(count, qrr.getQuestionRounds().get(0).getDeadlineExtCount().intValue());
     }
 
+    @And("^the question is linked to the previous question$")
+    public void theQuestionIsLinkedQuestionToThePreviousQuestion() {
+        if (questionRequest.getLinkedQuestionId() == null) {
+            questionRequest.setLinkedQuestionId(new HashSet<>());
+        }
+        questionRequest.getLinkedQuestionId().add(testContext.getScenarioContext().getCurrentQuestion().getQuestionId());
+    }
+
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {
 
         String rawJson = testContext.getHttpContext().getRawResponseString();
@@ -460,5 +466,10 @@ public class QuestionSteps extends BaseSteps {
         String url = round == null ? buildQuestionRoundGetAll(onlineHearingId) : buildQuestionRoundGet(onlineHearingId, round);
 
         return baseUrl + url;
+    }
+
+    private AllQuestionsResponse getAllQuestionsResponse() throws Exception {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return toObjectFromJson(rawJson, AllQuestionsResponse.class);
     }
 }

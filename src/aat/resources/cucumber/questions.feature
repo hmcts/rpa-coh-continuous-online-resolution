@@ -35,6 +35,17 @@ Feature: Questions feature
     Then the response code is 200
     And the response contains 2 questions
 
+  Scenario: Submit a question With Linked Questions
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And a standard question
+    And the question is linked to the previous question
+    And the post request is sent to create the question
+    When the get request is sent to retrieve all questions
+    Then the response code is 200
+    And the response contains 2 questions
+
   Scenario: Retrieve all questions
     Given a standard online hearing is created
     And a standard question
