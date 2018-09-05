@@ -4,12 +4,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
@@ -34,24 +34,23 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.QUESTION_N
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
 public class QuestionController {
 
+    @Autowired
     private QuestionService questionService;
 
+    @Autowired
     private OnlineHearingService onlineHearingService;
+
+    @Autowired
     private QuestionStateService questionStateService;
 
     private Validation validation = new Validation();
 
+    @Autowired
     private AnswerService answerService;
 
-    @Autowired
-    private BiValidator<OnlineHearing, QuestionRequest> questionRequestBiValidator;
+    private BiValidator questionValidator = new LinkedQuestionValidator();
 
-    @Autowired
-    public QuestionController(QuestionService questionService, OnlineHearingService onlineHearingService, QuestionStateService questionStateService, AnswerService answerService) {
-        this.questionService = questionService;
-        this.onlineHearingService = onlineHearingService;
-        this.questionStateService = questionStateService;
-        this.answerService = answerService;
+    public QuestionController() {
     }
 
     @ApiOperation("Get all questions for an online hearing")
@@ -135,7 +134,7 @@ public class QuestionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
-        ValidationResult result = validation.execute(new BiValidator[]{questionRequestBiValidator}, onlineHearing, request);
+        ValidationResult result = validation.execute(new BiValidator[]{questionValidator}, onlineHearing, request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }

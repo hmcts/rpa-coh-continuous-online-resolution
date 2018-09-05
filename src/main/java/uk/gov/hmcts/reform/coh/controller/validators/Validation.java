@@ -8,7 +8,7 @@ public class Validation<T, U> {
         result.setValid(true);
 
         for (Validator validator : validators) {
-            if (validator.test(t)) {
+            if (!validator.test(t)) {
                 result.setValid(false);
                 result.setReason(validator.getMessage());
                 return result;
@@ -24,7 +24,7 @@ public class Validation<T, U> {
         result.setValid(true);
 
         for (BiValidator validator : validators) {
-            if (validator.test(t, u)) {
+            if (!validator.test(t, u)) {
                 result.setValid(false);
                 result.setReason(validator.getMessage());
                 return result;

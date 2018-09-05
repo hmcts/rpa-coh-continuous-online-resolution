@@ -1,8 +1,5 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,6 +19,11 @@ public class OnlineHearingState {
     public OnlineHearingState() {}
 
     public OnlineHearingState(String state) {
+        this.state = state;
+    }
+
+    public OnlineHearingState(int onlineHearingStateId, String state) {
+        this.onlineHearingStateId = onlineHearingStateId;
         this.state = state;
     }
 

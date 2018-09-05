@@ -18,12 +18,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
+import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -62,13 +66,11 @@ public class QuestionControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String ENDPOINT = "/continuous-online-hearings/0c08b113-16d1-4fb5-b41f-a928aa64d39a/questions";
-
     private QuestionRequest questionRequest;
 
-    private Question question;
+    private OnlineHearing onlineHearing;
 
-    private Answer answer;
+    private Question question;
 
     private QuestionState issuedState;
 
@@ -76,25 +78,17 @@ public class QuestionControllerTest {
 
     private Date today;
 
-    private UUID uuid;
 
     @Before
     public void setup() throws IOException {
         questionRequest = JsonUtils.toObjectFromTestName("question/standard_question", QuestionRequest.class);
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(UUID.fromString("0c08b113-16d1-4fb5-b41f-a928aa64d39a"));
-        uuid = UUID.randomUUID();
-        question = new Question();
-        question.setQuestionId(uuid);
-        question.setQuestionHeaderText("foo");
-        question.setQuestionText("bar");
+        onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
+        question = QuestionEntityUtils.createTestQuestion();
         question.setOnlineHearing(onlineHearing);
-        question.setQuestionRound(1);
-        question.setQuestionOrdinal(2);
 
         AnswerState answerState = new AnswerState();
         answerState.setState("foo");
-        answer = new Answer();
+        Answer answer = new Answer();
         answer.setAnswerId(UUID.randomUUID());
         answer.setAnswerText("test answer");
         answer.setQuestion(question);
@@ -102,11 +96,8 @@ public class QuestionControllerTest {
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
 
-        issuedState = new QuestionState();
-        issuedState.setState(QuestionStates.ISSUED.getStateName());
-
-        draftedState = new QuestionState();
-        draftedState.setState(QuestionStates.DRAFTED.getStateName());
+        issuedState = QuestionStateUtils.get(QuestionStates.ISSUED);
+        draftedState = QuestionStateUtils.get(QuestionStates.DRAFTED);
 
         question.setQuestionState(issuedState);
 
@@ -118,7 +109,7 @@ public class QuestionControllerTest {
         question.setQuestionStateHistories(histories);
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
-        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.of(question));
+        given(questionService.retrieveQuestionById(question.getQuestionId())).willReturn(Optional.of(question));
         given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));
         willDoNothing().given(questionService).updateQuestion(any(Question.class));
@@ -129,15 +120,15 @@ public class QuestionControllerTest {
     @Test
     public void testGetQuestion() throws Exception {
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        QuestionResponse responseQuestion = (QuestionResponse)JsonUtils.toObjectFromJson(response, QuestionResponse.class);
-        assertEquals(uuid.toString(), responseQuestion.getQuestionId());
+        QuestionResponse responseQuestion = JsonUtils.toObjectFromJson(response, QuestionResponse.class);
+        assertEquals(question.getQuestionId().toString(), responseQuestion.getQuestionId());
         assertEquals(question.getQuestionHeaderText(), responseQuestion.getQuestionHeaderText());
         assertEquals(question.getQuestionText(), responseQuestion.getQuestionBodyText());
         assertEquals(question.getQuestionRound().toString(), responseQuestion.getQuestionRound());
@@ -149,8 +140,8 @@ public class QuestionControllerTest {
     @Test
     public void testGetQuestionUnknownQuestionId() throws Exception {
 
-        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+        given(questionService.retrieveQuestionById(question.getQuestionId())).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound());
@@ -160,14 +151,14 @@ public class QuestionControllerTest {
     public void testCreateQuestionAndCheckLocationIsReturnedInHeader() throws Exception {
 
         String json = JsonUtils.getJsonInput("question/standard_question");
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        CreateQuestionResponse responseQuestion = (CreateQuestionResponse) JsonUtils.toObjectFromJson(response, CreateQuestionResponse.class);
+        CreateQuestionResponse responseQuestion = JsonUtils.toObjectFromJson(response, CreateQuestionResponse.class);
         assertNotNull(responseQuestion.getQuestionId());
 
         String returnedUrl = result.getResponse().getHeader("Location");
@@ -175,7 +166,7 @@ public class QuestionControllerTest {
             URL u = new URL(returnedUrl); // this would check for the protocol
             u.toURI(); // does the extra checking required for validation of URI
             assertTrue(true);
-        }catch(MalformedURLException e){
+        } catch(MalformedURLException e){
             fail();
         }
     }
@@ -186,7 +177,7 @@ public class QuestionControllerTest {
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
 
         String json = JsonUtils.getJsonInput("question/standard_question");
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound());
@@ -196,7 +187,7 @@ public class QuestionControllerTest {
     public void testValidateQuestionRound() throws Exception {
 
         questionRequest.setQuestionRound(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
@@ -206,7 +197,7 @@ public class QuestionControllerTest {
     public void testValidateQuestionOrdinal() throws Exception {
 
         questionRequest.setQuestionOrdinal(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
@@ -216,7 +207,7 @@ public class QuestionControllerTest {
     public void testValidateQuestionHeaderText() throws Exception {
 
         questionRequest.setQuestionHeaderText(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
@@ -226,7 +217,7 @@ public class QuestionControllerTest {
     public void testValidateQuestionBodyText() throws Exception {
 
         questionRequest.setQuestionBodyText(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
@@ -236,7 +227,7 @@ public class QuestionControllerTest {
     public void testValidateQuestionOwnerReference() throws Exception {
 
         questionRequest.setOwnerReference(null);
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.post(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().is4xxClientError());
@@ -249,7 +240,7 @@ public class QuestionControllerTest {
         responses.add(question);
 
         given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(responses));
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().isOk())
@@ -266,7 +257,7 @@ public class QuestionControllerTest {
     public void testGetAllQuestionsNone() throws Exception {
 
         given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(null));
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().isNotFound());
@@ -278,7 +269,7 @@ public class QuestionControllerTest {
         List<Question> responses = new ArrayList<>();
 
         given(questionService.findAllQuestionsByOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.ofNullable(responses));
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionPost(onlineHearing.getOnlineHearingId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(questionRequest)))
                 .andExpect(status().isOk())
@@ -293,7 +284,8 @@ public class QuestionControllerTest {
     @Test
     public void testEditQuestion() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk())
@@ -303,8 +295,8 @@ public class QuestionControllerTest {
     @Test
     public void testEditQuestionWhenQuestionNotFound() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
-        given(questionService.retrieveQuestionById(uuid)).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+        given(questionService.retrieveQuestionById(question.getQuestionId())).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound())
@@ -317,7 +309,7 @@ public class QuestionControllerTest {
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
         question.setOnlineHearing(onlineHearing);
         String json = JsonUtils.getJsonInput("question/update_question");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(UUID.randomUUID(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isBadRequest())
@@ -327,10 +319,10 @@ public class QuestionControllerTest {
     @Test
     public void testEditQuestionToStateIssuedUnprocessableEntity() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
-        UpdateQuestionRequest updateQuestionRequest = (UpdateQuestionRequest) JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        UpdateQuestionRequest updateQuestionRequest = JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
         updateQuestionRequest.setQuestionState(QuestionStates.ISSUED.getStateName());
         json = JsonUtils.toJson(updateQuestionRequest);
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isUnprocessableEntity())
@@ -341,7 +333,7 @@ public class QuestionControllerTest {
     public void testEditQuestionStateNotValidUnprocessableEntityt() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isUnprocessableEntity())
@@ -352,7 +344,7 @@ public class QuestionControllerTest {
     public void testDeleteQuestion() throws Exception {
         question.setQuestionState(draftedState);
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.delete(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk());
@@ -362,7 +354,7 @@ public class QuestionControllerTest {
     public void testDeleteQuestionNonExistentOnlineHearing() throws Exception {
         question.setQuestionState(draftedState);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.delete(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound());
@@ -372,7 +364,7 @@ public class QuestionControllerTest {
     public void testDeleteQuestionNonExistentQuestion() throws Exception {
         question.setQuestionState(draftedState);
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.delete(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNoContent());
@@ -381,7 +373,7 @@ public class QuestionControllerTest {
     @Test
     public void testDeleteQuestionNotInDraftState() throws Exception {
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.ofNullable(question));
-        mockMvc.perform(MockMvcRequestBuilders.delete(ENDPOINT + "/" + uuid)
+        mockMvc.perform(MockMvcRequestBuilders.delete(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isUnprocessableEntity());

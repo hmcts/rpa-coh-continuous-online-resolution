@@ -7,9 +7,7 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,7 +23,8 @@ public class LinkedQuestionValidator implements BiValidator<OnlineHearing, Quest
     @Override
     public boolean test(OnlineHearing onlineHearing, QuestionRequest questionRequest) {
 
-        List<UUID> questions = questionRequest.getLinkedQuestionId()
+        List<UUID> questions = Optional.ofNullable(questionRequest.getLinkedQuestionId())
+                .orElse(Collections.emptySet())
                 .stream()
                 .filter(id -> {
                     Optional<Question> q = questionRepository.findById(id);
@@ -34,16 +33,16 @@ public class LinkedQuestionValidator implements BiValidator<OnlineHearing, Quest
 
         if (!questions.isEmpty()) {
             this.message = String.format("Linked question '%s' must belong to the same online hearing", questions.get(0));
-            return true;
+            return false;
         }
 
         ValidationResult result = validation.execute(QuestionValidator.values(), questionRequest);
         if (!result.isValid()) {
             this.message = result.getReason();
-            return result.isValid();
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     @Override
