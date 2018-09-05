@@ -35,7 +35,7 @@ public class Question {
     private Integer questionRound;
 
     @ElementCollection
-    @CollectionTable(name = "linked_questions",
+    @CollectionTable(name = "linked_question",
             joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "linked_question_id")
     private Set<UUID> linkedQuestions;
