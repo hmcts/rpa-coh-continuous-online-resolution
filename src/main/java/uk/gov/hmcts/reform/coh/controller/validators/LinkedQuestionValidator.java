@@ -51,6 +51,8 @@ public class LinkedQuestionValidator implements BiValidator<OnlineHearing, Quest
     }
 
     private boolean isLinkedQuestionPartOfSameOnlineHearing(Question q, OnlineHearing o) {
-        return (q.getOnlineHearing() != null) && q.getOnlineHearing().equals(o);
+
+        // There's some strange JPA behaviour where the online hearing becomes detached. So compare the UUID instead
+        return (q.getOnlineHearing() != null) && q.getOnlineHearing().getOnlineHearingId().equals(o.getOnlineHearingId());
     }
 }
