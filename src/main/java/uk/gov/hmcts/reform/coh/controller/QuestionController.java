@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,10 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
 import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.QUESTION_NOT_FOUND;
@@ -49,9 +51,6 @@ public class QuestionController {
     private AnswerService answerService;
 
     private BiValidator questionValidator = new LinkedQuestionValidator();
-
-    public QuestionController() {
-    }
 
     @ApiOperation("Get all questions for an online hearing")
     @ApiResponses(value = {
