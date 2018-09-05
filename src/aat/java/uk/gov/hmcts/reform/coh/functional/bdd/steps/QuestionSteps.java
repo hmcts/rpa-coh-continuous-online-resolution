@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -446,6 +447,13 @@ public class QuestionSteps extends BaseSteps {
         questionRepository.save(question);
     }
 
+    @And("^the response contains (\\d+) linked question id$")
+    public void theResponseContainsLinkedQuestionId(int expected) throws Exception {
+
+        QuestionResponse question = getQuestionResponse();
+        assertEquals(expected, question.getLinkedQuestionId().size());
+    }
+
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {
 
         String rawJson = testContext.getHttpContext().getRawResponseString();
@@ -477,5 +485,10 @@ public class QuestionSteps extends BaseSteps {
     private AllQuestionsResponse getAllQuestionsResponse() throws Exception {
         String rawJson = testContext.getHttpContext().getRawResponseString();
         return toObjectFromJson(rawJson, AllQuestionsResponse.class);
+    }
+
+    private QuestionResponse getQuestionResponse() throws Exception {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return toObjectFromJson(rawJson, QuestionResponse.class);
     }
 }

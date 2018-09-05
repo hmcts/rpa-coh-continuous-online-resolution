@@ -9,11 +9,17 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class QuestionResponse extends QuestionRequest implements Serializable {
 
     @JsonProperty(value = "question_id")
     private String questionId;
+
+    @JsonProperty(value = "linked_question_id")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Set<UUID> linkedQuestionId;
 
     @JsonProperty(value = "deadline_expiry_date")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -63,6 +69,14 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
 
     public void setQuestionId(String questionId) {
         this.questionId = questionId;
+    }
+
+    public Set<UUID> getLinkedQuestionId() {
+        return linkedQuestionId;
+    }
+
+    public void setLinkedQuestionId(Set<UUID> linkedQuestionId) {
+        this.linkedQuestionId = linkedQuestionId;
     }
 
     public StateResponse getCurrentState() {

@@ -42,9 +42,8 @@ Feature: Questions feature
     And a standard question
     And the question is linked to the previous question
     And the post request is sent to create the question
-    When the get request is sent to retrieve all questions
-    Then the response code is 200
-    And the response contains 2 questions
+    When the get request is sent to retrieve the submitted question
+    Then the response contains 1 linked question id
 
   Scenario: Retrieve all questions
     Given a standard online hearing is created
