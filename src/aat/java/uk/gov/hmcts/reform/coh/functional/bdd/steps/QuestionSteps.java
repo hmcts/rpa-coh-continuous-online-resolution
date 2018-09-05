@@ -60,11 +60,11 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^the post request is sent to create the question$")
     public void theDraftAQuestion() throws Exception {
-        try{
+        try {
             ResponseEntity response = sendRequest(CohEntityTypes.QUESTION, HttpMethod.POST.name(), toJson(questionRequest));
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
             CreateQuestionResponse createQuestionResponse = QuestionResponseUtils.getCreateQuestionResponse(response.getBody().toString());
-            testContext.getScenarioContext().setCurrentQuestion(QuestionResponseUtils.getQuestion(createQuestionResponse));
+            testContext.getScenarioContext().setCurrentQuestion(questionRepository.findById(createQuestionResponse.getQuestionId()).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
@@ -438,6 +438,13 @@ public class QuestionSteps extends BaseSteps {
             questionRequest.setLinkedQuestionId(new HashSet<>());
         }
         questionRequest.getLinkedQuestionId().add(testContext.getScenarioContext().getCurrentQuestion().getQuestionId());
+    }
+
+    @Given("^the question expiry date has expired$")
+    public void theQuestionExpiryDateHasExpired() {
+        Question question = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId()).get();
+        question.setDeadlineExpiryDate(new Date());
+        questionRepository.save(question);
     }
 
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {

@@ -19,5 +19,5 @@ public interface QuestionRepository extends CrudRepository<Question, UUID> {
 
     List<Question> findByOnlineHearingAndQuestionRound(OnlineHearing onlineHearing, Integer questionRound);
 
-    List<Question> findAllByDeadlineExpiryDateLessThanEqualAndQuestionState(Date threshold, QuestionState questionState);
+    List<Question> findAllByDeadlineExpiryDateLessThanEqualAndQuestionStateIn(Date threshold, List<QuestionState> questionStates);
 }

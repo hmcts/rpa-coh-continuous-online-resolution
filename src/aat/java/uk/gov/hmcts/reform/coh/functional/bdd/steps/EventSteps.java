@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterReposito
 import uk.gov.hmcts.reform.coh.repository.SessionEventRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
+import uk.gov.hmcts.reform.coh.schedule.trigger.EventTriggerJob;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
@@ -43,7 +44,10 @@ public class EventSteps extends BaseSteps {
     private SessionEventTypeRespository sessionEventTypeRespository;
 
     @Autowired
-    private EventNotifierJob job;
+    private EventNotifierJob notifierJob;
+
+    @Autowired
+    private EventTriggerJob triggerJob;
 
     private ResponseEntity<String> response;
     private String endpoint = "/continuous-online-hearings/events";
@@ -91,7 +95,12 @@ public class EventSteps extends BaseSteps {
 
     @When("^the notification scheduler runs$")
     public void theNotificationSchedulerRuns() {
-        job.execute();
+        notifierJob.execute();
+    }
+
+    @When("^the trigger scheduler runs$")
+    public void theTriggerSchedulerRuns() {
+        triggerJob.execute();
     }
 
     @When("^the notification scheduler fails to send after configured retries for '(.*)' and event type '(.*)'$")
@@ -108,7 +117,7 @@ public class EventSteps extends BaseSteps {
             register.setForwardingEndpoint("https://0.0.0.0/nowhere");
             sessionEventForwardingRegisterRepository.save(register);
             for (int i = 0; i < register.getMaximumRetries() + 2; i++) {
-                job.execute();
+                notifierJob.execute();
             }
         } finally {
             register.setForwardingEndpoint(originalEndpoint);
