@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGet;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGetAll;
@@ -452,6 +453,13 @@ public class QuestionSteps extends BaseSteps {
 
         QuestionResponse question = getQuestionResponse();
         assertEquals(expected, question.getLinkedQuestionId().size());
+    }
+
+    @And("^the response contains no linked question id$")
+    public void theResponseContainsLinkedQuestionId() throws Exception {
+
+        QuestionResponse question = getQuestionResponse();
+        assertNull(question.getLinkedQuestionId());
     }
 
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {

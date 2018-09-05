@@ -18,6 +18,7 @@ Feature: Questions feature
     And the question id matches
     And the question state name is question_drafted
     And the question state timestamp is today
+    Then the response contains no linked question id
 
   Scenario: No questions to retrieve for online hearing
     Given a standard online hearing is created
