@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller.validators;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionRequest;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 public class LinkedQuestionValidator implements BiValidator<OnlineHearing, QuestionRequest> {
 
     @Autowired

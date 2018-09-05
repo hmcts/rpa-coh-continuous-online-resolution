@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
+import uk.gov.hmcts.reform.coh.controller.validators.LinkedQuestionValidator;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -64,6 +65,9 @@ public class QuestionControllerTest {
     private QuestionController questionController;
 
     @Autowired
+    private LinkedQuestionValidator questionValidator;
+
+    @Autowired
     private MockMvc mockMvc;
 
     private QuestionRequest questionRequest;
@@ -77,7 +81,6 @@ public class QuestionControllerTest {
     private QuestionState draftedState;
 
     private Date today;
-
 
     @Before
     public void setup() throws IOException {
@@ -109,6 +112,7 @@ public class QuestionControllerTest {
         question.setQuestionStateHistories(histories);
 
         mockMvc = MockMvcBuilders.standaloneSetup(questionController).build();
+        questionController.setQuestionValidator(questionValidator);
         given(questionService.retrieveQuestionById(question.getQuestionId())).willReturn(Optional.of(question));
         given(questionService.createQuestion(any(Question.class), any(OnlineHearing.class))).willReturn(question);
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuedState));

@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,12 +46,17 @@ public class QuestionController {
     @Autowired
     private QuestionStateService questionStateService;
 
-    private Validation validation = new Validation();
-
     @Autowired
     private AnswerService answerService;
 
-    private BiValidator questionValidator = new LinkedQuestionValidator();
+    @Autowired
+    private LinkedQuestionValidator questionValidator;
+
+    private Validation validation = new Validation();
+
+    public void setQuestionValidator(LinkedQuestionValidator questionValidator) {
+        this.questionValidator = questionValidator;
+    }
 
     @ApiOperation("Get all questions for an online hearing")
     @ApiResponses(value = {
