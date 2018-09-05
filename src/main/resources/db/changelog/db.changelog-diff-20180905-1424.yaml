@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: 1536153880531-1
+    author: johnho (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+            name: question_id
+            type: UUID
+        - column:
+            name: linked_question_id
+            type: UUID
+        tableName: linked_question
+- changeSet:
+    id: 1536153880531-2
+    author: johnho (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: question_id
+        baseTableName: linked_question
+        constraintName: FKg4kpc14wh2df1caenm4j2fr40
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: question_id
+        referencedTableName: question
+
