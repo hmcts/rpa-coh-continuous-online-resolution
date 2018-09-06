@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -159,7 +158,7 @@ public class EventSteps extends BaseSteps {
 
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
-            response = getRestTemplate().exchange(baseUrl + CohUriBuilder.buildEventRegisterPut(), HttpMethod.PUT, request, String.class);
+            response = getRestTemplate().exchange(baseUrl + CohUriBuilder.buildEventRegisterPost(), HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException e) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);

@@ -70,7 +70,7 @@ public class CohUriBuilder {
         return buildEventBase() + "/register";
     }
 
-    public static String buildEventRegisterPut() {
+    public static String buildEventResetPut() {
 
         return buildEventBase() + "/reset";
     }

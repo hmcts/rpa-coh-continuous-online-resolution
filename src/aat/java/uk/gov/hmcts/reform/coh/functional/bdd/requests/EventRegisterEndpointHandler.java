@@ -4,7 +4,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 
 @Component
