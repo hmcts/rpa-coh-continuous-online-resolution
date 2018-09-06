@@ -17,7 +17,7 @@ public class SessionEventForwardingRegisterService {
         this.sessionEventForwardingRegisterRepository = sessionEventForwardingRegisterRepository;
     }
 
-    public SessionEventForwardingRegister createEventForwardingRegister(final SessionEventForwardingRegister sessionEventForwardingRegister) {
+    public SessionEventForwardingRegister saveEventForwardingRegister(final SessionEventForwardingRegister sessionEventForwardingRegister) {
         return sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister);
     }
 
