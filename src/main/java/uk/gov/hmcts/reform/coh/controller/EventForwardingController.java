@@ -96,9 +96,7 @@ public class EventForwardingController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No register for this jurisdiction & event type");
         }
 
-        SessionEventForwardingRegister register = optSessionEventForwardingRegister.get();
-        register.setForwardingEndpoint(request.getEndpoint());
-        sessionEventForwardingRegisterService.saveEventForwardingRegister(register);
+        sessionEventForwardingRegisterService.saveEventForwardingRegister(eventForwardingRegister);
 
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
