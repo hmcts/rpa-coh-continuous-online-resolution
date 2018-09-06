@@ -75,6 +75,7 @@ public class EventSteps extends BaseSteps {
         jurisdictionRepository.save(jurisdiction);
         testContext.getScenarioContext().getEventRegistrationRequest().setJurisdiction(jurisdiction.getJurisdictionName());
         testContext.getScenarioContext().addJurisdiction(jurisdiction);
+        testContext.getScenarioContext().setCurrentJurisdiction(jurisdiction);
     }
 
     @Given("^a conflicting request to subscribe to question round issued$")
@@ -193,7 +194,7 @@ public class EventSteps extends BaseSteps {
 
     @Then("^the event register endpoint is '(.*)'$")
     public void theEventRegisterEndpointIsHttpLocalhostSSCSNotifications(String endpoint) {
-        Jurisdiction jurisdiction = testContext.getScenarioContext().getJurisdictions().get(0);
+        Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
     }
