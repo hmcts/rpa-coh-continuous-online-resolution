@@ -106,15 +106,11 @@ public class EventForwardingControllerTest {
 
         given(sessionEventTypeService.retrieveEventType(any(String.class))).willReturn(Optional.of(sessionEventType));
         given(jurisdictionService.getJurisdictionWithName(any(String.class))).willReturn(Optional.of(jurisdiction));
-
-        mockSessionEventForwardingRegisterService(false);
-
         given(sessionEventForwardingStateService.retrieveEventForwardingStateByName(anyString())).willReturn(Optional.of(pendingEventForwardingState));
         mockSessionEventForwardingRegisterService(true);
         given(sessionEventService.retrieveAllByEventForwardingRegister(any(SessionEventForwardingRegister.class))).willReturn(sessionEventList);
         given(sessionEventService.updateSessionEvent(any(SessionEvent.class))).willReturn(new SessionEvent());
-        mockMvc = MockMvcBuilders.standaloneSetup(eventForwardingController)
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(eventForwardingController).build();
     }
 
     @Test
@@ -131,7 +127,7 @@ public class EventForwardingControllerTest {
         int size = sessionEventList.size();
         verify(sessionEventService, times(size)).updateSessionEvent(any(SessionEvent.class));
         long count = sessionEventList.stream()
-                .filter(se -> {return se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName());})
+                .filter(se -> se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()))
                 .count();
         assertTrue(count == size);
     }
@@ -204,18 +200,6 @@ public class EventForwardingControllerTest {
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     }
 
-    private void mockSessionEventForwardingRegisterService(boolean isPresent) {
-        if (isPresent) {
-            given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(
-                    any(SessionEventForwardingRegister.class)))
-                    .willReturn(Optional.of(sessionEventForwardingRegister));
-        } else {
-            given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(
-                    any(SessionEventForwardingRegister.class)))
-                    .willReturn(Optional.empty());
-        }
-    }
-
     @Test
     public void testCreateEventForwardRegisterConflict() throws Exception {
 
@@ -286,5 +270,17 @@ public class EventForwardingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validJson))
                 .andExpect(status().isNotFound());
+    }
+
+    private void mockSessionEventForwardingRegisterService(boolean isPresent) {
+        if (isPresent) {
+            given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(
+                    any(SessionEventForwardingRegister.class)))
+                    .willReturn(Optional.of(sessionEventForwardingRegister));
+        } else {
+            given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(
+                    any(SessionEventForwardingRegister.class)))
+                    .willReturn(Optional.empty());
+        }
     }
 }
