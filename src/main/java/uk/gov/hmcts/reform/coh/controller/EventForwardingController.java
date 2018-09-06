@@ -156,18 +156,19 @@ public class EventForwardingController {
     private ValidationResult validate(EventRegistrationRequest request) {
 
         ValidationResult result = new ValidationResult();
-        result.setValid(false);
+        result.setValid(true);
         Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
         if (!eventType.isPresent()) {
+            result.setValid(false);
             result.setReason("Event type not found");
         }
 
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
         if (!jurisdiction.isPresent()) {
+            result.setValid(false);
             result.setReason("Jurisdiction not found");
         }
 
-        result.setValid(true);
         return result;
     }
 

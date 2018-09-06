@@ -6,7 +6,8 @@ public enum CohEntityTypes {
     ANSWER,
     DECISION,
     DECISION_REPLY,
-    CONVERSATIONS;
+    CONVERSATIONS,
+    EVENT;
 
     public String getString() {
         return name().replaceAll("_", " ").toLowerCase();

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -12,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.events.ResetSessionEventRequest;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
@@ -24,6 +27,7 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
@@ -50,7 +54,6 @@ public class EventSteps extends BaseSteps {
     private EventTriggerJob triggerJob;
 
     private ResponseEntity<String> response;
-    private String endpoint = "/continuous-online-hearings/events";
 
     @Autowired
     public EventSteps(TestContext testContext) {
@@ -81,12 +84,12 @@ public class EventSteps extends BaseSteps {
         testContext.getScenarioContext().setEventRegistrationRequest(eventRegistrationRequest);
     }
 
-    @When("^a POST request is sent to register$")
-    public void aPostRequestIsSentToRegister() throws IOException {
+    @When("^a (.*) request is sent to register$")
+    public void aRequestIsSentToRegister(String method) throws IOException {
+
         String json = JsonUtils.toJson(testContext.getScenarioContext().getEventRegistrationRequest());
-        HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
-            response = getRestTemplate().exchange(baseUrl + endpoint  + "/register", HttpMethod.POST, request, String.class);
+            ResponseEntity<String> response = sendRequest(CohEntityTypes.EVENT, HttpMethod.valueOf(method).toString(), json);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
@@ -155,7 +158,7 @@ public class EventSteps extends BaseSteps {
 
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
-            response = getRestTemplate().exchange(baseUrl + endpoint + "/reset", HttpMethod.PUT, request, String.class);
+            response = getRestTemplate().exchange(baseUrl + CohUriBuilder.buildEventRegisterPut(), HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException e) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
@@ -181,6 +184,17 @@ public class EventSteps extends BaseSteps {
         if (property.equalsIgnoreCase("url")){
             testContext.getScenarioContext().getEventRegistrationRequest().setEndpoint("invalid");
         }
+    }
 
+    @And("^the registration endpoint is '(.*)'$")
+    public void theRegistrationEndpointIs(String endpoint) {
+        testContext.getScenarioContext().getEventRegistrationRequest().setEndpoint(endpoint);
+    }
+
+    @Then("^the event register endpoint is '(.*)'$")
+    public void theEventRegisterEndpointIsHttpLocalhostSSCSNotifications(String endpoint) {
+        Jurisdiction jurisdiction = testContext.getScenarioContext().getJurisdictions().get(0);
+        List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
+        assertEquals(endpoint, register.get(0).getForwardingEndpoint());
     }
 }
