@@ -25,6 +25,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -261,6 +262,13 @@ public class QuestionSteps extends BaseSteps {
         }
     }
 
+    @When("^a standard update question$")
+    public void aStandardUpdateQuestion() throws IOException {
+        String json = getJsonInput("question/update_question");
+        UpdateQuestionRequest updateQuestionRequest = toObjectFromJson(json, UpdateQuestionRequest.class);
+        testContext.getScenarioContext().setUpdateQuestionRequest(updateQuestionRequest);
+    }
+
     @When("^the question body is edited to ' \"([^\"]*)\" '$")
     public void theQuestionBodyIsEditedToSomeNewText(String questionBody) throws IOException {
         String json = getJsonInput("question/update_question");
@@ -449,7 +457,11 @@ public class QuestionSteps extends BaseSteps {
     public void theResponseContainsLinkedQuestionId(int expected) throws Exception {
 
         QuestionResponse question = getQuestionResponse();
-        assertEquals(expected, question.getLinkedQuestionId().size());
+        if (expected == 0) {
+            assertNull(question.getLinkedQuestionId());
+        } else {
+            assertEquals(expected, question.getLinkedQuestionId().size());
+        }
     }
 
     @And("^the response contains no linked question id$")

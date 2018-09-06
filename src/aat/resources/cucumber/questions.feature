@@ -86,6 +86,21 @@ Feature: Questions feature
     Then the response code is 200
     And the question header is ' "some new header text?" '
 
+  Scenario: Edit the linked questions
+    Given a standard online hearing is created
+    And a standard question
+    When the post request is sent to create the question
+    And a standard question
+    And the question is linked to the previous question
+    And the post request is sent to create the question
+    When the get request is sent to retrieve the submitted question
+    Then the response contains 1 linked question id
+    And a standard update question
+    When the put request to update the question is sent
+    Then the response code is 200
+    When the get request is sent to retrieve the submitted question
+    Then the response contains 0 linked question id
+
   Scenario: Attempt to edit a question which has been issued
     Given a standard online hearing is created
     And a standard question
