@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -31,9 +30,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGet;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGetAll;
 import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
