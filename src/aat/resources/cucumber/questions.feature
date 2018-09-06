@@ -18,6 +18,7 @@ Feature: Questions feature
     And the question id matches
     And the question state name is question_drafted
     And the question state timestamp is today
+    Then the response contains no linked question id
 
   Scenario: No questions to retrieve for online hearing
     Given a standard online hearing is created
@@ -34,6 +35,16 @@ Feature: Questions feature
     When the get request is sent to retrieve all questions
     Then the response code is 200
     And the response contains 2 questions
+
+  Scenario: Submit a question With Linked Questions
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And a standard question
+    And the question is linked to the previous question
+    And the post request is sent to create the question
+    When the get request is sent to retrieve the submitted question
+    Then the response contains 1 linked question id
 
   Scenario: Retrieve all questions
     Given a standard online hearing is created

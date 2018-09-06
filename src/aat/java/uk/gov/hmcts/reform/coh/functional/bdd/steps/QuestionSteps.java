@@ -30,8 +30,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.*;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGet;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuestionRoundGetAll;
 import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
@@ -221,8 +220,7 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^the response contains (\\d) questions$")
     public void the_response_contains_n_questions(int count) throws Throwable {
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse questionResponses = toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse questionResponses = getAllQuestionsResponse();
         assertEquals(count, questionResponses.getQuestions().size());
     }
 
@@ -354,8 +352,7 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^question history has at least (\\d+) events$")
     public void questionHistoryHasAtLeastEvents(int expectedNumberOfEvents) throws Throwable {
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse allQuestionsResponse = toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse allQuestionsResponse = getAllQuestionsResponse();
         List<QuestionResponse> questions = allQuestionsResponse.getQuestions();
 
         boolean allMatch = questions.stream()
@@ -370,8 +367,7 @@ public class QuestionSteps extends BaseSteps {
 
     @And("^question (\\d+) contains (\\d+) answer$")
     public void questionContainsAnswer(int questionOrd, int numAnswers) throws Throwable {
-        String rawJson = testContext.getHttpContext().getRawResponseString();
-        AllQuestionsResponse allQuestionsResponse = toObjectFromJson(rawJson, AllQuestionsResponse.class);
+        AllQuestionsResponse allQuestionsResponse = getAllQuestionsResponse();
         List<AnswerResponse> answers = allQuestionsResponse.getQuestions().get(questionOrd-1).getAnswers();
         assertEquals(answers.size(), numAnswers);
     }
@@ -434,6 +430,35 @@ public class QuestionSteps extends BaseSteps {
         assertEquals(count, qrr.getQuestionRounds().get(0).getDeadlineExtCount().intValue());
     }
 
+    @And("^the question is linked to the previous question$")
+    public void theQuestionIsLinkedQuestionToThePreviousQuestion() {
+        if (questionRequest.getLinkedQuestionId() == null) {
+            questionRequest.setLinkedQuestionId(new HashSet<>());
+        }
+        questionRequest.getLinkedQuestionId().add(testContext.getScenarioContext().getCurrentQuestion().getQuestionId());
+    }
+
+    @Given("^the question expiry date has expired$")
+    public void theQuestionExpiryDateHasExpired() {
+        Question question = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId()).get();
+        question.setDeadlineExpiryDate(new Date());
+        questionRepository.save(question);
+    }
+
+    @And("^the response contains (\\d+) linked question id$")
+    public void theResponseContainsLinkedQuestionId(int expected) throws Exception {
+
+        QuestionResponse question = getQuestionResponse();
+        assertEquals(expected, question.getLinkedQuestionId().size());
+    }
+
+    @And("^the response contains no linked question id$")
+    public void theResponseContainsLinkedQuestionId() throws Exception {
+
+        QuestionResponse question = getQuestionResponse();
+        assertNull(question.getLinkedQuestionId());
+    }
+
     private QuestionRoundResponse getQuestionRoundResponse() throws Exception {
 
         String rawJson = testContext.getHttpContext().getRawResponseString();
@@ -462,10 +487,13 @@ public class QuestionSteps extends BaseSteps {
         return baseUrl + url;
     }
 
-    @Given("^the question expiry date has expired$")
-    public void theQuestionExpiryDateHasExpired() {
-        Question question = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId()).get();
-        question.setDeadlineExpiryDate(new Date());
-        questionRepository.save(question);
+    private AllQuestionsResponse getAllQuestionsResponse() throws Exception {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return toObjectFromJson(rawJson, AllQuestionsResponse.class);
+    }
+
+    private QuestionResponse getQuestionResponse() throws Exception {
+        String rawJson = testContext.getHttpContext().getRawResponseString();
+        return toObjectFromJson(rawJson, QuestionResponse.class);
     }
 }

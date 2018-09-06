@@ -23,6 +23,7 @@ public class QuestionRequestMapper {
                 .questionHeaderText(questionRequest.getQuestionHeaderText())
                 .questionText(questionRequest.getQuestionBodyText())
                 .questionRound(Integer.parseInt(questionRequest.getQuestionRound()))
+                .linkedQuestions(questionRequest.getLinkedQuestionId())
                 .ownerReferenceId(questionRequest.getOwnerReference());
     }
 }

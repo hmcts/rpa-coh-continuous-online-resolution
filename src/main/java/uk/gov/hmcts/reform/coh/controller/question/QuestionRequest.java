@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.coh.controller.question;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Set;
+import java.util.UUID;
+
 public class QuestionRequest {
 
     @JsonProperty("question_round")
@@ -20,6 +23,9 @@ public class QuestionRequest {
     @JsonProperty("question_body_text")
     @ApiModelProperty(required = true)
     private String questionBodyText;
+
+    @JsonProperty("linked_question_id")
+    private Set<UUID> linkedQuestionId;
 
     @JsonProperty("owner_reference")
     @ApiModelProperty(required = true)
@@ -55,6 +61,14 @@ public class QuestionRequest {
 
     public void setQuestionBodyText(String questionBodyText) {
         this.questionBodyText = questionBodyText;
+    }
+
+    public Set<UUID> getLinkedQuestionId() {
+        return linkedQuestionId;
+    }
+
+    public void setLinkedQuestionId(Set<UUID> linkedQuestionId) {
+        this.linkedQuestionId = linkedQuestionId;
     }
 
     public String getOwnerReference() {

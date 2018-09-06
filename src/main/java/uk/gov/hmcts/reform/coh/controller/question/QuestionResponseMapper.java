@@ -56,6 +56,7 @@ public enum QuestionResponseMapper {
             response.setAnswers(answerResponses);
         }
         response.setDeadlineExtCount(question.getDeadlineExtCount());
+        response.setLinkedQuestionId(question.getLinkedQuestions());
     }
 
     public static void map(Question question, QuestionResponse response, Answer answer) {
