@@ -192,7 +192,7 @@ public class EventSteps extends BaseSteps {
     }
 
     @Then("^the event register endpoint is '(.*)'$")
-    public void theEventRegisterEndpointIsHttpLocalhostSSCSNotifications(String endpoint) {
+    public void theEventRegisterEndpointIs(String endpoint) {
         Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
