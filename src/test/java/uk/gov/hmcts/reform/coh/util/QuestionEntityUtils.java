@@ -15,7 +15,7 @@ public class QuestionEntityUtils {
     }
 
     public static final Question createTestQuestion(QuestionStates state) {
-        return createTestQuestion(state);
+        return createTestQuestion(state, null);
     }
 
     public static final Question createTestQuestion(OnlineHearing onlineHearing) {

@@ -19,7 +19,7 @@ public class OnlineHearingEntityUtils {
 
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
-        onlineHearing.setCaseId("foo");
+        onlineHearing.setCaseId("case_123");
         onlineHearing.setStartDate(new Date());
         onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(state));
         OnlineHearingStateHistory history1 = new OnlineHearingStateHistory();
