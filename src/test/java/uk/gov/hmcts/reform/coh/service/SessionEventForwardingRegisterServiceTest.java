@@ -38,7 +38,7 @@ public class SessionEventForwardingRegisterServiceTest {
     public void testCreateEventForwardingRegister() {
         when(sessionEventForwardingRegisterRepository.save(sessionEventForwardingRegister)).thenReturn(sessionEventForwardingRegister);
 
-        SessionEventForwardingRegister newEvent = sessionEventForwardingRegisterService.createEventForwardingRegister(sessionEventForwardingRegister);
+        SessionEventForwardingRegister newEvent = sessionEventForwardingRegisterService.saveEventForwardingRegister(sessionEventForwardingRegister);
         assertEquals(newEvent, sessionEventForwardingRegister);
     }
 

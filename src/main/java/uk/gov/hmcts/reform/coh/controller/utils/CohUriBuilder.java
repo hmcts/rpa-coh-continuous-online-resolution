@@ -64,4 +64,18 @@ public class CohUriBuilder {
 
         return buildOnlineHearingGet(onlineHearingId) + "/conversations";
     }
+
+    public static String buildEventRegisterPost() {
+
+        return buildEventBase() + "/register";
+    }
+
+    public static String buildEventResetPut() {
+
+        return buildEventBase() + "/reset";
+    }
+
+    private static String buildEventBase() {
+        return "/continuous-online-hearings/events";
+    }
 }
