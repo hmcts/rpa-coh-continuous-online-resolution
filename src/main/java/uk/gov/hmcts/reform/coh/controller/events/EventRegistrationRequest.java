@@ -4,23 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.URL;
+import uk.gov.hmcts.reform.coh.domain.SessionEvent;
 
 import javax.validation.constraints.*;
 
-public class EventRegistrationRequest {
-
-    @NotNull(message = "Event Type Required")
-    @JsonProperty("event_type")
-    @ApiModelProperty(required = true,
-            allowableValues = "question_round_issued,question_deadline_elapsed,question_deadline_extended,question_deadline_extension_denied,question_deadline_extension_granted,answers_submitted, decision_rejected, decision_issued",
-            value = "The event type"
-    )
-    private String eventType;
-
-    @NotNull(message = "Jurisdiction Required")
-    @JsonProperty("jurisdiction")
-    @ApiModelProperty(required = true, allowableValues = "SSCS", value = "The Jurisdiction interested in the event")
-    private String jurisdiction;
+public class EventRegistrationRequest extends SessionEventRequest {
 
     @NotNull(message = "Endpoint Required")
     @JsonProperty("endpoint") @NotBlank @URL
@@ -32,23 +20,6 @@ public class EventRegistrationRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty(allowableValues = "range[0,5]", value = "The number of retry attempt to send a notification message. Default 3")
     private Integer maxRetries = 3;
-
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    public String getJurisdiction() {
-        return jurisdiction;
-    }
-
-    public void setJurisdiction(String jurisdiction) {
-        this.jurisdiction = jurisdiction;
-    }
 
     public String getEndpoint() {
         return endpoint;
