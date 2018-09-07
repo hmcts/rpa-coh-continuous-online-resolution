@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,10 +53,6 @@ public class QuestionController {
     private LinkedQuestionValidator questionValidator;
 
     private Validation validation = new Validation();
-
-    public void setQuestionValidator(LinkedQuestionValidator questionValidator) {
-        this.questionValidator = questionValidator;
-    }
 
     @ApiOperation("Get all questions for an online hearing")
     @ApiResponses(value = {
@@ -130,11 +127,10 @@ public class QuestionController {
     @PostMapping(value = "/questions", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createQuestion(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @RequestBody QuestionRequest request) {
 
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
-
-        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-        if (!savedOnlineHearing.isPresent()) {
+        OnlineHearing onlineHearing;
+        try {
+            onlineHearing = getOnlineHearing(onlineHearingId);
+        } catch (EntityNotFoundException enfe) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
@@ -144,12 +140,11 @@ public class QuestionController {
         }
 
         Question question = new Question();
-        QuestionRequestMapper mapper = new QuestionRequestMapper(question, savedOnlineHearing.get(), request);
+        QuestionRequestMapper mapper = new QuestionRequestMapper(question, onlineHearing, request);
         mapper.map();
-        question = questionService.createQuestion(question, savedOnlineHearing.get());
+        question = questionService.createQuestion(question, onlineHearing);
 
-        CreateQuestionResponse response = new CreateQuestionResponse();
-        response.setQuestionId(question.getQuestionId());
+        CreateQuestionResponse response = new CreateQuestionResponse(question.getQuestionId());
 
         UriComponents uriComponents =
                 uriBuilder.path(CohUriBuilder.buildQuestionGet(onlineHearingId, question.getQuestionId())).build();
@@ -170,7 +165,14 @@ public class QuestionController {
     public ResponseEntity editQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId,
                                        @RequestBody UpdateQuestionRequest request) {
 
-        ValidationResult result = validation.execute(QuestionValidator.values(), request);
+        OnlineHearing onlineHearing;
+        try {
+            onlineHearing = getOnlineHearing(onlineHearingId);
+        } catch (EntityNotFoundException enfe) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
+        }
+
+        ValidationResult result = validation.execute(new BiValidator[]{questionValidator}, onlineHearing, request);
         if (!result.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
         }
@@ -212,12 +214,10 @@ public class QuestionController {
     @DeleteMapping(value = "/questions/{questionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity deleteQuestion(@PathVariable UUID onlineHearingId, @PathVariable UUID questionId) {
 
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(onlineHearingId);
-        Optional<OnlineHearing> savedOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);
-
-        if (!savedOnlineHearing.isPresent()) {
-            return new ResponseEntity<>(ONLINE_HEARING_NOT_FOUND, HttpStatus.NOT_FOUND);
+        try {
+            getOnlineHearing(onlineHearingId);
+        } catch (EntityNotFoundException enfe) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         synchronized (QuestionController.class) {
@@ -235,5 +235,17 @@ public class QuestionController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    public void setQuestionValidator(LinkedQuestionValidator questionValidator) {
+        this.questionValidator = questionValidator;
+    }
+
+    private OnlineHearing getOnlineHearing(UUID onlineHearingId) {
+        OnlineHearing onlineHearing = new OnlineHearing();
+        onlineHearing.setOnlineHearingId(onlineHearingId);
+
+        return onlineHearingService.retrieveOnlineHearing(onlineHearing)
+                .orElseThrow(() -> new EntityNotFoundException(ONLINE_HEARING_NOT_FOUND));
     }
 }

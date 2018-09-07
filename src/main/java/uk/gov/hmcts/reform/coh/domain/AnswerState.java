@@ -21,6 +21,13 @@ public class AnswerState {
     @JsonProperty("state_name")
     private String state;
 
+    public AnswerState() {}
+
+    public AnswerState(int answerStateId, String state) {
+        this.answerStateId = answerStateId;
+        this.state = state;
+    }
+
     public int getAnswerStateId() {
         return answerStateId;
     }

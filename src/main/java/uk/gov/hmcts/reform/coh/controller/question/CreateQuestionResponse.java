@@ -9,6 +9,12 @@ public class CreateQuestionResponse {
     @JsonProperty("question_id")
     private UUID questionId;
 
+    public CreateQuestionResponse() {}
+
+    public CreateQuestionResponse(UUID questionId) {
+        this.questionId = questionId;
+    }
+
     public UUID getQuestionId() {
         return questionId;
     }

@@ -25,10 +25,9 @@ import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
-import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
-import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
-import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
+import uk.gov.hmcts.reform.coh.util.*;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -89,13 +88,8 @@ public class QuestionControllerTest {
         question = QuestionEntityUtils.createTestQuestion();
         question.setOnlineHearing(onlineHearing);
 
-        AnswerState answerState = new AnswerState();
-        answerState.setState("foo");
-        Answer answer = new Answer();
-        answer.setAnswerId(UUID.randomUUID());
-        answer.setAnswerText("test answer");
-        answer.setQuestion(question);
-        answer.setAnswerState(answerState);
+        AnswerState answerState = AnswerStateUtils.get(AnswerStates.DRAFTED);
+        Answer answer = AnswerEntityUtils.createAnswer(question, answerState);
         List<Answer> answerList = new ArrayList<>();
         answerList.add(answer);
 
@@ -308,6 +302,17 @@ public class QuestionControllerTest {
     }
 
     @Test
+    public void testEditQuestionWhenOnlineHearingNotFound() throws Exception {
+        String json = JsonUtils.getJsonInput("question/update_question");
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     public void testEditQuestionNotAssignedToOnlineHearingBadRequest() throws Exception {
         OnlineHearing onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
@@ -334,12 +339,24 @@ public class QuestionControllerTest {
     }
 
     @Test
-    public void testEditQuestionStateNotValidUnprocessableEntityt() throws Exception {
+    public void testEditQuestionStateNotValidUnprocessableEntity() throws Exception {
         String json = JsonUtils.getJsonInput("question/update_question");
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
         mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+    }
+
+    @Test
+    public void testEditQuestionWhenNoState() throws Exception {
+        String json = JsonUtils.getJsonInput("question/update_question");
+        UpdateQuestionRequest request = JsonUtils.toObjectFromJson(json, UpdateQuestionRequest.class);
+        request.setQuestionState(null);
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
