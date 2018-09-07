@@ -73,6 +73,18 @@ Feature: Event features
     When a POST request is sent to register
     Then the response code is 200
 
+  Scenario: Update an event
+    Given a standard event register request
+    And jurisdiction ' "Long", with id ' "42" ' and max question rounds ' "5" ' is created
+    When a POST request is sent to register
+    Then the event register endpoint is 'http://localhost:8080/SSCS/notifications'
+    Given a standard event register request
+    And jurisdiction ' "Long", with id ' "42" ' and max question rounds ' "5" ' is created
+    And the registration endpoint is 'http://foo.com'
+    When a PUT request is sent to register
+    Then the response code is 200
+    And the event register endpoint is 'http://foo.com'
+
   Scenario: Subscribe to an event with invalid jurisdiction
     Given a standard event register request
     And an invalid '"jurisdiction"'
