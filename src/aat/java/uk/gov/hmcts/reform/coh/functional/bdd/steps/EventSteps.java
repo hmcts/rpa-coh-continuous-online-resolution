@@ -158,7 +158,7 @@ public class EventSteps extends BaseSteps {
 
         HttpEntity<String> request = new HttpEntity<>(json, header);
         try {
-            response = getRestTemplate().exchange(baseUrl + CohUriBuilder.buildEventRegisterPost(), HttpMethod.PUT, request, String.class);
+            response = getRestTemplate().exchange(baseUrl + CohUriBuilder.buildEventResetPut(), HttpMethod.PUT, request, String.class);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
         } catch (HttpClientErrorException e) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(e);
