@@ -72,6 +72,11 @@ public class EventNotifierJob {
             log.info(String.format("Found transformer %s to handle %s.", transformer.getClass(), sessionEventType.getEventTypeName()));
             NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
             SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
+            if (!register.getActive()) {
+                log.error(String.format("Session Event Register for jurisdiction '%s', and event type '%s' is inactive.", register.getJurisdiction().getJurisdictionName(), sessionEventType.getEventTypeName()));
+                continue;
+            }
+
             try {
                 // Now try and send the notification
                 ResponseEntity response = forwarder.sendEndpoint(register, request);

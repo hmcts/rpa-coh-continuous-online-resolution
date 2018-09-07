@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -196,5 +197,12 @@ public class EventSteps extends BaseSteps {
         Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
+    }
+
+    @And("^the event register is deleted$")
+    public void theEventRegisterIsDeleted() {
+        Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
+        List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
+        assertEquals(0, register.size());
     }
 }
