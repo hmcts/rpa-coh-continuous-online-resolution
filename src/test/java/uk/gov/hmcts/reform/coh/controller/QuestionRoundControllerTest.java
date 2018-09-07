@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -93,11 +94,11 @@ public class QuestionRoundControllerTest {
         questionRound.setQuestionRoundState(questionRoundState);
         questionRounds.add(questionRound);
 
-        cohId = UUID.randomUUID();
-        OnlineHearing onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(cohId);
         Jurisdiction jurisdiction = new Jurisdiction();
         jurisdiction.setMaxQuestionRounds(3);
+
+        OnlineHearing onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
+        cohId = onlineHearing.getOnlineHearingId();
         onlineHearing.setJurisdiction(jurisdiction);
 
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuePendingState));
