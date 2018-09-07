@@ -25,6 +25,9 @@ import javax.validation.Valid;
 import java.util.Date;
 import java.util.Optional;
 
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.EVENT_TYPE_NOT_FOUND;
+import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.JURISDICTION_NOT_FOUND;
+
 @RestController
 @RequestMapping("/continuous-online-hearings/events")
 public class EventForwardingController {
@@ -124,8 +127,8 @@ public class EventForwardingController {
         }
 
         SessionEventForwardingRegister eventForwardingRegister = new SessionEventForwardingRegister.Builder()
-                .jurisdiction(jurisdiction.get())
-                .sessionEventType(eventType.get())
+                .jurisdiction(jurisdiction.orElseThrow(EntityNotFoundException::new))
+                .sessionEventType(eventType.orElseThrow(EntityNotFoundException::new))
                 .build();
 
         Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
@@ -176,8 +179,8 @@ public class EventForwardingController {
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
 
         SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
-                .sessionEventType(eventType.get())
-                .jurisdiction(jurisdiction.get())
+                .sessionEventType(eventType.orElseThrow(() -> new EntityNotFoundException(EVENT_TYPE_NOT_FOUND)))
+                .jurisdiction(jurisdiction.orElseThrow(() -> new EntityNotFoundException(JURISDICTION_NOT_FOUND)))
                 .forwardingEndpoint(request.getEndpoint())
                 .maximumRetries(request.getMaxRetries())
                 .withActive(true)
