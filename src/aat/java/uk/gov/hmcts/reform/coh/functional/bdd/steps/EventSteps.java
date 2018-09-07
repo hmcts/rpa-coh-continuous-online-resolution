@@ -199,10 +199,20 @@ public class EventSteps extends BaseSteps {
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
     }
 
+    @And("^the event register is saved")
+    public void theEventRegisterIsSaved() {
+        theEventRegisterCountIs(1);
+    }
+
     @And("^the event register is deleted$")
     public void theEventRegisterIsDeleted() {
+        theEventRegisterCountIs(0);
+    }
+
+    private void theEventRegisterCountIs(int count) {
         Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
-        assertEquals(0, register.size());
+        assertEquals(count, register.size());
+
     }
 }
