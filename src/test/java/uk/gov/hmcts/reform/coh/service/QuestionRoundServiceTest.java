@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.controller.exceptions.NotAValidUpdateException;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -79,19 +80,15 @@ public class QuestionRoundServiceTest {
 
         List<Question> questions = new ArrayList<>();
         questionRound1Questions = new ArrayList<>();
-        Question question = new Question();
+        Question question = QuestionEntityUtils.createTestQuestion();
         question.setQuestionRound(2);
         questions.add(question);
 
-        question = new Question();
-        question.setQuestionRound(1);
-        question.setQuestionState(issuedState);
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED);
         questionRound1Questions.add(question);
 
-        question = new Question();
-        question.setQuestionRound(1);
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED);
         questions.add(question);
-        question.setQuestionState(issuedState);
         questionRound1Questions.add(question);
 
         given(questionStateService.retrieveQuestionStateByStateName(issuedStateName)).willReturn(Optional.of(issuedState));
@@ -245,8 +242,7 @@ public class QuestionRoundServiceTest {
 
     @Test
     public void testQuestionIsStateDraftedIsTrueWhenStateIsDrafted(){
-        Question question = new Question();
-        question.setQuestionState(draftedState);
+        Question question = QuestionEntityUtils.createTestQuestion(QuestionStates.DRAFTED);
         assertTrue(questionRoundService.isState(question, draftedState));
     }
 
@@ -350,9 +346,8 @@ public class QuestionRoundServiceTest {
         doReturn(1).when(questionRoundService).getCurrentQuestionRoundNumber(any(OnlineHearing.class));
         doReturn(new QuestionRoundState(issuedPendingState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
 
-        Question question = new Question();
+        Question question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUE_PENDING);
         question.setQuestionRound(2);
-        question.setQuestionState(new QuestionState(QuestionStates.ISSUE_PENDING.getStateName()));
         questionRoundService.isQrValidState(question, onlineHearing);
     }
 

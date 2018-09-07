@@ -32,6 +32,7 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.util.*;
@@ -157,23 +158,8 @@ public class ConversationsControllerTest {
         QuestionState issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
 
-        question1 = new Question();
-        question1.setQuestionId(UUID.randomUUID());
-        question1.setQuestionHeaderText("foo");
-        question1.setQuestionText("bar");
-        question1.setOnlineHearing(onlineHearing);
-        question1.setQuestionRound(1);
-        question1.setQuestionOrdinal(1);
-        question1.setQuestionState(issuedState);
-
-        question2 = new Question();
-        question2.setQuestionId(UUID.randomUUID());
-        question2.setQuestionHeaderText("foo");
-        question2.setQuestionText("bar");
-        question2.setOnlineHearing(onlineHearing);
-        question2.setQuestionRound(1);
-        question2.setQuestionOrdinal(1);
-        question2.setQuestionState(issuedState);
+        question1 = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED, onlineHearing);
+        question2 = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED, onlineHearing);
 
         Answer answer1 = new Answer();
         answer1.answerId(UUID.randomUUID()).answerText("foo");

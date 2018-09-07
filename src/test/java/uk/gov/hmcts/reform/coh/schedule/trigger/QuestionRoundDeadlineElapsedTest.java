@@ -14,6 +14,8 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 
 import javax.persistence.EntityNotFoundException;
@@ -66,9 +68,7 @@ public class QuestionRoundDeadlineElapsedTest {
 
         onlineHearing = new OnlineHearing();
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
-        question = new Question();
-        question.setOnlineHearing(onlineHearing);
-        question.setQuestionState(issued);
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED, onlineHearing);
 
         when(questionService.retrieveQuestionsDeadlineExpiredAndQuestionStates(any(Date.class), anyList())).thenReturn(Arrays.asList(question));
         when(questionService.updateQuestionForced(question)).thenReturn(question);

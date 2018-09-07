@@ -18,8 +18,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundsResponse;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
+import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
+import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.util.*;
@@ -59,8 +63,7 @@ public class QuestionRoundControllerTest {
 
     private UUID cohId;
 
-    private static final String ENDPOINT = "/continuous-online-hearings/";
-    private final int ROUNDID = 1;
+    private final int ROUND_ID = 1;
     private QuestionRound questionRound;
     private QuestionState issuedState;
     private QuestionState issuePendingState;
@@ -71,28 +74,20 @@ public class QuestionRoundControllerTest {
 
         List<QuestionRound> questionRounds = new ArrayList<>();
         questionRound = new QuestionRound();
-        questionRound.setQuestionRoundNumber(ROUNDID);
+        questionRound.setQuestionRoundNumber(ROUND_ID);
         QuestionRoundState questionRoundState = new QuestionRoundState();
 
-        issuedState = new QuestionState();
-        issuedState.setState(QuestionRoundService.ISSUED);
-        issuedState.setQuestionStateId(3);
+        issuedState = QuestionStateUtils.get(QuestionStates.ISSUED);
 
-        issuePendingState = new QuestionState();
-        issuePendingState.setState(QuestionRoundService.ISSUE_PENDING);
-        issuePendingState.setQuestionStateId(2);
+        issuePendingState = QuestionStateUtils.get(QuestionStates.ISSUE_PENDING);
 
-        QuestionState draftedState = new QuestionState();
-        draftedState.setState(QuestionRoundService.DRAFTED);
-        draftedState.setQuestionStateId(1);
+        QuestionState draftedState = QuestionStateUtils.get(QuestionStates.DRAFTED);
         questionRoundState.setState(draftedState);
 
         List<Question> questions = new ArrayList<>();
-        Question question = new Question();
-        question.setQuestionState(issuePendingState);
-        question.setQuestionRound(ROUNDID);
+        Question question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUE_PENDING);
+        question.setQuestionRound(ROUND_ID);
         questions.add(question);
-        question.setQuestionId(UUID.randomUUID());
         questionRound.setQuestionList(questions);
 
         questionRound.setQuestionRoundState(questionRoundState);
@@ -124,7 +119,7 @@ public class QuestionRoundControllerTest {
     public void testGetAllQuestionRounds() throws Exception {
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);
         given(answerService.retrieveAnswersByQuestion(any(Question.class))).willReturn((Collections.emptyList()));
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionRoundGetAll(cohId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -140,7 +135,7 @@ public class QuestionRoundControllerTest {
     @Test
     public void testOnlineHearingNotFound() throws Exception {
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds")
+        mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionRoundGetAll(cohId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound())
@@ -149,7 +144,7 @@ public class QuestionRoundControllerTest {
 
     @Test
     public void testGetAQuestionRound() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -167,7 +162,7 @@ public class QuestionRoundControllerTest {
 
         given(questionRoundService.getQuestionRoundByRoundId(any(OnlineHearing.class), anyInt())).willReturn(questionRound);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -184,7 +179,7 @@ public class QuestionRoundControllerTest {
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + 3)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, 3))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound())
@@ -195,7 +190,7 @@ public class QuestionRoundControllerTest {
     public void testUpdateQuestionRoundWithNonExistingOnlineHearingThrowsNotFound() throws Exception {
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound())
@@ -206,7 +201,7 @@ public class QuestionRoundControllerTest {
     public void testUpdateQuestionRoundWithNonExistingStateThrowsBadRequest() throws Exception {
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.empty());
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isBadRequest())
@@ -221,7 +216,7 @@ public class QuestionRoundControllerTest {
 
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(draftedState));
         String json = JsonUtils.toJson("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isBadRequest())
@@ -233,7 +228,7 @@ public class QuestionRoundControllerTest {
         given(questionRoundService.getCurrentQuestionRoundNumber(any(OnlineHearing.class))).willReturn(2);
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isUnprocessableEntity())
@@ -245,7 +240,7 @@ public class QuestionRoundControllerTest {
         given(questionStateService.retrieveQuestionStateByStateName(anyString())).willReturn(Optional.of(issuePendingState));
 
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());
@@ -257,7 +252,7 @@ public class QuestionRoundControllerTest {
         doReturn(new QuestionRoundState(issuedState)).when(questionRoundService).retrieveQuestionRoundState(any(QuestionRound.class));
         doReturn(true).when(questionRoundService).alreadyIssued(any(QuestionRoundState.class));
         String json = JsonUtils.getJsonInput("question_round/issue_question_round");
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + cohId + "/questionrounds/" + ROUNDID)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(CohUriBuilder.buildQuestionRoundGet(cohId, ROUND_ID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().is4xxClientError())

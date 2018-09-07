@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -107,8 +108,7 @@ public class AnswerControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(answerController).build();
 
         questionState = QuestionStateUtils.get(QuestionStates.ISSUED);
-        question = new Question();
-        question.setQuestionState(questionState);
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED);
 
         onlineHearing = new OnlineHearing();
 
@@ -247,9 +247,7 @@ public class AnswerControllerTest {
 
     @Test
     public void testCreateAnswerDrafted() throws Exception {
-        questionState = QuestionStateUtils.get(QuestionStates.ISSUE_PENDING);
-        question = new Question();
-        question.setQuestionState(questionState);
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUE_PENDING);
 
         String json = JsonUtils.getJsonInput("answer/standard_answer");
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
@@ -265,12 +263,9 @@ public class AnswerControllerTest {
 
     @Test
     public void testCreateAnswerSubmitted() throws Exception {
-        questionState = new QuestionState();
-        questionState.setState(QuestionStates.ISSUE_PENDING.getStateName());
-        question = new Question();
-        question.setQuestionState(questionState);
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUE_PENDING);
 
-        AnswerRequest request = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        AnswerRequest request = JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
         request.setAnswerState(AnswerStates.SUBMITTED.getStateName());
 
         mockSubmittedAnswer();
