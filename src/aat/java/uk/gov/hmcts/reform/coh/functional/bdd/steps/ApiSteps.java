@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
@@ -20,12 +18,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.*;
@@ -51,9 +47,6 @@ public class ApiSteps extends BaseSteps {
 
     @Autowired
     private JurisdictionRepository jurisdictionRepository;
-
-    @Autowired
-    private OnlineHearingPanelMemberRepository onlineHearingPanelMemberRepository;
 
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
@@ -173,8 +166,7 @@ public class ApiSteps extends BaseSteps {
                     // First delete event linked to an online hearing
                     sessionEventService.deleteByOnlineHearing(onlineHearing);
 
-                    // Now delete the panel members
-                    onlineHearingPanelMemberRepository.deleteByOnlineHearing(onlineHearing);
+                    // Now delete online hearing
                     onlineHearingService.deleteByCaseId(caseId);
                 } catch (DataIntegrityViolationException e) {
                     log.error("Failure may be due to foreign key. This is okay because the online hearing will be deleted elsewhere.");
@@ -308,17 +300,6 @@ public class ApiSteps extends BaseSteps {
         SessionEventForwardingRegister savedEFR = sessionEventForwardingRegisterRepository
             .save(sessionEventForwardingRegister);
         testContext.getScenarioContext().addSessionEventForwardingRegister(savedEFR);
-    }
-
-    @And("^the response contains (\\d+) panel member$")
-    public void theResponseContainsPanelMember(int count) throws IOException {
-        String rawResponseString = testContext.getHttpContext().getRawResponseString();
-        ObjectMapper objMap = new ObjectMapper();
-        Map<String, Object> map = objMap.readValue(rawResponseString, new TypeReference<Map<String, Object>>() {
-        });
-
-        List<String> map1 = (List<String>) map.get("panel");
-        assertEquals(count, map1.size());
     }
 
     @And("^the response headers contains a location to the created entity$")

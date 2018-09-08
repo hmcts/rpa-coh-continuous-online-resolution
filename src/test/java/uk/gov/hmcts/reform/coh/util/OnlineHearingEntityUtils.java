@@ -28,11 +28,6 @@ public class OnlineHearingEntityUtils {
         history1.setOnlinehearingstate(onlineHearing.getOnlineHearingState());
         onlineHearing.setOnlineHearingStateHistories(Arrays.asList(history1));
 
-        OnlineHearingPanelMember member = new OnlineHearingPanelMember();
-        member.setFullName("full name");
-        member.setRole("judge");
-        onlineHearing.setPanelMembers(Arrays.asList(member));
-
         return onlineHearing;
     }
 }

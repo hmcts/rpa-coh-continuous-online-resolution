@@ -19,10 +19,8 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
@@ -41,7 +39,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.*;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -54,9 +53,6 @@ public class OnlineHearingControllerTest {
 
     @Mock
     private OnlineHearingService onlineHearingService;
-
-    @Mock
-    private OnlineHearingPanelMemberService onlineHearingPanelMemberService;
 
     @Mock
     private OnlineHearingStateService onlineHearingStateService;
@@ -75,8 +71,6 @@ public class OnlineHearingControllerTest {
 
     private OnlineHearingState onlineHearingState;
 
-    private OnlineHearingPanelMember member;
-
     private OnlineHearingRequest onlineHearingRequest;
 
     private UpdateOnlineHearingRequest updateOnlineHearingRequest;
@@ -88,9 +82,6 @@ public class OnlineHearingControllerTest {
         onlineHearing.setOnlineHearingId(uuid);
         onlineHearing.setStartDate(new Date());
 
-        member = new OnlineHearingPanelMember();
-        member.setFullName("foo bar");
-        onlineHearing.setPanelMembers(Arrays.asList(member));
         mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
 
         onlineHearingRequest = JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
@@ -104,7 +95,6 @@ public class OnlineHearingControllerTest {
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
-        given(onlineHearingPanelMemberService.createOnlineHearing(any(OnlineHearingPanelMember.class))).willReturn(new OnlineHearingPanelMember());
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(STARTED.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(RELISTED.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
     }
@@ -191,41 +181,6 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         assertEquals("Case id is required", result.getResponse().getContentAsString());
-    }
-
-    @Test
-    public void testCreateOnlineHearingPanelNotPresent() throws Exception {
-
-        onlineHearingRequest.setPanel(null);
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn();
-        assertEquals("Panel is required", result.getResponse().getContentAsString());
-    }
-
-    @Test
-    public void testCreateOnlineHearingPanelMemberNameNotPresent() throws Exception {
-
-        OnlineHearingRequest request = (OnlineHearingRequest) JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
-        request.getPanel().get(0).setName(null);
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(request)))
-                .andExpect(status().isUnprocessableEntity())
-                .andReturn();
-        assertEquals("The panel member name is required", result.getResponse().getContentAsString());
-    }
-
-    @Test
-    public void testCreateOnlineHearingPanelMemberIdentityTokenNotPresent() throws Exception {
-
-        onlineHearingRequest.getPanel().get(0).setIdentityToken(null);
-
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
-                .andExpect(status().isCreated());
     }
 
     @Test

@@ -1,0 +1,15 @@
+databaseChangeLog:
+- changeSet:
+    id: 1536416617619-1
+    author: johnho (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: online_hearing_panel_member
+        constraintName: FKesjwlcsmkmumaioco2m3u9483
+- changeSet:
+    id: 1536416617619-2
+    author: johnho (generated)
+    changes:
+    - dropTable:
+        tableName: online_hearing_panel_member
+

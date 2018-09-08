@@ -114,10 +114,6 @@ public class ConversationsControllerTest {
         ohHistory.setDateOccurred(new Date());
         onlineHearing.setOnlineHearingStateHistories(asList(ohHistory));
 
-        OnlineHearingPanelMember member = new OnlineHearingPanelMember();
-        member.setFullName("foo bar");
-        onlineHearing.setPanelMembers(asList(member));
-
         decisionState = new DecisionState();
         decisionState.setState("decision_drafted");
 
@@ -276,8 +272,6 @@ public class ConversationsControllerTest {
         assertEquals("case_123", ohResponse.getCaseId());
         assertEquals(STARTED_STATE, ohResponse.getCurrentState().getName());
         assertNotNull(ohResponse.getCurrentState().getDatetime());
-        assertEquals(1, ohResponse.getPanel().size());
-        assertEquals("foo bar", ohResponse.getPanel().get(0).getName());
         assertEquals(1, ohResponse.getHistories().size());
     }
 

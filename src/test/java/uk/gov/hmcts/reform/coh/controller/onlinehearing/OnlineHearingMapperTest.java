@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
@@ -18,8 +16,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 public class OnlineHearingMapperTest {
-
-    private static final ISO8601DateFormat df = new ISO8601DateFormat();
 
     UUID uuid = UUID.randomUUID();
 
@@ -50,11 +46,6 @@ public class OnlineHearingMapperTest {
         history2.setDateOccurred(endDate.getTime());
         history2.setOnlinehearingstate(relistedState);
         onlineHearing.setOnlineHearingStateHistories(Arrays.asList(history1, history2));
-
-        OnlineHearingPanelMember member = new OnlineHearingPanelMember();
-        member.setFullName("foo bar");
-        member.setRole("judge");
-        onlineHearing.setPanelMembers(Arrays.asList(member));
     }
 
     @Test
@@ -65,9 +56,6 @@ public class OnlineHearingMapperTest {
         assertEquals("foo", response.getCaseId());
         assertEquals(CohISO8601DateFormat.format(startDate.getTime()), response.getStartDate());
         assertEquals(CohISO8601DateFormat.format(endDate.getTime()), response.getEndDate());
-        assertEquals(1, response.getPanel().size());
-        assertEquals("foo bar", response.getPanel().get(0).getName());
-        assertEquals("judge", response.getPanel().get(0).getRole());
         assertEquals(startState.getState(), response.getCurrentState().getName());
         assertEquals(2, response.getHistories().size());
         assertEquals(relistedState.getState(), response.getHistories().get(1).getName());
