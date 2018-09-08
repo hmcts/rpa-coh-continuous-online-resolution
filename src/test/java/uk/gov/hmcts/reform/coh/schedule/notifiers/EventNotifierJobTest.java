@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -88,6 +89,7 @@ public class EventNotifierJobTest {
         register.setSessionEventType(sessionEventType);
         register.setJurisdiction(jurisdiction);
         register.setMaximumRetries(1);
+        register.setActive(true);
 
         sessionEvent = new SessionEvent();
         sessionEvent.setSessionEventForwardingState(pendingState);
@@ -179,5 +181,12 @@ public class EventNotifierJobTest {
         given(sessionEventForwardingStateRepository.findByForwardingStateName(EVENT_FORWARDING_SUCCESS.getStateName())).willReturn(Optional.of(successState));
         job.execute();
         assertEquals(EVENT_FORWARDING_SUCCESS.getStateName(), sessionEvent.getSessionEventForwardingState().getForwardingStateName());
+    }
+
+    @Test
+    public void testRegisterNotActive() throws Exception {
+        register.setActive(false);
+        job.execute();
+        verify(forwarder, times(0)).sendEndpoint(any(SessionEventForwardingRegister.class), any());
     }
 }
