@@ -39,7 +39,6 @@ import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
 @SpringBootTest
 public class QuestionSteps extends BaseSteps {
 
-    private String ENDPOINT = "/continuous-online-hearings";
     private QuestionRequest questionRequest;
     private boolean allQuestionRounds;
 
@@ -149,10 +148,10 @@ public class QuestionSteps extends BaseSteps {
         String rawJson = testContext.getHttpContext().getRawResponseString();
         QuestionRoundResponse questionRoundResponse;
 
-        if(allQuestionRounds) {
+        if (allQuestionRounds) {
             QuestionRoundsResponse questionRoundsResponse = toObjectFromJson(rawJson, QuestionRoundsResponse.class);
             questionRoundResponse = questionRoundsResponse.getQuestionRounds().get(questionRoundNumber - 1);
-        }else{
+        } else{
             questionRoundResponse = toObjectFromJson(rawJson, QuestionRoundResponse.class);
 
         }
@@ -212,7 +211,7 @@ public class QuestionSteps extends BaseSteps {
         if (allQuestionRounds) {
             QuestionRoundsResponse questionRoundsResponse = toObjectFromJson(rawJson, QuestionRoundsResponse.class);
             questionRound = questionRoundsResponse.getQuestionRounds().get(questionRoundN - 1);
-        }else{
+        } else{
             questionRound = toObjectFromJson(rawJson, QuestionRoundResponse.class);
         }
         assertEquals(expectedQuestions, questionRound.getQuestionList().size());
@@ -313,7 +312,7 @@ public class QuestionSteps extends BaseSteps {
             OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
             Question question = testContext.getScenarioContext().getCurrentQuestion();
             HttpEntity<String> request = new HttpEntity<>("", header);
-            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + ENDPOINT + "/" + onlineHearing.getOnlineHearingId() + "/questions/" + question.getQuestionId(),
+            ResponseEntity<String> response = getRestTemplate().exchange(baseUrl + CohUriBuilder.buildQuestionGet(onlineHearing.getOnlineHearingId(), question.getQuestionId()),
                     HttpMethod.DELETE, request, String.class);
 
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
