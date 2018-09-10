@@ -11,7 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.controller.events.ResetSessionEventRequest;
+import uk.gov.hmcts.reform.coh.controller.events.SessionEventRequest;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
@@ -146,7 +146,7 @@ public class EventSteps extends BaseSteps {
     @When("^the put request is sent to reset the events of type (.*)$")
     public void thePutRequestIsSentToResetTheEventsOfTypeAnswersSubmitted(String eventType) throws IOException {
         String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
-        ResetSessionEventRequest resetSessionEventRequest = JsonUtils.toObjectFromJson(json, ResetSessionEventRequest.class);
+        SessionEventRequest resetSessionEventRequest = JsonUtils.toObjectFromJson(json, SessionEventRequest.class);
 
         OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
         Jurisdiction jurisdiction = jurisdictionRepository.findByJurisdictionName(onlineHearing.getJurisdiction().getJurisdictionName())
@@ -196,5 +196,22 @@ public class EventSteps extends BaseSteps {
         Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
+    }
+
+    @And("^the event register is saved")
+    public void theEventRegisterIsSaved() {
+        theEventRegisterCountIs(1);
+    }
+
+    @And("^the event register is deleted$")
+    public void theEventRegisterIsDeleted() {
+        theEventRegisterCountIs(0);
+    }
+
+    private void theEventRegisterCountIs(int count) {
+        Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
+        List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
+        assertEquals(count, register.size());
+
     }
 }

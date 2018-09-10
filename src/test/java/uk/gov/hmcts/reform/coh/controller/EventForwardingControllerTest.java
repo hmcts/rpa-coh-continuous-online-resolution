@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,8 +36,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -270,6 +271,34 @@ public class EventForwardingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validJson))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteEventForwardRegister() throws Exception {
+        mockSessionEventForwardingRegisterService(true);
+        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(validJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDeleteEventForwardRegisterNotFound() throws Exception {
+        mockSessionEventForwardingRegisterService(false);
+        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(validJson))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteEventForwardRegisterDataIntegrityViolationException() throws Exception {
+        mockSessionEventForwardingRegisterService(true);
+        doThrow(new DataIntegrityViolationException("foo")).when(sessionEventForwardingRegisterService).deleteEventForwardingRegister(any(SessionEventForwardingRegister.class));
+        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(validJson))
+                .andExpect(status().isFailedDependency());
     }
 
     private void mockSessionEventForwardingRegisterService(boolean isPresent) {

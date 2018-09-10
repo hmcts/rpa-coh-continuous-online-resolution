@@ -5,18 +5,21 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
 
-public class ResetSessionEventRequest {
+public class SessionEventRequest {
 
-    @JsonProperty("jurisdiction")
-    @NotNull(message = "Jurisdiction Required")
-    @ApiModelProperty(required = true, allowableValues = "SSCS")
-    private String jurisdiction;
 
+    @NotNull(message = "Event Type Required")
     @JsonProperty("event_type")
-    @NotNull(message = "Event type Required")
     @ApiModelProperty(required = true,
-        allowableValues = "question_round_issued, question_deadline_elapsed, question_deadline_extended, question_deadline_extension_denied, question_deadline_extension_granted, answers_submitted, decision_rejected, decision_issued")
+            allowableValues = "question_round_issued,question_deadline_elapsed,question_deadline_extended,question_deadline_extension_denied,question_deadline_extension_granted,answers_submitted, decision_rejected, decision_issued",
+            value = "The event type"
+    )
     private String eventType;
+
+    @NotNull(message = "Jurisdiction Required")
+    @JsonProperty("jurisdiction")
+    @ApiModelProperty(required = true, allowableValues = "SSCS", value = "The Jurisdiction interested in the event")
+    private String jurisdiction;
 
     public String getJurisdiction() {
         return jurisdiction;

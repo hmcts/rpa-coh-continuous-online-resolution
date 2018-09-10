@@ -103,5 +103,13 @@ Feature: Event features
     When a POST request is sent to register
     Then the response code is 422
 
+  Scenario: Delete an event
+    Given a standard event register request
+    And jurisdiction ' "Long", with id ' "42" ' and max question rounds ' "5" ' is created
+    When a POST request is sent to register
+    And the event register is saved
+    When a DELETE request is sent to register
+    Then the response code is 200
+    And the event register is deleted
 
 

@@ -6,12 +6,13 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
-import uk.gov.hmcts.reform.coh.controller.events.ResetSessionEventRequest;
+import uk.gov.hmcts.reform.coh.controller.events.SessionEventRequest;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
@@ -104,6 +105,37 @@ public class EventForwardingController {
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
+    @ApiOperation(value = "Delete event registration notification", notes = "A DELETE request is used delete to update the event registration")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 424, message = "Failed dependency")
+    })
+    @DeleteMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteEventNotifications(@Valid @RequestBody SessionEventRequest request) {
+
+        ValidationResult result = validate(request);
+        if (!result.isValid()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(result.getReason());
+        }
+
+        SessionEventForwardingRegister eventForwardingRegister = getSessionEventForwardingRegister(request);
+        Optional<SessionEventForwardingRegister> optSessionEventForwardingRegister = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
+        if (!optSessionEventForwardingRegister.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No register for this jurisdiction & event type");
+        }
+        try {
+            sessionEventForwardingRegisterService.deleteEventForwardingRegister(eventForwardingRegister);
+        } catch (DataIntegrityViolationException cve) {
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Cannot delete an event registration where events have been queue for it. Make the event registration inactive instead");
+        }
+
+
+        return ResponseEntity.status(HttpStatus.OK).body("");
+    }
+
     @ApiOperation(value = "Reset session events", notes = "A PUT request is used to reset the events")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success"),
@@ -114,7 +146,7 @@ public class EventForwardingController {
             @ApiResponse(code = 424, message = "Failed dependency")
     })
     @PutMapping(value = "/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity resetSessionEvents(@Valid @RequestBody ResetSessionEventRequest request) {
+    public ResponseEntity resetSessionEvents(@Valid @RequestBody SessionEventRequest request) {
 
         Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
         if (!eventType.isPresent()) {
@@ -154,7 +186,7 @@ public class EventForwardingController {
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
-    private ValidationResult validate(EventRegistrationRequest request) {
+    private ValidationResult validate(SessionEventRequest request) {
 
         ValidationResult result = new ValidationResult();
         result.setValid(true);
@@ -185,6 +217,19 @@ public class EventForwardingController {
                 .maximumRetries(request.getMaxRetries())
                 .withActive(true)
                 .registrationDate(new Date())
+                .build();
+
+        return sessionEventForwardingRegister;
+    }
+
+    private SessionEventForwardingRegister getSessionEventForwardingRegister(SessionEventRequest request) {
+
+        Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
+        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
+
+        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+                .sessionEventType(eventType.orElseThrow(() -> new EntityNotFoundException(EVENT_TYPE_NOT_FOUND)))
+                .jurisdiction(jurisdiction.orElseThrow(() -> new EntityNotFoundException(JURISDICTION_NOT_FOUND)))
                 .build();
 
         return sessionEventForwardingRegister;
