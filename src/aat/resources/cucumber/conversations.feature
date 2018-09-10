@@ -36,7 +36,7 @@ Feature: Conversations
     And the conversation response contains 1 question
     And the conversation response contains a question with the correct uri
     And the conversation response contains a question with state desc of 'Question Issued'
-    And the conversation response contains a question with 3 history entries
+    And the conversation response contains a question with at least 3 history entries
     And the conversation response contains a question with 1 history entry with state desc of 'Question Drafted'
     And the conversation response contains 1 answer
     And the conversation response contains an answer with state desc of 'Answer Drafted'

@@ -264,6 +264,11 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(count, getQuestionFromConversationResponse(0).getHistories().size());
     }
 
+    @And("^the conversation response contains a question with at least (\\d) history entries$")
+    public void theResponseContainsAQuestionWithAtLeastHistory(int count) throws Throwable {
+        assertTrue(count <= getQuestionFromConversationResponse(0).getHistories().size());
+    }
+
     @And("^the conversation response contains (\\d) answer$")
     public void theResponseContainsAnAnswer(int count) throws Throwable {
         ConversationResponse response = getConversationResponse();
