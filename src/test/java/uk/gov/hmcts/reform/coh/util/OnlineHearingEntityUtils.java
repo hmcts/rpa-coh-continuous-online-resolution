@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.util;
 
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
