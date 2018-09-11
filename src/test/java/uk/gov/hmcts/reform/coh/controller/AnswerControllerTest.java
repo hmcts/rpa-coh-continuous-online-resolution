@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
@@ -134,17 +135,6 @@ public class AnswerControllerTest {
     public void testCreateAnswerOnlineHearingNotFound() throws Exception {
 
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(request)))
-                .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    public void testEmptyAnswerText() throws Exception {
-
-        request.setAnswerText(null);
-
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request)))
@@ -440,38 +430,66 @@ public class AnswerControllerTest {
     @Test
     public void testDecisionIssuedForOnlineHearing() throws Exception {
         onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.DECISION_ISSUED));
-
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
-                .andExpect(status().isUnprocessableEntity());
+        expectPutUnprocessableEntity();
     }
 
     @Test
     public void testRelistedOnlineHearing() throws Exception {
         onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RELISTED));
-
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
-                .andExpect(status().isUnprocessableEntity());
+        expectPutUnprocessableEntity();
     }
 
     @Test
     public void testClosedOnlineHearing() throws Exception {
         onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.CLOSED));
-
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
-                .andExpect(status().isUnprocessableEntity());
+        expectPutUnprocessableEntity();
     }
 
     @Test
     public void testResolvedOnlineHearing() throws Exception {
         onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RESOLVED));
+        expectPutUnprocessableEntity();
+    }
 
-        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+    @Test
+    public void testCreateDecisionIssuedForOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.DECISION_ISSUED));
+        expectPostUnprocessableEntity();
+    }
+
+    @Test
+    public void testCreateRelistedOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RELISTED));
+        expectPostUnprocessableEntity();
+    }
+
+    @Test
+    public void testCreateClosedOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.CLOSED));
+        expectPostUnprocessableEntity();
+    }
+
+    @Test
+    public void testCreateAnswerResolvedOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RESOLVED));
+        expectPostUnprocessableEntity();
+    }
+
+    public void expectPutUnprocessableEntity() throws Exception {
+
+        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid);
+
+        mockMvc.perform(builder
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    public void expectPostUnprocessableEntity() throws Exception {
+
+        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.post(ENDPOINT);
+
+        mockMvc.perform(builder
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonRequest))
                 .andExpect(status().isUnprocessableEntity());
