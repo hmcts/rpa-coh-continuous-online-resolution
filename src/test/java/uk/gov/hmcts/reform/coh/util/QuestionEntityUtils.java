@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.util;
 
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
@@ -14,6 +15,14 @@ public class QuestionEntityUtils {
     }
 
     public static final Question createTestQuestion(QuestionStates state) {
+        return createTestQuestion(state, null);
+    }
+
+    public static final Question createTestQuestion(OnlineHearing onlineHearing) {
+        return createTestQuestion(QuestionStates.DRAFTED, onlineHearing);
+    }
+
+    public static final Question createTestQuestion(QuestionStates state, OnlineHearing onlineHearing) {
         Question question = new Question();
         question.setQuestionId(STANDARD_UUID);
         question.setQuestionRound(1);
@@ -23,6 +32,7 @@ public class QuestionEntityUtils {
         question.setOwnerReferenceId("bar");
         question.setQuestionState(QuestionStateUtils.get(state));
         question.setDeadlineExtCount(1);
+        question.setOnlineHearing(onlineHearing);
 
         return question;
     }

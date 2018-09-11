@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.ConversationResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
+import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
 import uk.gov.hmcts.reform.coh.service.DecisionReplyService;
@@ -32,6 +33,8 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.util.*;
@@ -77,10 +80,6 @@ public class ConversationsControllerTest {
 
     private static final String ANSWER_DRAFTED = AnswerStates.DRAFTED.getStateName();
 
-    private static final String uuid = "d9248584-4aa5-4cb0-aba6-d2633ad5a375";
-
-    private static final String ENDPOINT = "/continuous-online-hearings/" + uuid + "/conversations";
-
     private OnlineHearing onlineHearing;
 
     private Decision decision;
@@ -89,28 +88,18 @@ public class ConversationsControllerTest {
 
     private Question question2;
 
-    private UUID onlineHearingUuid;
-
     private DecisionState decisionState;
 
     private Date expiryDate;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 
-        onlineHearingUuid = UUID.fromString("d9248584-4aa5-4cb0-aba6-d2633ad5a375");
-        onlineHearing = new OnlineHearing();
-        onlineHearing.setCaseId("case_123");
-        onlineHearing.setOnlineHearingId(onlineHearingUuid);
-        onlineHearing.setStartDate(new Date());
-
-        OnlineHearingState onlineHearingState = new OnlineHearingState();
-        onlineHearingState.setState(STARTED_STATE);
-        onlineHearing.setOnlineHearingState(onlineHearingState);
+        onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
 
         OnlineHearingStateHistory ohHistory = new OnlineHearingStateHistory();
-        ohHistory.setOnlinehearingstate(onlineHearingState);
+        ohHistory.setOnlinehearingstate(onlineHearing.getOnlineHearingState());
         ohHistory.setDateOccurred(new Date());
         onlineHearing.setOnlineHearingStateHistories(asList(ohHistory));
 
@@ -157,23 +146,8 @@ public class ConversationsControllerTest {
         QuestionState issuedState = new QuestionState();
         issuedState.setState(QuestionStates.ISSUED.getStateName());
 
-        question1 = new Question();
-        question1.setQuestionId(UUID.randomUUID());
-        question1.setQuestionHeaderText("foo");
-        question1.setQuestionText("bar");
-        question1.setOnlineHearing(onlineHearing);
-        question1.setQuestionRound(1);
-        question1.setQuestionOrdinal(1);
-        question1.setQuestionState(issuedState);
-
-        question2 = new Question();
-        question2.setQuestionId(UUID.randomUUID());
-        question2.setQuestionHeaderText("foo");
-        question2.setQuestionText("bar");
-        question2.setOnlineHearing(onlineHearing);
-        question2.setQuestionRound(1);
-        question2.setQuestionOrdinal(1);
-        question2.setQuestionState(issuedState);
+        question1 = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED, onlineHearing);
+        question2 = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED, onlineHearing);
 
         Answer answer1 = new Answer();
         answer1.answerId(UUID.randomUUID()).answerText("foo");
@@ -187,8 +161,8 @@ public class ConversationsControllerTest {
         AnswerStateHistory answerStateHistory = new AnswerStateHistory(answer1, answerState);
         answer1.setAnswerStateHistories(asList(answerStateHistory));
 
-        when(onlineHearingService.retrieveOnlineHearing(onlineHearingUuid)).thenReturn(Optional.of(onlineHearing));
-        when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.of(decision));
+        when(onlineHearingService.retrieveOnlineHearing(onlineHearing.getOnlineHearingId())).thenReturn(Optional.of(onlineHearing));
+        when(decisionService.findByOnlineHearingId(onlineHearing.getOnlineHearingId())).thenReturn(Optional.of(decision));
         when(questionService.findAllQuestionsByOnlineHearing(onlineHearing))
             .thenReturn(Optional.of(asList(question1, question2)));
         when(answerService.retrieveAnswersByQuestion(question1)).thenReturn(asList(answer1));
@@ -199,7 +173,7 @@ public class ConversationsControllerTest {
     @Test
     public void testOnlineHearingNotFound() throws Exception {
         when(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).thenReturn(Optional.empty());
-        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT)
+        mockMvc.perform(MockMvcRequestBuilders.get(CohUriBuilder.buildConversationsGet(onlineHearing.getOnlineHearingId()))
             .contentType(MediaType.APPLICATION_JSON)
             .content(""))
             .andExpect(status().isNotFound());
@@ -207,7 +181,7 @@ public class ConversationsControllerTest {
 
     @Test
     public void testDecisionNotFoundQuestionsNotFound() throws Exception {
-        when(decisionService.findByOnlineHearingId(onlineHearingUuid)).thenReturn(Optional.empty());
+        when(decisionService.findByOnlineHearingId(onlineHearing.getOnlineHearingId())).thenReturn(Optional.empty());
         when(questionService.findAllQuestionsByOnlineHearing(onlineHearing)).thenReturn(Optional.empty());
 
         ConversationResponse response = submitGet();
@@ -260,7 +234,7 @@ public class ConversationsControllerTest {
     }
 
     private ConversationResponse submitGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get((ENDPOINT))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get((CohUriBuilder.buildConversationsGet(onlineHearing.getOnlineHearingId())))
             .contentType(MediaType.APPLICATION_JSON)
             .content(""))
             .andExpect(status().isOk())
@@ -272,7 +246,7 @@ public class ConversationsControllerTest {
     private void assertOnlineHearing(ConversationResponse response) {
         OnlineHearingResponse ohResponse = response.getOnlineHearing();
         assertNotNull(ohResponse);
-        assertEquals("/continuous-online-hearings/" + onlineHearingUuid, response.getOnlineHearing().getUri());
+        assertEquals(CohUriBuilder.buildOnlineHearingGet(onlineHearing.getOnlineHearingId()), response.getOnlineHearing().getUri());
         assertEquals("case_123", ohResponse.getCaseId());
         assertEquals(STARTED_STATE, ohResponse.getCurrentState().getName());
         assertNotNull(ohResponse.getCurrentState().getDatetime());
@@ -284,9 +258,9 @@ public class ConversationsControllerTest {
     private void assertDecision(ConversationResponse response) {
         DecisionResponse decisionResponse = response.getOnlineHearing().getDecisionResponse();
         assertNotNull(decisionResponse);
-        assertEquals("/continuous-online-hearings/" + onlineHearingUuid + "/decisions", decisionResponse.getUri());
+        assertEquals(CohUriBuilder.buildDecisionGet(onlineHearing.getOnlineHearingId()), decisionResponse.getUri());
         assertNotNull(decision.getDecisionId());
-        assertEquals(onlineHearingUuid.toString(), decisionResponse.getOnlineHearingId());
+        assertEquals(onlineHearing.getOnlineHearingId().toString(), decisionResponse.getOnlineHearingId());
         assertEquals("Decision header", decisionResponse.getDecisionHeader());
         assertEquals("Decision text", decisionResponse.getDecisionText());
         assertEquals("Decision reason", decisionResponse.getDecisionReason());

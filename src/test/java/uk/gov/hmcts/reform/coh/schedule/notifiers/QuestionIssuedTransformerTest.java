@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.QuestionRoundService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,9 +65,7 @@ public class QuestionIssuedTransformerTest {
         expiryDeadline = dateFormat.parse("2018-08-07 00:59:59");
 
         List<Question> questionRound = new ArrayList<>();
-        Question question = new Question();
-        question.setQuestionState(issuedPending);
-        question.setQuestionRound(1);
+        Question question = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUE_PENDING);
         question.setDeadlineExpiryDate(expiryDeadline);
         questionRound.add(question);
         given(questionRoundService.getQuestionsByQuestionRound(any(OnlineHearing.class), anyInt())).willReturn(questionRound);

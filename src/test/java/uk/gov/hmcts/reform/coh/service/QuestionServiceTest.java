@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.Date;
@@ -83,8 +84,7 @@ public class QuestionServiceTest {
 
         given(questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName())).willReturn(Optional.ofNullable(drafted));
         given(questionStateService.retrieveQuestionStateByStateName(QuestionStates.ISSUED.getStateName())).willReturn(Optional.ofNullable(issued));
-        question = new Question();
-        question.setQuestionState(drafted);
+        question = QuestionEntityUtils.createTestQuestion(onlineHearing);
         when(questionRepository.save(question)).thenReturn(question);
 
         when(utils.isEligibleForDeadlineExtension(any())).thenReturn(true);

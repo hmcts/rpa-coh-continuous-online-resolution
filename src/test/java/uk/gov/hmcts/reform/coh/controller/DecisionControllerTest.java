@@ -32,6 +32,7 @@ import uk.gov.hmcts.reform.coh.service.DecisionService;
 import uk.gov.hmcts.reform.coh.service.DecisionStateService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.task.DecisionIssuedTask;
+import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -105,8 +106,7 @@ public class DecisionControllerTest {
 
         endpoint = "/continuous-online-hearings/" + uuid;
 
-        onlineHearing = new OnlineHearing();
-        onlineHearing.setOnlineHearingId(uuid);
+        onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
 
         request = JsonUtils.toObjectFromTestName("decision/standard_decision", DecisionRequest.class);
         updateDecisionRequest = JsonUtils.toObjectFromTestName("decision/standard_decision", UpdateDecisionRequest.class);
@@ -275,7 +275,7 @@ public class DecisionControllerTest {
         DecisionResponse actual = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), DecisionResponse.class);
 
         assertEquals(expected.getDecisionId(), actual.getDecisionId());
-        assertEquals(expected.getOnlineHearingId(), actual.getOnlineHearingId());
+        assertEquals(onlineHearing.getOnlineHearingId().toString(), actual.getOnlineHearingId());
         assertEquals(expected.getDecisionHeader(), actual.getDecisionHeader());
         assertEquals(expected.getDecisionText(), actual.getDecisionText());
         assertEquals(expected.getDecisionReason(), actual.getDecisionReason());

@@ -13,7 +13,7 @@ public final class QuestionStateUtils {
 
     static {
         mappings = new HashMap<>();
-        Arrays.stream(QuestionStates.values()).forEach(qs -> mappings.put(qs, new QuestionState(1, qs.getStateName())));
+        Arrays.stream(QuestionStates.values()).forEach(qs -> mappings.put(qs, new QuestionState(mappings.size() + 1, qs.getStateName())));
     }
 
     private QuestionStateUtils() {
