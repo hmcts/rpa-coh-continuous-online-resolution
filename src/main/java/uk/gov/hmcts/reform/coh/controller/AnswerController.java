@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.util.List;
@@ -68,13 +69,14 @@ public class AnswerController {
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createAnswer(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
-        ValidationResult validationResult = validate(request);
-        if (!validationResult.isValid()) {
-            return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
-        }
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
+        }
+
+        ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
+        if (!validationResult.isValid()) {
+            return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
         CreateAnswerResponse answerResponse = new CreateAnswerResponse();
@@ -188,7 +190,7 @@ public class AnswerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
-        ValidationResult validationResult = validate(request);
+        ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
         if (!validationResult.isValid()) {
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
@@ -244,11 +246,14 @@ public class AnswerController {
         }
     }
 
-    private ValidationResult validate(AnswerRequest request) {
+    private ValidationResult validate(OnlineHearing onlineHearing, AnswerRequest request) {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
-        if (request.getAnswerText() == null || StringUtils.isEmpty(request.getAnswerText())) {
+        if (!onlineHearing.getOnlineHearingState().getState().equalsIgnoreCase(OnlineHearingStates.STARTED.getStateName())) {
+            result.setValid(false);
+            result.setReason("Answers cannot be submitted after the online hearing a decision has been issued or re-listed");
+        } else if (request.getAnswerText() == null || StringUtils.isEmpty(request.getAnswerText())) {
             result.setValid(false);
             result.setReason("Answer text cannot be empty");
         } else if (StringUtils.isEmpty(request.getAnswerState())) {

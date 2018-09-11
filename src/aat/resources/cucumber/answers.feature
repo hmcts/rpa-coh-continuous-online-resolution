@@ -130,3 +130,33 @@ Feature: Answers
     And the answer text is 'bar'
     When a POST request is sent for an answer
     And the response code is 409
+
+  Scenario: Submit an answer for re-listed online hearing
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And the notification scheduler runs
+    Given a standard update online hearing request
+    And the update online hearing state is continuous_online_hearing_relisted
+    And the relist reason is 'reason'
+    And a PUT request is sent for online hearing
+    And a standard answer
+    And the answer state is answer_submitted
+    When a POST request is sent for an answer
+    Then the response code is 422
+
+  Scenario: Submit an answer for an online hearing with a decision issued
+    Given a standard online hearing is created
+    And a valid question
+    And the put request is sent to issue the question round ' "1" '
+    And the notification scheduler runs
+    And a standard decision
+    When a POST request is sent for a decision
+    Given a standard decision for update
+    And the update decision state is decision_issue_pending
+    And a PUT request is sent for a decision
+    And the notification scheduler runs
+    And a standard answer
+    And the answer state is answer_submitted
+    When a POST request is sent for an answer
+    Then the response code is 422
