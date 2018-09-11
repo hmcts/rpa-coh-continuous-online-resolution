@@ -116,10 +116,10 @@ public class EventNotifierJob {
             Optional<SessionEventForwardingState> failure = sessionEventForwardingStateRepository.findByForwardingStateName(failureState.getStateName());
             appInsightsEventRepository.trackEvent(AppInsightsEvents.COH_COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
             if (failure.isPresent()) {
-                log.error(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
+                log.info(String.format("Updating session event state to %s", failureState.getStateName()));
                 sessionEvent.setSessionEventForwardingState(failure.get());
             } else {
-                log.info(String.format("Updating session event state to %s", failureState.getStateName()));
+                log.error(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
             }
         }
 
