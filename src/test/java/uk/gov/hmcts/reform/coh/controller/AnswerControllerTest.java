@@ -22,8 +22,10 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
+import uk.gov.hmcts.reform.coh.util.OnlineHearingStateUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -343,19 +345,18 @@ public class AnswerControllerTest {
 
     @Test
     public void testUpdateAnswersDraft() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().isOk());
         verify(sessionEventService, times(0)).createSessionEvent(any(OnlineHearing.class), anyString());
     }
 
     @Test
     public void testUpdateAnswersSubmitted() throws Exception {
-        AnswerRequest request = (AnswerRequest)JsonUtils.toObjectFromTestName("answer/standard_answer", AnswerRequest.class);
+        AnswerRequest request = JsonUtils.toObjectFromJson(jsonRequest, AnswerRequest.class);
         request.setAnswerState(AnswerStates.SUBMITTED.getStateName());
 
         Answer savedAnswer = new Answer();
@@ -371,72 +372,66 @@ public class AnswerControllerTest {
 
     @Test
     public void testUpdateAnswersFail() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
     }
 
     @Test
     public void testUpdateAnswersNonExistentQuestion() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void testUpdateAnswersWhenAnswerAlreadySubmitted() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         draftedState.setState(AnswerStates.SUBMITTED.getStateName());
         answer.setAnswerState(draftedState);
         given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.of(answer));
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
     public void testUpdateAnswersFailDueToAnswerStateNotFoundThrowException() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders.patch(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
     }
 
     @Test
     public void testUpdateAnswersFailDueToInvalidStateTransition() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willThrow(NotFoundException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
 
     @Test
     public void testUpdateAnswersInvalidAnswerState() throws Exception {
-        String json = JsonUtils.getJsonInput("answer/standard_answer");
         given(answerStateService.retrieveAnswerStateByState(anyString())).willReturn(Optional.empty());
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                .content(jsonRequest))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         assertEquals("Answer state is not valid: answer_drafted", result.getResponse().getContentAsString());
@@ -444,7 +439,42 @@ public class AnswerControllerTest {
 
     @Test
     public void testDecisionIssuedForOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.DECISION_ISSUED));
 
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void testRelistedOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RELISTED));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void testClosedOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.CLOSED));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void testResolvedOnlineHearing() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RESOLVED));
+
+        mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     private void mockSubmittedAnswer() {
