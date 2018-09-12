@@ -14,10 +14,8 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingPanelMember;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingPanelMemberService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
@@ -25,7 +23,7 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import java.util.*;
 
 import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
-import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.*;
+import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
 
 @RestController
 @RequestMapping("/continuous-online-hearings")
@@ -37,9 +35,6 @@ public class OnlineHearingController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
-
-    @Autowired
-    private OnlineHearingPanelMemberService onlineHearingPanelMemberService;
 
     @Autowired
     private OnlineHearingStateService onlineHearingStateService;
@@ -144,15 +139,6 @@ public class OnlineHearingController {
 
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
 
-        for (OnlineHearingRequest.PanelMember member : body.getPanel()) {
-            OnlineHearingPanelMember ohpMember = new OnlineHearingPanelMember();
-            ohpMember.setFullName(member.getName());
-            ohpMember.setIdentityToken(member.getIdentityToken());
-            ohpMember.setRole(member.getRole());
-            ohpMember.setOnlineHearing(onlineHearing);
-            onlineHearingPanelMemberService.createOnlineHearing(ohpMember);
-        }
-
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
         onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
         onlineHearingService.createOnlineHearing(onlineHearing);
@@ -228,23 +214,12 @@ public class OnlineHearingController {
         if (StringUtils.isEmpty(request.getCaseId())) {
             result.setValid(false);
             result.setReason("Case id is required");
-        } else if (request.getPanel() == null || request.getPanel().isEmpty()) {
-            result.setValid(false);
-            result.setReason("Panel is required");
         } else if (!onlineHearingState.isPresent()) {
             result.setValid(false);
             result.setReason("Online hearing state is not valid");
         } else if (!jurisdiction.isPresent()) {
             result.setValid(false);
             result.setReason("Jurisdiction is not valid");
-        } else {
-            for (OnlineHearingRequest.PanelMember member : request.getPanel()) {
-                if (StringUtils.isEmpty(member.getName())) {
-                    result.setValid(false);
-                    result.setReason("The panel member name is required");
-                    break;
-                }
-            }
         }
 
         return result;

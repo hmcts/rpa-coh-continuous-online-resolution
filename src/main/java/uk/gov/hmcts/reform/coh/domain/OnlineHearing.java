@@ -22,9 +22,6 @@ public class OnlineHearing {
     @JoinColumn(name = "jurisdiction_id")
     private Jurisdiction jurisdiction;
 
-    @OneToMany(mappedBy = "onlineHearing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<OnlineHearingPanelMember> panelMembers;
-
     @Transient
     private String jurisdictionName;
 
@@ -74,14 +71,6 @@ public class OnlineHearing {
 
     public void setCaseId(String caseId) {
         this.caseId = caseId;
-    }
-
-    public List<OnlineHearingPanelMember> getPanelMembers() {
-        return panelMembers;
-    }
-
-    public void setPanelMembers(List<OnlineHearingPanelMember> panelMembers) {
-        this.panelMembers = panelMembers;
     }
 
     public Jurisdiction getJurisdiction() {

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.DecisionReplyResponse;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
@@ -300,18 +298,6 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the conversation response contains an answer with 1 history entry with state desc of '(.*)'$")
     public void theResponseContainsAnAnswerWithHistoryStateDesc(String stateDesc) throws Throwable {
         assertEquals(stateDesc, getQuestionFromConversationResponse(0).getAnswers().get(0).getHistories().get(0).getStateDesc());
-    }
-
-    @And("^the panel member name is '(.*)'$")
-    public void thePanelMemberNameIs(String name) throws Throwable {
-
-        assertEquals(name, getOnlineHearingResponse().getPanel().get(0).getName());
-    }
-
-    @And("^the panel member role is '(.*)'$")
-    public void thePanelMemberRoleIs(String role) throws Throwable {
-
-        assertEquals(role, getOnlineHearingResponse().getPanel().get(0).getRole());
     }
 
     @And("^the online hearing end date is not null$")

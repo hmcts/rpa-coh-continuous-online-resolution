@@ -17,10 +17,6 @@ public class OnlineHearingMapper {
         if (onlineHearing.getEndDate() != null) {
             response.setEndDate(CohISO8601DateFormat.format(onlineHearing.getEndDate()));
         }
-        response.setPanel(onlineHearing.getPanelMembers()
-                .stream()
-                .map( p -> new OnlineHearingResponse.PanelMember(p.getFullName(), p.getRole()))
-                .collect(Collectors.toList()));
         response.getCurrentState().setName(onlineHearing.getOnlineHearingState().getState());
 
         if (onlineHearing.getOnlineHearingStateHistories() != null && !onlineHearing.getOnlineHearingStateHistories().isEmpty()){

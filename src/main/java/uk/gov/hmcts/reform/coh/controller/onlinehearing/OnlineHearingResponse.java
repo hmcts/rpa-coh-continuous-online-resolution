@@ -27,10 +27,6 @@ public class OnlineHearingResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String endDate;
 
-    @JsonProperty("panel")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<PanelMember> panel;
-
     @JsonProperty(value = "current_state")
     private StateResponse currentState = new StateResponse();
 
@@ -85,14 +81,6 @@ public class OnlineHearingResponse implements Serializable {
         this.endDate = endDate;
     }
 
-    public List<PanelMember> getPanel() {
-        return panel;
-    }
-
-    public void setPanel(List<PanelMember> panel) {
-        this.panel = panel;
-    }
-
     public StateResponse getCurrentState() {
         return currentState;
     }
@@ -139,39 +127,5 @@ public class OnlineHearingResponse implements Serializable {
 
     public void setRelistReason(String relistReason) {
         this.relistReason = relistReason;
-    }
-
-    public static class PanelMember implements Serializable {
-        @JsonProperty("name")
-        private String name;
-
-        @JsonProperty("role")
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        private String role;
-
-        public PanelMember() {
-            super();
-        }
-
-        public PanelMember(String name, String role) {
-            this.name = name;
-            this.role = role;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getRole() {
-            return role;
-        }
-
-        public void setRole(String role) {
-            this.role = role;
-        }
     }
 }

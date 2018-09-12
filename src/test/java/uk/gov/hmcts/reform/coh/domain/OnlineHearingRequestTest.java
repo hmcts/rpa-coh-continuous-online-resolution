@@ -18,9 +18,6 @@ public class OnlineHearingRequestTest {
         OnlineHearingRequest onlineHearing = JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
         assertEquals("case_123", onlineHearing.getCaseId());
         assertEquals("SSCS", onlineHearing.getJurisdiction());
-        assertEquals(1, onlineHearing.getPanel().size());
-        assertEquals("judge_123", onlineHearing.getPanel().get(0).getIdentityToken());
-        assertEquals("Judge Dredd", onlineHearing.getPanel().get(0).getName());
         assertEquals(date, onlineHearing.getStartDate());
     }
 
@@ -31,7 +28,6 @@ public class OnlineHearingRequestTest {
         OnlineHearingRequest onlineHearing = JsonUtils.toObjectFromTestName("online_hearing/standard_online_hearing_no_panel", OnlineHearingRequest.class);
         assertEquals("case_123", onlineHearing.getCaseId());
         assertEquals("SSCS", onlineHearing.getJurisdiction());
-        assertEquals(0, onlineHearing.getPanel().size());
         assertEquals(date, onlineHearing.getStartDate());
     }
 }

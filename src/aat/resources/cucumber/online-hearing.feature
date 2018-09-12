@@ -22,11 +22,8 @@ Feature: Online hearing
     When a GET request is sent for the saved online hearing
     Then the response code is 200
     And the response contains the following text '"case_123" '
-    And the response contains 1 panel member
-    And the panel member name is 'Judge Dredd'
-    And the panel member role is 'Judge'
 
-  Scenario: Update online hearing state to relisted
+  Scenario: Update online hearing state to re-listed
     Given a standard update online hearing request
     And the update online hearing state is continuous_online_hearing_relisted
     And the relist reason is 'reason'
