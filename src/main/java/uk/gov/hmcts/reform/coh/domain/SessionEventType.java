@@ -14,6 +14,14 @@ public class SessionEventType {
     @Column(name = "event_type_name")
     private String eventTypeName;
 
+    public SessionEventType() {
+    }
+
+    public SessionEventType(int eventTypeId, String eventTypeName) {
+        this.eventTypeId = eventTypeId;
+        this.eventTypeName = eventTypeName;
+    }
+
     public int getEventTypeId() {
         return eventTypeId;
     }

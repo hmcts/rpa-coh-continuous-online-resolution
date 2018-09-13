@@ -17,13 +17,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
-import uk.gov.hmcts.reform.coh.service.JurisdictionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
+import uk.gov.hmcts.reform.coh.util.SessionEventUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -38,6 +36,8 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
@@ -59,6 +59,14 @@ public class OnlineHearingControllerTest {
 
     @Mock
     private JurisdictionService jurisdictionService;
+
+    @Mock
+    private SessionEventTypeService sessionEventTypeService;
+
+    @Mock
+    private SessionEventService sessionEventService;
+
+    private SessionEventType eventType;
 
     private static final String ENDPOINT = "/continuous-online-hearings";
 
@@ -91,18 +99,21 @@ public class OnlineHearingControllerTest {
         onlineHearingState.setState("continuous_online_hearing_started");
         onlineHearing.setOnlineHearingState(onlineHearingState);
         onlineHearing.addOnlineHearingStateHistory(onlineHearingState);
+        eventType = SessionEventUtils.get(EventTypes.ONLINE_HEARING_RELISTED);
 
         given(onlineHearingService.createOnlineHearing(any(OnlineHearing.class))).willReturn(onlineHearing);
         given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.of(onlineHearing));
         given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.of(new Jurisdiction()));
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(STARTED.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
         given(onlineHearingStateService.retrieveOnlineHearingStateByState(RELISTED.getStateName())).willReturn(Optional.ofNullable(onlineHearingState));
+        given(sessionEventTypeService.retrieveEventType(EventTypes.ONLINE_HEARING_RELISTED.getEventType())).willReturn(Optional.of(eventType));
+        given(sessionEventService.createSessionEvent(any(OnlineHearing.class), any(SessionEventType.class))).willReturn(new SessionEvent());
     }
 
     @Test
     public void testCreateOnlineHearingWithJsonFileAndCheckLocationHeader() throws Exception {
 
-        MvcResult result =mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -133,7 +144,7 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        CreateOnlineHearingResponse response = (CreateOnlineHearingResponse) JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
+        CreateOnlineHearingResponse response = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), CreateOnlineHearingResponse.class);
         try {
             UUID.fromString(response.getOnlineHearingId());
             assertTrue(true);
@@ -146,7 +157,7 @@ public class OnlineHearingControllerTest {
             URL u = new URL(returnedUrl); // this would check for the protocol
             u.toURI(); // does the extra checking required for validation of URI
             assertTrue(true);
-        }catch(MalformedURLException e){
+        } catch(MalformedURLException e){
             fail();
         }
     }
@@ -204,7 +215,7 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        OnlineHearingsResponse onlineHearingsResponse = (OnlineHearingsResponse)JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingsResponse.class);
+        OnlineHearingsResponse onlineHearingsResponse = JsonUtils.toObjectFromJson(result.getResponse().getContentAsString(), OnlineHearingsResponse.class);
         assertEquals(1, onlineHearingsResponse.getOnlineHearingResponses().size());
     }
 
@@ -289,7 +300,7 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testUpdateOnlineHearing() throws Exception {
+    public void testUpdateOnlineHearingToRelist() throws Exception {
         String stateName = RELISTED.getStateName();
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
         onlineHearingState.setState(stateName);
@@ -303,6 +314,8 @@ public class OnlineHearingControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString().equalsIgnoreCase("Online hearing updated");
+
+        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing, eventType);
     }
 
     @Test

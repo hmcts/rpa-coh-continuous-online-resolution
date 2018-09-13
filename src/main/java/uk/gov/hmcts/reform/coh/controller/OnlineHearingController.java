@@ -196,7 +196,9 @@ public class OnlineHearingController {
             onlineHearing.setRelistReason(request.getReason());
             try {
                 Optional<SessionEventType> sessionEventType = sessionEventTypeService.retrieveEventType(EventTypes.ONLINE_HEARING_RELISTED.getEventType());
-                sessionEventService.createSessionEvent(onlineHearing, sessionEventType.get());
+                if (sessionEventType.isPresent()) {
+                    sessionEventService.createSessionEvent(onlineHearing, sessionEventType.get());
+                }
             } catch (Exception e) {
                 log.debug(String.format("Unable to queue a re-list session event for '%s': %s", onlineHearing.getOnlineHearingId(), e.getMessage()));
             }
