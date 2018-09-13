@@ -42,3 +42,13 @@ Feature: Event Notification Scheduler
     And an event has been queued for this online hearing of event type question_deadline_extension_denied
     When the notification scheduler runs
     Then the event status is event_forwarding_success
+
+  Scenario: Notification for Online Hearing Re-listed
+    Given a standard online hearing is created
+    Given a standard update online hearing request
+    And the update online hearing state is continuous_online_hearing_relisted
+    And the relist reason is 'reason'
+    And a PUT request is sent for online hearing
+    And an event has been queued for this online hearing of event type continuous_online_hearing_relisted
+    When the notification scheduler runs
+    Then the event status is event_forwarding_success

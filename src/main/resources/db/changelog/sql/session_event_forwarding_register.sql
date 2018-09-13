@@ -29,3 +29,7 @@ where not exists (select 1 from public.session_event_forwarding_register where e
 insert into session_event_forwarding_register(event_type_id, jurisdiction_id, forwarding_endpoint, maximum_retries)
 select 8, 1, 'http://sscs-tya-notif-aat-staging.service.core-compute-aat.internal/coh-send', 3
 where not exists (select 1 from public.session_event_forwarding_register where event_type_id = 8 and jurisdiction_id = 1);
+
+insert into session_event_forwarding_register(event_type_id, jurisdiction_id, forwarding_endpoint, maximum_retries)
+select 9, 1, 'http://sscs-tya-notif-aat-staging.service.core-compute-aat.internal/coh-send', 3
+where not exists (select 1 from public.session_event_forwarding_register where event_type_id = 9 and jurisdiction_id = 1);

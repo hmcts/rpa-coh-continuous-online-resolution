@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.coh.controller;
 
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,12 +14,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
-import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
-import uk.gov.hmcts.reform.coh.service.JurisdictionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.*;
@@ -28,6 +27,8 @@ import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
 @RestController
 @RequestMapping("/continuous-online-hearings")
 public class OnlineHearingController {
+
+    private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
     private static final String STARTING_STATE = OnlineHearingStates.STARTED.getStateName();
 
@@ -41,6 +42,12 @@ public class OnlineHearingController {
 
     @Autowired
     private JurisdictionService jurisdictionService;
+
+    @Autowired
+    private SessionEventTypeService sessionEventTypeService;
+
+    @Autowired
+    private SessionEventService sessionEventService;
 
     @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
     @ApiResponses(value = {
@@ -187,6 +194,14 @@ public class OnlineHearingController {
         if (RELISTED.getStateName().equals(request.getState())) {
             onlineHearing.setEndDate((new GregorianCalendar(TimeZone.getTimeZone("GMT")).getTime()));
             onlineHearing.setRelistReason(request.getReason());
+            try {
+                Optional<SessionEventType> sessionEventType = sessionEventTypeService.retrieveEventType(EventTypes.ONLINE_HEARING_RELISTED.getEventType());
+                if (sessionEventType.isPresent()) {
+                    sessionEventService.createSessionEvent(onlineHearing, sessionEventType.get());
+                }
+            } catch (Exception e) {
+                log.debug(String.format("Unable to queue a re-list session event for '%s': %s", onlineHearing.getOnlineHearingId(), e.getMessage()));
+            }
         }
         onlineHearing.registerStateChange();
         onlineHearingService.updateOnlineHearing(onlineHearing);
