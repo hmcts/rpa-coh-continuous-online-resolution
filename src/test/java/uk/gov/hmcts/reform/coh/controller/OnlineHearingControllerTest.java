@@ -3,18 +3,23 @@ package uk.gov.hmcts.reform.coh.controller;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.auth.checker.spring.serviceanduser.ServiceAndUserDetails;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -27,6 +32,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +42,9 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
@@ -258,5 +268,35 @@ public class OnlineHearingControllerTest {
         OnlineHearingMapper.map(response, onlineHearing);
 
         assertEquals(CohISO8601DateFormat.format(recentStateTime), response.getCurrentState().getDatetime());
+    }
+
+    @Test
+    public void testUseIdAMIDAsUserReferenceWhenCreatingEntity() throws Exception {
+
+        // this is required to prevent MockMvc instantiating clean Security Context
+        mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController)
+            .addFilter(new SecurityContextPersistenceFilter())
+            .build();
+
+        String username = "1234567";
+        String token = "nothing interesting";
+        Collection<String> authorities = Collections.emptyList();
+        String serviceName = "acme";
+        ServiceAndUserDetails principal = new ServiceAndUserDetails(username, token, authorities, serviceName);
+
+        Authentication authentication = spy(Authentication.class);
+        given(authentication.isAuthenticated()).willReturn(true);
+        given(authentication.getPrincipal()).willReturn(principal);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+            .with(authentication(authentication))
+            .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+            .andExpect(status().isCreated());
+
+        ArgumentCaptor<OnlineHearing> onlineHearingArgumentCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+
+        Mockito.verify(onlineHearingService, times(1)).createOnlineHearing(onlineHearingArgumentCaptor.capture());
+
+        assertEquals(username, onlineHearingArgumentCaptor.getValue().getOwnerReferenceId());
     }
 }
