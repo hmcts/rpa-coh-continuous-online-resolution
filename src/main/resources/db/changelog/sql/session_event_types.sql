@@ -29,3 +29,7 @@ insert into session_event_type(event_type_id, event_type_name)
 insert into session_event_type(event_type_id, event_type_name)
  select 8, 'decision_issued'
  where not exists (select 1 from public.session_event_type where event_type_id = 8);
+
+insert into session_event_type(event_type_id, event_type_name)
+ select 9, 'continuous_online_hearing_relisted'
+ where not exists (select 1 from public.session_event_type where event_type_id = 9);
