@@ -34,6 +34,7 @@ Feature: Online hearing
     Then the response code is 200
     And the online hearing end date is not null
     And the online hearing reason is 'reason'
+    And an event has been queued for this online hearing of event type continuous_online_hearing_relisted
 
   Scenario: Update online hearing that's already ended
     Given a standard update online hearing request
