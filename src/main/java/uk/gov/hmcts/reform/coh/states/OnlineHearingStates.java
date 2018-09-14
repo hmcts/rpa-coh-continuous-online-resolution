@@ -5,6 +5,7 @@ public enum OnlineHearingStates {
     STARTED("continuous_online_hearing_started"),
     DECISION_ISSUED("continuous_online_hearing_decision_issued"),
     RESOLVED("continuous_online_hearing_resolved"),
+    REJECTED("continuous_online_hearing_rejected"),
     RELISTED("continuous_online_hearing_relisted"),
     CLOSED("continuous_online_hearing_questions_closed");
 

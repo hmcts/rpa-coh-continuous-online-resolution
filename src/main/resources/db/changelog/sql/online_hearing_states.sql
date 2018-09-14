@@ -17,3 +17,7 @@ where not exists (select 1 from public.online_hearing_state where online_hearing
 INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
 select 7, 'continuous_online_hearing_closed'
 where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 7);
+
+INSERT INTO public.online_hearing_state(online_hearing_state_id, state)
+select 8, 'continuous_online_hearing_rejected'
+where not exists (select 1 from public.online_hearing_state where online_hearing_state_id = 8);
