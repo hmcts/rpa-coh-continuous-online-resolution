@@ -193,6 +193,10 @@ public class DecisionController {
         // Update the decision
         decision.addDecisionStateHistory(optionalDecisionState.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        AuthUtils.withIdentity(username -> {
+            decision.setAuthorReferenceId(username);
+            decision.setOwnerReferenceId(username);
+        });
         decisionService.updateDecision(decision);
 
         try {
