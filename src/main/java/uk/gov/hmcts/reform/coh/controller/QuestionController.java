@@ -201,6 +201,8 @@ public class QuestionController {
 
             UpdateQuestionRequestMapper.map(savedQuestion, request);
 
+            AuthUtils.withIdentity(savedQuestion::setAuthorReferenceId);
+
             questionService.updateQuestion(savedQuestion);
             return new ResponseEntity<>(HttpStatus.OK);
         }
