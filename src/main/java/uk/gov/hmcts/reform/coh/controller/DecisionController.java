@@ -111,12 +111,12 @@ public class DecisionController {
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision.addDecisionStateHistory(optionalDecisionState.get());
-        decision = decisionService.createDecision(decision);
+        Decision storedDecision = decisionService.createDecision(decision);
 
         UriComponents uriComponents =
                 uriBuilder.path(CohUriBuilder.buildDecisionGet(onlineHearingId)).build();
 
-        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decision.getDecisionId()));
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(storedDecision.getDecisionId()));
     }
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
