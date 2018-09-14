@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class EventTriggerJob {
@@ -16,11 +19,11 @@ public class EventTriggerJob {
     @Autowired
     private EventTriggerFactory factory;
 
-    @Scheduled(fixedDelayString  = "${event-scheduler.event-trigger.fixed-delay}")
+    @Scheduled(cron  = "${event-scheduler.event-trigger.cron}")
     public void execute() {
 
         log.info("Running " + this.getClass());
-        Set<EventTrigger> triggers = factory.getTriggers();
+        List<EventTrigger> triggers = factory.getTriggers().stream().sorted(Comparator.comparing(EventTrigger::order)).collect(Collectors.toList());
         for (EventTrigger trigger : triggers) {
             log.info(String.format("Running event trigger %s", trigger.getClass()));
             trigger.execute();

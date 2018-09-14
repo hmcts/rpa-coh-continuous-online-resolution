@@ -17,12 +17,13 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.*;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED;
 
 @Component
-public class QuestionRoundDeadlineElapsed extends AbstractQuestionRoundEventTrigger {
+public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
 
-    private static final Logger log = LoggerFactory.getLogger(QuestionRoundDeadlineElapsed.class);
+    private static final Logger log = LoggerFactory.getLogger(QuestionRoundReminder.class);
 
     @Autowired
     private OnlineHearingService onlineHearingService;
@@ -36,35 +37,30 @@ public class QuestionRoundDeadlineElapsed extends AbstractQuestionRoundEventTrig
     @Autowired
     private SessionEventService sessionEventService;
 
-
     @Override
     public List<Question> getQuestions() {
         log.info(String.format("Executing %s", this.getClass()));
 
-        Calendar calendar = new GregorianCalendar();
+        Calendar today = new GregorianCalendar();
+        Calendar tomorrow = new GregorianCalendar();
+        tomorrow.add(Calendar.DAY_OF_YEAR, 1);
 
         QuestionState issuedState = getQuestionStateByStateName(ISSUED);
         QuestionState grantedState = getQuestionStateByStateName(QUESTION_DEADLINE_EXTENSION_GRANTED);
-        QuestionState elapsedState = getQuestionStateByStateName(DEADLINE_ELAPSED);
 
         // For each question, update the state to elapsed
-        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredAndQuestionStates(calendar.getTime(), Arrays.asList(issuedState, grantedState));
-        questions.forEach(q -> {
-            q.setQuestionState(elapsedState);
-            questionService.updateQuestionForced(q);
-            log.info(String.format("Updated question %s to %s", q.getQuestionId(), elapsedState));
-        });
+        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(today.getTime(), tomorrow.getTime(), Arrays.asList(issuedState,  grantedState));
 
         return questions;
     }
 
     @Override
     public EventTypes getEventType() {
-        return EventTypes.QUESTION_DEADLINE_ELAPSED;
+        return EventTypes.QUESTION_DEADLINE_REMINDER;
     }
 
     @Override
     public int order() {
-        return 10;
+        return 20;
     }
 }
