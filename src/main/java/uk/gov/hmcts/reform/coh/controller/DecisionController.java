@@ -259,6 +259,7 @@ public class DecisionController {
         DecisionReply decisionReply = new DecisionReply();
         DecisionReplyRequestMapper.map(request, decisionReply, decision, authorReferenceId);
         decisionReply.setDateOccured(new Date());
+        AuthUtils.withIdentity(decisionReply::setAuthorReferenceId);
         DecisionReply storedDecisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =
