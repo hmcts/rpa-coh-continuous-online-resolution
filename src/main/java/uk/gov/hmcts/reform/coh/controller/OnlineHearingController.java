@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.auth.checker.spring.serviceanduser.ServiceAndUserDetails;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
+import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -139,13 +140,7 @@ public class OnlineHearingController {
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
 
-        Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-            .filter(Authentication::isAuthenticated)
-            .map(Authentication::getPrincipal)
-            .filter(ServiceAndUserDetails.class::isInstance)
-            .map(ServiceAndUserDetails.class::cast)
-            .map(User::getUsername)
-            .ifPresent(onlineHearing::setOwnerReferenceId);
+        AuthUtils.withIdentity(onlineHearing::setOwnerReferenceId);
 
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
 
