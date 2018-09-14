@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
+import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.*;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -142,6 +143,7 @@ public class QuestionController {
         Question question = new Question();
         QuestionRequestMapper mapper = new QuestionRequestMapper(question, onlineHearing, request);
         mapper.map();
+        AuthUtils.withIdentity(question::setAuthorReferenceId);
         Question storedQuestion = questionService.createQuestion(question, onlineHearing);
 
         CreateQuestionResponse response = new CreateQuestionResponse(storedQuestion.getQuestionId());
