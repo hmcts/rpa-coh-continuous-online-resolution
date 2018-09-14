@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.*;
+import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
@@ -111,6 +112,10 @@ public class DecisionController {
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision.addDecisionStateHistory(optionalDecisionState.get());
+        AuthUtils.withIdentity(username -> {
+            decision.setAuthorReferenceId(username);
+            decision.setOwnerReferenceId(username);
+        });
         Decision storedDecision = decisionService.createDecision(decision);
 
         UriComponents uriComponents =
