@@ -259,12 +259,12 @@ public class DecisionController {
         DecisionReply decisionReply = new DecisionReply();
         DecisionReplyRequestMapper.map(request, decisionReply, decision, authorReferenceId);
         decisionReply.setDateOccured(new Date());
-        decisionReply = decisionReplyService.createDecision(decisionReply);
+        DecisionReply storedDecisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =
-                uriBuilder.path(CohUriBuilder.buildDecisionReplyGet(onlineHearingId, decisionReply.getId())).build();
+                uriBuilder.path(CohUriBuilder.buildDecisionReplyGet(onlineHearingId, storedDecisionReply.getId())).build();
 
-        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(decisionReply.getId()));
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(storedDecisionReply.getId()));
     }
 
     @ApiOperation(value = "Get all replies to decision", notes = "A GET request is used to get all replies to a decision")
