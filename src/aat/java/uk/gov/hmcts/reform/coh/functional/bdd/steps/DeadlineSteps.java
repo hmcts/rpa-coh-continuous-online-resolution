@@ -28,6 +28,7 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -147,7 +148,7 @@ public class DeadlineSteps extends BaseSteps {
     public void deadlineExtensionIsTomorrow() {
         Optional<Question> opt = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId());
         if (opt.isPresent()) {
-            LocalDateTime newExpiry = LocalDateTime.now().plusDays(1).plusDays(1);
+            LocalDateTime newExpiry = LocalDate.now().atStartOfDay().plusDays(1).plusHours(1).minusSeconds(1);
             Question question = opt.get();
             question.setDeadlineExpiryDate(java.sql.Timestamp.valueOf(newExpiry));
             questionRepository.save(question);

@@ -20,3 +20,8 @@ Feature: Triggers
     And the trigger scheduler runs
     When the get request is sent to retrieve the submitted question
     Then the question state name is question_deadline_elapsed
+
+  Scenario: Trigger Question Reminder For Deadlines
+    And deadline extension is tomorrow
+    And the trigger scheduler runs
+    And an event has been queued for this online hearing of event type question_deadline_reminder
