@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
@@ -16,7 +18,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -24,6 +28,8 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -37,6 +43,9 @@ public class DeadlineSteps extends BaseSteps {
 
     @Autowired
     private QuestionSteps questionSteps;
+
+    @Autowired
+    private QuestionRepository questionRepository;
 
     private ResponseErrorHandler oldErrorHandler;
 
@@ -132,6 +141,18 @@ public class DeadlineSteps extends BaseSteps {
     @And("^question deadline extension count is (\\d+)$")
     public void questionDeadlineExtendionCountIs(int count) throws Throwable {
         getAllQuestionsResponse().getQuestions().forEach(q -> assertEquals(count, q.getDeadlineExtCount()));
+    }
+
+    @And("^deadline extension is tomorrow$")
+    public void deadlineExtensionIsTomorrow() {
+        Optional<Question> opt = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId());
+        if (opt.isPresent()) {
+            LocalDateTime newExpiry = LocalDateTime.now().plusDays(1).plusDays(1);
+            Question question = opt.get();
+            question.setDeadlineExpiryDate(java.sql.Timestamp.valueOf(newExpiry));
+            questionRepository.save(question);
+        }
+
     }
 
     private AllQuestionsResponse getAllQuestionsResponse() throws Exception {

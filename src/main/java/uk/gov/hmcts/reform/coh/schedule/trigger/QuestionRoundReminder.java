@@ -43,8 +43,8 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
     public List<Question> getQuestions() {
         log.info(String.format("Executing %s", this.getClass()));
 
-        LocalDateTime start = LocalDate.now().plus(1, ChronoUnit.DAYS).atStartOfDay();
-        LocalDateTime end = LocalDate.now().plus(1, ChronoUnit.DAYS).atStartOfDay().plus(1, ChronoUnit.HOURS);
+        LocalDateTime start = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime end = LocalDate.now().plusDays(1).atStartOfDay().plusHours(1);
 
         QuestionState issuedState = getQuestionStateByStateName(ISSUED);
         QuestionState grantedState = getQuestionStateByStateName(QUESTION_DEADLINE_EXTENSION_GRANTED);

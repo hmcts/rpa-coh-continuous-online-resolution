@@ -48,8 +48,8 @@ public class QuestionRoundReminderTest {
 
     @Before
     public void setUp() {
-        start = java.sql.Timestamp.valueOf(LocalDate.now().plus(1, ChronoUnit.DAYS).atStartOfDay());
-        end = java.sql.Timestamp.valueOf(LocalDate.now().plus(1, ChronoUnit.DAYS).atStartOfDay().plus(1, ChronoUnit.HOURS));
+        start = java.sql.Timestamp.valueOf(LocalDate.now().plusDays(1).atStartOfDay());
+        end = java.sql.Timestamp.valueOf(LocalDate.now().plusDays(1).atStartOfDay().plusHours(1));
         when(stateService.retrieveQuestionStateByStateName(ISSUED.getStateName())).thenReturn(Optional.ofNullable(QuestionStateUtils.get(ISSUED)));
         when(stateService.retrieveQuestionStateByStateName(QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName())).thenReturn(Optional.ofNullable(QuestionStateUtils.get(QUESTION_DEADLINE_EXTENSION_GRANTED)));
         when(questionService.retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(any(Date.class), any(Date.class), anyList())).thenReturn(Collections.emptyList());
