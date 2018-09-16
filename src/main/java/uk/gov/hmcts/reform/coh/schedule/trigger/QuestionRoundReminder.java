@@ -12,9 +12,11 @@ import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.List;
 
 import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
@@ -41,15 +43,18 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
     public List<Question> getQuestions() {
         log.info(String.format("Executing %s", this.getClass()));
 
-        Calendar today = new GregorianCalendar();
-        Calendar tomorrow = new GregorianCalendar();
-        tomorrow.add(Calendar.DAY_OF_YEAR, 1);
+        LocalDateTime start = LocalDate.now().plus(1, ChronoUnit.DAYS).atStartOfDay();
+        LocalDateTime end = LocalDate.now().plus(1, ChronoUnit.DAYS).atStartOfDay().plus(1, ChronoUnit.HOURS);
 
         QuestionState issuedState = getQuestionStateByStateName(ISSUED);
         QuestionState grantedState = getQuestionStateByStateName(QUESTION_DEADLINE_EXTENSION_GRANTED);
 
+        log.info(String.format("Looking questions about to expire between '%s' and '%s'", start, end));
+
         // For each question, update the state to elapsed
-        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(today.getTime(), tomorrow.getTime(), Arrays.asList(issuedState,  grantedState));
+        List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(
+                convertToLocalDateToDate(start),
+                convertToLocalDateToDate(end), Arrays.asList(issuedState,  grantedState));
 
         return questions;
     }
@@ -62,5 +67,9 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
     @Override
     public int order() {
         return 20;
+    }
+
+    private Date convertToLocalDateToDate(LocalDateTime localDate) {
+        return java.sql.Timestamp.valueOf(localDate);
     }
 }

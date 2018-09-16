@@ -101,12 +101,6 @@ public class QuestionService {
     }
 
     @Transactional
-    public List<Question> retrieveQuestionsDeadlineExpiredBetween(Date start, Date end) {
-
-        return questionRepository.findAllByDeadlineExpiryDateBetween(start, end);
-    }
-
-    @Transactional
     public List<Question> retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(Date start, Date end, List<QuestionState> questionStates) {
 
         return questionRepository.findAllByDeadlineExpiryDateBetweenAndQuestionStateIn(start, end, questionStates);
