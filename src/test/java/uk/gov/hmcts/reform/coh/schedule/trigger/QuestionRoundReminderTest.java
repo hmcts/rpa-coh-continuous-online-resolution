@@ -7,14 +7,11 @@ import org.mockito.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
