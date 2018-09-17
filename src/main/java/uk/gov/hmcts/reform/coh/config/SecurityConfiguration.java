@@ -29,8 +29,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .addFilter(filter)
+            .csrf().disable()
             .authorizeRequests()
-            .anyRequest()
-            .authenticated();
+            .antMatchers("/actuator**").permitAll()
+            .antMatchers("/error").permitAll()
+            .antMatchers("/SSCS/*").permitAll()
+            .antMatchers("/swagger**").permitAll()
+            .anyRequest().authenticated();
     }
 }

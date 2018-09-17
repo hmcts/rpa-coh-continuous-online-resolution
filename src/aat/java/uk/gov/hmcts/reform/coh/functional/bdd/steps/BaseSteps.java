@@ -1,13 +1,18 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import com.google.common.collect.ImmutableMap;
+
+import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
@@ -15,9 +20,11 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
+import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 public class BaseSteps {
 
@@ -34,6 +41,24 @@ public class BaseSteps {
     @Value("${aat.test-notification-endpoint}")
     String testNotificationUrl;
 
+    @Value("${base-urls.idam-url}")
+    String idamUrl;
+
+    @Value("${base-urls.idam-user}")
+    String idamUser;
+
+    @Value("${base-urls.idam-user-role}")
+    String idamUserRole;
+
+    @Value("${base-urls.idam-s2s}")
+    String s2sUrl;
+
+    @Value("${base-urls.s2s-name}")
+    String s2sName;
+
+    @Value("${base-urls.s2s-token}")
+    String s2sToken;
+
     protected TestContext testContext;
     
     protected HttpHeaders header;
@@ -46,12 +71,56 @@ public class BaseSteps {
     public void setup() throws Exception {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
 
-        testContext.getHttpContext().setIdamAuthorRef("bearer judge_123_idam");
-        testContext.getHttpContext().setIdamServiceRef("idam-service-ref-id");
+        prepareAuthenticationTokens();
+
         header = new HttpHeaders();
-        header.add("Content-Type", "application/json");
-        header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, testContext.getHttpContext().getIdamAuthorRef());
-        header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
+        header.setContentType(MediaType.APPLICATION_JSON);
+        Optional.ofNullable(testContext.getHttpContext().getIdamAuthorRef())
+            .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, "Bearer " + token));
+
+        Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
+            .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, "Bearer " + token));
+    }
+
+    private void prepareAuthenticationTokens() throws Exception {
+        getIdamToken();
+        getS2sToken();
+    }
+
+    private void getIdamToken() {
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.set("id", idamUser);
+        body.set("role", idamUserRole);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<String> idamResponse = new RestTemplate()
+            .postForEntity(idamUrl + "/testing-support/lease", request, String.class);
+
+        if (idamResponse.hasBody()) {
+            testContext.getHttpContext().setIdamAuthorRef(idamResponse.getBody());
+        }
+    }
+
+    private void getS2sToken() throws Exception {
+        String otp = String.valueOf(new GoogleAuthenticator().getTotpPassword(s2sToken));
+        ImmutableMap<String, String> params = ImmutableMap.of(
+            "microservice", s2sName,
+            "oneTimePassword", otp
+        );
+        String json = JsonUtils.toJson(params);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
+
+        ResponseEntity<String> s2sResponse = new RestTemplate()
+            .postForEntity(s2sUrl + "/lease", httpEntity, String.class);
+
+        if (s2sResponse.hasBody()) {
+            testContext.getHttpContext().setIdamServiceRef(s2sResponse.getBody());
+        }
     }
 
     protected ResponseEntity<String> sendRequest(CohEntityTypes entity, String methodType, String payload) {
