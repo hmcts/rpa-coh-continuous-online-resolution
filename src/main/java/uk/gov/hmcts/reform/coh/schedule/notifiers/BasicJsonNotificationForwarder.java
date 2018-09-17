@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
@@ -57,6 +58,8 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
             throw new NotificationException(ioe.getMessage());
         }  catch (HttpClientErrorException hcee) {
             throw new NotificationException("HTTP error. Endpoint responded with " + hcee.getRawStatusCode() + " and response body " + hcee.getResponseBodyAsString());
+        } catch (RestClientException rce){
+            throw new NotificationException(rce.getMessage());
         } catch (Exception e){
             throw new NotificationException(e.getMessage());
         }
