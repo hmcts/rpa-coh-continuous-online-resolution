@@ -101,6 +101,12 @@ public class QuestionService {
     }
 
     @Transactional
+    public List<Question> retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(Date start, Date end, List<QuestionState> questionStates) {
+
+        return questionRepository.findAllByDeadlineExpiryDateBetweenAndQuestionStateIn(start, end, questionStates);
+    }
+
+    @Transactional
     public void updateQuestion(Question question){
         Optional<QuestionState> draftedState = questionStateService.retrieveQuestionStateByStateName(DRAFTED.getStateName());
         if (!draftedState.isPresent()) {

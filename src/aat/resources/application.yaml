@@ -41,6 +41,7 @@ event-scheduler:
       fixed-delay: 360000
     event-trigger:
       fixed-delay: 360000
+      cron: 0 0 1 * * ?
 
 #this need to be removed
 info:

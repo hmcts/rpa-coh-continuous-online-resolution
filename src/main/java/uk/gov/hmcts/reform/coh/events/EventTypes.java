@@ -7,6 +7,7 @@ public enum EventTypes {
     QUESTION_DEADLINE_EXTENDED("question_deadline_extended"),
     QUESTION_DEADLINE_EXTENSION_DENIED("question_deadline_extension_denied"),
     QUESTION_DEADLINE_EXTENSION_GRANTED("question_deadline_extension_granted"),
+    QUESTION_DEADLINE_REMINDER("question_deadline_reminder"),
     ANSWERS_SUBMITTED("answers_submitted"),
     DECISION_REJECTED("decision_rejected"),
     ONLINE_HEARING_RELISTED("continuous_online_hearing_relisted"),

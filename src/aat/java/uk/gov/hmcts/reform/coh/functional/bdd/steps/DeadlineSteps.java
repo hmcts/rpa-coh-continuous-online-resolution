@@ -16,7 +16,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
+import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -24,6 +26,8 @@ import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -37,6 +41,9 @@ public class DeadlineSteps extends BaseSteps {
 
     @Autowired
     private QuestionSteps questionSteps;
+
+    @Autowired
+    private QuestionRepository questionRepository;
 
     private ResponseErrorHandler oldErrorHandler;
 
@@ -132,6 +139,18 @@ public class DeadlineSteps extends BaseSteps {
     @And("^question deadline extension count is (\\d+)$")
     public void questionDeadlineExtendionCountIs(int count) throws Throwable {
         getAllQuestionsResponse().getQuestions().forEach(q -> assertEquals(count, q.getDeadlineExtCount()));
+    }
+
+    @And("^deadline extension is tomorrow$")
+    public void deadlineExtensionIsTomorrow() {
+        Optional<Question> opt = questionRepository.findById(testContext.getScenarioContext().getCurrentQuestion().getQuestionId());
+        if (opt.isPresent()) {
+            LocalDateTime newExpiry = LocalDate.now().atStartOfDay().plusDays(1).plusHours(1).minusSeconds(1);
+            Question question = opt.get();
+            question.setDeadlineExpiryDate(java.sql.Timestamp.valueOf(newExpiry));
+            questionRepository.save(question);
+        }
+
     }
 
     private AllQuestionsResponse getAllQuestionsResponse() throws Exception {
