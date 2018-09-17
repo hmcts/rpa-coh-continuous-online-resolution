@@ -50,7 +50,7 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
 
         log.info(String.format("Looking questions about to expire between '%s' and '%s'", start, end));
 
-        // For each question, update the state to elapsed
+        // Get questions about to expire tomorrow
         List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(
                 convertToLocalDateToDate(start),
                 convertToLocalDateToDate(end), Arrays.asList(issuedState,  grantedState));
