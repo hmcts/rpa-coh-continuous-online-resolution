@@ -108,7 +108,7 @@ deadline:
 
 event-scheduler:
     event-notifier:
-      fixed-delay: 360000
+      fixed-delay: 10000
     event-trigger:
       fixed-delay: 60000
       cron: 0 0 1 * * ?
