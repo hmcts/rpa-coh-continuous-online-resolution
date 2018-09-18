@@ -18,7 +18,7 @@ public enum DecisionReplyRequestMapper {
         this.setter = setter;
     }
 
-    public static void map(DecisionReplyRequest request, DecisionReply decisionReply, Decision decision, String authorReferenceId) {
+    public static void map(DecisionReplyRequest request, DecisionReply decisionReply, Decision decision) {
         for (DecisionReplyRequestMapper m : DecisionReplyRequestMapper.class.getEnumConstants()) {
             m.set(request, decisionReply);
         }
@@ -29,7 +29,6 @@ public enum DecisionReplyRequestMapper {
         }
 
         decisionReply.setDecision(decision);
-        decisionReply.setAuthorReferenceId(authorReferenceId);
     }
 
     public void set(DecisionReplyRequest request, DecisionReply decision) {
