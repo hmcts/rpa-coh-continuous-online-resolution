@@ -3,7 +3,7 @@ variable "product" {
 }
 
 variable "shared_product_name" {
-  default = "coh"
+  default = "rpa"
 }
 
 variable "component" {
