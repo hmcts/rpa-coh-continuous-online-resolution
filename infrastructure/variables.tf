@@ -3,7 +3,7 @@ variable "product" {
 }
 
 variable "shared_product_name" {
-  default = "coh"
+  default = "rpa"
 }
 
 variable "component" {
@@ -56,10 +56,6 @@ variable "java_opts" {
 ////////////////////////////////////////////////
 // Endpoints
 ////////////////////////////////////////////////
-variable "vault_section" {
-  default = "test"
-}
-
 variable "idam_api_url" {
   default = "idam-api"
 }
