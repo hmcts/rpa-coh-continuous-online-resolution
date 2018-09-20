@@ -125,6 +125,7 @@ services:
      - cor-db
     ports:
     - $SERVER_PORT:8080
+    - "7005:7005"
 
   cor-db:
     image: postgres
