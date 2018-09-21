@@ -36,28 +36,28 @@ public class BaseSteps {
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
     @Value("${base-urls.test-url}")
-    String baseUrl;
+    protected String baseUrl;
 
     @Value("${aat.test-notification-endpoint}")
-    String testNotificationUrl;
+    protected String testNotificationUrl;
 
     @Value("${base-urls.idam-url}")
-    String idamUrl;
+    protected String idamUrl;
 
     @Value("${base-urls.idam-user}")
-    String idamUser;
+    protected String idamUser;
 
     @Value("${base-urls.idam-user-role}")
-    String idamUserRole;
+    protected String idamUserRole;
 
     @Value("${base-urls.idam-s2s}")
-    String s2sUrl;
+    protected String s2sUrl;
 
     @Value("${base-urls.s2s-name}")
-    String s2sName;
+    protected String s2sName;
 
     @Value("${base-urls.s2s-token}")
-    String s2sToken;
+    protected String s2sToken;
 
     protected TestContext testContext;
     
