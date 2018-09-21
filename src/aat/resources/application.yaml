@@ -28,7 +28,7 @@ spring:
    change-log: classpath:/db/changelog/db.changelog-master.yam
 
 base-urls:
-  idam-url: ${IDAM_API_URL:http://localhost:4501}
+  idam-url: ${IDAM_USER_BASE_URI:http://localhost:4501}
   idam-user: ${IDAM_API_USER:15}
   idam-user-role: ${IDAM_API_USER_ROLE:solicitor}
   test-url: ${TEST_URL:http://localhost:8080}
