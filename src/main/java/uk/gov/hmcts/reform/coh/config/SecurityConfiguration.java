@@ -32,7 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/actuator**").permitAll()
-            .antMatchers("/error").permitAll()
+            .antMatchers("/error", "/health").permitAll()
             .antMatchers("/SSCS/*").permitAll()
             .antMatchers("/swagger**").permitAll()
             .anyRequest().authenticated();
