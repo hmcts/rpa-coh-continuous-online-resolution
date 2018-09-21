@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +43,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
@@ -295,7 +295,7 @@ public class OnlineHearingControllerTest {
 
         ArgumentCaptor<OnlineHearing> onlineHearingArgumentCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
 
-        Mockito.verify(onlineHearingService, times(1)).createOnlineHearing(onlineHearingArgumentCaptor.capture());
+        verify(onlineHearingService, times(1)).createOnlineHearing(onlineHearingArgumentCaptor.capture());
 
         assertEquals(username, onlineHearingArgumentCaptor.getValue().getOwnerReferenceId());
     }
