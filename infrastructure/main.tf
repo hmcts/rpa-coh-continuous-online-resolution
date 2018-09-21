@@ -62,7 +62,7 @@ module "app" {
 }
 
 module "db" {
-  source = "git@github.com:hmcts/moj-module-postgres?ref=master"
+  source = "git@github.com:hmcts/cnp-module-postgres?ref=master"
   product = "${local.app_full_name}-postgres-db"
   location = "${var.location}"
   env = "${var.env}"
@@ -90,7 +90,7 @@ data "azurerm_key_vault_secret" "s2s_secret" {
 //}
 
 module "local_key_vault" {
-  source = "git@github.com:hmcts/moj-module-key-vault?ref=master"
+  source = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
   product = "${local.app_full_name}"
   env = "${var.env}"
   tenant_id = "${var.tenant_id}"
