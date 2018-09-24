@@ -14,8 +14,7 @@ output "vaultUri" {
 }
 
 output "idam_api_url" {
-  value = "http://${var.idam_api_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
-
+  value = "${var.idam_api_url}"
 }
 
 output "s2s_url" {
