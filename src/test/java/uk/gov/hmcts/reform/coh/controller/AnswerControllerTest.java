@@ -226,7 +226,7 @@ public class AnswerControllerTest {
             .andExpect(status().isNotFound())
             .andReturn();
 
-        assertEquals("The question has not yet been issued or granted deadline extension",
+        assertEquals("The question can only be answers if it's been issued or a deadline extension has been granted",
             result.getResponse().getContentAsString());
     }
 

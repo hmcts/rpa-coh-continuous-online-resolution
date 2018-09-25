@@ -99,7 +99,7 @@ public class AnswerController {
 
                 return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("The question has not yet been issued or granted deadline extension");
+                    .body("The question can only be answers if it's been issued or a deadline extension has been granted");
             }
 
             // For MVP, there'll only be one answer per question
