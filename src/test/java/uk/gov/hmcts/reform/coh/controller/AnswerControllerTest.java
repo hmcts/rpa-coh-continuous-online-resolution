@@ -211,7 +211,43 @@ public class AnswerControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        assertEquals("The question does not exist or has not yet been issued", result.getResponse().getContentAsString());
+        assertEquals("The question does not exist", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateAnswerForDeniedQuestion() throws Exception {
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED);
+        question.setOnlineHearing(onlineHearing);
+
+        given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.of(question));
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+            .andExpect(status().isNotFound())
+            .andReturn();
+
+        assertEquals("The question can only be answers if it's been issued or a deadline extension has been granted",
+            result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testCreateAnswerForGrantedQuestion() throws Exception {
+        question = QuestionEntityUtils.createTestQuestion(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+
+        AnswerRequest request = JsonUtils.toObjectFromJson(jsonRequest, AnswerRequest.class);
+        request.setAnswerState(AnswerStates.SUBMITTED.getStateName());
+
+        mockSubmittedAnswer();
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtils.toJson(request)))
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(),result.getResponse().getStatus());
+        assertEquals(AnswerStates.SUBMITTED.getStateName(), answer.getAnswerState().getState());
+        verify(sessionEventService, times(1)).createSessionEvent(any(OnlineHearing.class), anyString());
     }
 
     @Test
