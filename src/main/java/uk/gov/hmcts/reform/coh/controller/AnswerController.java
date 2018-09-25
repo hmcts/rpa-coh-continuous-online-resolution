@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -84,10 +85,21 @@ public class AnswerController {
 
             Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
 
+            List<QuestionStates> answerableStates
+                = Arrays.asList(QuestionStates.ISSUED, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+
             // If a question exists, then it must be in the issued state to be answered
-            if (!optionalQuestion.isPresent()
-                    || !optionalQuestion.get().getQuestionState().getState().equals(QuestionStates.ISSUED.getStateName())) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist or has not yet been issued");
+
+            if (!optionalQuestion.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
+            }
+
+            if (answerableStates.stream().noneMatch(questionStates
+                -> optionalQuestion.get().getQuestionState().getState().equals(questionStates.getStateName()))) {
+
+                return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("The question has not yet been issued or granted deadline extension");
             }
 
             // For MVP, there'll only be one answer per question
