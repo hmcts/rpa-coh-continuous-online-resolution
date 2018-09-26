@@ -62,7 +62,12 @@ public class DeadlineController {
             if (helper.getTotal() < 1 || helper.getEligible() < 1) {
                 return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No questions to extend deadline for");
             }
+
             queueSessionEvent(optionalOnlineHearing.get(), helper);
+
+            if (helper.getDenied().equals(helper.getEligible())) {
+                return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("All questions were denied extension request");
+            }
         } catch (Exception e) {
             log.error("Request failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Request failed. " + e.getMessage());

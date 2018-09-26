@@ -25,6 +25,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -113,7 +114,9 @@ public class DeadlineControllerTest {
 
         UUID onlineHearingId = UUID.randomUUID();
         mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
-                .andExpect(status().isOk());
+                .andExpect(status().is(424))
+                .andExpect(content().string("All questions were denied extension request"));
+
         verify(sessionEventService, times(1)).createSessionEvent(onlineHearing.get(), EventTypes.QUESTION_DEADLINE_EXTENSION_DENIED.getEventType());
     }
 
