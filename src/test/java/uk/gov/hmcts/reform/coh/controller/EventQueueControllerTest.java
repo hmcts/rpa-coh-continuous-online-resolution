@@ -37,16 +37,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"local"})
-public class EventForwardingControllerTest {
+public class EventQueueControllerTest {
 
     @Mock
     private SessionEventTypeService sessionEventTypeService;
@@ -64,7 +62,7 @@ public class EventForwardingControllerTest {
     private SessionEventService sessionEventService;
 
     @InjectMocks
-    private EventForwardingController eventForwardingController;
+    private EventQueueController eventQueueController;
 
     @Autowired
     private MockMvc mockMvc;
@@ -111,39 +109,35 @@ public class EventForwardingControllerTest {
         mockSessionEventForwardingRegisterService(true);
         given(sessionEventService.retrieveAllByEventForwardingRegister(any(SessionEventForwardingRegister.class))).willReturn(sessionEventList);
         given(sessionEventService.updateSessionEvent(any(SessionEvent.class))).willReturn(new SessionEvent());
-        mockMvc = MockMvcBuilders.standaloneSetup(eventForwardingController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(eventQueueController).build();
     }
 
     @Test
-    public void testCreateEventForwardRegister() throws Exception {
-        mockSessionEventForwardingRegisterService(false);
-        MvcResult result = mockMvc.perform(post(CohUriBuilder.buildEventRegisterPost())
+    public void testResetSessionEvents() throws Exception {
+
+        given(sessionEventService.findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(any(SessionEventForwardingRegister.class), any(SessionEventForwardingState.class))).willReturn(sessionEventList);
+        String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
+
+        mockMvc.perform(put(CohUriBuilder.buildEventResetPut())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().is2xxSuccessful()).andReturn();
+                .content(json))
+                .andExpect(status().is2xxSuccessful());
 
-        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        int size = sessionEventList.size();
+        verify(sessionEventService, times(size)).updateSessionEvent(any(SessionEvent.class));
+        long count = sessionEventList.stream()
+                .filter(se -> se.getRetries()==0 && se.getSessionEventForwardingState().getForwardingStateName().equalsIgnoreCase(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()))
+                .count();
+        assertTrue(count == size);
     }
 
     @Test
-    public void testCreateEventForwardRegisterConflict() throws Exception {
-
-        MvcResult result = mockMvc.perform(post(CohUriBuilder.buildEventRegisterPost())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().is4xxClientError()).andReturn();
-
-        assertEquals("Jurisdiction already registered to event", result.getResponse().getContentAsString());
-        assertEquals(HttpStatus.CONFLICT.value(), result.getResponse().getStatus());
-    }
-
-    @Test
-    public void testCreateEventForwardRegisterMissingEventType() throws Exception {
+    public void testResetEventsMissingEventType() throws Exception {
 
         given(sessionEventTypeService.retrieveEventType(any(String.class)))
                 .willReturn(Optional.empty());
 
-        MvcResult result = mockMvc.perform(post(CohUriBuilder.buildEventRegisterPost())
+        MvcResult result = mockMvc.perform(put(CohUriBuilder.buildEventResetPut())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validJson))
                 .andExpect(status().is4xxClientError()).andReturn();
@@ -153,12 +147,12 @@ public class EventForwardingControllerTest {
     }
 
     @Test
-    public void testCreateEventForwardRegisterMissingJurisdiction() throws Exception {
+    public void testResetEventsMissingJurisdiction() throws Exception {
 
         given(jurisdictionService.getJurisdictionWithName(any(String.class)))
                 .willReturn(Optional.empty());
 
-        MvcResult result = mockMvc.perform(post(CohUriBuilder.buildEventRegisterPost())
+        MvcResult result = mockMvc.perform(put(CohUriBuilder.buildEventResetPut())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validJson))
                 .andExpect(status().is4xxClientError()).andReturn();
@@ -168,63 +162,31 @@ public class EventForwardingControllerTest {
     }
 
     @Test
-    public void testCreateEventForwardRegisterInvalidURL() throws Exception {
-        EventRegistrationRequest eventRegistrationRequest = (EventRegistrationRequest) JsonUtils.toObjectFromTestName("event_forwarding_register/invalid_event_register", EventRegistrationRequest.class);
-
-        MvcResult result = mockMvc.perform(post(CohUriBuilder.buildEventRegisterPost())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtils.toJson(eventRegistrationRequest)))
-                .andExpect(status().is4xxClientError()).andReturn();
-
-        assertThat(result.getResolvedException().getClass(),
-                typeCompatibleWith(MethodArgumentNotValidException.class));
-    }
-
-    @Test
-    public void testUpdateEventForwardRegister() throws Exception {
-        mockMvc.perform(put(CohUriBuilder.buildEventRegisterPost())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void testUpdateEventForwardRegisterNotFound() throws Exception {
+    public void testResetEventsForNonExistingRegisterThrowsBadRequest() throws Exception {
         mockSessionEventForwardingRegisterService(false);
-        mockMvc.perform(put(CohUriBuilder.buildEventRegisterPost())
+        String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
+
+        MvcResult result = mockMvc.perform(put(CohUriBuilder.buildEventResetPut())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().isNotFound());
+                .content(json))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        assertEquals(HttpStatus.FAILED_DEPENDENCY.value(), result.getResponse().getStatus());
     }
 
     @Test
-    public void testDeleteEventForwardRegister() throws Exception {
-        mockSessionEventForwardingRegisterService(true);
-        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().isOk());
-    }
+    public void testResetEventsThrowsInternalServerErrorIfEventPendingStateNotFound() throws Exception {
 
-    @Test
-    public void testDeleteEventForwardRegisterNotFound() throws Exception {
-        mockSessionEventForwardingRegisterService(false);
-        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().isNotFound());
-    }
+        given(sessionEventForwardingStateService.retrieveEventForwardingStateByName(anyString())).willReturn(Optional.empty());
+        String json = JsonUtils.getJsonInput("event_forwarding_register/reset_answer_submitted_events");
 
-    @Test
-    public void testDeleteEventForwardRegisterDataIntegrityViolationException() throws Exception {
-        mockSessionEventForwardingRegisterService(true);
-        doThrow(new DataIntegrityViolationException("foo")).when(sessionEventForwardingRegisterService).deleteEventForwardingRegister(any(SessionEventForwardingRegister.class));
-        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+        MvcResult result = mockMvc.perform(put(CohUriBuilder.buildEventResetPut())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(validJson))
-                .andExpect(status().isFailedDependency());
+                .content(json))
+                .andExpect(status().is5xxServerError())
+                .andReturn();
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
     }
-
     private void mockSessionEventForwardingRegisterService(boolean isPresent) {
         if (isPresent) {
             given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(

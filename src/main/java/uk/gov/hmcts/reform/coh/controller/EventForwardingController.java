@@ -136,56 +136,6 @@ public class EventForwardingController {
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
-    @ApiOperation(value = "Reset session events", notes = "A PUT request is used to reset the events")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 422, message = "Validation error"),
-            @ApiResponse(code = 424, message = "Failed dependency")
-    })
-    @PutMapping(value = "/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity resetSessionEvents(@Valid @RequestBody SessionEventRequest request) {
-
-        Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
-        if (!eventType.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Event type not found");
-        }
-
-        Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
-        if (!jurisdiction.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Jurisdiction not found");
-        }
-
-        SessionEventForwardingRegister eventForwardingRegister = new SessionEventForwardingRegister.Builder()
-                .jurisdiction(jurisdiction.orElseThrow(EntityNotFoundException::new))
-                .sessionEventType(eventType.orElseThrow(EntityNotFoundException::new))
-                .build();
-
-        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
-        if (!sessionEventForwardingRegister.isPresent()) {
-            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No registers for this jurisdiction & event type");
-        }
-
-        try {
-            SessionEventForwardingState pendingEventForwardingState = getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_PENDING);
-
-            SessionEventForwardingState failedEventForwardingState = getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_FAILED);
-
-            sessionEventService.findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(sessionEventForwardingRegister.get(), failedEventForwardingState).stream()                    .forEach(se -> {
-                se.setSessionEventForwardingState(pendingEventForwardingState);
-                se.setRetries(0);
-                sessionEventService.updateSessionEvent(se);
-            });
-        } catch (EntityNotFoundException enfe) {
-            log.error("Pending event forwarding state was not found in the database. Exception is " + enfe);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We have encounter an error. Please contact support.");
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body("");
-    }
-
     private ValidationResult validate(SessionEventRequest request) {
 
         ValidationResult result = new ValidationResult();
