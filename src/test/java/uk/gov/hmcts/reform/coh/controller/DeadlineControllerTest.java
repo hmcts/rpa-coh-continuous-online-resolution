@@ -115,7 +115,7 @@ public class DeadlineControllerTest {
         UUID onlineHearingId = UUID.randomUUID();
         mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
                 .andExpect(status().is(424))
-                .andExpect(content().string("All questions were denied extension request"));
+                .andExpect(content().string("Deadline extension rejected"));
 
         verify(sessionEventService, times(1)).createSessionEvent(onlineHearing.get(), EventTypes.QUESTION_DEADLINE_EXTENSION_DENIED.getEventType());
     }

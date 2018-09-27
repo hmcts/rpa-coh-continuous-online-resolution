@@ -66,7 +66,7 @@ public class DeadlineController {
             queueSessionEvent(optionalOnlineHearing.get(), helper);
 
             if (helper.getDenied().equals(helper.getEligible())) {
-                return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("All questions were denied extension request");
+                return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("Deadline extension rejected");
             }
         } catch (Exception e) {
             log.error("Request failed", e);
