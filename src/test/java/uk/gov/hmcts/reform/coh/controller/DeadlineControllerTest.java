@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.state.DeadlineExtensionHelper;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -21,10 +22,12 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -103,32 +106,68 @@ public class DeadlineControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    public void tesDeniedAndSessionEventQueued() throws Throwable {
-        helper = new DeadlineExtensionHelper(1, 1, 0, 1);
+    /**
+     * This is to let {@link Consumer#accept(Object)} to throw {@link Exception}s.
+     */
+    interface TestConsumer {
+        void accept(ResultActions actions) throws Exception;
+    }
+
+    /**
+     * Almost Swiss-army knife method for asserting "what happens when" requesting deadline extension.
+     * @param total number of all questions in the hearing
+     * @param eligible number of questions that passed the basic filtering
+     * @param granted number of questions that were granted extension
+     * @param denied number of questions that were denied extension
+     * @param expectedStatus type of session event expected to be triggered after the request
+     * @param consumer lambda function to execute additional assertions on the response
+     * @throws Exception when assertion fails, or anything goes awry
+     */
+    private void requestedExtension(
+        int total,
+        int eligible,
+        int granted,
+        int denied,
+        EventTypes expectedStatus,
+        TestConsumer consumer
+    ) throws Exception {
+        helper = new DeadlineExtensionHelper(total, eligible, granted, denied);
         when(questionService.requestDeadlineExtension(any())).thenReturn(helper);
         OnlineHearing spyOnlineHearing = spy(OnlineHearing.class);
         Optional<OnlineHearing> onlineHearing = Optional.of(spyOnlineHearing);
         when(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).thenReturn(onlineHearing);
 
         UUID onlineHearingId = UUID.randomUUID();
-        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
-                .andExpect(status().isOk());
-        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing.get(), EventTypes.QUESTION_DEADLINE_EXTENSION_DENIED.getEventType());
+        String path = "/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension";
+
+        consumer.accept(mockMvc.perform(put(path)));
+
+        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing.get(), expectedStatus.getEventType());
+    }
+
+    @Test
+    public void tesDeniedAndSessionEventQueued() throws Throwable {
+        requestedExtension(1, 1, 0, 1, EventTypes.QUESTION_DEADLINE_EXTENSION_DENIED, resultActions
+            -> resultActions
+                .andExpect(status().is(424))
+                .andExpect(content().string("Deadline extension rejected"))
+        );
     }
 
     @Test
     public void testGrantedAndSessionEventQueued() throws Throwable {
-        helper = new DeadlineExtensionHelper(1, 1, 1, 0);
-        when(questionService.requestDeadlineExtension(any())).thenReturn(helper);
-        OnlineHearing spyOnlineHearing = spy(OnlineHearing.class);
-        Optional<OnlineHearing> onlineHearing = Optional.of(spyOnlineHearing);
-        when(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).thenReturn(onlineHearing);
+        requestedExtension(1, 1, 1, 0, EventTypes.QUESTION_DEADLINE_EXTENSION_GRANTED, resultActions
+            -> resultActions
+                .andExpect(status().isOk())
+        );
+    }
 
-        UUID onlineHearingId = UUID.randomUUID();
-        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
-                .andExpect(status().isOk());
-        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing.get(), EventTypes.QUESTION_DEADLINE_EXTENSION_GRANTED.getEventType());
+    @Test
+    public void testOnlySomeAreGrantedAndSessionEventQueued() throws Throwable {
+        requestedExtension(2, 2, 1, 1, EventTypes.QUESTION_DEADLINE_EXTENSION_GRANTED, resultActions
+            -> resultActions
+                .andExpect(status().isOk())
+        );
     }
 
     @Test

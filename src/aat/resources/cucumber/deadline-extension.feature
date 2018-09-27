@@ -36,6 +36,6 @@ Feature: Deadline Extension
     When the put request is sent to issue the question round ' "1" '
     And deadline extension is requested
     And deadline extension is requested again
-    Then the response code is 200
+    Then the response code is 424
     And question states are question_deadline_extension_denied
     And question history has at least 3 events
