@@ -135,6 +135,20 @@ public class DeadlineControllerTest {
     }
 
     @Test
+    public void testOnlySomeAreGrantedAndSessionEventQueued() throws Throwable {
+        helper = new DeadlineExtensionHelper(2, 2, 1, 1);
+        when(questionService.requestDeadlineExtension(any())).thenReturn(helper);
+        OnlineHearing spyOnlineHearing = spy(OnlineHearing.class);
+        Optional<OnlineHearing> onlineHearing = Optional.of(spyOnlineHearing);
+        when(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).thenReturn(onlineHearing);
+
+        UUID onlineHearingId = UUID.randomUUID();
+        mockMvc.perform(put("/continuous-online-hearings/" + onlineHearingId + "/questions-deadline-extension"))
+            .andExpect(status().isOk());
+        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing.get(), EventTypes.QUESTION_DEADLINE_EXTENSION_GRANTED.getEventType());
+    }
+
+    @Test
     public void testSuccessfulExtensionRequest() throws Exception {
         OnlineHearing spyOnlineHearing = spy(OnlineHearing.class);
         Optional<OnlineHearing> onlineHearing = Optional.of(spyOnlineHearing);
