@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 1538395442791-1
+    author: karol (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: relist_state
+            type: smallint
+        tableName: online_hearing
+
