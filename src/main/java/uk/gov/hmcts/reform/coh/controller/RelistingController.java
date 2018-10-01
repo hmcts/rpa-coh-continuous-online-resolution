@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 
 import java.util.Optional;
 import java.util.UUID;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(
@@ -44,7 +45,7 @@ public class RelistingController {
     @PostMapping
     public ResponseEntity createDraft(
         @PathVariable UUID onlineHearingId,
-        @RequestBody Relisting body
+        @RequestBody @Valid Relisting body
     ) {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {

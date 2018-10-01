@@ -143,4 +143,11 @@ public class RelistingControllerTest {
             .andExpect(jsonPath("$.reason", is("Test")))
             .andExpect(jsonPath("$.state", is("DRAFTED")));
     }
+
+    @Test
+    public void creatingRelistingRequiresStateField() throws Exception {
+        String request = "{}";
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+    }
 }
