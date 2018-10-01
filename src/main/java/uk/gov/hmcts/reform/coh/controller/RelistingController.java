@@ -36,7 +36,7 @@ public class RelistingController {
         }
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
         String reason = onlineHearing.getRelistReason();
-        String state = onlineHearing.getRelistState().toString();
+        RelistingState state = onlineHearing.getRelistState();
         Relisting relisting = new Relisting(reason, state);
         return ResponseEntity.ok(relisting);
     }
@@ -51,13 +51,6 @@ public class RelistingController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
 
-        RelistingState state;
-        try {
-            state = RelistingState.valueOf(body.state);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid state");
-        }
-
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
 
         if (onlineHearing.getRelistState() == RelistingState.ISSUED) {
@@ -65,7 +58,7 @@ public class RelistingController {
         }
 
         onlineHearing.setRelistReason(body.reason);
-        onlineHearing.setRelistState(state);
+        onlineHearing.setRelistState(body.state);
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.accepted().build();
