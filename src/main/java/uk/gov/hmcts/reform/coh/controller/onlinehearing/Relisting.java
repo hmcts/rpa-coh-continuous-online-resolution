@@ -2,11 +2,11 @@ package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RelistingResponse {
+public class Relisting {
     public final String reason;
     public final String state;
 
-    public RelistingResponse(
+    public Relisting(
         @JsonProperty("reason") String reason,
         @JsonProperty("state") String state
     ) {

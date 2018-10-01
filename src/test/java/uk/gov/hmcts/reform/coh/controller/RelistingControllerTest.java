@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.coh.config.WebConfig;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.RelistingResponse;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.Relisting;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
@@ -66,7 +66,7 @@ public class RelistingControllerTest {
 
     @Test
     public void storingADraftReturnsAccepted() throws Exception {
-        RelistingResponse obj = new RelistingResponse("Foo bar", "DRAFTED");
+        Relisting obj = new Relisting("Foo bar", "DRAFTED");
         String request = new ObjectMapper().writeValueAsString(obj);
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isAccepted());
@@ -74,7 +74,7 @@ public class RelistingControllerTest {
 
     @Test
     public void storesDraftedReasonWithCorrespondingOnlineHearing() throws Exception {
-        RelistingResponse obj = new RelistingResponse("Here is a sample reason.", "DRAFTED");
+        Relisting obj = new Relisting("Here is a sample reason.", "DRAFTED");
         String request = new ObjectMapper().writeValueAsString(obj);
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isAccepted());
@@ -94,7 +94,7 @@ public class RelistingControllerTest {
 
     @Test
     public void creatingNewRelistForNonExistingOnlineHearingReturns404() throws Exception {
-        RelistingResponse obj = new RelistingResponse("Foo bar", "DRAFTED");
+        Relisting obj = new Relisting("Foo bar", "DRAFTED");
         String request = new ObjectMapper().writeValueAsString(obj);
         mockMvc.perform(post(pathToNonExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isNotFound())
@@ -103,7 +103,7 @@ public class RelistingControllerTest {
 
     @Test
     public void returns400WhenCreatingWithInvalidState() throws Exception {
-        RelistingResponse obj = new RelistingResponse("Foo bar", "smelled");
+        Relisting obj = new Relisting("Foo bar", "smelled");
         String request = new ObjectMapper().writeValueAsString(obj);
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isBadRequest())
