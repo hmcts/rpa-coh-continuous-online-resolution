@@ -60,8 +60,8 @@ public class RelistingController {
 
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
 
-        if (onlineHearing.getRelistState() == RelistingState.SUBMITTED) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already submitted");
+        if (onlineHearing.getRelistState() == RelistingState.ISSUED) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already issued");
         }
 
         onlineHearing.setRelistReason(body.reason);
