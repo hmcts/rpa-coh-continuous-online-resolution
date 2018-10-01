@@ -43,18 +43,22 @@ public class RelistingControllerTest {
     @Autowired
     private MockMvc mockMvc;
     private OnlineHearing onlineHearing;
+    private String pathToExistingOnlineHearing;
+    private String pathToNonExistingOnlineHearing;
 
     @Before
     public void setup() {
         onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
         when(onlineHearingService.retrieveOnlineHearing(onlineHearing.getOnlineHearingId()))
             .thenReturn(Optional.of(onlineHearing));
+
+        pathToExistingOnlineHearing = "/continuous-online-hearings/" + onlineHearing.getOnlineHearingId() + "/relist";
+        pathToNonExistingOnlineHearing = "/continuous-online-hearings/" + UUID.randomUUID() + "/relist";
     }
 
     @Test
     public void initiallyReasonIsDraftedAndEmpty() throws Exception {
-        String path = "/continuous-online-hearings/" + onlineHearing.getOnlineHearingId() + "/relist";
-        mockMvc.perform(get(path).contentType(APPLICATION_JSON))
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reason", isEmptyOrNullString()))
             .andExpect(jsonPath("$.state", is("DRAFTED")));
@@ -62,23 +66,20 @@ public class RelistingControllerTest {
 
     @Test
     public void storingADraftReturnsAccepted() throws Exception {
-        String path = "/continuous-online-hearings/" + onlineHearing.getOnlineHearingId() + "/relist";
         RelistingResponse obj = new RelistingResponse("Foo bar", "DRAFTED");
         String request = new ObjectMapper().writeValueAsString(obj);
-        mockMvc.perform(post(path).content(request).contentType(APPLICATION_JSON))
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isAccepted());
     }
 
     @Test
     public void storesDraftedReasonWithCorrespondingOnlineHearing() throws Exception {
-        String path = "/continuous-online-hearings/" + onlineHearing.getOnlineHearingId() + "/relist";
-
         RelistingResponse obj = new RelistingResponse("Here is a sample reason.", "DRAFTED");
         String request = new ObjectMapper().writeValueAsString(obj);
-        mockMvc.perform(post(path).content(request).contentType(APPLICATION_JSON))
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isAccepted());
 
-        mockMvc.perform(get(path).contentType(APPLICATION_JSON))
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reason", is(obj.reason)))
             .andExpect(jsonPath("$.state", is(obj.state)));
@@ -86,18 +87,16 @@ public class RelistingControllerTest {
 
     @Test
     public void readingNonExistingOnlineHearingReturns404() throws Exception {
-        String path = "/continuous-online-hearings/" + UUID.randomUUID() + "/relist";
-        mockMvc.perform(get(path).contentType(APPLICATION_JSON))
+        mockMvc.perform(get(pathToNonExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(content().string("Not found"));
     }
 
     @Test
     public void creatingNewRelistForNonExistingOnlineHearingReturns404() throws Exception {
-        String path = "/continuous-online-hearings/" + UUID.randomUUID() + "/relist";
         RelistingResponse obj = new RelistingResponse("Foo bar", "DRAFTED");
         String request = new ObjectMapper().writeValueAsString(obj);
-        mockMvc.perform(post(path).content(request).contentType(APPLICATION_JSON))
+        mockMvc.perform(post(pathToNonExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(content().string("Not found"));
     }
