@@ -112,4 +112,23 @@ public class RelistingControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(content().string("Invalid state"));
     }
+
+    @Test
+    public void cannotUpdateReasonAfterSubmitting() throws Exception {
+        Relisting first = new Relisting("Final reason", "SUBMITTED");
+        String req1 = objectMapper.writeValueAsString(first);
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(req1).contentType(APPLICATION_JSON))
+            .andExpect(status().isAccepted());
+
+        Relisting second = new Relisting("This is the ultimate final reason!", "SUBMITTED");
+        String req2 = objectMapper.writeValueAsString(second);
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(req2).contentType(APPLICATION_JSON))
+            .andExpect(status().isConflict())
+            .andExpect(content().string("Already submitted"));
+
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.reason", is(first.reason)))
+            .andExpect(jsonPath("$.state", is(first.state)));
+    }
 }
