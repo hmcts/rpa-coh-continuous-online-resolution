@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,15 +14,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.coh.config.WebConfig;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.Relisting;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -40,6 +48,9 @@ public class RelistingControllerTest {
 
     @MockBean
     private OnlineHearingService onlineHearingService;
+
+    @MockBean
+    private OnlineHearingStateService onlineHearingStateService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -149,5 +160,30 @@ public class RelistingControllerTest {
         String request = "{}";
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    public void issuedRelistingShouldChangeOnlineHearingStateToRelisted() throws Exception {
+        OnlineHearingState issued = new OnlineHearingState();
+        issued.setOnlineHearingStateId(1234);
+        issued.setState(OnlineHearingStates.RELISTED.getStateName());
+
+        when(onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName()))
+            .thenReturn(Optional.of(issued));
+
+        Relisting obj = new Relisting("", RelistingState.ISSUED);
+        String request = objectMapper.writeValueAsString(obj);
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isAccepted());
+
+        verify(onlineHearingStateService, atLeastOnce())
+            .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        OnlineHearing onlineHearing = onlineHearingCaptor.getValue();
+        assertThat(onlineHearing.getOnlineHearingState().getState())
+            .isEqualTo(OnlineHearingStates.RELISTED.getStateName());
     }
 }

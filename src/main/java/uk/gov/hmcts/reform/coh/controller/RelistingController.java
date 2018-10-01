@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.Relisting;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +31,9 @@ public class RelistingController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
+
+    @Autowired
+    private OnlineHearingStateService onlineHearingStateService;
 
     @GetMapping
     public ResponseEntity retrieveRelisting(@PathVariable UUID onlineHearingId) {
@@ -58,6 +64,12 @@ public class RelistingController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Already issued");
         }
 
+        if (body.state == RelistingState.ISSUED) {
+            Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService
+                .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());
+
+            optionalOnlineHearingState.ifPresent(onlineHearing::setOnlineHearingState);
+        }
         onlineHearing.setRelistReason(body.reason);
         onlineHearing.setRelistState(body.state);
         onlineHearingService.updateOnlineHearing(onlineHearing);
