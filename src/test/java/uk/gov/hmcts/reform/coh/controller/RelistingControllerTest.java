@@ -46,6 +46,9 @@ public class RelistingControllerTest {
     private String pathToExistingOnlineHearing;
     private String pathToNonExistingOnlineHearing;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Before
     public void setup() {
         onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
@@ -75,7 +78,7 @@ public class RelistingControllerTest {
     @Test
     public void storesDraftedReasonWithCorrespondingOnlineHearing() throws Exception {
         Relisting obj = new Relisting("Here is a sample reason.", "DRAFTED");
-        String request = new ObjectMapper().writeValueAsString(obj);
+        String request = objectMapper.writeValueAsString(obj);
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isAccepted());
 
@@ -95,7 +98,7 @@ public class RelistingControllerTest {
     @Test
     public void creatingNewRelistForNonExistingOnlineHearingReturns404() throws Exception {
         Relisting obj = new Relisting("Foo bar", "DRAFTED");
-        String request = new ObjectMapper().writeValueAsString(obj);
+        String request = objectMapper.writeValueAsString(obj);
         mockMvc.perform(post(pathToNonExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(content().string("Not found"));
