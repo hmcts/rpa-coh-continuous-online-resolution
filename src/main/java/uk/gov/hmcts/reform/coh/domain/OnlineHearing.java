@@ -43,6 +43,10 @@ public class OnlineHearing {
     @Column(name = "relist_reason", columnDefinition="CLOB")
     private String relistReason;
 
+    @Enumerated
+    @Column(name = "relist_state", columnDefinition = "smallint")
+    private RelistingState relistState = RelistingState.DRAFTED;
+
     public void setOnlineHearingStateHistories(List<OnlineHearingStateHistory> onlineHearingStateHistories) {
         this.onlineHearingStateHistories = onlineHearingStateHistories;
     }
@@ -147,5 +151,13 @@ public class OnlineHearing {
 
     public void setRelistReason(String relistReason) {
         this.relistReason = relistReason;
+    }
+
+    public void setRelistState(RelistingState state) {
+        this.relistState = state;
+    }
+
+    public RelistingState getRelistState() {
+        return relistState;
     }
 }
