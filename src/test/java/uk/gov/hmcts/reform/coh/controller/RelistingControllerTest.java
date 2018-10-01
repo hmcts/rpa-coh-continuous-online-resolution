@@ -100,4 +100,13 @@ public class RelistingControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(content().string("Not found"));
     }
+
+    @Test
+    public void returns400WhenCreatingWithInvalidState() throws Exception {
+        RelistingResponse obj = new RelistingResponse("Foo bar", "smelled");
+        String request = new ObjectMapper().writeValueAsString(obj);
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Invalid state"));
+    }
 }

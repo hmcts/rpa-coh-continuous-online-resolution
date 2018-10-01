@@ -50,9 +50,17 @@ public class RelistingController {
         if (!optionalOnlineHearing.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
+
+        RelistingState state;
+        try {
+            state = RelistingState.valueOf(body.state);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid state");
+        }
+
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
         onlineHearing.setRelistReason(body.reason);
-        onlineHearing.setRelistState(RelistingState.valueOf(body.state));
+        onlineHearing.setRelistState(state);
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.accepted().build();
