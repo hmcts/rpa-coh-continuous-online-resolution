@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -80,5 +82,13 @@ public class RelistingControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reason", is(obj.reason)))
             .andExpect(jsonPath("$.state", is(obj.state)));
+    }
+
+    @Test
+    public void readingNonExistingOnlineHearingReturns404() throws Exception {
+        String path = "/continuous-online-hearings/" + UUID.randomUUID() + "/relist";
+        mockMvc.perform(get(path).contentType(APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("Not found"));
     }
 }
