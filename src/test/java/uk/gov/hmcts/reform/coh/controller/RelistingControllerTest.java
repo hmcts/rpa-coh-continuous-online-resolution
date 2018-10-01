@@ -131,4 +131,16 @@ public class RelistingControllerTest {
             .andExpect(jsonPath("$.reason", is(first.reason)))
             .andExpect(jsonPath("$.state", is(first.state.toString())));
     }
+
+    @Test
+    public void relistingStateIsCaseInsensitive() throws Exception {
+        String request = "{\"reason\":\"Test\",\"state\":\"drAfTed\"}";
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isAccepted());
+
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.reason", is("Test")))
+            .andExpect(jsonPath("$.state", is("DRAFTED")));
+    }
 }

@@ -26,6 +26,9 @@ spring:
   liquibase:
    enabled: ${ENABLE_DB_MIGRATE:true}
    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  jackson:
+    mapper:
+      ACCEPT_CASE_INSENSITIVE_ENUMS: true
 
 base-urls:
   idam-user: ${IDAM_API_URL:http://localhost:4501}
