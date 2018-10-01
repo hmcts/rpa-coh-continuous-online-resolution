@@ -91,4 +91,14 @@ public class RelistingControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(content().string("Not found"));
     }
+
+    @Test
+    public void creatingNewRelistForNonExistingOnlineHearingReturns404() throws Exception {
+        String path = "/continuous-online-hearings/" + UUID.randomUUID() + "/relist";
+        RelistingResponse obj = new RelistingResponse("Foo bar", "DRAFTED");
+        String request = new ObjectMapper().writeValueAsString(obj);
+        mockMvc.perform(post(path).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("Not found"));
+    }
 }

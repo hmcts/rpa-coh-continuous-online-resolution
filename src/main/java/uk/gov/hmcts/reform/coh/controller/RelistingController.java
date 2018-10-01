@@ -47,6 +47,9 @@ public class RelistingController {
         @RequestBody RelistingResponse body
     ) {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        }
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
         onlineHearing.setRelistReason(body.reason);
         onlineHearing.setRelistState(RelistingState.valueOf(body.state));
