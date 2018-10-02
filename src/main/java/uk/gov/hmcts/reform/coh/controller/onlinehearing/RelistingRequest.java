@@ -5,13 +5,13 @@ import uk.gov.hmcts.reform.coh.domain.RelistingState;
 
 import javax.validation.constraints.NotNull;
 
-public class Relisting {
+public class RelistingRequest {
     public final String reason;
 
     @NotNull(message = "Missing state field")
     public final RelistingState state;
 
-    public Relisting(
+    public RelistingRequest(
         @JsonProperty("reason") String reason,
         @JsonProperty("state") RelistingState state
     ) {

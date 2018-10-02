@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.coh.controller.onlinehearing.Relisting;
+import uk.gov.hmcts.reform.coh.controller.onlinehearing.RelistingRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.RelistingResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
@@ -58,7 +58,7 @@ public class RelistingController {
     @PostMapping
     public ResponseEntity createDraft(
         @PathVariable UUID onlineHearingId,
-        @RequestBody @Valid Relisting body
+        @RequestBody @Valid RelistingRequest body
     ) {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
