@@ -78,6 +78,8 @@ public class RelistingController {
 
             optionalOnlineHearingState.ifPresent(onlineHearing::setOnlineHearingState);
 
+            onlineHearing.registerStateChange();
+
             sessionEventService.createSessionEvent(onlineHearing, EventTypes.ONLINE_HEARING_RELISTED.getEventType());
         }
         onlineHearing.setRelistReason(body.reason);

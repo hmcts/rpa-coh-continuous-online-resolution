@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.coh.config.WebConfig;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -206,5 +208,28 @@ public class RelistingControllerTest {
         verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
 
         assertThat(onlineHearingCaptor.getValue().getEndDate()).isCloseTo(new Date(), 1000);
+    }
+
+    @Test
+    public void relistingRequiresRegisteringStateChange() throws Exception {
+        String relistedState = OnlineHearingStates.RELISTED.getStateName();
+
+        OnlineHearingState issued = spy(OnlineHearingState.class);
+        when(issued.getState()).thenReturn(relistedState);
+
+        when(onlineHearingStateService.retrieveOnlineHearingStateByState(relistedState))
+            .thenReturn(Optional.of(issued));
+
+        String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isAccepted());
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        Condition<OnlineHearingStateHistory> relisted = new Condition<>(history
+            -> relistedState.equals(history.getOnlinehearingstate().getState()), "relisted");
+
+        assertThat(onlineHearingCaptor.getValue().getOnlineHearingStateHistories()).areExactly(1, relisted);
     }
 }
