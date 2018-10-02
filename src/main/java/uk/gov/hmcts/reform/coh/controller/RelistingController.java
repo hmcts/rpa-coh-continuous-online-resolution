@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -70,6 +71,8 @@ public class RelistingController {
         }
 
         if (body.state == RelistingState.ISSUED) {
+            onlineHearing.setEndDate(new Date());
+
             Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService
                 .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());
 

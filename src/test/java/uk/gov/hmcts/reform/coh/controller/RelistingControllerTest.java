@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -190,5 +191,20 @@ public class RelistingControllerTest {
 
         String relisted = EventTypes.ONLINE_HEARING_RELISTED.getEventType();
         verify(sessionEventService, times(1)).createSessionEvent(onlineHearing, relisted);
+    }
+
+    @Test
+    public void relistingSetsEndDate() throws Exception {
+        // clearing before test
+        onlineHearing.setEndDate(null);
+
+        String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isAccepted());
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        assertThat(onlineHearingCaptor.getValue().getEndDate()).isCloseTo(new Date(), 1000);
     }
 }
