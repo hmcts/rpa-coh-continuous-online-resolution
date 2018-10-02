@@ -75,6 +75,10 @@ public class CohUriBuilder {
         return buildEventBase() + "/reset";
     }
 
+    public static String buildRelistingGet(UUID onlineHearingId) {
+        return buildOnlineHearingGet(onlineHearingId) + "/relist";
+    }
+
     private static String buildEventBase() {
         return "/continuous-online-hearings/events";
     }

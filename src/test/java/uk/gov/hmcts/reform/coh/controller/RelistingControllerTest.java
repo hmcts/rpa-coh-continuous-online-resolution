@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildRelistingGet;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local"})
@@ -67,8 +68,8 @@ public class RelistingControllerTest {
         when(onlineHearingService.retrieveOnlineHearing(onlineHearing.getOnlineHearingId()))
             .thenReturn(Optional.of(onlineHearing));
 
-        pathToExistingOnlineHearing = "/continuous-online-hearings/" + onlineHearing.getOnlineHearingId() + "/relist";
-        pathToNonExistingOnlineHearing = "/continuous-online-hearings/" + UUID.randomUUID() + "/relist";
+        pathToExistingOnlineHearing = buildRelistingGet(onlineHearing.getOnlineHearingId());
+        pathToNonExistingOnlineHearing = buildRelistingGet(UUID.randomUUID());
     }
 
     @Test
