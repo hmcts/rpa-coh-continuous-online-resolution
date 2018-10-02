@@ -27,6 +27,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -155,9 +156,8 @@ public class RelistingControllerTest {
 
     @Test
     public void issuedRelistingShouldChangeOnlineHearingStateToRelisted() throws Exception {
-        OnlineHearingState issued = new OnlineHearingState();
-        issued.setOnlineHearingStateId(1234);
-        issued.setState(OnlineHearingStates.RELISTED.getStateName());
+        OnlineHearingState issued = spy(OnlineHearingState.class);
+        when(issued.getState()).thenReturn(OnlineHearingStates.RELISTED.getStateName());
 
         when(onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName()))
             .thenReturn(Optional.of(issued));
