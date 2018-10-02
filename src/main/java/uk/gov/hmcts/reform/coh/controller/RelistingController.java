@@ -14,8 +14,10 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.Relisting;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.Optional;
@@ -34,6 +36,9 @@ public class RelistingController {
 
     @Autowired
     private OnlineHearingStateService onlineHearingStateService;
+
+    @Autowired
+    private SessionEventService sessionEventService;
 
     @GetMapping
     public ResponseEntity retrieveRelisting(@PathVariable UUID onlineHearingId) {
@@ -69,6 +74,8 @@ public class RelistingController {
                 .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());
 
             optionalOnlineHearingState.ifPresent(onlineHearing::setOnlineHearingState);
+
+            sessionEventService.createSessionEvent(onlineHearing, EventTypes.ONLINE_HEARING_RELISTED.getEventType());
         }
         onlineHearing.setRelistReason(body.reason);
         onlineHearing.setRelistState(body.state);

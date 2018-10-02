@@ -14,8 +14,10 @@ import uk.gov.hmcts.reform.coh.config.WebConfig;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -52,6 +54,9 @@ public class RelistingControllerTest {
 
     @MockBean
     private OnlineHearingStateService onlineHearingStateService;
+
+    @MockBean
+    private SessionEventService sessionEventService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -175,5 +180,15 @@ public class RelistingControllerTest {
         OnlineHearing onlineHearing = onlineHearingCaptor.getValue();
         assertThat(onlineHearing.getOnlineHearingState().getState())
             .isEqualTo(OnlineHearingStates.RELISTED.getStateName());
+    }
+
+    @Test
+    public void relistingAddsEventToSessionQueue() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isAccepted());
+
+        String relisted = EventTypes.ONLINE_HEARING_RELISTED.getEventType();
+        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing, relisted);
     }
 }
