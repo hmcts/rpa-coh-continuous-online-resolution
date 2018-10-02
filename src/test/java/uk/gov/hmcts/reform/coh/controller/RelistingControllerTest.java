@@ -82,7 +82,9 @@ public class RelistingControllerTest {
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reason", isEmptyOrNullString()))
-            .andExpect(jsonPath("$.state", is(RelistingState.DRAFTED.toString())));
+            .andExpect(jsonPath("$.state", is(RelistingState.DRAFTED.toString())))
+            .andExpect(jsonPath("$.created", isEmptyOrNullString()))
+            .andExpect(jsonPath("$.updated", isEmptyOrNullString()));
     }
 
     @Test
