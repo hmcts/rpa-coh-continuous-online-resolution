@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 
@@ -8,7 +9,11 @@ import java.util.Date;
 public class RelistingResponse {
     public final String reason;
     public final RelistingState state;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     public final Date created;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     public final Date updated;
 
     public RelistingResponse(

@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.Valid;
@@ -49,9 +50,12 @@ public class RelistingController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
-        String reason = onlineHearing.getRelistReason();
-        RelistingState state = onlineHearing.getRelistState();
-        RelistingResponse response = new RelistingResponse(reason, state, null, null);
+        RelistingResponse response = new RelistingResponse(
+            onlineHearing.getRelistReason(),
+            onlineHearing.getRelistState(),
+            onlineHearing.getRelistCreated(),
+            onlineHearing.getRelistUpdated()
+        );
         return ResponseEntity.ok(response);
     }
 
@@ -67,12 +71,22 @@ public class RelistingController {
 
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
 
+        Date now = new Date();
+
+        if (onlineHearing.getRelistCreated() == null) {
+            onlineHearing.setRelistCreated(now);
+        }
+
+        if (onlineHearing.getRelistState() != body.state || !Objects.equals(body.reason, onlineHearing.getRelistReason())) {
+            onlineHearing.setRelistUpdated(now);
+        }
+
         if (onlineHearing.getRelistState() == RelistingState.ISSUED) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Already issued");
         }
 
         if (body.state == RelistingState.ISSUED) {
-            onlineHearing.setEndDate(new Date());
+            onlineHearing.setEndDate(now);
 
             Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService
                 .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());

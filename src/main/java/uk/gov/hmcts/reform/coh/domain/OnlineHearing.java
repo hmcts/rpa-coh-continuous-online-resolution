@@ -47,6 +47,14 @@ public class OnlineHearing {
     @Column(name = "relist_state", columnDefinition = "smallint")
     private RelistingState relistState = RelistingState.DRAFTED;
 
+    @Column(name = "relist_created", columnDefinition= "TIMESTAMP WITH TIME ZONE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date relistCreated;
+
+    @Column(name = "relist_updated", columnDefinition= "TIMESTAMP WITH TIME ZONE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date relistUpdated;
+
     public void setOnlineHearingStateHistories(List<OnlineHearingStateHistory> onlineHearingStateHistories) {
         this.onlineHearingStateHistories = onlineHearingStateHistories;
     }
@@ -160,4 +168,21 @@ public class OnlineHearing {
     public RelistingState getRelistState() {
         return relistState;
     }
+
+    public Date getRelistCreated() {
+        return relistCreated;
+    }
+
+    public void setRelistCreated(Date relistCreated) {
+        this.relistCreated = relistCreated;
+    }
+
+    public Date getRelistUpdated() {
+        return relistUpdated;
+    }
+
+    public void setRelistUpdated(Date relistUpdated) {
+        this.relistUpdated = relistUpdated;
+    }
+
 }

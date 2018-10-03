@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.coh.config.WebConfig;
+import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
@@ -24,6 +25,7 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -233,5 +235,74 @@ public class RelistingControllerTest {
             -> relistedState.equals(history.getOnlinehearingstate().getState()), "relisted");
 
         assertThat(onlineHearingCaptor.getValue().getOnlineHearingStateHistories()).areExactly(1, relisted);
+    }
+
+    @Test
+    public void relistingDraftForTheFirstTimeSetsRelistCreatedField() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-drafted");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        assertThat(onlineHearingCaptor.getValue().getRelistCreated()).isNotNull();
+    }
+
+    @Test
+    public void relistingDraftForTheSecondTimeDoesNotModifyCreatedField() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-drafted");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        Date created = onlineHearingCaptor.getValue().getRelistCreated();
+
+        Thread.sleep(1000L);
+
+        request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
+            .andExpect(jsonPath("$.created", is(CohISO8601DateFormat.format(created))));
+    }
+
+    @Test
+    public void relistingDraftForTheSecondTimeModifiesUpdatedField() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-drafted");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        Date updated = onlineHearingCaptor.getValue().getRelistUpdated();
+
+        Thread.sleep(1000L);
+
+        request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        Date expected = Date.from(updated.toInstant().plus(1, ChronoUnit.SECONDS));
+
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
+            .andExpect(jsonPath("$.updated", is(CohISO8601DateFormat.format(expected))));
+    }
+
+    @Test
+    public void relistingDraftModifiesUpdatedOnlyWhenValuesAreChanged() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-drafted");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
+        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
+
+        Date updated = onlineHearingCaptor.getValue().getRelistUpdated();
+
+        Thread.sleep(1000L);
+
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
+
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
+            .andExpect(jsonPath("$.updated", is(CohISO8601DateFormat.format(updated))));
     }
 }
