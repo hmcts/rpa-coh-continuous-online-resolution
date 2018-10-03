@@ -21,6 +21,8 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,6 +44,9 @@ public class RelistingController {
 
     @Autowired
     private SessionEventService sessionEventService;
+
+    @Autowired
+    private Clock clock;
 
     @GetMapping
     public ResponseEntity retrieveRelisting(@PathVariable UUID onlineHearingId) {
@@ -71,7 +76,7 @@ public class RelistingController {
 
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
 
-        Date now = new Date();
+        Date now = Date.from(clock.instant());
 
         if (onlineHearing.getRelistCreated() == null) {
             onlineHearing.setRelistCreated(now);

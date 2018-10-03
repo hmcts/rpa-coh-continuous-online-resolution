@@ -25,6 +25,8 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
@@ -63,6 +65,9 @@ public class RelistingControllerTest {
     @MockBean
     private SessionEventService sessionEventService;
 
+    @MockBean
+    private Clock clock;
+
     @Autowired
     private MockMvc mockMvc;
     private OnlineHearing onlineHearing;
@@ -74,6 +79,8 @@ public class RelistingControllerTest {
         onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
         when(onlineHearingService.retrieveOnlineHearing(onlineHearing.getOnlineHearingId()))
             .thenReturn(Optional.of(onlineHearing));
+
+        when(clock.instant()).thenReturn(Instant.now());
 
         pathToExistingOnlineHearing = buildRelistingGet(onlineHearing.getOnlineHearingId());
         pathToNonExistingOnlineHearing = buildRelistingGet(UUID.randomUUID());
@@ -258,7 +265,8 @@ public class RelistingControllerTest {
 
         Date created = onlineHearingCaptor.getValue().getRelistCreated();
 
-        Thread.sleep(1000L);
+        Instant after1Second = created.toInstant().plus(1, ChronoUnit.SECONDS);
+        when(clock.instant()).thenReturn(after1Second);
 
         request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
@@ -277,12 +285,13 @@ public class RelistingControllerTest {
 
         Date updated = onlineHearingCaptor.getValue().getRelistUpdated();
 
-        Thread.sleep(1000L);
+        Instant after1Second = updated.toInstant().plus(1, ChronoUnit.SECONDS);
+        when(clock.instant()).thenReturn(after1Second);
 
         request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
 
-        Date expected = Date.from(updated.toInstant().plus(1, ChronoUnit.SECONDS));
+        Date expected = Date.from(after1Second);
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(jsonPath("$.updated", is(CohISO8601DateFormat.format(expected))));
@@ -298,7 +307,8 @@ public class RelistingControllerTest {
 
         Date updated = onlineHearingCaptor.getValue().getRelistUpdated();
 
-        Thread.sleep(1000L);
+        Instant after1Second = updated.toInstant().plus(1, ChronoUnit.SECONDS);
+        when(clock.instant()).thenReturn(after1Second);
 
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON));
 
