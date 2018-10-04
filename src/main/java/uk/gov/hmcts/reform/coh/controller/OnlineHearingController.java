@@ -148,7 +148,12 @@ public class OnlineHearingController {
 
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
         onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
-        onlineHearingService.createOnlineHearing(onlineHearing);
+        try {
+            onlineHearingService.createOnlineHearing(onlineHearing);
+        } catch (Exception e) {
+            log.error("Could not save online hearing in database", e);
+            return ResponseEntity.unprocessableEntity().body(e.getMessage());
+        }
         onlineHearing.registerStateChange();
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
@@ -204,7 +209,12 @@ public class OnlineHearingController {
             }
         }
         onlineHearing.registerStateChange();
-        onlineHearingService.updateOnlineHearing(onlineHearing);
+        try {
+            onlineHearingService.updateOnlineHearing(onlineHearing);
+        } catch (Exception e) {
+            log.error("Could not save online hearing in database", e);
+            return ResponseEntity.unprocessableEntity().body(e.getMessage());
+        }
 
         return ResponseEntity.ok("Online hearing updated");
     }
