@@ -54,17 +54,24 @@ public class BaseSteps {
         header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, testContext.getHttpContext().getIdamServiceRef());
     }
 
-    protected ResponseEntity sendRequest(CohEntityTypes entity, String methodType, String payload) {
+    protected ResponseEntity<String> sendRequest(CohEntityTypes entity, String methodType, String payload) {
         return sendRequest(entity.toString(), methodType, payload);
     }
 
-    protected ResponseEntity sendRequest(String entity, String methodType, String payload) {
+    protected ResponseEntity<String> sendRequest(String entity, String methodType, String payload) {
         HttpMethod method = HttpMethod.valueOf(methodType);
 
         CohEndpointHandler endpoint = CohEndpointFactory.getRequestEndpoint(entity);
-        HttpEntity<String> request = new HttpEntity<>(payload, header);
+        return sendRequest(endpoint.getUrl(method, testContext), method, payload);
+    }
 
-        return restTemplate.exchange(endpoint.getUrl(method, testContext), method, request, String.class);
+    protected ResponseEntity<String> sendRequest(String url, HttpMethod method, String payload) {
+        HttpEntity<String> request = new HttpEntity<>(payload, header);
+        return restTemplate.exchange(url, method, request, String.class);
+    }
+
+    protected ResponseEntity<String> sendRequest(String url, HttpMethod method) {
+        return sendRequest(url, method, null);
     }
 
     public RestTemplate getRestTemplate() {
