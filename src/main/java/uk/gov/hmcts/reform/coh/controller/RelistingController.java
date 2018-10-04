@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
