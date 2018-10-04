@@ -16,11 +16,14 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
+import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 import static junit.framework.TestCase.*;
@@ -308,6 +311,58 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the online hearing reason is '(.*)'$")
     public void theOnlineHearingReasonIsReason(String reason) throws Throwable {
         assertEquals(reason, getOnlineHearingResponse().getRelistReason());
+    }
+
+    @When("^(drafting|issuing) the relist$")
+    public void settingStateOfTheRelistTo(String action) throws Throwable {
+        String reason = testContext.getScenarioContext().getCurrentOnlineHearing().getRelistReason();
+        RelistingState state = RelistingState.DRAFTED;
+        if ("issuing".equals(action)) {
+            state = RelistingState.ISSUED;
+        }
+        RelistingRequest relistingRequest = new RelistingRequest(reason, state);
+        UUID onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
+        String path = CohUriBuilder.buildRelistingGet(onlineHearingId);
+        sendRequest(baseUrl + path, HttpMethod.POST, JsonUtils.toJson(relistingRequest));
+
+        refreshOnlineHearing();
+    }
+
+    @Given("^the relist reason is set to '(.*)'$")
+    public void theRelistReasonIsSetTo(String reason) throws Throwable {
+        testContext.getScenarioContext().getCurrentOnlineHearing().setRelistReason(reason);
+    }
+
+    @Then("^the relist state should be '(.+)'$")
+    public void theRelistStateShouldBe(String expected) throws Throwable {
+        RelistingState expectedState = RelistingState.valueOf(expected.toUpperCase());
+        RelistingState actualState = testContext.getScenarioContext().getCurrentOnlineHearing().getRelistState();
+
+        assertEquals(expectedState, actualState);
+    }
+
+    private void refreshOnlineHearing() throws IOException {
+        UUID onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
+        String path = baseUrl + getExpectedOnlineHearingUri(onlineHearingId);
+        ResponseEntity<String> responseEntity = sendRequest(path, HttpMethod.GET);
+        testContext.getHttpContext().setResponseBodyAndStatesForResponse(responseEntity);
+
+        OnlineHearing onlineHearing = new OnlineHearing();
+
+        OnlineHearingResponse entity
+            = JsonUtils.toObjectFromJson(responseEntity.getBody(), OnlineHearingResponse.class);
+
+        Optional.ofNullable(entity).ifPresent(response -> {
+            onlineHearing.setOnlineHearingId(response.getOnlineHearingId());
+            onlineHearing.setCaseId(response.getCaseId());
+            onlineHearing.setRelistReason(response.getRelistReason());
+            onlineHearing.setRelistState(response.getRelistState());
+            OnlineHearingState onlineHearingState = new OnlineHearingState();
+            onlineHearingState.setState(response.getCurrentState().getName());
+            onlineHearing.setOnlineHearingState(onlineHearingState);
+        });
+
+        testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearing);
     }
 
     private ConversationResponse getConversationResponse() throws IOException {
