@@ -315,4 +315,12 @@ public class RelistingControllerTest {
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(jsonPath("$.updated", is(CohISO8601DateFormat.format(updated))));
     }
+
+    @Test
+    public void relistingWithIssuePendingReturnsBadRequest() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/invalid-issue-pending");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Invalid state"));
+    }
 }

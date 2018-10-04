@@ -92,6 +92,10 @@ public class RelistingController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
 
+        if (body.state == RelistingState.ISSUE_PENDING) {
+            return ResponseEntity.badRequest().body("Invalid state");
+        }
+
         OnlineHearing onlineHearing = optionalOnlineHearing.get();
 
         Date now = Date.from(clock.instant());
