@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,6 +50,13 @@ public class RelistingController {
     @Autowired
     private Clock clock;
 
+    @ApiOperation(value = "Get re-listing", notes = "A GET request to retrieve a re-listing.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Success", response = RelistingResponse.class),
+        @ApiResponse(code = 401, message = "Unauthorised"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Not Found")
+    })
     @GetMapping
     public ResponseEntity retrieveRelisting(@PathVariable UUID onlineHearingId) {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
@@ -63,6 +73,15 @@ public class RelistingController {
         return ResponseEntity.ok(response);
     }
 
+    @ApiOperation(value = "Set re-listing reason and state",
+        notes = "A POST request with a request body is used to update re-listing of online hearing.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, message = "Accepted"),
+        @ApiResponse(code = 401, message = "Unauthorised"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Not Found"),
+        @ApiResponse(code = 409, message = "Conflict")
+    })
     @PostMapping
     public ResponseEntity createDraft(
         @PathVariable UUID onlineHearingId,
