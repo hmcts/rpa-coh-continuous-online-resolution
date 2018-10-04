@@ -15,7 +15,7 @@ public class OnlineHearing {
     @Column(name = "online_hearing_id")
     private UUID onlineHearingId;
 
-    @Column(name = "case_id")
+    @Column(name = "case_id", unique = true)
     private String caseId;
 
     @ManyToOne(targetEntity = Jurisdiction.class, fetch = FetchType.EAGER)
