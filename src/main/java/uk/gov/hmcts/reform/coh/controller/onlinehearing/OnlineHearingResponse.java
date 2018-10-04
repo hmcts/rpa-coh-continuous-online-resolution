@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
+import uk.gov.hmcts.reform.coh.domain.RelistingState;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,6 +49,10 @@ public class OnlineHearingResponse implements Serializable {
     @JsonProperty(value = "relist_reason")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String relistReason;
+
+    @JsonProperty(value = "relist_state")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private RelistingState relistState;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -127,5 +132,13 @@ public class OnlineHearingResponse implements Serializable {
 
     public void setRelistReason(String relistReason) {
         this.relistReason = relistReason;
+    }
+
+    public RelistingState getRelistState() {
+        return relistState;
+    }
+
+    public void setRelistState(RelistingState relistState) {
+        this.relistState = relistState;
     }
 }
