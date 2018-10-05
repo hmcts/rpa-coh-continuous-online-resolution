@@ -5,6 +5,17 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "session_event")
+@NamedEntityGraph(
+    name = "graph.SessionEvent.onlineHearing.onlineHearingStateHistories",
+    attributeNodes = @NamedAttributeNode(
+        value = "onlineHearing",
+        subgraph = "onlineHearing.onlineHearingStateHistories"
+    ),
+    subgraphs = @NamedSubgraph(
+        name = "onlineHearing.onlineHearingStateHistories",
+        attributeNodes = @NamedAttributeNode("onlineHearingStateHistories")
+    )
+)
 public class SessionEvent {
 
     @Id

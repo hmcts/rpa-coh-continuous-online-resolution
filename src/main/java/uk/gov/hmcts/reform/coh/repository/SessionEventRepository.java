@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
@@ -15,6 +17,7 @@ public interface SessionEventRepository extends CrudRepository<SessionEvent, UUI
 
     List<SessionEvent> findAllByOnlineHearing(OnlineHearing onlineHearing);
 
+    @EntityGraph(value = "graph.SessionEvent.onlineHearing.onlineHearingStateHistories", type = EntityGraphType.LOAD)
     List<SessionEvent> findAllBySessionEventForwardingState(SessionEventForwardingState sessionEventForwardingState);
 
     void deleteByOnlineHearing(OnlineHearing onlineHearing);
