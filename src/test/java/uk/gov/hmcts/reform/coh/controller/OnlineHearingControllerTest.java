@@ -38,6 +38,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
 import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.STARTED;
@@ -321,12 +322,10 @@ public class OnlineHearingControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateOnlineHearingRequest)))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString().equalsIgnoreCase("Online hearing updated");
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Changing Online hearing state to continuous_online_hearing_relisted is not permitted"));
 
-        verify(sessionEventService, times(1)).createSessionEvent(onlineHearing, eventType);
+        verify(sessionEventService, times(0)).createSessionEvent(onlineHearing, eventType);
     }
 
     @Test

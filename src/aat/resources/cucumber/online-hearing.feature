@@ -28,23 +28,8 @@ Feature: Online hearing
     And the update online hearing state is continuous_online_hearing_relisted
     And the relist reason is 'reason'
     And a PUT request is sent for online hearing
-    Then the response code is 200
-    And the response contains the following text '"Online hearing updated" '
-    When a GET request is sent for the saved online hearing
-    Then the response code is 200
-    And the online hearing end date is not null
-    And the online hearing reason is 'reason'
-    And an event has been queued for this online hearing of event type continuous_online_hearing_relisted
-
-  Scenario: Update online hearing that's already ended
-    Given a standard update online hearing request
-    And the update online hearing state is continuous_online_hearing_relisted
-    And the relist reason is 'reason'
-    And a PUT request is sent for online hearing
-    Then the response code is 200
-    And the response contains the following text '"Online hearing updated" '
-    And a PUT request is sent for online hearing
     Then the response code is 409
+    And the response contains the following text '"Changing Online hearing state to continuous_online_hearing_relisted is not permitted" '
 
   Scenario: Update with invalid online hearing state
     Given a standard update online hearing request

@@ -194,18 +194,6 @@ public class OnlineHearingController {
         }
 
         onlineHearing.setOnlineHearingState(optionalOnlineHearingState.get());
-        if (RELISTED.getStateName().equals(request.getState())) {
-            onlineHearing.setEndDate((new GregorianCalendar(TimeZone.getTimeZone("GMT")).getTime()));
-            onlineHearing.setRelistReason(request.getReason());
-            try {
-                Optional<SessionEventType> sessionEventType = sessionEventTypeService.retrieveEventType(EventTypes.ONLINE_HEARING_RELISTED.getEventType());
-                if (sessionEventType.isPresent()) {
-                    sessionEventService.createSessionEvent(onlineHearing, sessionEventType.get());
-                }
-            } catch (Exception e) {
-                log.debug(String.format("Unable to queue a re-list session event for '%s': %s", onlineHearing.getOnlineHearingId(), e.getMessage()));
-            }
-        }
         onlineHearing.registerStateChange();
         try {
             onlineHearingService.updateOnlineHearing(onlineHearing);
@@ -220,7 +208,6 @@ public class OnlineHearingController {
     private synchronized boolean isPermittedUpdateState(String state) {
         if (permittedUpdateStates == null) {
             permittedUpdateStates = new HashSet<>();
-            permittedUpdateStates.add(RELISTED.getStateName());
         }
 
         return permittedUpdateStates.contains(state);

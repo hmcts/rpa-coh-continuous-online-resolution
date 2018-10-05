@@ -137,9 +137,9 @@ Feature: Answers
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     Given a standard update online hearing request
-    And the update online hearing state is continuous_online_hearing_relisted
-    And the relist reason is 'reason'
-    And a PUT request is sent for online hearing
+    And the relist reason is set to 'reason'
+    When issuing the relist
+    And the notification scheduler runs
     And a standard answer
     And the answer state is answer_submitted
     When a POST request is sent for an answer
