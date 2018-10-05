@@ -108,24 +108,21 @@ public class RelistingController {
             onlineHearing.setRelistUpdated(now);
         }
 
-        if (onlineHearing.getRelistState() == RelistingState.ISSUED) {
+        if (onlineHearing.getRelistState() == RelistingState.ISSUED
+            || onlineHearing.getRelistState() == RelistingState.ISSUE_PENDING) {
+
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Already issued");
         }
 
         if (body.state == RelistingState.ISSUED) {
             onlineHearing.setEndDate(now);
-
-            Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService
-                .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());
-
-            optionalOnlineHearingState.ifPresent(onlineHearing::setOnlineHearingState);
-
-            onlineHearing.registerStateChange();
-
+            onlineHearing.setRelistReason(body.reason);
+            onlineHearing.setRelistState(RelistingState.ISSUE_PENDING);
             sessionEventService.createSessionEvent(onlineHearing, EventTypes.ONLINE_HEARING_RELISTED.getEventType());
+        } else {
+            onlineHearing.setRelistReason(body.reason);
+            onlineHearing.setRelistState(body.state);
         }
-        onlineHearing.setRelistReason(body.reason);
-        onlineHearing.setRelistState(body.state);
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.accepted().build();

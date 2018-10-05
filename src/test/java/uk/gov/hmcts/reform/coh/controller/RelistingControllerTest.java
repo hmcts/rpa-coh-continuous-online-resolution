@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.coh.controller;
 
-import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,14 +13,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.coh.config.WebConfig;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -35,8 +31,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -151,7 +145,7 @@ public class RelistingControllerTest {
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reason", is("Reason 1")))
-            .andExpect(jsonPath("$.state", is("ISSUED")));
+            .andExpect(jsonPath("$.state", is("ISSUE_PENDING")));
     }
 
     @Test
@@ -174,36 +168,17 @@ public class RelistingControllerTest {
     }
 
     @Test
-    public void issuedRelistingShouldChangeOnlineHearingStateToRelisted() throws Exception {
-        OnlineHearingState issued = spy(OnlineHearingState.class);
-        when(issued.getState()).thenReturn(OnlineHearingStates.RELISTED.getStateName());
-
-        when(onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName()))
-            .thenReturn(Optional.of(issued));
-
-        String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
-        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
-
-        verify(onlineHearingStateService, atLeastOnce())
-            .retrieveOnlineHearingStateByState(OnlineHearingStates.RELISTED.getStateName());
-
-        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
-        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
-
-        OnlineHearing onlineHearing = onlineHearingCaptor.getValue();
-        assertThat(onlineHearing.getOnlineHearingState().getState())
-            .isEqualTo(OnlineHearingStates.RELISTED.getStateName());
-    }
-
-    @Test
     public void relistingAddsEventToSessionQueue() throws Exception {
+        onlineHearing.setRelistState(RelistingState.DRAFTED);
+
         String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isAccepted());
 
         String relisted = EventTypes.ONLINE_HEARING_RELISTED.getEventType();
         verify(sessionEventService, times(1)).createSessionEvent(onlineHearing, relisted);
+
+        assertThat(onlineHearing.getRelistState()).isEqualTo(RelistingState.ISSUE_PENDING);
     }
 
     @Test
@@ -219,29 +194,6 @@ public class RelistingControllerTest {
         verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
 
         assertThat(onlineHearingCaptor.getValue().getEndDate()).isCloseTo(new Date(), 1000);
-    }
-
-    @Test
-    public void relistingRequiresRegisteringStateChange() throws Exception {
-        String relistedState = OnlineHearingStates.RELISTED.getStateName();
-
-        OnlineHearingState issued = spy(OnlineHearingState.class);
-        when(issued.getState()).thenReturn(relistedState);
-
-        when(onlineHearingStateService.retrieveOnlineHearingStateByState(relistedState))
-            .thenReturn(Optional.of(issued));
-
-        String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
-        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
-
-        ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
-        verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
-
-        Condition<OnlineHearingStateHistory> relisted = new Condition<>(history
-            -> relistedState.equals(history.getOnlinehearingstate().getState()), "relisted");
-
-        assertThat(onlineHearingCaptor.getValue().getOnlineHearingStateHistories()).areExactly(1, relisted);
     }
 
     @Test
@@ -322,5 +274,14 @@ public class RelistingControllerTest {
         mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isBadRequest())
             .andExpect(content().string("Invalid state"));
+    }
+
+    @Test
+    public void draftingAlreadyIssuedRelistReturnsConflict() throws Exception {
+        onlineHearing.setRelistState(RelistingState.ISSUED);
+
+        String request = JsonUtils.getJsonInput("relisting/valid-drafted");
+        mockMvc.perform(post(pathToExistingOnlineHearing).content(request).contentType(APPLICATION_JSON))
+            .andExpect(status().isConflict());
     }
 }
