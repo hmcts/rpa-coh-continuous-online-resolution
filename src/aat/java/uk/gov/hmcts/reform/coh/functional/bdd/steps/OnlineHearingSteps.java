@@ -365,6 +365,11 @@ public class OnlineHearingSteps extends BaseSteps {
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearing);
     }
 
+    @And("^the online hearing state is refreshed$")
+    public void theOnlineHearingStateIsRefreshed() throws Throwable {
+        refreshOnlineHearing();
+    }
+
     private ConversationResponse getConversationResponse() throws IOException {
         return JsonUtils
             .toObjectFromJson(testContext.getHttpContext().getRawResponseString(), ConversationResponse.class);

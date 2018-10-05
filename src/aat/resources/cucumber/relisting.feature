@@ -11,5 +11,7 @@ Feature: Re-listing online hearing
     Given a standard online hearing is created
     And the relist reason is set to 'Has to be re-listed.'
     When issuing the relist
+    And the notification scheduler runs
+    And the online hearing state is refreshed
     Then the online hearing state is 'continuous_online_hearing_relisted'
     And the relist state should be 'issued'
