@@ -172,6 +172,17 @@ public class RelistingControllerTest {
     }
 
     @Test
+    public void canRelistWithoutGivingAReason() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-issued-no-reason");
+        mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
+
+        mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.relisting.reason", isEmptyOrNullString()))
+            .andExpect(jsonPath("$.relisting.state", is("ISSUE_PENDING")));
+    }
+
+    @Test
     public void relistingAddsEventToSessionQueue() throws Exception {
         onlineHearing.setRelistState(RelistingState.DRAFTED);
 
