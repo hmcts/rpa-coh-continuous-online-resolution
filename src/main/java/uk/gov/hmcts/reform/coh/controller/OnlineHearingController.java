@@ -15,10 +15,13 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
+import java.time.Clock;
 import java.util.*;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/continuous-online-hearings")
@@ -36,6 +39,12 @@ public class OnlineHearingController {
 
     @Autowired
     private JurisdictionService jurisdictionService;
+
+    @Autowired
+    private SessionEventService sessionEventService;
+
+    @Autowired
+    private Clock clock;
 
     @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
     @ApiResponses(value = {
@@ -147,6 +156,61 @@ public class OnlineHearingController {
                 uriBuilder.path(CohUriBuilder.buildOnlineHearingGet(onlineHearing.getOnlineHearingId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(response);
+    }
+
+    @ApiOperation(value = "Set re-listing reason and state",
+        notes = "A PUT request with a request body is used to update re-listing of online hearing.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 202, message = "Accepted"),
+        @ApiResponse(code = 401, message = "Unauthorised"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Not Found"),
+        @ApiResponse(code = 409, message = "Conflict")
+    })
+    @PutMapping(value = "/{onlineHearingId}/relist", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity setRelisting(
+        @PathVariable UUID onlineHearingId,
+        @RequestBody @Valid RelistingRequest body
+    ) {
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        if (!optionalOnlineHearing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        }
+
+        if (body.state == RelistingState.ISSUE_PENDING) {
+            return ResponseEntity.badRequest().body("Invalid state");
+        }
+
+        OnlineHearing onlineHearing = optionalOnlineHearing.get();
+
+        Date now = Date.from(clock.instant());
+
+        if (onlineHearing.getRelistCreated() == null) {
+            onlineHearing.setRelistCreated(now);
+        }
+
+        if (onlineHearing.getRelistState() != body.state || !Objects.equals(body.reason, onlineHearing.getRelistReason())) {
+            onlineHearing.setRelistUpdated(now);
+        }
+
+        if (onlineHearing.getRelistState() == RelistingState.ISSUED
+            || onlineHearing.getRelistState() == RelistingState.ISSUE_PENDING) {
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already issued");
+        }
+
+        if (body.state == RelistingState.ISSUED) {
+            onlineHearing.setEndDate(now);
+            onlineHearing.setRelistReason(body.reason);
+            onlineHearing.setRelistState(RelistingState.ISSUE_PENDING);
+            sessionEventService.createSessionEvent(onlineHearing, EventTypes.ONLINE_HEARING_RELISTED.getEventType());
+        } else {
+            onlineHearing.setRelistReason(body.reason);
+            onlineHearing.setRelistState(body.state);
+        }
+        onlineHearingService.updateOnlineHearing(onlineHearing);
+
+        return ResponseEntity.accepted().build();
     }
 
     private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {

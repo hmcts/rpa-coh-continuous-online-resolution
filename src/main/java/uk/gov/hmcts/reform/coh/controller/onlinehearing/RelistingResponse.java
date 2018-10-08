@@ -22,8 +22,8 @@ public class RelistingResponse {
     public RelistingResponse(
         @JsonProperty("reason") String reason,
         @JsonProperty("state") RelistingState state,
-        @JsonProperty Date created,
-        @JsonProperty Date updated
+        @JsonProperty("created") Date created,
+        @JsonProperty("updated") Date updated
     ) {
         this.reason = reason;
         this.state = state;

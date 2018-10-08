@@ -310,7 +310,7 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @And("^the online hearing reason is '(.*)'$")
     public void theOnlineHearingReasonIsReason(String reason) throws Throwable {
-        assertEquals(reason, getOnlineHearingResponse().getRelistReason());
+        assertEquals(reason, getOnlineHearingResponse().getRelisting().reason);
     }
 
     @When("^(drafting|issuing) the relist$")

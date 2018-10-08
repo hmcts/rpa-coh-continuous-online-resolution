@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class OnlineHearingResponse implements Serializable {
@@ -46,13 +47,9 @@ public class OnlineHearingResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<QuestionResponse> questions;
 
-    @JsonProperty(value = "relist_reason")
+    @JsonProperty(value = "relisting")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String relistReason;
-
-    @JsonProperty(value = "relist_state")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private RelistingState relistState;
+    private RelistingResponse relisting;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -126,19 +123,19 @@ public class OnlineHearingResponse implements Serializable {
         this.questions = questions;
     }
 
-    public String getRelistReason() {
-        return relistReason;
+    public RelistingResponse getRelisting() {
+        return relisting;
     }
 
-    public void setRelistReason(String relistReason) {
-        this.relistReason = relistReason;
+    public void setRelisting(RelistingResponse relisting) {
+        this.relisting = relisting;
+    }
+
+    public String getRelistReason() {
+        return Optional.ofNullable(relisting).map(response -> response.reason).orElse(null);
     }
 
     public RelistingState getRelistState() {
-        return relistState;
-    }
-
-    public void setRelistState(RelistingState relistState) {
-        this.relistState = relistState;
+        return Optional.ofNullable(relisting).map(response -> response.state).orElse(null);
     }
 }
