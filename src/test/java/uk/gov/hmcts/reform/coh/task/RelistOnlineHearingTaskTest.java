@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
+import uk.gov.hmcts.reform.coh.domain.RelistingHistory;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
@@ -18,6 +19,9 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +43,9 @@ public class RelistOnlineHearingTaskTest {
     @Mock
     private OnlineHearingStateService onlineHearingStateService;
 
+    @Mock
+    private Clock clock;
+
     @InjectMocks
     private RelistOnlineHearingTask relistOnlineHearingTask;
 
@@ -51,6 +58,8 @@ public class RelistOnlineHearingTaskTest {
         when(relistedState.getState()).thenReturn(onlineHearingRelistedState);
         when(onlineHearingStateService.retrieveOnlineHearingStateByState(onlineHearingRelistedState))
             .thenReturn(Optional.of(relistedState));
+
+        when(clock.instant()).thenReturn(Instant.now());
     }
 
     @Test
@@ -89,5 +98,17 @@ public class RelistOnlineHearingTaskTest {
         );
 
         assertThat(onlineHearing.getOnlineHearingStateHistories()).areExactly(1, relisted);
+    }
+
+    @Test
+    public void registersRelistingStateChange() {
+        relistOnlineHearingTask.execute(onlineHearing);
+
+        Condition<RelistingHistory> relisted = new Condition<>(
+            history -> RelistingState.ISSUED.equals(history.getRelistState()),
+            "relisted"
+        );
+
+        assertThat(onlineHearing.getRelistingHistories()).areExactly(1, relisted);
     }
 }

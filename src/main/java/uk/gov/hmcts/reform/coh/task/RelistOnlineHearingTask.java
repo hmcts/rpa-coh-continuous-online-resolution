@@ -10,6 +10,8 @@ import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
+import java.sql.Date;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,9 @@ public class RelistOnlineHearingTask implements ContinuousOnlineResolutionTask<O
     @Autowired
     private OnlineHearingStateService onlineHearingStateService;
 
+    @Autowired
+    private Clock clock;
+
     @Override
     public void execute(OnlineHearing onlineHearing) {
         String relistedStateName = OnlineHearingStates.RELISTED.getStateName();
@@ -35,6 +40,7 @@ public class RelistOnlineHearingTask implements ContinuousOnlineResolutionTask<O
         optionalOnlineHearingState.ifPresent(onlineHearing::setOnlineHearingState);
         onlineHearing.setRelistState(RelistingState.ISSUED);
         onlineHearing.registerStateChange();
+        onlineHearing.registerRelistingChange(Date.from(clock.instant()));
         onlineHearingService.updateOnlineHearing(onlineHearing);
     }
 

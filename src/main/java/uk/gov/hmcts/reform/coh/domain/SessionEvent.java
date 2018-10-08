@@ -13,7 +13,10 @@ import java.util.UUID;
     ),
     subgraphs = @NamedSubgraph(
         name = "onlineHearing.onlineHearingStateHistories",
-        attributeNodes = @NamedAttributeNode("onlineHearingStateHistories")
+        attributeNodes = {
+            @NamedAttributeNode("onlineHearingStateHistories"),
+            @NamedAttributeNode("relistingHistories")
+        }
     )
 )
 public class SessionEvent {

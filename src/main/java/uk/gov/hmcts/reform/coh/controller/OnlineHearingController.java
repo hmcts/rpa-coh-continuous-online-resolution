@@ -208,6 +208,7 @@ public class OnlineHearingController {
             onlineHearing.setRelistReason(body.getReason());
             onlineHearing.setRelistState(body.getState());
         }
+        onlineHearing.registerRelistingChange(now);
         onlineHearingService.updateOnlineHearing(onlineHearing);
 
         return ResponseEntity.accepted().build();

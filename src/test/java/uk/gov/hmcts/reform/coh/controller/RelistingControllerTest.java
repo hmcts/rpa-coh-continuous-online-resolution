@@ -288,4 +288,22 @@ public class RelistingControllerTest {
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
             .andExpect(status().isConflict());
     }
+
+    @Test
+    public void registersAnyChange() throws Exception {
+        String request = JsonUtils.getJsonInput("relisting/valid-drafted");
+        mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
+
+        when(clock.instant()).thenReturn(Instant.now().plus(1, ChronoUnit.DAYS));
+
+        request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
+        mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
+
+        when(clock.instant()).thenReturn(Instant.now().plus(4, ChronoUnit.DAYS));
+
+        request = JsonUtils.getJsonInput("relisting/valid-issued-1");
+        mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
+
+        assertThat(onlineHearing.getRelistingHistories()).hasSize(3);
+    }
 }
