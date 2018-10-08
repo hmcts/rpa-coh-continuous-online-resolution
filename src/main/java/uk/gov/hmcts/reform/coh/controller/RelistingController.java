@@ -77,7 +77,7 @@ public class RelistingController {
         @ApiResponse(code = 409, message = "Conflict")
     })
     @PutMapping
-    public ResponseEntity createDraft(
+    public ResponseEntity setRelisting(
         @PathVariable UUID onlineHearingId,
         @RequestBody @Valid RelistingRequest body
     ) {
