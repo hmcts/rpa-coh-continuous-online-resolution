@@ -45,7 +45,6 @@ Feature: Event Notification Scheduler
 
   Scenario: Notification for Online Hearing Re-listed
     Given a standard online hearing is created
-    Given a standard update online hearing request
     And the relist reason is set to 'reason'
     When issuing the relist
     And an event has been queued for this online hearing of event type continuous_online_hearing_relisted

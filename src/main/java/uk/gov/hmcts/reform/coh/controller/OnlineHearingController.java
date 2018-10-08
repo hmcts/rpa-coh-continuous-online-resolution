@@ -15,14 +15,10 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
-import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.util.*;
-
-import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
-import static uk.gov.hmcts.reform.coh.states.OnlineHearingStates.RELISTED;
 
 @RestController
 @RequestMapping("/continuous-online-hearings")
@@ -32,8 +28,6 @@ public class OnlineHearingController {
 
     private static final String STARTING_STATE = OnlineHearingStates.STARTED.getStateName();
 
-    private static Set<String> permittedUpdateStates;
-
     @Autowired
     private OnlineHearingService onlineHearingService;
 
@@ -42,12 +36,6 @@ public class OnlineHearingController {
 
     @Autowired
     private JurisdictionService jurisdictionService;
-
-    @Autowired
-    private SessionEventTypeService sessionEventTypeService;
-
-    @Autowired
-    private SessionEventService sessionEventService;
 
     @ApiOperation(value = "Get Online Hearing", notes = "A GET request with a request body is used to retrieve an online hearing")
     @ApiResponses(value = {
@@ -159,62 +147,6 @@ public class OnlineHearingController {
                 uriBuilder.path(CohUriBuilder.buildOnlineHearingGet(onlineHearing.getOnlineHearingId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(response);
-    }
-
-    @ApiOperation(value = "Update Online Hearing State", notes = "A PUT request is used to update the state of an online hearing")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 400, message = "Bad Request"),
-            @ApiResponse(code = 401, message = "Unauthorised"),
-            @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not Found"),
-            @ApiResponse(code = 409, message = "Conflict"),
-            @ApiResponse(code = 422, message = "Validation error")
-    })
-    @PutMapping(value = "{onlineHearingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateOnlineHearingState(@PathVariable UUID onlineHearingId, @RequestBody UpdateOnlineHearingRequest request) {
-
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
-        if (!optionalOnlineHearing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
-        }
-
-        Optional<OnlineHearingState> optionalOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(request.getState());
-
-        if (!optionalOnlineHearingState.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid state");
-        }
-
-        OnlineHearing onlineHearing = optionalOnlineHearing.get();
-        if (!isPermittedUpdateState(request.getState())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Changing Online hearing state to " + request.getState() + " is not permitted");
-        }
-        if (!isOnlineHearingStillLive(onlineHearing)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Online hearing has already ended");
-        }
-
-        onlineHearing.setOnlineHearingState(optionalOnlineHearingState.get());
-        onlineHearing.registerStateChange();
-        try {
-            onlineHearingService.updateOnlineHearing(onlineHearing);
-        } catch (Exception e) {
-            log.error("Could not save online hearing in database", e);
-            return ResponseEntity.unprocessableEntity().body(e.getMessage());
-        }
-
-        return ResponseEntity.ok("Online hearing updated");
-    }
-
-    private synchronized boolean isPermittedUpdateState(String state) {
-        if (permittedUpdateStates == null) {
-            permittedUpdateStates = new HashSet<>();
-        }
-
-        return permittedUpdateStates.contains(state);
-    }
-
-    private boolean isOnlineHearingStillLive(OnlineHearing onlineHearing) {
-        return onlineHearing.getEndDate() == null;
     }
 
     private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {

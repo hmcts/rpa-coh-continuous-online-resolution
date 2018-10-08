@@ -22,29 +22,3 @@ Feature: Online hearing
     When a GET request is sent for the saved online hearing
     Then the response code is 200
     And the response contains the following text '"case_123" '
-
-  Scenario: Update online hearing state to re-listed
-    Given a standard update online hearing request
-    And the update online hearing state is continuous_online_hearing_relisted
-    And the relist reason is 'reason'
-    And a PUT request is sent for online hearing
-    Then the response code is 409
-    And the response contains the following text '"Changing Online hearing state to continuous_online_hearing_relisted is not permitted" '
-
-  Scenario: Update with invalid online hearing state
-    Given a standard update online hearing request
-    And the update online hearing state is foo
-    And a PUT request is sent for online hearing
-    Then the response code is 422
-    
-  Scenario: Update with starting state
-    Given a standard update online hearing request
-    And the update online hearing state is continuous_online_hearing_started
-    And a PUT request is sent for online hearing
-    Then the response code is 409
-
-  Scenario: Update non-existent online hearing
-    And the update online hearing state is continuous_online_hearing_answers_sent
-    And the request contains a random UUID
-    And a PUT request is sent for online hearing
-    Then the response code is 404

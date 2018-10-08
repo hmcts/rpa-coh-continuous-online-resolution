@@ -136,7 +136,7 @@ Feature: Answers
     And a valid question
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
-    Given a standard update online hearing request
+    When the online hearing state is refreshed
     And the relist reason is set to 'reason'
     When issuing the relist
     And the notification scheduler runs
