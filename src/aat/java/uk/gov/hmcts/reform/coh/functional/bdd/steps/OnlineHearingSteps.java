@@ -31,8 +31,6 @@ import static org.junit.Assert.assertNull;
 
 public class OnlineHearingSteps extends BaseSteps {
 
-    private UpdateOnlineHearingRequest request;
-
     @Autowired
     public OnlineHearingSteps(TestContext testContext) {
         super(testContext);
@@ -103,18 +101,6 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the request contains a random UUID$")
     public void the_request_contains_a_random_UUID() throws Exception {
         testContext.getScenarioContext().getCurrentOnlineHearing().setOnlineHearingId(UUID.randomUUID());
-    }
-
-    @Given("^a standard update online hearing request$")
-    public void a_standard_update_online_hearing_request() throws IOException {
-        UpdateOnlineHearingRequest request = JsonUtils
-            .toObjectFromTestName("online_hearing/update_online_hearing", UpdateOnlineHearingRequest.class);
-        testContext.getScenarioContext().setUpdateOnlineHearingRequest(request);
-    }
-
-    @And("^the update online hearing state is (.*)$")
-    public void the_update_online_hearing_state_is(String stateName) {
-        testContext.getScenarioContext().getUpdateOnlineHearingRequest().setState(stateName);
     }
 
     @And("^the relist reason is '(.*)'$")
