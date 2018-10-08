@@ -305,9 +305,8 @@ public class OnlineHearingSteps extends BaseSteps {
         assertEquals(reason, getOnlineHearingResponse().getRelisting().getReason());
     }
 
-    @When("^(drafting|issuing) the relist$")
-    public void settingStateOfTheRelistTo(String action) throws Throwable {
-        String reason = testContext.getScenarioContext().getCurrentOnlineHearing().getRelistReason();
+    @When("^(drafting|issuing) the relist(?: with reason '(.*)')*$")
+    public void settingStateOfTheRelistTo(String action, String reason) throws Throwable {
         RelistingState state = RelistingState.DRAFTED;
         if ("issuing".equals(action)) {
             state = RelistingState.ISSUED;
