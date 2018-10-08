@@ -49,6 +49,10 @@ public class OnlineHearingResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private RelistingResponse relisting;
 
+    @JsonProperty(value = "relisting_history")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<RelistingHistoryResponse> relistingHistory;
+
     public UUID getOnlineHearingId() {
         return onlineHearingId;
     }
@@ -127,5 +131,13 @@ public class OnlineHearingResponse implements Serializable {
 
     public void setRelisting(RelistingResponse relisting) {
         this.relisting = relisting;
+    }
+
+    public void setRelistingHistory(List<RelistingHistoryResponse> history) {
+        this.relistingHistory = history;
+    }
+
+    public List<RelistingHistoryResponse> getRelistingHistory() {
+        return relistingHistory;
     }
 }

@@ -44,5 +44,16 @@ public class OnlineHearingMapper {
         );
 
         response.setRelisting(relistingResponse);
+
+        response.setRelistingHistory(
+            onlineHearing.getRelistingHistories().stream()
+                .map(entry
+                    -> new RelistingHistoryResponse(
+                    entry.getRelistReason(),
+                    entry.getRelistState(),
+                    entry.getDateOccurrred()
+                ))
+                .collect(Collectors.toList())
+        );
     }
 }

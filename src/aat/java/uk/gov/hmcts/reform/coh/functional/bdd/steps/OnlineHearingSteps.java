@@ -17,17 +17,23 @@ import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
+import uk.gov.hmcts.reform.coh.domain.RelistingHistory;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class OnlineHearingSteps extends BaseSteps {
 
@@ -346,6 +352,17 @@ public class OnlineHearingSteps extends BaseSteps {
             OnlineHearingState onlineHearingState = new OnlineHearingState();
             onlineHearingState.setState(response.getCurrentState().getName());
             onlineHearing.setOnlineHearingState(onlineHearingState);
+            List<RelistingHistory> collect = response.getRelistingHistory().stream()
+                .map(relistingHistoryResponse -> {
+                    return new RelistingHistory(
+                        onlineHearing,
+                        relistingHistoryResponse.getReason(),
+                        relistingHistoryResponse.getState(),
+                        relistingHistoryResponse.getDateOccurred()
+                    );
+                })
+                .collect(Collectors.toList());
+            onlineHearing.setRelistingHistories(new HashSet<>(collect));
         });
 
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearing);
@@ -354,6 +371,14 @@ public class OnlineHearingSteps extends BaseSteps {
     @And("^the online hearing state is refreshed$")
     public void theOnlineHearingStateIsRefreshed() throws Throwable {
         refreshOnlineHearing();
+    }
+
+    @Then("^the online hearing relist history has (\\d+) entries$")
+    public void theOnlineHearingRelistHistoryHasEntries(int expectedNumberOfEntries) throws Throwable {
+        assertThat(
+            testContext.getScenarioContext().getCurrentOnlineHearing().getRelistingHistories(),
+            hasSize(expectedNumberOfEntries)
+        );
     }
 
     private ConversationResponse getConversationResponse() throws IOException {

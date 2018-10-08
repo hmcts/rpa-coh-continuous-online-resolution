@@ -15,3 +15,13 @@ Feature: Re-listing online hearing
     And the online hearing state is refreshed
     Then the online hearing state is 'continuous_online_hearing_relisted'
     And the relist state should be 'issued'
+
+  Scenario: Changes are included in history
+    Given a standard online hearing is created
+    And the relist reason is set to 'Anything'
+    When drafting the relist
+    And the relist reason is set to 'Something new'
+    And issuing the relist
+    And the notification scheduler runs
+    And the online hearing state is refreshed
+    Then the online hearing relist history has 3 entries
