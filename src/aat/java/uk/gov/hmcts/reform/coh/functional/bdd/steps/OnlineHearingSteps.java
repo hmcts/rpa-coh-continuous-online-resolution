@@ -323,7 +323,7 @@ public class OnlineHearingSteps extends BaseSteps {
         RelistingRequest relistingRequest = new RelistingRequest(reason, state);
         UUID onlineHearingId = testContext.getScenarioContext().getCurrentOnlineHearing().getOnlineHearingId();
         String path = CohUriBuilder.buildRelistingGet(onlineHearingId);
-        sendRequest(baseUrl + path, HttpMethod.POST, JsonUtils.toJson(relistingRequest));
+        sendRequest(baseUrl + path, HttpMethod.PUT, JsonUtils.toJson(relistingRequest));
 
         refreshOnlineHearing();
     }

@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -76,7 +76,7 @@ public class RelistingController {
         @ApiResponse(code = 404, message = "Not Found"),
         @ApiResponse(code = 409, message = "Conflict")
     })
-    @PostMapping
+    @PutMapping
     public ResponseEntity createDraft(
         @PathVariable UUID onlineHearingId,
         @RequestBody @Valid RelistingRequest body
