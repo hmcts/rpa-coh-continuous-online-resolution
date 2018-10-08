@@ -16,13 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.RelistingRequest;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.RelistingResponse;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
-import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
-import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
 import java.time.Clock;
 import java.util.Date;
@@ -40,9 +37,6 @@ public class RelistingController {
 
     @Autowired
     private OnlineHearingService onlineHearingService;
-
-    @Autowired
-    private OnlineHearingStateService onlineHearingStateService;
 
     @Autowired
     private SessionEventService sessionEventService;

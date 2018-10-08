@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -52,9 +51,6 @@ public class RelistingControllerTest {
 
     @MockBean
     private OnlineHearingService onlineHearingService;
-
-    @MockBean
-    private OnlineHearingStateService onlineHearingStateService;
 
     @MockBean
     private SessionEventService sessionEventService;
