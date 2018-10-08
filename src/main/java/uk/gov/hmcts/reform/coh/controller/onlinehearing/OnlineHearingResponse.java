@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
-import uk.gov.hmcts.reform.coh.domain.RelistingState;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class OnlineHearingResponse implements Serializable {

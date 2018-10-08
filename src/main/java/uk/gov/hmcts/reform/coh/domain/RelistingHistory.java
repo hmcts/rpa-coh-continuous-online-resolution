@@ -1,8 +1,5 @@
 package uk.gov.hmcts.reform.coh.domain;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.Clock;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
