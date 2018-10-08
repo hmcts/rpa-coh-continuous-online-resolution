@@ -7,11 +7,11 @@ import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import javax.validation.constraints.NotNull;
 
 public class RelistingRequest {
-    public final String reason;
+    private final String reason;
 
     @ApiModelProperty(required = true, allowableValues = "drafted, issued")
     @NotNull(message = "Missing state field")
-    public final RelistingState state;
+    private final RelistingState state;
 
     public RelistingRequest(
         @JsonProperty("reason") String reason,
@@ -19,5 +19,13 @@ public class RelistingRequest {
     ) {
         this.reason = reason;
         this.state = state;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public RelistingState getState() {
+        return state;
     }
 }

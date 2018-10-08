@@ -8,16 +8,16 @@ import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import java.util.Date;
 
 public class RelistingResponse {
-    public final String reason;
-    public final RelistingState state;
+    private final String reason;
+    private final RelistingState state;
 
     @ApiModelProperty(value = "ISO-8601 format: yyyy-MM-dd'T'HH:mm:ss'Z'")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    public final Date created;
+    private final Date created;
 
     @ApiModelProperty(value = "ISO-8601 format: yyyy-MM-dd'T'HH:mm:ss'Z'")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    public final Date updated;
+    private final Date updated;
 
     public RelistingResponse(
         @JsonProperty("reason") String reason,
@@ -29,5 +29,21 @@ public class RelistingResponse {
         this.state = state;
         this.created = created;
         this.updated = updated;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public RelistingState getState() {
+        return state;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public Date getUpdated() {
+        return updated;
     }
 }

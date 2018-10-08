@@ -177,7 +177,7 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
         }
 
-        if (body.state == RelistingState.ISSUE_PENDING) {
+        if (body.getState() == RelistingState.ISSUE_PENDING) {
             return ResponseEntity.badRequest().body("Invalid state");
         }
 
@@ -189,7 +189,7 @@ public class OnlineHearingController {
             onlineHearing.setRelistCreated(now);
         }
 
-        if (onlineHearing.getRelistState() != body.state || !Objects.equals(body.reason, onlineHearing.getRelistReason())) {
+        if (onlineHearing.getRelistState() != body.getState() || !Objects.equals(body.getReason(), onlineHearing.getRelistReason())) {
             onlineHearing.setRelistUpdated(now);
         }
 
@@ -199,14 +199,14 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Already issued");
         }
 
-        if (body.state == RelistingState.ISSUED) {
+        if (body.getState() == RelistingState.ISSUED) {
             onlineHearing.setEndDate(now);
-            onlineHearing.setRelistReason(body.reason);
+            onlineHearing.setRelistReason(body.getReason());
             onlineHearing.setRelistState(RelistingState.ISSUE_PENDING);
             sessionEventService.createSessionEvent(onlineHearing, EventTypes.ONLINE_HEARING_RELISTED.getEventType());
         } else {
-            onlineHearing.setRelistReason(body.reason);
-            onlineHearing.setRelistState(body.state);
+            onlineHearing.setRelistReason(body.getReason());
+            onlineHearing.setRelistState(body.getState());
         }
         onlineHearingService.updateOnlineHearing(onlineHearing);
 

@@ -310,7 +310,7 @@ public class OnlineHearingSteps extends BaseSteps {
 
     @And("^the online hearing reason is '(.*)'$")
     public void theOnlineHearingReasonIsReason(String reason) throws Throwable {
-        assertEquals(reason, getOnlineHearingResponse().getRelisting().reason);
+        assertEquals(reason, getOnlineHearingResponse().getRelisting().getReason());
     }
 
     @When("^(drafting|issuing) the relist$")
@@ -355,8 +355,8 @@ public class OnlineHearingSteps extends BaseSteps {
         Optional.ofNullable(entity).ifPresent(response -> {
             onlineHearing.setOnlineHearingId(response.getOnlineHearingId());
             onlineHearing.setCaseId(response.getCaseId());
-            onlineHearing.setRelistReason(response.getRelistReason());
-            onlineHearing.setRelistState(response.getRelistState());
+            onlineHearing.setRelistReason(response.getRelisting().getReason());
+            onlineHearing.setRelistState(response.getRelisting().getState());
             OnlineHearingState onlineHearingState = new OnlineHearingState();
             onlineHearingState.setState(response.getCurrentState().getName());
             onlineHearing.setOnlineHearingState(onlineHearingState);

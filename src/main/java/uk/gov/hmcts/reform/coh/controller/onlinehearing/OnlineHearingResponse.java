@@ -130,12 +130,4 @@ public class OnlineHearingResponse implements Serializable {
     public void setRelisting(RelistingResponse relisting) {
         this.relisting = relisting;
     }
-
-    public String getRelistReason() {
-        return Optional.ofNullable(relisting).map(response -> response.reason).orElse(null);
-    }
-
-    public RelistingState getRelistState() {
-        return Optional.ofNullable(relisting).map(response -> response.state).orElse(null);
-    }
 }
