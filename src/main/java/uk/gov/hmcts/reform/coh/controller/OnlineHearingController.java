@@ -129,6 +129,14 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
         }
 
+        // Sonar doesn't understand that these have been tested
+        if (!onlineHearingState.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing online hearing state configuration");
+        }
+        if (!jurisdiction.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing jurisdiction configuration");
+        }
+
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
@@ -229,12 +237,6 @@ public class OnlineHearingController {
         if (StringUtils.isEmpty(request.getCaseId())) {
             result.setValid(false);
             result.setReason("Case id is required");
-        } else if (!onlineHearingState.isPresent()) {
-            result.setValid(false);
-            result.setReason("Online hearing state is not valid");
-        } else if (!jurisdiction.isPresent()) {
-            result.setValid(false);
-            result.setReason("Jurisdiction is not valid");
         }
 
         return result;
