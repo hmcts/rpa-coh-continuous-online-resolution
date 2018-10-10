@@ -138,6 +138,16 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
+    public void testOnlineHearingNotExists() throws Exception {
+        given(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class))).willReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
     public void testCreateOnlineHearingAndCheckLocationHeader() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
@@ -195,9 +205,10 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
-    public void testCreateOnlineHearingStartingStateNotFound() throws Exception {
+    public void testCreateOnlineHearingStartingStateAndJurisdictionNotFound() throws Exception {
 
         given(onlineHearingStateService.retrieveOnlineHearingStateByState("continuous_online_hearing_started")).willReturn(Optional.empty());
+        given(jurisdictionService.getJurisdictionWithName(anyString())).willReturn(java.util.Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))

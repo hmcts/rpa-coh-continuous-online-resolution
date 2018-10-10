@@ -129,16 +129,6 @@ public class OnlineHearingController {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
         }
 
-        // Sonar doesn't understand that these have been tested
-        if (!onlineHearingState.isPresent() || !jurisdiction.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Missing configuration");
-        }
-
-        Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
-        if (!optOnlineHearingState.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-
         onlineHearing.setOnlineHearingId(UUID.randomUUID());
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
@@ -147,7 +137,7 @@ public class OnlineHearingController {
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
 
         response.setOnlineHearingId(onlineHearing.getOnlineHearingId().toString());
-        onlineHearing.setOnlineHearingState(optOnlineHearingState.get());
+        onlineHearing.setOnlineHearingState(onlineHearingState.get());
         try {
             onlineHearingService.createOnlineHearing(onlineHearing);
         } catch (Exception e) {
