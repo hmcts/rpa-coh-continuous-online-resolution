@@ -35,6 +35,18 @@ repositories {
     mavenLocal()
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'org.apache.tomcat.embed'
+                && details.requested.name == 'tomcat-embed-core'
+                && details.requested.version == '8.5.29') {
+
+            details.useVersion "8.5.34"
+            details.because "https://nvd.nist.gov/vuln/detail/CVE-2018-8034"
+        }
+    }
+}
+
 dependencyCheck {
     // Specifies if the build should be failed if a CVSS score above a specified level is identified.
     // range of 0-10 fails the build, anything greater and it doesn't fail the build
