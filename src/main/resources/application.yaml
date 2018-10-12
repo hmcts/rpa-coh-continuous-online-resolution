@@ -84,7 +84,7 @@ auth:
 
 authorization:
   roles: ${AUTHORIZATION_ROLES:solicitor}
-  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw}
+  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:jui_webapp,sscs,divorce,ccd,em_gw}
 
 azure:
   app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:true}
