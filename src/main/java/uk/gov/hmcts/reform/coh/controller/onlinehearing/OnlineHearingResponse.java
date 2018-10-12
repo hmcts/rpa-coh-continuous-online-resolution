@@ -45,9 +45,13 @@ public class OnlineHearingResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<QuestionResponse> questions;
 
-    @JsonProperty(value = "relist_reason")
+    @JsonProperty(value = "relisting")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String relistReason;
+    private RelistingResponse relisting;
+
+    @JsonProperty(value = "relisting_history")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<RelistingHistoryResponse> relistingHistory;
 
     public UUID getOnlineHearingId() {
         return onlineHearingId;
@@ -121,11 +125,19 @@ public class OnlineHearingResponse implements Serializable {
         this.questions = questions;
     }
 
-    public String getRelistReason() {
-        return relistReason;
+    public RelistingResponse getRelisting() {
+        return relisting;
     }
 
-    public void setRelistReason(String relistReason) {
-        this.relistReason = relistReason;
+    public void setRelisting(RelistingResponse relisting) {
+        this.relisting = relisting;
+    }
+
+    public void setRelistingHistory(List<RelistingHistoryResponse> history) {
+        this.relistingHistory = history;
+    }
+
+    public List<RelistingHistoryResponse> getRelistingHistory() {
+        return relistingHistory;
     }
 }

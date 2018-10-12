@@ -36,6 +36,24 @@ public class OnlineHearingMapper {
                     .collect(Collectors.toList()));
         }
 
-        response.setRelistReason(onlineHearing.getRelistReason());
+        RelistingResponse relistingResponse = new RelistingResponse(
+            onlineHearing.getRelistReason(),
+            onlineHearing.getRelistState(),
+            onlineHearing.getRelistCreated(),
+            onlineHearing.getRelistUpdated()
+        );
+
+        response.setRelisting(relistingResponse);
+
+        response.setRelistingHistory(
+            onlineHearing.getRelistingHistories().stream()
+                .map(entry
+                    -> new RelistingHistoryResponse(
+                    entry.getRelistReason(),
+                    entry.getRelistState(),
+                    entry.getDateOccurrred()
+                ))
+                .collect(Collectors.toList())
+        );
     }
 }

@@ -4,7 +4,8 @@ import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearingStateHistory;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ public class OnlineHearingEntityUtils {
 
         history1.setDateOccurred(new Date());
         history1.setOnlinehearingstate(onlineHearing.getOnlineHearingState());
-        onlineHearing.setOnlineHearingStateHistories(Arrays.asList(history1));
+        onlineHearing.setOnlineHearingStateHistories(new ArrayList<>(Collections.singletonList(history1)));
 
         return onlineHearing;
     }

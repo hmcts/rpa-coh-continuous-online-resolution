@@ -1,0 +1,40 @@
+databaseChangeLog:
+- changeSet:
+    id: 1538999626719-1
+    author: karol (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: relisting_historyPK
+            name: id
+            type: BIGINT
+        - column:
+            name: date_occurred
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: relist_reason
+            type: TEXT
+        - column:
+            name: relist_state
+            type: SMALLINT
+        - column:
+            name: online_hearing_id
+            type: UUID
+        tableName: relisting_history
+- changeSet:
+    id: 1538999626719-2
+    author: karol (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: online_hearing_id
+        baseTableName: relisting_history
+        constraintName: FKiwdqhoaiqyw4jthy0vphjukw3
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: online_hearing_id
+        referencedTableName: online_hearing
+

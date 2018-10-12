@@ -1,0 +1,22 @@
+databaseChangeLog:
+- changeSet:
+    id: 1538576279546-1
+    author: karol (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: relist_created
+            type: TIMESTAMP WITH TIME ZONE
+        tableName: online_hearing
+- changeSet:
+    id: 1538576279546-2
+    author: karol (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: relist_updated
+            type: TIMESTAMP WITH TIME ZONE
+        tableName: online_hearing
+

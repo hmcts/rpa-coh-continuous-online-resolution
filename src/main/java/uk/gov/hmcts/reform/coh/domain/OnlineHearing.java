@@ -4,7 +4,9 @@ import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -43,6 +45,21 @@ public class OnlineHearing {
     @Column(name = "relist_reason", columnDefinition="CLOB")
     private String relistReason;
 
+    @Enumerated
+    @Column(name = "relist_state", columnDefinition = "smallint")
+    private RelistingState relistState = RelistingState.DRAFTED;
+
+    @Column(name = "relist_created", columnDefinition= "TIMESTAMP WITH TIME ZONE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date relistCreated;
+
+    @Column(name = "relist_updated", columnDefinition= "TIMESTAMP WITH TIME ZONE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date relistUpdated;
+
+    @OneToMany(mappedBy = "onlineHearing", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RelistingHistory> relistingHistories = new HashSet<>();
+
     public void setOnlineHearingStateHistories(List<OnlineHearingStateHistory> onlineHearingStateHistories) {
         this.onlineHearingStateHistories = onlineHearingStateHistories;
     }
@@ -55,6 +72,19 @@ public class OnlineHearing {
     public void registerStateChange(){
         OnlineHearingStateHistory onlineHearingStateHistory = new OnlineHearingStateHistory(this, onlineHearingState);
         onlineHearingStateHistories.add(onlineHearingStateHistory);
+    }
+
+    public void registerRelistingChange(Date now) {
+        RelistingHistory relistingHistory = new RelistingHistory(this, relistReason, relistState, now);
+        relistingHistories.add(relistingHistory);
+    }
+
+    public Set<RelistingHistory> getRelistingHistories() {
+        return relistingHistories;
+    }
+
+    public void setRelistingHistories(Set<RelistingHistory> relistingHistories) {
+        this.relistingHistories = relistingHistories;
     }
 
     public UUID getOnlineHearingId() {
@@ -148,4 +178,29 @@ public class OnlineHearing {
     public void setRelistReason(String relistReason) {
         this.relistReason = relistReason;
     }
+
+    public void setRelistState(RelistingState state) {
+        this.relistState = state;
+    }
+
+    public RelistingState getRelistState() {
+        return relistState;
+    }
+
+    public Date getRelistCreated() {
+        return relistCreated;
+    }
+
+    public void setRelistCreated(Date relistCreated) {
+        this.relistCreated = relistCreated;
+    }
+
+    public Date getRelistUpdated() {
+        return relistUpdated;
+    }
+
+    public void setRelistUpdated(Date relistUpdated) {
+        this.relistUpdated = relistUpdated;
+    }
+
 }
