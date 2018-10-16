@@ -101,6 +101,6 @@ event-scheduler:
 
 idam:
   s2s-auth:
-    url: ${IDAM_S2S_AUTH_URL:http://localhost:4502}
+    url: ${S2S_URL:http://localhost:4502}
     microservice: coh_cor
-    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAA}
+    totp_secret: ${S2S_TOKEN:AAAAAAAAAAAAAAAA}
