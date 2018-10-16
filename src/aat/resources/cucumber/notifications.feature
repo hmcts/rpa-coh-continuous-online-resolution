@@ -50,3 +50,10 @@ Feature: Event Notification Scheduler
     And an event has been queued for this online hearing of event type continuous_online_hearing_relisted
     When the notification scheduler runs
     Then the event status is event_forwarding_success
+
+  Scenario: Sending authenticated notification
+    Given a standard online hearing is created
+    When issuing the relist with reason 'anything goes'
+    And an event has been queued for this online hearing of event type continuous_online_hearing_relisted
+    When the notification scheduler runs
+    Then the notification request should contain valid service authorization header

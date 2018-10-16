@@ -83,6 +83,10 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
         URL_ENCODED_HEADER.set(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, authTokenGenerator.generate());
     }
 
+    public String getLastServiceAuthorization() {
+        return URL_ENCODED_HEADER.getFirst(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION);
+    }
+
     public String refactorEndpoint(String endpoint) {
         if (endpoint.contains(PLACEHOLDER_HOST)) {
             endpoint = endpoint.replace("${base-urls.test-url}", getBaseUrl());

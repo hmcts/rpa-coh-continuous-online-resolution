@@ -57,3 +57,9 @@ azure:
 
 aat:
   test-notification-endpoint: ${base-urls.test-url}/SSCS/notifications
+
+idam:
+  s2s-auth:
+    url: ${IDAM_S2S_AUTH_URL:http://localhost:4502}
+    microservice: coh_cor
+    totp_secret: ${IDAM_S2S_AUTH_TOTP_SECRET:AAAAAAAAAA}
