@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpEntity;
@@ -13,15 +14,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -40,6 +45,9 @@ public class BasicJsonNotificationForwarderTest {
     @Mock
     private ObjectMapper mapper;
 
+    @Mock
+    private AuthTokenGenerator authTokenGenerator;
+
     private NotificationRequest request;
 
     private String google = "http://www.google.com";
@@ -49,7 +57,7 @@ public class BasicJsonNotificationForwarderTest {
         register = new SessionEventForwardingRegister();
         register.setForwardingEndpoint(google);
 
-        forwarder = Mockito.spy(BasicJsonNotificationForwarder.class);
+        forwarder = Mockito.spy(new BasicJsonNotificationForwarder(authTokenGenerator));
 
         restTemplate = Mockito.mock(RestTemplate.class);
 
@@ -94,5 +102,29 @@ public class BasicJsonNotificationForwarderTest {
     @Test
     public void testGetRestTemplate() {
         assertTrue(forwarder.getRestTemplate() instanceof RestTemplate);
+    }
+
+    @Test
+    public void testCallingAuthTokenGenerator() throws Exception {
+        doReturn(restTemplate).when(forwarder).getRestTemplate();
+
+        forwarder.sendEndpoint(register, request);
+
+        verify(authTokenGenerator, atLeastOnce()).generate();
+    }
+
+    @Test
+    public void testUsingGeneratedTokenAsServiceAuthorizationHeader() throws Exception {
+        doReturn(restTemplate).when(forwarder).getRestTemplate();
+
+        String randomToken = "random token";
+        doReturn(randomToken).when(authTokenGenerator).generate();
+
+        forwarder.sendEndpoint(register, request);
+
+        ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
+        verify(restTemplate).exchange(anyString(), any(HttpMethod.class), captor.capture(), any(Class.class));
+
+        assertThat(captor.getValue().getHeaders().getFirst("ServiceAuthorization")).isEqualTo(randomToken);
     }
 }

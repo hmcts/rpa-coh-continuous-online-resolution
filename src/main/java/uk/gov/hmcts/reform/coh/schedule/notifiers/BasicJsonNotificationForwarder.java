@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.schedule.notifiers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,10 +14,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 @Qualifier("BasicJsonNotificationForwarder")
@@ -42,8 +45,17 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
     @Value("${base-urls.test-url}")
     String baseUrl;
 
+    private final AuthTokenGenerator authTokenGenerator;
+
+    @Autowired
+    public BasicJsonNotificationForwarder(AuthTokenGenerator authTokenGenerator) {
+        this.authTokenGenerator = Objects.requireNonNull(authTokenGenerator);
+    }
+
     @Override
     public ResponseEntity sendEndpoint(SessionEventForwardingRegister register, NotificationRequest notificationRequest) throws NotificationException {
+
+        generateS2SHeader();
 
         String endpoint = refactorEndpoint(register.getForwardingEndpoint());
 
@@ -65,6 +77,10 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
         }
 
         return response;
+    }
+
+    private void generateS2SHeader() {
+        URL_ENCODED_HEADER.set(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, authTokenGenerator.generate());
     }
 
     public String refactorEndpoint(String endpoint) {
