@@ -3,6 +3,7 @@ locals {
   ase_name = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
   shared_vault_name = "${var.shared_product_name}-${local.local_env}"
+  s2s_vault_url = "https://s2s-${local.local_env}.vault.azure.net/"
 }
 # "${local.ase_name}"
 # "${local.app_full_name}"
