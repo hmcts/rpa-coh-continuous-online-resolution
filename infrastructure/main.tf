@@ -3,6 +3,7 @@ locals {
   ase_name = "${data.terraform_remote_state.core_apps_compute.ase_name[0]}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
   shared_vault_name = "${var.shared_product_name}-${local.local_env}"
+  s2s_vault_url = "https://s2s-${local.local_env}.vault.azure.net/"
 }
 # "${local.ase_name}"
 # "${local.app_full_name}"
@@ -44,6 +45,8 @@ module "app" {
     # idam
     IDAM_API_BASE_URI = "${var.idam_api_url}"
     S2S_BASE_URI = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
+    S2S_URL = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
+    S2S_TOKEN = "${data.azurerm_key_vault_secret.source_test_s2s_secret.value}"
 
     # logging vars & healthcheck
     REFORM_SERVICE_NAME = "${local.app_full_name}"

@@ -6,10 +6,13 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.events.SessionEventRequest;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
@@ -20,17 +23,19 @@ import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventTypeRespository;
+import uk.gov.hmcts.reform.coh.schedule.notifiers.BasicJsonNotificationForwarder;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.schedule.trigger.EventTriggerJob;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
+import javax.persistence.EntityNotFoundException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class EventSteps extends BaseSteps {
 
@@ -51,6 +56,12 @@ public class EventSteps extends BaseSteps {
 
     @Autowired
     private EventTriggerJob triggerJob;
+
+    @Autowired
+    private AuthTokenValidator authTokenValidator;
+
+    @Value("${idam.s2s-auth.microservice}")
+    private String expectedMicroserviceName;
 
     private ResponseEntity<String> response;
 
@@ -213,5 +224,19 @@ public class EventSteps extends BaseSteps {
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
         assertEquals(count, register.size());
 
+    }
+
+    @Then("^the notification request should contain valid service authorization header$")
+    public void theNotificationRequestShouldContainValidServiceAuthorizationHeader() throws Throwable {
+        notifierJob.execute();
+
+        BasicJsonNotificationForwarder forwarder
+            = (BasicJsonNotificationForwarder) ReflectionTestUtils.getField(notifierJob, "forwarder");
+
+        assertNotNull(forwarder);
+
+        String lastServiceAuthorization = forwarder.getLastServiceAuthorization();
+
+        assertEquals(expectedMicroserviceName, authTokenValidator.getServiceName(lastServiceAuthorization));
     }
 }

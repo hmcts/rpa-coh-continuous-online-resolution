@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.schedule.notifiers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,10 +14,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 @Qualifier("BasicJsonNotificationForwarder")
@@ -30,20 +33,27 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
     private static HttpHeaders URL_ENCODED_HEADER;
 
-    private static String IDAM_AUTHORISATION_TOKEN = "test_idam_service";
     private static String IDAM_SERVICE_TOKEN = "test_idam_service";
     static {
         URL_ENCODED_HEADER = new HttpHeaders();
         URL_ENCODED_HEADER.add("Content-Type", "application/json");
-        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, IDAM_AUTHORISATION_TOKEN);
         URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, IDAM_SERVICE_TOKEN);
     }
 
     @Value("${base-urls.test-url}")
     String baseUrl;
 
+    private final AuthTokenGenerator authTokenGenerator;
+
+    @Autowired
+    public BasicJsonNotificationForwarder(AuthTokenGenerator authTokenGenerator) {
+        this.authTokenGenerator = Objects.requireNonNull(authTokenGenerator);
+    }
+
     @Override
     public ResponseEntity sendEndpoint(SessionEventForwardingRegister register, NotificationRequest notificationRequest) throws NotificationException {
+
+        generateS2SHeader();
 
         String endpoint = refactorEndpoint(register.getForwardingEndpoint());
 
@@ -65,6 +75,14 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
         }
 
         return response;
+    }
+
+    private void generateS2SHeader() {
+        URL_ENCODED_HEADER.set(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, authTokenGenerator.generate());
+    }
+
+    public String getLastServiceAuthorization() {
+        return URL_ENCODED_HEADER.getFirst(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION);
     }
 
     public String refactorEndpoint(String endpoint) {
