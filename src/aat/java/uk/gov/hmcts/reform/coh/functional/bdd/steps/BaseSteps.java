@@ -20,6 +20,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
@@ -48,6 +49,9 @@ public class BaseSteps {
     @Autowired
     private SessionEventForwardingRegisterRepository sessionEventForwardingRegisterRepository;
 
+    @Autowired
+    private AuthTokenGenerator authTokenGenerator;
+
     @Value("${base-urls.test-url}")
     protected String baseUrl;
 
@@ -62,15 +66,6 @@ public class BaseSteps {
 
     @Value("${base-urls.idam-user-role}")
     protected String idamUserRole;
-
-    @Value("${base-urls.idam-s2s}")
-    protected String s2sUrl;
-
-    @Value("${base-urls.s2s-name}")
-    protected String s2sName;
-
-    @Value("${base-urls.s2s-token}")
-    protected String s2sToken;
 
     protected TestContext testContext;
     
@@ -94,7 +89,7 @@ public class BaseSteps {
             .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, "Bearer " + token));
 
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
-            .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, "Bearer " + token));
+            .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, token));
     }
 
     protected static void withValidHttpCodes(Consumer<RestTemplate> consumer, int... codes) {
@@ -203,23 +198,8 @@ public class BaseSteps {
         }
     }
 
-    private void getS2sToken() throws Exception {
-        String otp = String.valueOf(new GoogleAuthenticator().getTotpPassword(s2sToken));
-        ImmutableMap<String, String> params = ImmutableMap.of(
-            "microservice", s2sName,
-            "oneTimePassword", otp
-        );
-        String json = JsonUtils.toJson(params);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
-
-        ResponseEntity<String> s2sResponse = new RestTemplate()
-            .postForEntity(s2sUrl + "/lease", httpEntity, String.class);
-
-        if (s2sResponse.hasBody()) {
-            testContext.getHttpContext().setIdamServiceRef(s2sResponse.getBody());
-        }
+    private void getS2sToken() {
+        testContext.getHttpContext().setIdamServiceRef(authTokenGenerator.generate());
     }
 
     protected ResponseEntity<String> sendRequest(CohEntityTypes entity, String methodType, String payload) {
