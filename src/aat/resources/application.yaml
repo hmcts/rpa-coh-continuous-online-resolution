@@ -29,8 +29,8 @@ spring:
 
 base-urls:
   idam-url: ${IDAM_API_URL:http://localhost:4501}
-  idam-user: ${IDAM_API_USER:15}
-  idam-user-role: ${IDAM_API_USER_ROLE:solicitor}
+  idam-user-email: ${IDAM_USER_EMAIL:test-citizen@example.com}
+  idam-user-role: ${IDAM_API_USER_ROLE:citizen}
   test-url: ${TEST_URL:http://localhost:8080}
 
 deadline:
