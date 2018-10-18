@@ -46,7 +46,7 @@ module "app" {
     IDAM_API_BASE_URI = "${var.idam_api_url}"
     S2S_BASE_URI = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
     S2S_URL = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
-    S2S_TOKEN = "${data.azurerm_key_vault_secret.source_test_s2s_secret.value}"
+    S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_secret.value}"
 
     # logging vars & healthcheck
     REFORM_SERVICE_NAME = "${local.app_full_name}"
@@ -83,8 +83,8 @@ data "azurerm_key_vault" "shared_key_vault" {
 }
 
 data "azurerm_key_vault_secret" "s2s_secret" {
-  name = "cor-s2s-token"
-  vault_uri = "${data.azurerm_key_vault.shared_key_vault.vault_uri}"
+  name = "microservicekey-coh-cor"
+  vault_uri = "${local.s2s_vault_url}"
 }
 
 //data "azurerm_key_vault_secret" "oauth2_secret" {
