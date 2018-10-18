@@ -33,3 +33,7 @@ output "spring_datasource_username" {
 output "spring_datasource_password" {
   value = "${module.db.postgresql_password}"
 }
+
+output "test_s2s_token" {
+  value = "${data.azurerm_key_vault_secret.source_test_s2s_secret.value}"
+}
