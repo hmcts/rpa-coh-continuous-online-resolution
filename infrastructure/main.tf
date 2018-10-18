@@ -45,7 +45,7 @@ module "app" {
     ENABLE_DB_MIGRATE="false"
 
     # idam
-    IDAM_API_BASE_URI = "${var.idam_api_url}"
+    IDAM_API_URL = "${var.idam_api_url}"
     S2S_BASE_URI = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
     S2S_URL = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
     S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_secret.value}"
