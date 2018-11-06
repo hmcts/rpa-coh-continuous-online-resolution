@@ -39,17 +39,17 @@ public class SecurityClientConfiguration {
 
     @Bean
     public Function<HttpServletRequest, Collection<String>> authorizedRolesExtractor() {
-        return (request) -> split(authorizedRoles);
+        return request -> split(authorizedRoles);
     }
 
     @Bean
     public Function<HttpServletRequest, Collection<String>> authorizedServicesExtractor() {
-        return (request) -> split(whitelistedServices);
+        return request -> split(whitelistedServices);
     }
 
     @Bean
     public Function<HttpServletRequest, Optional<String>> userIdExtractor() {
-        return (request) -> Optional.empty();
+        return request -> Optional.empty();
     }
 
     @Bean
