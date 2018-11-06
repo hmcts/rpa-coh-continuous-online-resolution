@@ -10,6 +10,10 @@ import java.util.function.Consumer;
 
 public class AuthUtils {
 
+    private AuthUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Provide authenticated username read from Security Context.
      * <p>
