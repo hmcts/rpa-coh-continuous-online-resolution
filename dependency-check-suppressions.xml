@@ -112,4 +112,10 @@
         <gav regex="true">.*</gav>
         <cve>CVE-2018-1336</cve>
     </suppress>
+
+    <suppress>
+        <notes>Fixed in dom4j v2.1.1</notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2018-1000632</cve>
+    </suppress>
 </suppressions>
