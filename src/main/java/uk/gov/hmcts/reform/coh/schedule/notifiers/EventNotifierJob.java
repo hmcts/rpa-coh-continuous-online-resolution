@@ -65,7 +65,7 @@ public class EventNotifierJob {
             SessionEventType sessionEventType = sessionEvent.getSessionEventForwardingRegister().getSessionEventType();
             EventTransformer transformer = eventTransformerFactory.getEventTransformer(sessionEventType.getEventTypeName());
             if (transformer == null) {
-                log.error(String.format("Unable to find an event transformer for %s.", sessionEventType.getEventTypeName()));
+                log.warn(String.format("Unable to find an event transformer for %s.", sessionEventType.getEventTypeName()));
                 continue;
             }
 
@@ -73,7 +73,7 @@ public class EventNotifierJob {
             NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
             SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
             if (register.getActive() != null && !register.getActive()) {
-                log.error(String.format("Session Event Register for jurisdiction '%s', and event type '%s' is inactive.", register.getJurisdiction().getJurisdictionName(), sessionEventType.getEventTypeName()));
+                log.warn(String.format("Session Event Register for jurisdiction '%s', and event type '%s' is inactive.", register.getJurisdiction().getJurisdictionName(), sessionEventType.getEventTypeName()));
                 continue;
             }
 
@@ -98,18 +98,18 @@ public class EventNotifierJob {
                     }
                     sessionEventService.updateSessionEvent(sessionEvent);
                 } else {
-                    log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+                    log.warn(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
                     doFailureUpdate(register, sessionEvent);
                 }
             } catch (Exception e) {
                 doFailureUpdate(register, sessionEvent);
-                log.error(String.format("Exception while trying to send a notification. Exception is %s", e.getMessage()));
+                log.error("Exception while trying to send a notification.", e);
             }
         }
     }
 
     protected void doFailureUpdate(SessionEventForwardingRegister register, SessionEvent sessionEvent) {
-        log.error(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+        log.warn(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
 
         sessionEvent.setRetries(sessionEvent.getRetries() + 1);
         if (sessionEvent.getRetries() >= register.getMaximumRetries()+1) {
@@ -119,7 +119,7 @@ public class EventNotifierJob {
                 log.info(String.format("Updating session event state to %s", failureState.getStateName()));
                 sessionEvent.setSessionEventForwardingState(failure.get());
             } else {
-                log.error(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
+                log.warn(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
             }
         }
 
@@ -130,7 +130,7 @@ public class EventNotifierJob {
         Optional<SessionEventForwardingState> pending = sessionEventForwardingStateRepository.findByForwardingStateName(pendingState.getStateName());
 
         if (!pending.isPresent()) {
-            log.error(String.format("Unable to retrieve Session Event Forwarding State: %s", pendingState.getStateName()));
+            log.warn(String.format("Unable to retrieve Session Event Forwarding State: %s", pendingState.getStateName()));
             return Collections.emptyList();
         }
 

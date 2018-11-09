@@ -92,7 +92,7 @@ public class EventQueueController {
                 sessionEventService.updateSessionEvent(se);
             });
         } catch (EntityNotFoundException enfe) {
-            log.error("Pending event forwarding state was not found in the database. Exception is " + enfe);
+            log.error("Pending event forwarding state was not found in the database.", enfe);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We have encounter an error. Please contact support.");
         }
 

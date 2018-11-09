@@ -192,8 +192,8 @@ public class DecisionController {
             // Now queue the notification
             queueDecisionIssue(decision);
         } catch (Exception e) {
-            log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType());
-            log.error("Exception is " + EventTypes.DECISION_ISSUED.getEventType());
+            log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType(), e);
+            log.error("Exception is " + EventTypes.DECISION_ISSUED.getEventType(), e);
         }
 
         return ResponseEntity.ok("");

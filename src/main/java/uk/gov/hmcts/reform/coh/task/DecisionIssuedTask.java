@@ -49,14 +49,14 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
 
         Optional<Decision> optDecision = decisionService.findByOnlineHearingId(onlineHearing.getOnlineHearingId());
         if (!optDecision.isPresent()) {
-            log.error(String.format("Unable to find the decision for online hearing: %s", onlineHearing.getOnlineHearingId()));
+            log.warn(String.format("Unable to find the decision for online hearing: %s", onlineHearing.getOnlineHearingId()));
             return;
         }
 
         // Update the decision pending state to issued
         Optional<DecisionState> optDecisionState = decisionStateService.retrieveDecisionStateByState(DecisionsStates.DECISION_ISSUED.getStateName());
         if (!optDecisionState.isPresent()) {
-            log.error(String.format("Unable to find decision state : %s", DecisionsStates.DECISION_ISSUED.getStateName()));
+            log.warn(String.format("Unable to find decision state : %s", DecisionsStates.DECISION_ISSUED.getStateName()));
             return;
         }
         DecisionState decisionIssuedState = optDecisionState.get();
@@ -69,7 +69,7 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
         // Update the online hearing state to issued
         Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.DECISION_ISSUED.getStateName());
         if (!optOnlineHearingState.isPresent()) {
-            log.error(String.format("Unable to find online hearing state : %s", OnlineHearingStates.DECISION_ISSUED.getStateName()));
+            log.warn(String.format("Unable to find online hearing state : %s", OnlineHearingStates.DECISION_ISSUED.getStateName()));
             return;
         }
 
