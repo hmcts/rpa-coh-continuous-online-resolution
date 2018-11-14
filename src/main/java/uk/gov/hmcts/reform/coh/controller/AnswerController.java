@@ -123,7 +123,7 @@ public class AnswerController {
             performQuestionAnswered(optionalOnlineHearing.get(), answer);
 
         } catch (Exception e) {
-            log.error(String.format("Exception in createAnswer: %s", e.getMessage()), e);
+            log.error("Could not create answer", e);
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
         }
 
@@ -252,7 +252,7 @@ public class AnswerController {
                 question.setQuestionState(answeredState);
                 questionService.updateQuestionForced(question);
             } catch (Exception e) {
-                log.error("Exception trying to get question state: " + e.getMessage(), e);
+                log.error("Could not get question state", e);
             }
             sessionEventService.createSessionEvent(onlineHearing, EventTypes.ANSWERS_SUBMITTED.getEventType());
         }
