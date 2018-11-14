@@ -22,10 +22,12 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.exception.GenericException;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.logging.exception.AlertLevel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -123,7 +125,7 @@ public class AnswerController {
             performQuestionAnswered(optionalOnlineHearing.get(), answer);
 
         } catch (Exception e) {
-            log.error("Could not create answer", e);
+            log.error("Could not create answer", new GenericException(AlertLevel.P2, e));
             return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
         }
 
@@ -252,7 +254,7 @@ public class AnswerController {
                 question.setQuestionState(answeredState);
                 questionService.updateQuestionForced(question);
             } catch (Exception e) {
-                log.error("Could not get question state", e);
+                log.error("Could not get question state", new GenericException(AlertLevel.P1, e));
             }
             sessionEventService.createSessionEvent(onlineHearing, EventTypes.ANSWERS_SUBMITTED.getEventType());
         }

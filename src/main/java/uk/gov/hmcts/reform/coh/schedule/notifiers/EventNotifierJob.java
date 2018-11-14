@@ -11,12 +11,14 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.appinsights.AppInsightsEvents;
 import uk.gov.hmcts.reform.coh.appinsights.AppInsightsEventRepository;
 import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.exception.GenericException;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingStateRepository;
 import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTask;
 import uk.gov.hmcts.reform.coh.task.ContinuousOnlineResolutionTaskFactory;
+import uk.gov.hmcts.reform.logging.exception.AlertLevel;
 
 import java.util.*;
 
@@ -103,7 +105,7 @@ public class EventNotifierJob {
                 }
             } catch (Exception e) {
                 doFailureUpdate(register, sessionEvent);
-                log.error("Exception while trying to send a notification.", e);
+                log.error("Exception while trying to send a notification.", new GenericException(AlertLevel.P3, e));
             }
         }
     }
