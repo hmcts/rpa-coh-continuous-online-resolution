@@ -7,10 +7,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
 import uk.gov.hmcts.reform.coh.service.QuestionService;
-import uk.gov.hmcts.reform.coh.service.QuestionStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,16 +24,7 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
     private static final Logger log = LoggerFactory.getLogger(QuestionRoundReminder.class);
 
     @Autowired
-    private OnlineHearingService onlineHearingService;
-
-    @Autowired
     private QuestionService questionService;
-
-    @Autowired
-    private QuestionStateService stateService;
-
-    @Autowired
-    private SessionEventService sessionEventService;
 
     @Override
     public List<Question> getQuestions() {
