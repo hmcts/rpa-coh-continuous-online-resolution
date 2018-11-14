@@ -23,9 +23,11 @@ import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.domain.DecisionState;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
+import uk.gov.hmcts.reform.coh.exception.GenericException;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
+import uk.gov.hmcts.reform.logging.exception.AlertLevel;
 
 import javax.validation.Valid;
 import java.util.Date;
@@ -192,8 +194,10 @@ public class DecisionController {
             // Now queue the notification
             queueDecisionIssue(decision);
         } catch (Exception e) {
-            log.error("Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType());
-            log.error("Exception is " + EventTypes.DECISION_ISSUED.getEventType());
+            log.error(
+                "Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType(),
+                new GenericException(AlertLevel.P2, e)
+            );
         }
 
         return ResponseEntity.ok("");

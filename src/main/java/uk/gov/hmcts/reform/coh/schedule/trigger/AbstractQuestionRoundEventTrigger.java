@@ -42,10 +42,10 @@ abstract public class AbstractQuestionRoundEventTrigger implements EventTrigger 
         List<OnlineHearing> onlineHearings = retrieveQuestionsDeadlineExpiredAndQuestionStateDistinct(getQuestions());
         onlineHearings.forEach(o -> {
             Optional<OnlineHearing> onlineHearing = onlineHearingService.retrieveOnlineHearing(o);
-            log.info(String.format("Online hearing %s found", o.getOnlineHearingId()));
+            log.info("Online hearing {} found", o.getOnlineHearingId());
             if (onlineHearing.isPresent()) {
                 sessionEventService.createSessionEvent(onlineHearing.get(), getEventType().getEventType());
-                log.info(String.format("Session event created for %s", o.getOnlineHearingId()));
+                log.info("Session event created for {}", o.getOnlineHearingId());
             }
         });
     }

@@ -41,7 +41,7 @@ public class SessionEventService {
         Optional<SessionEventType> optSessionEventType = sessionEventTypeRespository.findByEventTypeName(sessionEventType);
         if (!optSessionEventType.isPresent()) {
             String message = "Session Event Type '" + sessionEventType + "' not found";
-            log.error(message);
+            log.warn(message);
             throw new EntityNotFoundException(message);
         }
 
@@ -53,14 +53,14 @@ public class SessionEventService {
         Optional<SessionEventForwardingState> optForwardingState = sessionEventForwardingStateRepository.findByForwardingStateName(STARTING_STATE);
         if (!optForwardingState.isPresent()) {
             String message = "Session Event Forwarding State '" + STARTING_STATE + "' not found";
-            log.error(message);
+            log.warn(message);
             throw new EntityNotFoundException(message);
         }
 
         Optional<SessionEventForwardingRegister> optRegister = sessionEventForwardingRegisterRepository.findByJurisdictionAndSessionEventType(onlineHearing.getJurisdiction(), sessionEventType);
         if (!optRegister.isPresent()) {
             String message = "Session event registry entry not found for jurisdiction '" + onlineHearing.getJurisdiction().getJurisdictionName() + "', session event type '" + sessionEventType.getEventTypeName() + "'";
-            log.error(message);
+            log.warn(message);
             throw new EntityNotFoundException(message);
         }
 
