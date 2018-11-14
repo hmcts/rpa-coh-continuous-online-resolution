@@ -59,11 +59,11 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
         ResponseEntity response = null;
         try {
-            log.info(String.format("Sending request to %s", endpoint));
+            log.info("Sending request to {}", endpoint);
             RestTemplate restTemplate = getRestTemplate();
             HttpEntity<String> request = new HttpEntity<>( mapper.writeValueAsString(notificationRequest), URL_ENCODED_HEADER);
             response = restTemplate.exchange(endpoint, HttpMethod.POST, request, String.class);
-            log.info(String.format("Endpoint responded with %s", response.getStatusCodeValue()));
+            log.info("Endpoint responded with {}", response.getStatusCodeValue());
         } catch (IOException ioe) {
             throw new NotificationException(ioe.getMessage());
         }  catch (HttpClientErrorException hcee) {

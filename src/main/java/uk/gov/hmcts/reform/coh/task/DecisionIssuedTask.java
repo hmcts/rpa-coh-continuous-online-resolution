@@ -45,22 +45,22 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
     @Override
     @Transactional
     public void execute(OnlineHearing onlineHearing) {
-        log.info(String.format("Executing: %s", this.getClass()));
+        log.info("Executing: {}", this.getClass());
 
         Optional<Decision> optDecision = decisionService.findByOnlineHearingId(onlineHearing.getOnlineHearingId());
         if (!optDecision.isPresent()) {
-            log.warn(String.format("Unable to find the decision for online hearing: %s", onlineHearing.getOnlineHearingId()));
+            log.warn("Unable to find the decision for online hearing: {}", onlineHearing.getOnlineHearingId());
             return;
         }
 
         // Update the decision pending state to issued
         Optional<DecisionState> optDecisionState = decisionStateService.retrieveDecisionStateByState(DecisionsStates.DECISION_ISSUED.getStateName());
         if (!optDecisionState.isPresent()) {
-            log.warn(String.format("Unable to find decision state : %s", DecisionsStates.DECISION_ISSUED.getStateName()));
+            log.warn("Unable to find decision state : {}", DecisionsStates.DECISION_ISSUED.getStateName());
             return;
         }
         DecisionState decisionIssuedState = optDecisionState.get();
-        log.info(String.format("Updating decision state to : %s", decisionIssuedState.getState()));
+        log.info("Updating decision state to : {}", decisionIssuedState.getState());
         Decision decision = optDecision.get();
         decision.addDecisionStateHistory(decisionIssuedState);
         decision.setDecisionstate(decisionIssuedState);
@@ -69,12 +69,12 @@ public class DecisionIssuedTask implements ContinuousOnlineResolutionTask<Online
         // Update the online hearing state to issued
         Optional<OnlineHearingState> optOnlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(OnlineHearingStates.DECISION_ISSUED.getStateName());
         if (!optOnlineHearingState.isPresent()) {
-            log.warn(String.format("Unable to find online hearing state : %s", OnlineHearingStates.DECISION_ISSUED.getStateName()));
+            log.warn("Unable to find online hearing state : {}", OnlineHearingStates.DECISION_ISSUED.getStateName());
             return;
         }
 
         OnlineHearingState ohDecisionIssuedState = optOnlineHearingState.get();
-        log.info(String.format("Updating online hearing state to : %s", ohDecisionIssuedState.getState()));
+        log.info("Updating online hearing state to : {}", ohDecisionIssuedState.getState());
 
         // Having to do this because JPA is a pain
         Optional<OnlineHearing> optOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearing);

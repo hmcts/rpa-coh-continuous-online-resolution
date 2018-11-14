@@ -25,7 +25,7 @@ public class EventTriggerJob {
         log.info("Running " + this.getClass());
         List<EventTrigger> triggers = factory.getTriggers().stream().sorted(Comparator.comparing(EventTrigger::order)).collect(Collectors.toList());
         for (EventTrigger trigger : triggers) {
-            log.info(String.format("Running event trigger %s", trigger.getClass()));
+            log.info("Running event trigger {}", trigger.getClass());
             trigger.execute();
         }
     }

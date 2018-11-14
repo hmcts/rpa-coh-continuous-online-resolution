@@ -40,7 +40,7 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
 
     @Override
     public List<Question> getQuestions() {
-        log.info(String.format("Executing %s", this.getClass()));
+        log.info("Executing {}", this.getClass());
 
         LocalDateTime start = LocalDate.now().plusDays(1).atStartOfDay();
         LocalDateTime end = LocalDate.now().plusDays(1).atStartOfDay().plusHours(1);
@@ -48,7 +48,7 @@ public class QuestionRoundReminder extends AbstractQuestionRoundEventTrigger {
         QuestionState issuedState = getQuestionStateByStateName(ISSUED);
         QuestionState grantedState = getQuestionStateByStateName(QUESTION_DEADLINE_EXTENSION_GRANTED);
 
-        log.info(String.format("Looking questions about to expire between '%s' and '%s'", start, end));
+        log.info("Looking questions about to expire between '{}' and '{}'", start, end);
 
         // Get questions about to expire tomorrow
         List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredBetweenAndQuestionStates(

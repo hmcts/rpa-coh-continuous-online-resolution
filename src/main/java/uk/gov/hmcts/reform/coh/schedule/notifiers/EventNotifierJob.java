@@ -61,21 +61,21 @@ public class EventNotifierJob {
         List<SessionEvent> sessionEvents = getPendingSessionEvents();
         log.debug("Pending session events found: " + sessionEvents.size());
         for (SessionEvent sessionEvent : sessionEvents) {
-            log.info(String.format("Processing session event: %s", sessionEvent.getEventId()));
+            log.info("Processing session event: {}", sessionEvent.getEventId());
 
             // Use the session event type to get the transformer that will create the notification message
             SessionEventType sessionEventType = sessionEvent.getSessionEventForwardingRegister().getSessionEventType();
             EventTransformer transformer = eventTransformerFactory.getEventTransformer(sessionEventType.getEventTypeName());
             if (transformer == null) {
-                log.warn(String.format("Unable to find an event transformer for %s.", sessionEventType.getEventTypeName()));
+                log.warn("Unable to find an event transformer for {}", sessionEventType.getEventTypeName());
                 continue;
             }
 
-            log.info(String.format("Found transformer %s to handle %s.", transformer.getClass(), sessionEventType.getEventTypeName()));
+            log.info("Found transformer {} to handle {}.", transformer.getClass(), sessionEventType.getEventTypeName());
             NotificationRequest request = transformer.transform(sessionEventType, sessionEvent.getOnlineHearing());
             SessionEventForwardingRegister register = sessionEvent.getSessionEventForwardingRegister();
             if (register.getActive() != null && !register.getActive()) {
-                log.warn(String.format("Session Event Register for jurisdiction '%s', and event type '%s' is inactive.", register.getJurisdiction().getJurisdictionName(), sessionEventType.getEventTypeName()));
+                log.warn("Session Event Register for jurisdiction '{}', and event type '{}' is inactive.", register.getJurisdiction().getJurisdictionName(), sessionEventType.getEventTypeName());
                 continue;
             }
 
@@ -83,24 +83,24 @@ public class EventNotifierJob {
                 // Now try and send the notification
                 ResponseEntity response = forwarder.sendEndpoint(register, request);
                 if (HttpStatus.OK.value() == response.getStatusCodeValue()) {
-                    log.info(String.format("Register endpoint responded OK"));
+                    log.info("Register endpoint responded OK");
 
                     // Update the state of the session event
                     Optional<SessionEventForwardingState> success = sessionEventForwardingStateRepository.findByForwardingStateName(successState.getStateName());
                     if (success.isPresent()) {
-                        log.info(String.format("Updating session event state to %s", success.get().getForwardingStateName()));
+                        log.info("Updating session event state to {}", success.get().getForwardingStateName());
                         sessionEvent.setSessionEventForwardingState(success.get());
                     }
 
                     // Run any tasks required after notification completes
                     ContinuousOnlineResolutionTask task = taskFactory.getTask(sessionEventType.getEventTypeName());
                     if (task != null) {
-                        log.info(String.format("Found task %s to handle %s.", task.getClass(), sessionEventType.getEventTypeName()));
+                        log.info("Found task {} to handle {}.", task.getClass(), sessionEventType.getEventTypeName());
                         task.execute(sessionEvent.getOnlineHearing());
                     }
                     sessionEventService.updateSessionEvent(sessionEvent);
                 } else {
-                    log.warn(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+                    log.warn("Unable to send notification to endpoint: {}", register.getForwardingEndpoint());
                     doFailureUpdate(register, sessionEvent);
                 }
             } catch (Exception e) {
@@ -111,17 +111,17 @@ public class EventNotifierJob {
     }
 
     protected void doFailureUpdate(SessionEventForwardingRegister register, SessionEvent sessionEvent) {
-        log.warn(String.format("Unable to send notification to endpoint: %s", register.getForwardingEndpoint()));
+        log.warn("Unable to send notification to endpoint: {}", register.getForwardingEndpoint());
 
         sessionEvent.setRetries(sessionEvent.getRetries() + 1);
         if (sessionEvent.getRetries() >= register.getMaximumRetries()+1) {
             Optional<SessionEventForwardingState> failure = sessionEventForwardingStateRepository.findByForwardingStateName(failureState.getStateName());
             appInsightsEventRepository.trackEvent(AppInsightsEvents.COH_COR_NOTIFICATION_FAILURE.name(), createAppInsightsProperties(sessionEvent));
             if (failure.isPresent()) {
-                log.info(String.format("Updating session event state to %s", failureState.getStateName()));
+                log.info("Updating session event state to {}", failureState.getStateName());
                 sessionEvent.setSessionEventForwardingState(failure.get());
             } else {
-                log.warn(String.format("Unable to find session event forwarding state: %s", failureState.getStateName()));
+                log.warn("Unable to find session event forwarding state: {}", failureState.getStateName());
             }
         }
 
@@ -132,7 +132,7 @@ public class EventNotifierJob {
         Optional<SessionEventForwardingState> pending = sessionEventForwardingStateRepository.findByForwardingStateName(pendingState.getStateName());
 
         if (!pending.isPresent()) {
-            log.warn(String.format("Unable to retrieve Session Event Forwarding State: %s", pendingState.getStateName()));
+            log.warn("Unable to retrieve Session Event Forwarding State: {}", pendingState.getStateName());
             return Collections.emptyList();
         }
 

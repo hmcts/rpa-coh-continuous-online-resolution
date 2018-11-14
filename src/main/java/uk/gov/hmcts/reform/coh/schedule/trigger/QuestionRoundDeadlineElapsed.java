@@ -39,7 +39,7 @@ public class QuestionRoundDeadlineElapsed extends AbstractQuestionRoundEventTrig
 
     @Override
     public List<Question> getQuestions() {
-        log.info(String.format("Executing %s", this.getClass()));
+        log.info("Executing {}", this.getClass());
 
         Calendar calendar = new GregorianCalendar();
 
@@ -52,7 +52,7 @@ public class QuestionRoundDeadlineElapsed extends AbstractQuestionRoundEventTrig
         questions.forEach(q -> {
             q.setQuestionState(elapsedState);
             questionService.updateQuestionForced(q);
-            log.info(String.format("Updated question %s to %s", q.getQuestionId(), elapsedState));
+            log.info("Updated question {} to {}", q.getQuestionId(), elapsedState);
         });
 
         return questions;
