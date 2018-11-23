@@ -105,11 +105,7 @@ public class OnlineHearingController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "case_id", value = "The Case id", required = true),
             @ApiImplicitParam(name = "jurisdiction", value = "Accepted value is SSCS", required = true),
-            @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true),
-            @ApiImplicitParam(name = "panel", value = "Panel members", required = true),
-            @ApiImplicitParam(name = "panel.name", value = "Name of Panel Member", required = true),
-            @ApiImplicitParam(name = "panel.identity_token", value = "IDAM Token of Panel Member"),
-            @ApiImplicitParam(name = "panel.role", value = "The role of the Panel Member"),
+            @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true)
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createOnlineHearing(UriComponentsBuilder uriBuilder, @RequestBody OnlineHearingRequest body) {
