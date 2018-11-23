@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decision.DecisionResponse;
+import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.controller.decision.UpdateDecisionRequest;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.AllDecisionRepliesResponse;
@@ -46,12 +47,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
+import static uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles({"local"})
 public class DecisionControllerTest {
+
+    @Autowired
+    private IdamHeaderInterceptor idamHeaderInterceptor;
 
     @Mock
     private OnlineHearingService onlineHearingService;
@@ -122,7 +127,7 @@ public class DecisionControllerTest {
         decision.setDeadlineExpiryDate(expiryDate);
         decision.setDecisionstate(decisionState);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(decisionController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(decisionController).addInterceptors(idamHeaderInterceptor).build();
         given(onlineHearingService.retrieveOnlineHearing(uuid)).willReturn(Optional.of(onlineHearing));
         given(decisionService.createDecision(any(Decision.class))).willReturn(decision);
         given(decisionStateService.retrieveDecisionStateByState("decision_drafted")).willReturn(Optional.ofNullable(decisionState));
@@ -136,7 +141,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -156,11 +162,11 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, ""))
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        assertEquals("Authorization author id must not be empty", result.getResponse().getContentAsString());
+        assertEquals("{\"error_message\":\"Missing required IDAM headers.\"}", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -171,7 +177,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isConflict());
     }
 
@@ -182,7 +189,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -196,7 +204,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
 
@@ -210,7 +219,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -224,7 +234,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -238,7 +249,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -252,7 +264,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -264,7 +277,9 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
+                .content("")
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -287,6 +302,8 @@ public class DecisionControllerTest {
     @Test
     public void testGetDecisionNotFound() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(endpoint+ "/decisions")
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound());
@@ -298,7 +315,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
@@ -312,7 +330,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isConflict())
                 .andReturn()
                 .getResponse()
@@ -326,7 +345,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -340,7 +360,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -355,7 +376,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -368,11 +390,11 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(request))
-                .header(IDAM_AUTHORIZATION, ""))
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        assertEquals("Authorization author id must not be empty", result.getResponse().getContentAsString());
+        assertEquals("{\"error_message\":\"Missing required IDAM headers.\"}", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -383,7 +405,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -398,7 +421,8 @@ public class DecisionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn()
                 .getResponse()
@@ -415,7 +439,8 @@ public class DecisionControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.put(endpoint+ "/decisions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.toJson(updateDecisionRequest))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isOk());
     }
 
@@ -432,7 +457,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -451,11 +477,11 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHORIZATION, ""))
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().is4xxClientError())
                 .andReturn();
 
-        assertEquals("Authorization author id must not be empty", result.getResponse().getContentAsString());
+        assertEquals("{\"error_message\":\"Missing required IDAM headers.\"}", result.getResponse().getContentAsString());
     }
 
     @Test
@@ -469,7 +495,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json)
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -489,7 +516,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -505,7 +533,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -519,7 +548,8 @@ public class DecisionControllerTest {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(endpoint + "/decisionreplies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtils.getJsonInput(DECISION_REPLY_JSON))
-                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE))
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example"))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
@@ -552,6 +582,8 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -587,6 +619,8 @@ public class DecisionControllerTest {
     public void testGetAllDecisionRepliesReturnsEmptyListIfNoReplies() throws Exception {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -601,6 +635,8 @@ public class DecisionControllerTest {
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound())
@@ -613,6 +649,8 @@ public class DecisionControllerTest {
     public void testGetAllDecisionRepliesDecisionNotFoundThrows404() throws Exception {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.empty());
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies")
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound())
@@ -637,6 +675,8 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isOk())
@@ -657,6 +697,8 @@ public class DecisionControllerTest {
         given(onlineHearingService.retrieveOnlineHearing(any(UUID.class))).willReturn(Optional.empty());
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound())
@@ -670,6 +712,8 @@ public class DecisionControllerTest {
         UUID decisionReplyId = UUID.randomUUID();
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.empty());
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound())
@@ -685,6 +729,8 @@ public class DecisionControllerTest {
         given(decisionService.findByOnlineHearingId(uuid)).willReturn(Optional.of(decision));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(endpoint + "/decisionreplies/" + decisionReplyId)
+                .header(IDAM_AUTHORIZATION, IDAM_AUTHOR_REFERENCE)
+                .header(IDAM_SERVICE_AUTHORIZATION, "example")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
                 .andExpect(status().isNotFound())

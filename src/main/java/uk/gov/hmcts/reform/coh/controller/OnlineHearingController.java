@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
+import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -105,11 +106,7 @@ public class OnlineHearingController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "case_id", value = "The Case id", required = true),
             @ApiImplicitParam(name = "jurisdiction", value = "Accepted value is SSCS", required = true),
-            @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true),
-            @ApiImplicitParam(name = "panel", value = "Panel members", required = true),
-            @ApiImplicitParam(name = "panel.name", value = "Name of Panel Member", required = true),
-            @ApiImplicitParam(name = "panel.identity_token", value = "IDAM Token of Panel Member"),
-            @ApiImplicitParam(name = "panel.role", value = "The role of the Panel Member"),
+            @ApiImplicitParam(name = "start_date", value = "ISO 8601 Start Date of Online Hearing", required = true)
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createOnlineHearing(UriComponentsBuilder uriBuilder, @RequestBody OnlineHearingRequest body) {
@@ -138,6 +135,8 @@ public class OnlineHearingController {
         onlineHearing.setCaseId(body.getCaseId());
         onlineHearing.setJurisdiction(jurisdiction.get());
         onlineHearing.setStartDate(body.getStartDate());
+
+        AuthUtils.withIdentity(onlineHearing::setOwnerReferenceId);
 
         CreateOnlineHearingResponse response = new CreateOnlineHearingResponse();
 

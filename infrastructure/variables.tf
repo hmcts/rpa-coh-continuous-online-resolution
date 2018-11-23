@@ -57,11 +57,16 @@ variable "java_opts" {
 // Endpoints
 ////////////////////////////////////////////////
 variable "idam_api_url" {
-  default = "idam-api"
+  default = "https://preprod-idamapi.reform.hmcts.net:3511"
 }
 
 variable "s2s_url" {
   default = "rpe-service-auth-provider"
+}
+
+variable "s2s_names_whitelist" {
+  default = "jui_webapp,sscs"
+  description = "Comma-separated list of service identifiers from S2S."
 }
 
 variable "postgresql_user" {

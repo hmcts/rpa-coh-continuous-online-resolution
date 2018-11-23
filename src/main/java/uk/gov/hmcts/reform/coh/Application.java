@@ -8,6 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.time.Clock;
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @EnableSwagger2
@@ -18,6 +20,11 @@ public class Application {
     @Bean
     public Clock clock() {
         return Clock.systemUTC();
+    }
+
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
     }
 
     public static void main(String[] args) {

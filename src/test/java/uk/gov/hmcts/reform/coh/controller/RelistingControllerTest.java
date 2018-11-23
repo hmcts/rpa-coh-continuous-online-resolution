@@ -47,7 +47,7 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildRelist
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local"})
-@WebMvcTest({OnlineHearingController.class})
+@WebMvcTest(value = {OnlineHearingController.class}, secure = false)
 public class RelistingControllerTest {
 
     @MockBean

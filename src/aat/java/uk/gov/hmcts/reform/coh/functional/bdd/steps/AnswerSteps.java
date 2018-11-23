@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
@@ -34,6 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
 @SpringBootTest
+@ActiveProfiles("cucumber")
 public class AnswerSteps extends BaseSteps {
 
     private AnswerRequest answerRequest;

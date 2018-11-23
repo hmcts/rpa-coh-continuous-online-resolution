@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.question.*;
+import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.*;
 import uk.gov.hmcts.reform.coh.domain.Answer;
@@ -142,12 +143,13 @@ public class QuestionController {
         Question question = new Question();
         QuestionRequestMapper mapper = new QuestionRequestMapper(question, onlineHearing, request);
         mapper.map();
-        question = questionService.createQuestion(question, onlineHearing);
+        AuthUtils.withIdentity(question::setAuthorReferenceId);
+        Question storedQuestion = questionService.createQuestion(question, onlineHearing);
 
-        CreateQuestionResponse response = new CreateQuestionResponse(question.getQuestionId());
+        CreateQuestionResponse response = new CreateQuestionResponse(storedQuestion.getQuestionId());
 
         UriComponents uriComponents =
-                uriBuilder.path(CohUriBuilder.buildQuestionGet(onlineHearingId, question.getQuestionId())).build();
+                uriBuilder.path(CohUriBuilder.buildQuestionGet(onlineHearingId, storedQuestion.getQuestionId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(response);
     }
@@ -198,6 +200,8 @@ public class QuestionController {
             }
 
             UpdateQuestionRequestMapper.map(savedQuestion, request);
+
+            AuthUtils.withIdentity(savedQuestion::setAuthorReferenceId);
 
             questionService.updateQuestion(savedQuestion);
             return new ResponseEntity<>(HttpStatus.OK);

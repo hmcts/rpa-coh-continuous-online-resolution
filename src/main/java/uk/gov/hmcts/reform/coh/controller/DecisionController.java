@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.controller.decision.*;
 import uk.gov.hmcts.reform.coh.controller.decisionreplies.*;
+import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.DecisionRequestValidator;
 import uk.gov.hmcts.reform.coh.controller.validators.Validation;
@@ -36,7 +37,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEARING_NOT_FOUND;
-import static uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor.IDAM_AUTHORIZATION;
 
 @RestController
 @RequestMapping("/continuous-online-hearings/{onlineHearingId}")
@@ -48,7 +48,6 @@ public class DecisionController {
 
     private static final String PENDING_STATE = DecisionsStates.DECISION_ISSUE_PENDING.getStateName();
     private static final String UNABLE_TO_FIND_DECISION = "Unable to find decision";
-    private static final String MISSING_AUTHOR_MESSAGE = "Authorization author id must not be empty";
 
     private OnlineHearingService onlineHearingService;
     private DecisionService decisionService;
@@ -79,14 +78,11 @@ public class DecisionController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "/decisions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createDecision(UriComponentsBuilder uriBuilder,
-                                         @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
-                                         @PathVariable UUID onlineHearingId, @RequestBody DecisionRequest request) {
-
-        if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
-        }
-
+    public ResponseEntity createDecision(
+        UriComponentsBuilder uriBuilder,
+        @PathVariable UUID onlineHearingId,
+        @RequestBody DecisionRequest request
+    ) {
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (optionalDecision.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Online hearing already contains a decision");
@@ -111,12 +107,16 @@ public class DecisionController {
         decision.setOnlineHearing(optionalOnlineHearing.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
         decision.addDecisionStateHistory(optionalDecisionState.get());
-        decision = decisionService.createDecision(decision);
+        AuthUtils.withIdentity(username -> {
+            decision.setAuthorReferenceId(username);
+            decision.setOwnerReferenceId(username);
+        });
+        Decision storedDecision = decisionService.createDecision(decision);
 
         UriComponents uriComponents =
                 uriBuilder.path(CohUriBuilder.buildDecisionGet(onlineHearingId)).build();
 
-        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(decision.getDecisionId()));
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionResponse(storedDecision.getDecisionId()));
     }
 
     @ApiOperation(value = "Get decision", notes = "A GET request to retrieve a decision")
@@ -147,13 +147,10 @@ public class DecisionController {
             @ApiResponse(code = 422, message = "Validation Error")
     })
     @PutMapping(value = "/decisions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateDecision(@RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
-                                         @PathVariable UUID onlineHearingId, @RequestBody UpdateDecisionRequest request) {
-
-        if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
-        }
-
+    public ResponseEntity updateDecision(
+        @PathVariable UUID onlineHearingId,
+        @RequestBody UpdateDecisionRequest request
+    ) {
         Optional<Decision> optionalDecision = decisionService.findByOnlineHearingId(onlineHearingId);
         if (!optionalDecision.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UNABLE_TO_FIND_DECISION);
@@ -188,6 +185,10 @@ public class DecisionController {
         // Update the decision
         decision.addDecisionStateHistory(optionalDecisionState.get());
         DecisionRequestMapper.map(request, decision, optionalDecisionState.get());
+        AuthUtils.withIdentity(username -> {
+            decision.setAuthorReferenceId(username);
+            decision.setOwnerReferenceId(username);
+        });
         decisionService.updateDecision(decision);
 
         try {
@@ -219,14 +220,11 @@ public class DecisionController {
             @ApiResponse(code = 404, message = "Online hearing not found")
     })
     @PostMapping(value = "/decisionreplies", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity replyToDecision(UriComponentsBuilder uriBuilder,
-                                          @RequestHeader(value=IDAM_AUTHORIZATION) String authorReferenceId,
-                                          @PathVariable UUID onlineHearingId, @Valid @RequestBody DecisionReplyRequest request) {
-
-        if(authorReferenceId == null || authorReferenceId.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MISSING_AUTHOR_MESSAGE);
-        }
-
+    public ResponseEntity replyToDecision(
+        UriComponentsBuilder uriBuilder,
+        @PathVariable UUID onlineHearingId,
+        @Valid @RequestBody DecisionReplyRequest request
+    ) {
         if(!request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_ACCEPTED.getStateName())
             && !request.getDecisionReply().equalsIgnoreCase(DecisionsStates.DECISIONS_REJECTED.getStateName())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Decision reply field is not valid");
@@ -248,14 +246,15 @@ public class DecisionController {
         }
 
         DecisionReply decisionReply = new DecisionReply();
-        DecisionReplyRequestMapper.map(request, decisionReply, decision, authorReferenceId);
+        DecisionReplyRequestMapper.map(request, decisionReply, decision);
         decisionReply.setDateOccured(new Date());
-        decisionReply = decisionReplyService.createDecision(decisionReply);
+        AuthUtils.withIdentity(decisionReply::setAuthorReferenceId);
+        DecisionReply storedDecisionReply = decisionReplyService.createDecision(decisionReply);
 
         UriComponents uriComponents =
-                uriBuilder.path(CohUriBuilder.buildDecisionReplyGet(onlineHearingId, decisionReply.getId())).build();
+                uriBuilder.path(CohUriBuilder.buildDecisionReplyGet(onlineHearingId, storedDecisionReply.getId())).build();
 
-        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(decisionReply.getId()));
+        return ResponseEntity.created(uriComponents.toUri()).body(new CreateDecisionReplyResponse(storedDecisionReply.getId()));
     }
 
     @ApiOperation(value = "Get all replies to decision", notes = "A GET request is used to get all replies to a decision")
