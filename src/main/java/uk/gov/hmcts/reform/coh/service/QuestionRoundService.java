@@ -46,6 +46,7 @@ public class QuestionRoundService {
         return currentRoundNumber == 0;
     }
 
+    @Transactional
     public boolean isQrValidState(Question question, OnlineHearing onlineHearing) {
         int targetQuestionRound = question.getQuestionRound();
         int currentRoundNumber = getCurrentQuestionRoundNumber(onlineHearing);
@@ -70,6 +71,7 @@ public class QuestionRoundService {
         return false;
     }
 
+    @Transactional
     public boolean isQrValidTransition(Question question, OnlineHearing onlineHearing) {
         if (question.getQuestionRound() == null || question.getQuestionRound() == 0) {
             throw new EntityNotFoundException();
