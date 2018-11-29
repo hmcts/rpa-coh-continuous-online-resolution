@@ -89,25 +89,24 @@ public class AnswerController {
 
             List<QuestionStates> answerableStates
                 = Arrays.asList(QuestionStates.ISSUED, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
-
-            // If a question exists, then it must be in the issued state to be answered
-
+            
             if (!optionalQuestion.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
-            }
-
-            if (answerableStates.stream().noneMatch(questionStates
-                -> optionalQuestion.get().getQuestionState().getState().equals(questionStates.getStateName()))) {
-
-                return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("The question can only be answers if it's been issued or a deadline extension has been granted");
             }
 
             // For MVP, there'll only be one answer per question
             List<Answer> answers = answerService.retrieveAnswersByQuestion(optionalQuestion.get());
             if (!answers.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Question already has an answer");
+            }
+
+            // If a question exists, then it must be in the issued state to be answered
+            if (answerableStates.stream().noneMatch(questionStates
+                -> optionalQuestion.get().getQuestionState().getState().equals(questionStates.getStateName()))) {
+
+                return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("The question can only be answers if it's been issued or a deadline extension has been granted");
             }
 
             Answer answer = new Answer();
