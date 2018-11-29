@@ -220,6 +220,9 @@ public class OnlineHearingController {
         if (StringUtils.isEmpty(request.getCaseId())) {
             result.setValid(false);
             result.setReason("Case id is required");
+        } else if (StringUtils.isEmpty(request.getStartDate())) {
+            result.setValid(false);
+            result.setReason("Start date is required");
         }
 
         return result;
