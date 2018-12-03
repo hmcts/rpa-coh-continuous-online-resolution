@@ -176,6 +176,15 @@ public class OnlineHearingControllerTest {
     }
 
     @Test
+    public void testCreateOnlineHearingWithNullStartDate() throws Exception {
+        onlineHearingRequest.setStartDate(null);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(JsonUtils.toJson(onlineHearingRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+    }
+
+    @Test
     public void testCreateOnlineHearingDuplicate() throws Exception {
 
         given(onlineHearingService.retrieveOnlineHearingByCaseIds(Arrays.asList("case_123"))).willReturn(Arrays.asList(onlineHearing));
