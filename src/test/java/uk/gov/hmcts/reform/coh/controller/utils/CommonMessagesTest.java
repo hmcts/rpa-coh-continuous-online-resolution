@@ -14,22 +14,25 @@ public class CommonMessagesTest {
 
     @Test
     public void testQuestionNotFoundIsSet() {
-        assertEquals(CommonMessages.QUESTION_NOT_FOUND, "Question not found");
+        assertEquals("Question not found", CommonMessages.QUESTION_NOT_FOUND);
     }
 
     @Test
     public void testOnlinehearingNotFoundIsSet() {
-        assertEquals(CommonMessages.ONLINE_HEARING_NOT_FOUND, "Online hearing not found");
+        String message = CommonMessages.ONLINE_HEARING_NOT_FOUND;
+        assertEquals("Online hearing not found", message);
     }
 
     @Test
     public void testEventTypeNotFoundIsSet() {
-        assertEquals(CommonMessages.EVENT_TYPE_NOT_FOUND, "Event type not found");
+        String message = CommonMessages.EVENT_TYPE_NOT_FOUND;
+        assertEquals("Event type not found", message);
     }
 
     @Test
     public void testJurisdictionNotFoundIsSet() {
-        assertEquals(CommonMessages.JURISDICTION_NOT_FOUND, "Jurisdiction not found");
+        String message = CommonMessages.JURISDICTION_NOT_FOUND;
+        assertEquals("Jurisdiction not found", message);
     }
 
 
