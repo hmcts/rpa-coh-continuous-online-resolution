@@ -9,6 +9,7 @@ public class CommonMessagesTest {
     @Test
     public void testInitateCommonMessages() {
         CommonMessages cm = new CommonMessages();
+        assertNotNull(cm);
     }
 
     @Test

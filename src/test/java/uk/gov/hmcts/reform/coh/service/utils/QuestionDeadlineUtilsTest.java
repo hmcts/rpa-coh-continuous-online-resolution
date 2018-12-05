@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -25,12 +26,13 @@ public class QuestionDeadlineUtilsTest {
 
     @Before
     public void setUp() {
+
         when(questionStateService.fetchQuestionState(QuestionStates.ISSUED))
-                .thenReturn(new QuestionState(QuestionStates.ISSUED.getStateName()));
+                .thenReturn(QuestionStateUtils.get(QuestionStates.ISSUED));
         when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED))
-                .thenReturn(new QuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName()));
+                .thenReturn(QuestionStateUtils.get(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED));
         when(questionStateService.fetchQuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED))
-                .thenReturn(new QuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName()));
+                .thenReturn(QuestionStateUtils.get(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED));
     }
 
     @Test
@@ -45,7 +47,7 @@ public class QuestionDeadlineUtilsTest {
     @Test
     public void testIsEligibleForDeadlineExtensionReturnsTrueForQuestionDeadlineExtensionGranted() {
         Question mockQuestion = new Question();
-        mockQuestion.setQuestionState(new QuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName()));
+        mockQuestion.setQuestionState(QuestionStateUtils.get(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED));
         boolean isEligible = questionDeadlineUtils.isEligibleForDeadlineExtension(mockQuestion);
 
         assertTrue(isEligible);
@@ -54,7 +56,7 @@ public class QuestionDeadlineUtilsTest {
     @Test
     public void testIsEligibleForDeadlineExtensionReturnsTrueForQuestionDeadlineExtensionDenied() {
         Question mockQuestion = new Question();
-        mockQuestion.setQuestionState(new QuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName()));
+        mockQuestion.setQuestionState(QuestionStateUtils.get(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED));
         boolean isEligible = questionDeadlineUtils.isEligibleForDeadlineExtension(mockQuestion);
 
         assertTrue(isEligible);
