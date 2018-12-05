@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.service.QuestionStateService;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
+import uk.gov.hmcts.reform.coh.util.QuestionEntityUtils;
 import uk.gov.hmcts.reform.coh.util.QuestionStateUtils;
 
 import static org.junit.Assert.*;
@@ -37,8 +38,7 @@ public class QuestionDeadlineUtilsTest {
 
     @Test
     public void testIsEligibleForDeadlineExtensionReturnsTrueForIssued() {
-        Question mockQuestion = new Question();
-        mockQuestion.setQuestionState(new QuestionState(QuestionStates.ISSUED.getStateName()));
+        Question mockQuestion = QuestionEntityUtils.createTestQuestion(QuestionStates.ISSUED);
         boolean isEligible = questionDeadlineUtils.isEligibleForDeadlineExtension(mockQuestion);
 
         assertTrue(isEligible);
@@ -46,8 +46,7 @@ public class QuestionDeadlineUtilsTest {
 
     @Test
     public void testIsEligibleForDeadlineExtensionReturnsTrueForQuestionDeadlineExtensionGranted() {
-        Question mockQuestion = new Question();
-        mockQuestion.setQuestionState(QuestionStateUtils.get(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED));
+        Question mockQuestion = QuestionEntityUtils.createTestQuestion(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
         boolean isEligible = questionDeadlineUtils.isEligibleForDeadlineExtension(mockQuestion);
 
         assertTrue(isEligible);
@@ -55,8 +54,7 @@ public class QuestionDeadlineUtilsTest {
 
     @Test
     public void testIsEligibleForDeadlineExtensionReturnsTrueForQuestionDeadlineExtensionDenied() {
-        Question mockQuestion = new Question();
-        mockQuestion.setQuestionState(QuestionStateUtils.get(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED));
+        Question mockQuestion = QuestionEntityUtils.createTestQuestion(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED);
         boolean isEligible = questionDeadlineUtils.isEligibleForDeadlineExtension(mockQuestion);
 
         assertTrue(isEligible);
