@@ -119,6 +119,7 @@ jacoco {
 jacocoTestReport {
     executionData(test)
 
+    
     reports {
         xml.enabled = true
         csv.enabled = true
@@ -158,7 +159,6 @@ task functional(type: Test) {
     setTestClassesDirs(sourceSets.aat.output.classesDirs)
     setClasspath(sourceSets.aat.runtimeClasspath)
     include "uk/gov/hmcts/reform/coh/functional/**"
-
     environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
 

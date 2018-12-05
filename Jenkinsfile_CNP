@@ -37,4 +37,6 @@ withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
     loadVaultSecrets(secrets)
+
+    enableFullFunctionalTest()
 }
