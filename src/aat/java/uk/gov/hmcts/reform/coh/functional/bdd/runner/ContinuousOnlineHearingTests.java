@@ -11,4 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
                 "json:build/reports/cucumber/cucumber.json", "usage:build/usage.jsonx", "junit:build/junit.xml"},
         glue = {"uk/gov/hmcts/reform/coh/functional/bdd/steps/"})
 @ActiveProfiles({"cucumber"})
-public class ContinuousOnlineHearingTests {}
+public class ContinuousOnlineHearingTests {
+    
+}
