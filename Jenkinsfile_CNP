@@ -20,6 +20,8 @@ def component = "cor"
 
 def channel = '#coh-pipeline'
 
+GradleBuilder builder = new GradleBuilder(this, product)
+
 List<LinkedHashMap<String, Object>> secrets = [
         secret('cor-s2s-token', 'TEST_S2S_TOKEN')
 ]
@@ -38,6 +40,6 @@ withPipeline(type , product, component) {
     enableDbMigration()
     loadVaultSecrets(secrets)
     after("functionalTest") {
-        steps.archiveArtifacts artifacts: '**/build/test-results/functional/*', allowEmptyArchive: true
+        builder.steps.archiveArtifacts artifacts: '**/build/test-results/functional/*', allowEmptyArchive: true
     }
 }
