@@ -37,7 +37,7 @@ withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
     loadVaultSecrets(secrets)
-    after("functional") {
+    after("functionalTest") {
         steps.archiveArtifacts artifacts: '**/reports/cucumber/html/*', allowEmptyArchive: true
     }
 }
