@@ -12,7 +12,12 @@ Feature: Online hearing
     And the response code is 200
 
   Scenario: Create duplicate online hearing
-    And a standard online hearing is created
+    And a standard online hearing
+    And the case id is 'case_123'
+    And a POST request is sent for online hearing
+    And a standard online hearing
+    And the case id is 'case_123'
+    And a POST request is sent for online hearing
     Then the response code is 409
     Then the response contains the following text '"Duplicate case found" '
 

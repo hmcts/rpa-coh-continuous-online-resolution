@@ -27,7 +27,9 @@ Feature: Question Round Get
   Scenario: Retrieve question round when not all questions answered
     Given a standard online hearing is created
     And a valid question
+    Then the response code is 201
     And a valid question
+    Then the response code is 201
     And the put request is sent to issue the question round ' "1" '
     And the notification scheduler runs
     And a standard answer

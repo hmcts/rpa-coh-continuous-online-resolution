@@ -241,7 +241,7 @@ public class ApiSteps extends BaseSteps {
             testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
 
             testContext.getScenarioContext()
-                .setCurrentOnlineHearing(onlineHearingRepository.findById(UUID.fromString(newOnlineHearing.getOnlineHearingId())).get());
+                .setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
@@ -266,7 +266,7 @@ public class ApiSteps extends BaseSteps {
         testContext.getScenarioContext().getCurrentOnlineHearing()
             .setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRepository
-            .findById(UUID.fromString(newOnlineHearing.getOnlineHearingId())).get());
+            .findByCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId()).get());
 
     }
 
