@@ -14,7 +14,8 @@ public class CommonMessagesTest {
 
     @Test
     public void testQuestionNotFoundIsSet() {
-        assertEquals("Question not found", CommonMessages.QUESTION_NOT_FOUND);
+        String message = CommonMessages.QUESTION_NOT_FOUND;
+        assertEquals("Question not found", message);
     }
 
     @Test
