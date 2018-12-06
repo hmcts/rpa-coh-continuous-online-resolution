@@ -7,10 +7,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = {"src/aat/resources/cucumber"},
-        format = {"pretty", "html:build/reports/cucumber/html",
-                "json:build/reports/cucumber/cucumber.json", "usage:build/usage.jsonx", "junit:build/junit.xml"},
-        glue = {"uk/gov/hmcts/reform/coh/functional/bdd/steps/"})
+    format = {"pretty", "html:build/reports/cucumber/html",
+        "json:build/reports/tests/cucumber/cucumber.json",
+        "usage:build/reports/tests/cucumber/usage.jsonx",
+        "junit:build/test-results/functional/cucumber.xml"},
+    glue = {"uk/gov/hmcts/reform/coh/functional/bdd/steps/"})
 @ActiveProfiles({"cucumber"})
 public class ContinuousOnlineHearingTests {
-    
 }
