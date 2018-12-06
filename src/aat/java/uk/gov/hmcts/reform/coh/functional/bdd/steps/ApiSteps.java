@@ -222,10 +222,16 @@ public class ApiSteps extends BaseSteps {
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
 
         OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
-        HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
+
+        String dynamicCaseId = UUID.randomUUID().toString();
+        onlineHearingRequest.setCaseId(dynamicCaseId);
+        testContext.getScenarioContext().setCurrentOnlineHearingRequest(onlineHearingRequest);
+
+        HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(onlineHearingRequest), header);
         try {
             ResponseEntity<String> response = restTemplate
                 .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
+
             String responseString = response.getBody();
             testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
@@ -237,9 +243,10 @@ public class ApiSteps extends BaseSteps {
             testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
 
             testContext.getScenarioContext()
-                .setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
+                .setCurrentOnlineHearing(onlineHearingRepository.findById(UUID.fromString(newOnlineHearing.getOnlineHearingId())).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
+            assertFalse(true);
         }
     }
 
@@ -262,7 +269,7 @@ public class ApiSteps extends BaseSteps {
         testContext.getScenarioContext().getCurrentOnlineHearing()
             .setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
         testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRepository
-            .findByCaseId(testContext.getScenarioContext().getCurrentOnlineHearingRequest().getCaseId()).get());
+            .findById(UUID.fromString(newOnlineHearing.getOnlineHearingId())).get());
 
     }
 
