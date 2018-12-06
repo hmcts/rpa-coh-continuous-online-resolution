@@ -38,6 +38,6 @@ withPipeline(type , product, component) {
     enableDbMigration()
     loadVaultSecrets(secrets)
     after("functionalTest") {
-        steps.archiveArtifacts artifacts: '**/reports/cucumber/html/*', allowEmptyArchive: true
+        steps.archiveArtifacts artifacts: '**/build/test-results/functional/*', allowEmptyArchive: true
     }
 }
