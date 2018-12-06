@@ -32,11 +32,6 @@ public class SmokeTest {
     protected String baseUrl;
 
     @Test
-    public void should_be_true() {
-        assertTrue(true);
-    }
-
-    @Test
     public void testAppIsUp() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         restTemplate = new RestTemplate(TestTrustManager.getInstance().getTestRequestFactory());
         ResponseEntity<Health> response =restTemplate.getForEntity(baseUrl + "/health", Health.class);
