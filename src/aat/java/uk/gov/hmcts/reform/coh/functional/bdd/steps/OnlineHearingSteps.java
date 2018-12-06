@@ -51,6 +51,7 @@ public class OnlineHearingSteps extends BaseSteps {
     public void a_standard_online_hearing() throws IOException {
         OnlineHearingRequest onlineHearingRequest = JsonUtils
             .toObjectFromTestName("online_hearing/standard_online_hearing", OnlineHearingRequest.class);
+        onlineHearingRequest.setCaseId(UUID.randomUUID().toString());
         testContext.getScenarioContext().setCurrentOnlineHearingRequest(onlineHearingRequest);
     }
 

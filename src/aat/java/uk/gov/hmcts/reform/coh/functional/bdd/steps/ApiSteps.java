@@ -222,12 +222,10 @@ public class ApiSteps extends BaseSteps {
         String jsonBody = JsonUtils.getJsonInput("online_hearing/standard_online_hearing");
 
         OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
-
-        String dynamicCaseId = UUID.randomUUID().toString();
-        onlineHearingRequest.setCaseId(dynamicCaseId);
+        onlineHearingRequest.setCaseId(UUID.randomUUID().toString());
         testContext.getScenarioContext().setCurrentOnlineHearingRequest(onlineHearingRequest);
-
         HttpEntity<String> request = new HttpEntity<>(JsonUtils.toJson(onlineHearingRequest), header);
+
         try {
             ResponseEntity<String> response = restTemplate
                 .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
@@ -246,7 +244,6 @@ public class ApiSteps extends BaseSteps {
                 .setCurrentOnlineHearing(onlineHearingRepository.findById(UUID.fromString(newOnlineHearing.getOnlineHearingId())).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
-            assertFalse(true);
         }
     }
 
