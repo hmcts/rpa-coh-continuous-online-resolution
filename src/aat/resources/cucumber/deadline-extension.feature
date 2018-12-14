@@ -41,7 +41,7 @@ Feature: Deadline Extension
     And a standard question
     Given the question round is ' "2" '
     When the post request is sent to create the question
-    Then the response code is 200
+    Then the response code is 201
 
   Scenario: Cannot extend deadline without questions
     Given a standard online hearing is created

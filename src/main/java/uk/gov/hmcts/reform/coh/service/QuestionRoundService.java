@@ -39,7 +39,12 @@ public class QuestionRoundService {
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED) || questionRoundState.getState().equals(QUESTIONS_ANSWERED);
+
+        return questionRoundState.getState().equals(ISSUE_PENDING)
+                || questionRoundState.getState().equals(ISSUED)
+                || questionRoundState.getState().equals(QUESTIONS_ANSWERED)
+                || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName())
+                || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
     }
 
     public boolean isFirstRound(int currentRoundNumber) {
@@ -54,7 +59,7 @@ public class QuestionRoundService {
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
         if(!isFirstRound(currentRoundNumber) && isIncremented(question.getQuestionRound(), currentRoundNumber)
-                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName()) && !currentState.getState().equals(QUESTIONS_ANSWERED)){
+                && !alreadyIssued(currentState)){
             throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
 
