@@ -39,8 +39,8 @@ Feature: Deadline Extension
     Then the response code is 200
     And question states are question_deadline_extension_granted
     And a standard question
-    And the post request is sent to create the question
-    When the put request is sent to issue the question round ' "2" '
+    Given the question round is ' "2" '
+    When the post request is sent to create the question
     Then the response code is 200
 
   Scenario: Cannot extend deadline without questions
