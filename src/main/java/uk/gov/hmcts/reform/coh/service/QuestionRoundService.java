@@ -67,10 +67,10 @@ public class QuestionRoundService {
             throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
 
-        if (alreadyIssuedOrPending(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+        if ((alreadyIssuedOrPending(currentState) && isIncremented(targetQuestionRound, currentRoundNumber))
+            || (!alreadyIssuedOrPending(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) ) {
             // Current QR is issued and create new question round
-            return true;
-        } else if (!alreadyIssuedOrPending(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) {
+            // or
             // Current QR is not issued and question is current question round OR no QR exists yet
             return true;
         }
