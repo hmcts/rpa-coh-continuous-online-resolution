@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -183,6 +184,21 @@ public class OnlineHearingControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
     }
+
+
+    @Test
+    public void testCreateOnlineHearingWithInvalidFormatStartDate() throws Exception {
+        // JSON object is required because onlineHearingRequest only compiles with Date object for start date property.
+        JSONObject json = new JSONObject();
+        json.put("case_id", onlineHearingRequest.getCaseId());
+        json.put("jurisdiction", onlineHearingRequest.getJurisdiction());
+        json.put("start_date", "2");
+        json.put("state", onlineHearingRequest.getState());
+        mockMvc.perform(MockMvcRequestBuilders.post(ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).content(json.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     public void testCreateOnlineHearingDuplicate() throws Exception {
