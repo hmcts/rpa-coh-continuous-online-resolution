@@ -451,7 +451,7 @@ public class QuestionRoundServiceTest {
 
     @Test
     public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssuePending() {
-        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedPendingState)));
+        assertTrue(questionRoundService.alreadyIssuedOrPending(new QuestionRoundState(issuedPendingState)));
     }
 
     @Test

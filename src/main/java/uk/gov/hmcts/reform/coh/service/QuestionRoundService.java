@@ -40,11 +40,15 @@ public class QuestionRoundService {
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
 
-        return questionRoundState.getState().equals(ISSUE_PENDING)
-                || questionRoundState.getState().equals(ISSUED)
+        return questionRoundState.getState().equals(ISSUED)
                 || questionRoundState.getState().equals(QUESTIONS_ANSWERED)
                 || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName())
                 || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
+    }
+
+    public boolean alreadyIssuedOrPending(QuestionRoundState questionRoundState) {
+
+        return alreadyIssued(questionRoundState) || questionRoundState.getState().equals(ISSUE_PENDING);
     }
 
     public boolean isFirstRound(int currentRoundNumber) {
@@ -64,12 +68,12 @@ public class QuestionRoundService {
         }
 
         // Current QR is issued and create new question round
-        if(alreadyIssued(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
+        if(alreadyIssuedOrPending(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
             return true;
         }
 
         // Current QR is not issued and question is current question round OR no QR exists yet
-        if(!alreadyIssued(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) {
+        if(!alreadyIssuedOrPending(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) {
             return true;
         }
 
