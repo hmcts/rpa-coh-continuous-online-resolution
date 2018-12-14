@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +19,8 @@ public class OnlineHearingRequest {
     private String jurisdiction;
 
     @JsonProperty("start_date")
-    @ApiModelProperty(value = "The start date of the online resolution")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    @ApiModelProperty(required = true, example = "2018-12-12T12:23:26Z", value = "The start date of the online resolution")
     private Date startDate;
 
     @JsonProperty("state")
