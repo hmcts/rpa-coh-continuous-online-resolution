@@ -38,9 +38,10 @@ withPipeline(type , product, component) {
     enableDbMigration()
     loadVaultSecrets(secrets)
 
-    after('functional') {
-        archiveArtifacts artifacts: 'build/reports/cucumber/html/index.html', allowEmptyArchive: true
+    junit 'build/test-results/test/**/*.xml'
+    archiveArtifacts artifacts: 'build/reports/tests/test/index.html'
 
+    after('functional') {
         publishHTML target: [
                 reportDir            : "build/reports/cucumber/html/",
                 reportFiles          : "index.html",
