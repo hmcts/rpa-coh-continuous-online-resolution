@@ -14,6 +14,35 @@ Feature: Deadline Extension
     And question history has at least 2 events
     And an event has been queued for this online hearing of event type question_deadline_extension_granted
 
+  Scenario: Extended deadline questions can be answered
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And a standard question
+    And the post request is sent to create the question
+    When the put request is sent to issue the question round ' "1" '
+    And deadline extension is requested
+    Then the response code is 200
+    And question states are question_deadline_extension_granted
+    And a standard answer
+    When a POST request is sent for an answer
+    Then the response code is 201
+
+  Scenario: Question round may be issued after question deadline is extended
+    Given a standard online hearing is created
+    And a standard question
+    And the post request is sent to create the question
+    And a standard question
+    And the post request is sent to create the question
+    When the put request is sent to issue the question round ' "1" '
+    And deadline extension is requested
+    Then the response code is 200
+    And question states are question_deadline_extension_granted
+    And a standard question
+    And the post request is sent to create the question
+    When the put request is sent to issue the question round ' "2" '
+    Then the response code is 200
+
   Scenario: Cannot extend deadline without questions
     Given a standard online hearing is created
     And deadline extension is requested
