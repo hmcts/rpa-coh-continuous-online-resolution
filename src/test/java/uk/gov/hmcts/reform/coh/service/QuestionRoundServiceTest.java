@@ -37,6 +37,8 @@ public class QuestionRoundServiceTest {
     private QuestionState submittedState;
     private QuestionState issuedState;
     private QuestionState issuedPendingState;
+    private QuestionState extensionGranted;
+    private QuestionState extensionDenied;
     private QuestionState answeredState;
     private QuestionState deadlineElapsedState;
     private List<Question> questionRound1Questions;
@@ -74,6 +76,9 @@ public class QuestionRoundServiceTest {
         issuedPendingState = new QuestionState();
         issuedPendingState.setQuestionStateId(3);
         issuedPendingState.setState(issuedPendingStateName);
+
+        extensionGranted = new QuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName());
+        extensionDenied = new QuestionState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
 
         answeredState = new QuestionState(getQuestionsAnsweredStateName);
         deadlineElapsedState = new QuestionState(deadlineElapsedStateName);
@@ -451,7 +456,17 @@ public class QuestionRoundServiceTest {
 
     @Test
     public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssuePending() {
-        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedPendingState)));
+        assertTrue(questionRoundService.alreadyIssuedOrPending(new QuestionRoundState(issuedPendingState)));
+    }
+
+    @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateExtensionGranted() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(extensionGranted)));
+    }
+
+    @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateIsExtensionRejected() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(extensionDenied)));
     }
 
     @Test
