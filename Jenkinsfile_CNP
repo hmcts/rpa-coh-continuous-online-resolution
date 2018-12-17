@@ -40,22 +40,25 @@ withPipeline(type , product, component) {
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
-//        archiveArtifacts artifacts: '**/build/test-results/functional/*', allowEmptyArchive: true
         publishHTML target: [
+                allowMissing         : true,
+                alwaysLinkToLastBuild: true,
+                keepAll              : true,
                 reportDir            : "build/reports/cucumber/html/",
                 reportFiles          : "index.html",
-                reportName           : "Functional Tests",
-                alwaysLinkToLastBuild: true
+                reportName           : "Functional Tests"
         ]
     }
+
     after('functionalTest:preview') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
-//        archiveArtifacts artifacts: '**/build/test-results/functional/*', allowEmptyArchive: true
         publishHTML target: [
+                allowMissing         : true,
+                alwaysLinkToLastBuild: true,
+                keepAll              : true,
                 reportDir            : "build/reports/cucumber/html/",
                 reportFiles          : "index.html",
-                reportName           : "Functional Tests",
-                alwaysLinkToLastBuild: true
+                reportName           : "Functional Tests"
         ]
     }
 }
