@@ -60,7 +60,7 @@ Feature: Conversations
     And the conversation response contains no decision
     And the conversation response contains 1 question
     And the conversation response contains a question with the correct uri
-    And the conversation response contains a question with 3 history entries
+    And the conversation response contains a question with at least 3 history entries
     And the conversation response contains 1 answer
     And the conversation response contains an answer with the correct uri
     And the conversation response contains an answer with 1 history entries
