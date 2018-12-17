@@ -41,7 +41,7 @@ withPipeline(type , product, component) {
     junit 'build/test-results/test/**/*.xml'
     archiveArtifacts artifacts: 'build/reports/tests/test/index.html'
 
-    after('functional') {
+    after('functional:aat') {
         publishHTML target: [
                 reportDir            : "build/reports/cucumber/html/",
                 reportFiles          : "index.html",
