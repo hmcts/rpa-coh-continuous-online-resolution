@@ -513,5 +513,15 @@ public class QuestionRoundServiceTest {
         questionRound.setQuestionList(questionRound1Questions);
         assertEquals(deadlineElapsedStateName, questionRoundService.retrieveQuestionRoundState(questionRound).getState());
     }
+
+    @Test
+    public void testWhenOneQuestionAnswered() {
+        questionRound1Questions.get(0).setQuestionState(answeredState);
+        questionRound1Questions.get(1).setQuestionState(issuedState);
+
+        QuestionRound questionRound = new QuestionRound();
+        questionRound.setQuestionList(questionRound1Questions);
+        assertEquals(issuedStateName, questionRoundService.retrieveQuestionRoundState(questionRound).getState());
+    }
 }
 
