@@ -39,7 +39,16 @@ public class QuestionRoundService {
     }
 
     public boolean alreadyIssued(QuestionRoundState questionRoundState) {
-        return questionRoundState.getState().equals(ISSUE_PENDING) || questionRoundState.getState().equals(ISSUED) || questionRoundState.getState().equals(QUESTIONS_ANSWERED);
+
+        return questionRoundState.getState().equals(ISSUED)
+                || questionRoundState.getState().equals(QUESTIONS_ANSWERED)
+                || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName())
+                || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
+    }
+
+    public boolean alreadyIssuedOrPending(QuestionRoundState questionRoundState) {
+
+        return alreadyIssued(questionRoundState) || questionRoundState.getState().equals(ISSUE_PENDING);
     }
 
     public boolean isFirstRound(int currentRoundNumber) {
@@ -54,17 +63,14 @@ public class QuestionRoundService {
         QuestionRoundState currentState = retrieveQuestionRoundState(getQuestionRoundByRoundId(onlineHearing, currentRoundNumber));
 
         if(!isFirstRound(currentRoundNumber) && isIncremented(question.getQuestionRound(), currentRoundNumber)
-                && !currentState.getState().equals(QuestionStates.ISSUED.getStateName()) && !currentState.getState().equals(QUESTIONS_ANSWERED)){
+                && !alreadyIssued(currentState)){
             throw new NotAValidUpdateException("Cannot increment question round unless previous question round is issued");
         }
-
-        // Current QR is issued and create new question round
-        if(alreadyIssued(currentState) && isIncremented(targetQuestionRound, currentRoundNumber)) {
-            return true;
-        }
-
-        // Current QR is not issued and question is current question round OR no QR exists yet
-        if(!alreadyIssued(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) {
+        else if ((alreadyIssuedOrPending(currentState) && isIncremented(targetQuestionRound, currentRoundNumber))
+            || (!alreadyIssuedOrPending(currentState) && targetQuestionRound == currentRoundNumber || isFirstRound(currentRoundNumber)) ) {
+            // Current QR is issued and create new question round
+            // or
+            // Current QR is not issued and question is current question round OR no QR exists yet
             return true;
         }
 
