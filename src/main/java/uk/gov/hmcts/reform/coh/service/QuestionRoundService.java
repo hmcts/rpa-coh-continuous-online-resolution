@@ -42,6 +42,7 @@ public class QuestionRoundService {
 
         return questionRoundState.getState().equals(ISSUED)
                 || questionRoundState.getState().equals(QUESTIONS_ANSWERED)
+                || questionRoundState.getState().equals(QuestionStates.DEADLINE_ELAPSED.getStateName())
                 || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName())
                 || questionRoundState.getState().equals(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
     }

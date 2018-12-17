@@ -470,6 +470,11 @@ public class QuestionRoundServiceTest {
     }
 
     @Test
+    public void testAlreadyIssuedReturnsTrueIfQuestionStateIsDeadlineElapsed() {
+        assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(deadlineElapsedState)));
+    }
+
+    @Test
     public void testAlreadyIssuedReturnsTrueIfQuestionStateIsIssued() {
         assertTrue(questionRoundService.alreadyIssued(new QuestionRoundState(issuedState)));
     }
