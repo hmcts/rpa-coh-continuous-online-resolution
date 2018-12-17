@@ -37,4 +37,28 @@ withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
     loadVaultSecrets(secrets)
+
+    after('functionalTest:aat') {
+        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
+        publishHTML target: [
+                allowMissing         : true,
+                alwaysLinkToLastBuild: true,
+                keepAll              : true,
+                reportDir            : "build/reports/cucumber/html/",
+                reportFiles          : "index.html",
+                reportName           : "Functional Tests"
+        ]
+    }
+
+    after('functionalTest:preview') {
+        steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
+        publishHTML target: [
+                allowMissing         : true,
+                alwaysLinkToLastBuild: true,
+                keepAll              : true,
+                reportDir            : "build/reports/cucumber/html/",
+                reportFiles          : "index.html",
+                reportName           : "Functional Tests"
+        ]
+    }
 }
