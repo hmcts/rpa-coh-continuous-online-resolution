@@ -15,14 +15,20 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.*;
 import uk.gov.hmcts.reform.coh.controller.utils.AuthUtils;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearingState;
+import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
-import uk.gov.hmcts.reform.coh.service.*;
+import uk.gov.hmcts.reform.coh.service.JurisdictionService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 
+import javax.validation.Valid;
 import java.time.Clock;
 import java.util.*;
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/continuous-online-hearings")
@@ -118,7 +124,7 @@ public class OnlineHearingController {
         OnlineHearing onlineHearing = new OnlineHearing();
         Optional<OnlineHearingState> onlineHearingState = onlineHearingStateService.retrieveOnlineHearingStateByState(STARTING_STATE);
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(body.getJurisdiction());
-        ValidationResult validationResult = validate(body, onlineHearingState, jurisdiction);
+        ValidationResult validationResult = validate(body);
         if (!validationResult.isValid()) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(validationResult.getReason());
         }
@@ -213,7 +219,7 @@ public class OnlineHearingController {
         return ResponseEntity.accepted().build();
     }
 
-    private ValidationResult validate(OnlineHearingRequest request, Optional<OnlineHearingState> onlineHearingState, Optional<Jurisdiction> jurisdiction) {
+    private ValidationResult validate(OnlineHearingRequest request) {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
