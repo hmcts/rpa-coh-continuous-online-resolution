@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.service.JurisdictionService;
 import uk.gov.hmcts.reform.coh.service.SessionEventForwardingRegisterService;
-import uk.gov.hmcts.reform.coh.service.SessionEventForwardingStateService;
 import uk.gov.hmcts.reform.coh.service.SessionEventTypeService;
 
 import javax.persistence.EntityNotFoundException;
@@ -38,14 +37,12 @@ public class EventForwardingController {
 
     private final JurisdictionService jurisdictionService;
 
-    private final SessionEventForwardingStateService sessionEventForwardingStateService;
 
     @Autowired
-    public EventForwardingController(SessionEventForwardingStateService sessionEventForwardingStateService,SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
+    public EventForwardingController(SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
         this.sessionEventForwardingRegisterService = sessionEventForwardingRegisterService;
         this.sessionEventTypeService = sessionEventTypeService;
         this.jurisdictionService = jurisdictionService;
-        this.sessionEventForwardingStateService = sessionEventForwardingStateService;
     }
 
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
