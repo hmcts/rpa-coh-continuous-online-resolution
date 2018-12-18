@@ -3,7 +3,9 @@ package uk.gov.hmcts.reform.coh.controller.decisionreplies;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DecisionReplyResponse {
+import java.io.Serializable;
+
+public class DecisionReplyResponse implements Serializable {
 
     @JsonProperty("decision_reply_id")
     private String decisionReplyId;
