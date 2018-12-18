@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.controller.state.StateResponse;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class AnswerResponse {
+public class AnswerResponse implements Serializable {
 
     @JsonProperty("answer_id")
     private String answerId;
