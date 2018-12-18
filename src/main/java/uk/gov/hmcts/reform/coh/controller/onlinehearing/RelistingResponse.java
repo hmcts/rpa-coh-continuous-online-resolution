@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class RelistingResponse {
+public class RelistingResponse implements Serializable {
     private final String reason;
     private final RelistingState state;
 

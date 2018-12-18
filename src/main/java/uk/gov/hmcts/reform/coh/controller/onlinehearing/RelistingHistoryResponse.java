@@ -3,9 +3,10 @@ package uk.gov.hmcts.reform.coh.controller.onlinehearing;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class RelistingHistoryResponse {
+public class RelistingHistoryResponse implements Serializable {
 
     private final String reason;
     private final RelistingState state;
