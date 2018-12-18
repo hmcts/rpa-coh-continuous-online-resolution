@@ -7,12 +7,6 @@ import static org.junit.Assert.*;
 public class CommonMessagesTest {
 
     @Test
-    public void testInitateCommonMessages() {
-        CommonMessages cm = new CommonMessages();
-        assertNotNull(cm);
-    }
-
-    @Test
     public void testQuestionNotFoundIsSet() {
         String message = CommonMessages.QUESTION_NOT_FOUND;
         assertEquals("Question not found", message);
@@ -35,6 +29,4 @@ public class CommonMessagesTest {
         String message = CommonMessages.JURISDICTION_NOT_FOUND;
         assertEquals("Jurisdiction not found", message);
     }
-
-
 }
