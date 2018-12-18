@@ -151,6 +151,8 @@ public class QuestionRoundService {
             state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED.getStateName());
         } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED)) {
             state.setState(QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED.getStateName());
+        } else if (hasQuestionRoundAQuestionState(questionRound, QuestionStates.ISSUED)) {
+            state.setState(QuestionStates.ISSUED.getStateName());
         } else {
             state.setState(questions.get(0).getQuestionState());
         }
