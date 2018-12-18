@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.coh.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -16,10 +14,10 @@ import uk.gov.hmcts.reform.coh.controller.events.SessionEventRequest;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.Jurisdiction;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
-import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingState;
 import uk.gov.hmcts.reform.coh.domain.SessionEventType;
-import uk.gov.hmcts.reform.coh.service.*;
-import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
+import uk.gov.hmcts.reform.coh.service.JurisdictionService;
+import uk.gov.hmcts.reform.coh.service.SessionEventForwardingRegisterService;
+import uk.gov.hmcts.reform.coh.service.SessionEventTypeService;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -32,7 +30,6 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.JURISDICTI
 @RestController
 @RequestMapping("/continuous-online-hearings/events")
 public class EventForwardingController {
-    private static final Logger log = LoggerFactory.getLogger(EventForwardingController.class);
 
     private final SessionEventForwardingRegisterService sessionEventForwardingRegisterService;
 
@@ -40,17 +37,12 @@ public class EventForwardingController {
 
     private final JurisdictionService jurisdictionService;
 
-    private final SessionEventForwardingStateService sessionEventForwardingStateService;
-
-    private final SessionEventService sessionEventService;
 
     @Autowired
-    public EventForwardingController(SessionEventService sessionEventService, SessionEventForwardingStateService sessionEventForwardingStateService,SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
+    public EventForwardingController(SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
         this.sessionEventForwardingRegisterService = sessionEventForwardingRegisterService;
         this.sessionEventTypeService = sessionEventTypeService;
         this.jurisdictionService = jurisdictionService;
-        this.sessionEventForwardingStateService = sessionEventForwardingStateService;
-        this.sessionEventService = sessionEventService;
     }
 
     @ApiOperation(value = "Register for event notifications", notes = "A POST request is used to register for event notifications")
@@ -160,7 +152,7 @@ public class EventForwardingController {
         Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
 
-        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+        return new SessionEventForwardingRegister.Builder()
                 .sessionEventType(eventType.orElseThrow(() -> new EntityNotFoundException(EVENT_TYPE_NOT_FOUND)))
                 .jurisdiction(jurisdiction.orElseThrow(() -> new EntityNotFoundException(JURISDICTION_NOT_FOUND)))
                 .forwardingEndpoint(request.getEndpoint())
@@ -168,8 +160,6 @@ public class EventForwardingController {
                 .withActive(true)
                 .registrationDate(new Date())
                 .build();
-
-        return sessionEventForwardingRegister;
     }
 
     private SessionEventForwardingRegister getSessionEventForwardingRegister(SessionEventRequest request) {
@@ -177,16 +167,9 @@ public class EventForwardingController {
         Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
 
-        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister.Builder()
+        return new SessionEventForwardingRegister.Builder()
                 .sessionEventType(eventType.orElseThrow(() -> new EntityNotFoundException(EVENT_TYPE_NOT_FOUND)))
                 .jurisdiction(jurisdiction.orElseThrow(() -> new EntityNotFoundException(JURISDICTION_NOT_FOUND)))
                 .build();
-
-        return sessionEventForwardingRegister;
-    }
-
-    private SessionEventForwardingState getSessionEventForwardingState(SessionEventForwardingStates state) throws EntityNotFoundException{
-        Optional<SessionEventForwardingState> eventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(state.getStateName());
-        return eventForwardingState.orElseThrow(() -> new EntityNotFoundException("Unable to find SessionEventForwardingStates: " + state.getStateName()));
     }
 }

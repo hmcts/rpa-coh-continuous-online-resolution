@@ -104,7 +104,7 @@ public class EventQueueController {
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
-    private SessionEventForwardingState getSessionEventForwardingState(SessionEventForwardingStates state) throws EntityNotFoundException{
+    private SessionEventForwardingState getSessionEventForwardingState(SessionEventForwardingStates state) {
         Optional<SessionEventForwardingState> eventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(state.getStateName());
         return eventForwardingState.orElseThrow(() -> new EntityNotFoundException("Unable to find SessionEventForwardingStates: " + state.getStateName()));
     }
