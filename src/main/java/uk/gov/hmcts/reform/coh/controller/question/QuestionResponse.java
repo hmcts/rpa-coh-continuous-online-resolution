@@ -71,10 +71,12 @@ public class QuestionResponse extends QuestionRequest implements Serializable {
         this.questionId = questionId;
     }
 
+    @Override
     public Set<UUID> getLinkedQuestionId() {
         return linkedQuestionId;
     }
 
+    @Override
     public void setLinkedQuestionId(Set<UUID> linkedQuestionId) {
         this.linkedQuestionId = linkedQuestionId;
     }
