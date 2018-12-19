@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.exception.GenericException;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
-import uk.gov.hmcts.reform.logging.exception.AlertLevel;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -96,7 +95,7 @@ public class EventQueueController {
         } catch (EntityNotFoundException enfe) {
             log.error(
                 "Pending event forwarding state was not found in the database.",
-                new GenericException(AlertLevel.P1, enfe)
+                new GenericException(enfe)
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We have encounter an error. Please contact support.");
         }
