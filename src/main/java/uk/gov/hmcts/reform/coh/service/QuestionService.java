@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.coh.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +12,7 @@ import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.service.utils.QuestionDeadlineUtils;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.Temporal;
@@ -22,17 +21,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.DRAFTED;
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.ISSUED;
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_DENIED;
-import static uk.gov.hmcts.reform.coh.states.QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED;
+import static uk.gov.hmcts.reform.coh.states.QuestionStates.*;
 
 @Service
 public class QuestionService {
-
-    private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
 
     private QuestionRoundService questionRoundService;
 

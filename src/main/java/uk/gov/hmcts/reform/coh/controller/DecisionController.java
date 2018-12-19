@@ -28,7 +28,6 @@ import uk.gov.hmcts.reform.coh.exception.GenericException;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
-import uk.gov.hmcts.reform.logging.exception.AlertLevel;
 
 import javax.validation.Valid;
 import java.util.Date;
@@ -197,7 +196,7 @@ public class DecisionController {
         } catch (Exception e) {
             log.error(
                 "Unable to create a session event to for " + EventTypes.DECISION_ISSUED.getEventType(),
-                new GenericException(AlertLevel.P2, e)
+                new GenericException(e)
             );
         }
 
