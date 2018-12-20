@@ -37,7 +37,8 @@ withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
     loadVaultSecrets(secrets)
-
+    installCharts()
+    
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
         publishHTML target: [
