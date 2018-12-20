@@ -17,7 +17,6 @@ properties([
 def type = "java"
 def product = "coh"
 def component = "cor"
-
 def channel = '#coh-pipeline'
 
 List<LinkedHashMap<String, Object>> secrets = [
@@ -36,8 +35,10 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
-    loadVaultSecrets(secrets)
+    enableDockerBuild()
+
     enableDeployToAKS()
+    loadVaultSecrets(secrets)
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
