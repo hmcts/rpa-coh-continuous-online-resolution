@@ -53,6 +53,18 @@ variable "capacity" {
 variable "java_opts" {
   default = ""
 }
+
+variable "appinsights_location" {
+  type        = "string"
+  default     = "West Europe"
+  description = "Location for Application Insights"
+}
+
+variable "application_type" {
+  type        = "string"
+  default     = "Web"
+  description = "Type of Application Insights (Web/Other)"
+}
 ////////////////////////////////////////////////
 // Endpoints
 ////////////////////////////////////////////////
@@ -114,3 +126,4 @@ variable "endpoints_health_sensitive" {
 variable "endpoints_info_sensitive" {
   default = "true"
 }
+
