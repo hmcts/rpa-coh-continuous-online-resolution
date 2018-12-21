@@ -43,6 +43,10 @@ spec:
               value: 'cor'
             - name: POSTGRES_PASSWORD
               value: 'cor'
+            - name: IDAM_API_URL
+              value: 'http://idam-api:8080'
+            - name: S2S_URL
+              value: 'http://service-auth-provider-app:8489'
 #            db
             - name: SPRING_DATASOURCE_URL
               value: 'jdbc:postgresql://shared-database:5432/cor?ssl=disable'
@@ -66,8 +70,8 @@ spec:
               value: 'coh'
             - name: PACKAGES_ENVIRONMENT
               value: 'preview'
-            - name: ROOT_APPENDER
-              value: 'JSON_CONSOLE'
+#            - name: ROOT_APPENDER
+#              value: 'JSON_CONSOLE'
             - name: JSON_CONSOLE_PRETTY_PRINT
               value: 'false'
             - name: LOG_OUTPUT
