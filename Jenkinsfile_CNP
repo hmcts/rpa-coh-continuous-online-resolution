@@ -20,8 +20,7 @@ def component = "cor"
 def channel = '#coh-pipeline'
 
 List<LinkedHashMap<String, Object>> secrets = [
-        secret('cor-s2s-token', 'TEST_S2S_TOKEN'),
-        secret('AppInsightsInstrumentationKey', 'APPINSIGHTS_INSTRUMENTATIONKEY')
+        secret('cor-s2s-token', 'TEST_S2S_TOKEN')
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -34,12 +33,13 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 withPipeline(type , product, component) {
+    setVaultName('coh-cor')
+    loadVaultSecrets(secrets)
     enableSlackNotifications(channel)
 //    enableDbMigration()
     enableDockerBuild()
 
     enableDeployToAKS()
-    loadVaultSecrets(secrets)
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
