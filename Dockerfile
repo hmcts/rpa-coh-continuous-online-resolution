@@ -21,4 +21,4 @@ EXPOSE 7005 7005
 
 COPY build/libs/$APP /opt/app/
 
-#ENTRYPOINT exec java ${JAVA_OPTS} -jar "/opt/app/continuous-online-hearing.jar"
+ENTRYPOINT exec java ${JAVA_OPTS} -jar "/opt/app/continuous-online-hearing.jar"
