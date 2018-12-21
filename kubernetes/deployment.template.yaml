@@ -85,7 +85,7 @@ spec:
             - name: SHOW_SQL
               value: 'true'
             - name: ENDPOINTS_HEALTH_SENSITIVE
-              value: 'false'
+              value: 'true'
             - name: ENDPOINTS_INFO_SENSITIVE
               value: 'false'
             - name: S2S_NAMES_WHITELIST
