@@ -194,6 +194,13 @@ spec:
       containers:
         - image: postgres:10.5-alpine
           name: shared-database
+          env:
+          - name: POSTGRES_DATABASE
+            value: 'cor'
+          - name: POSTGRES_USER
+            value: 'cor'
+          - name: POSTGRES_PASSWORD
+            value: 'cor'
           resources:
             requests:
               memory: '256Mi'
@@ -205,14 +212,14 @@ spec:
           ports:
             - containerPort: 5432
               name: postgres
-          volumeMounts:
-            - mountPath: /docker-entrypoint-initdb.d
-              name: initdb
-              readOnly: true
-      volumes:
-        - name: initdb
-          configMap:
-            name: shared-database-initdb
+#          volumeMounts:
+#            - mountPath: /docker-entrypoint-initdb.d
+#              name: initdb
+#              readOnly: true
+#      volumes:
+#        - name: initdb
+#          configMap:
+#            name: shared-database-initdb
 ---
 #
 # SERVICE - Expose the postgres container internally to the cluster
