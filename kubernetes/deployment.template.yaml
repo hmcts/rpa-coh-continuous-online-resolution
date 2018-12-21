@@ -30,13 +30,15 @@ spec:
           env:
 #            Import variables from vault
             - name: S2S_KEY
-              value: '${cor-s2s-token}'
+              value: "${TEST_S2S_TOKEN}"
             - name: APPINSIGHTS_INSTRUMENTATIONKEY
-              value: 'test_app'
+              value: "${APPINSIGHTS_INSTRUMENTATIONKEY}"
             - name: IDAM_API_URL
-              value: 'https://preprod-idamapi.reform.hmcts.net:3511'
+              value: "${IDAM_API_URL}"
             - name: S2S_URL
-              value: 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+              value: "${S2S_URL}"
+            - name: test-url
+              value: "${TEST_URL}"
 #            Import from main.tf
 #           Use the postgres db created for the app further down the file
             - name: POSTGRES_HOST
