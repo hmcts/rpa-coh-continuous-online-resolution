@@ -30,9 +30,9 @@ spec:
           env:
 #            Import variables from vault
             - name: S2S_KEY
-              value: '${S2S_TOKEN}'
+              value: '${cor-s2s-token}'
             - name: APPINSIGHTS_INSTRUMENTATIONKEY
-              value: '${APPINSIGHTS_INSTRUMENTATIONKEY}'
+              value: 'test_app'
 #            Import from main.tf
 #           Use the postgres db created for the app further down the file
             - name: POSTGRES_HOST
