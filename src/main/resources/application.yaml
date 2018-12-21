@@ -29,6 +29,9 @@ spring:
   jackson:
     mapper:
       ACCEPT_CASE_INSENSITIVE_ENUMS: true
+ribbon:
+  eureka:
+    enabled: false
 
 base-urls:
   idam-user: ${IDAM_API_URL:http://localhost:4501}

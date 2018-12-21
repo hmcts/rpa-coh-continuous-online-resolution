@@ -33,6 +33,10 @@ spec:
               value: '${cor-s2s-token}'
             - name: APPINSIGHTS_INSTRUMENTATIONKEY
               value: 'test_app'
+            - name: IDAM_API_URL
+              value: 'https://preprod-idamapi.reform.hmcts.net:3511'
+            - name: S2S_URL
+              value: 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
 #            Import from main.tf
 #           Use the postgres db created for the app further down the file
             - name: POSTGRES_HOST
@@ -43,10 +47,6 @@ spec:
               value: 'cor'
             - name: POSTGRES_PASSWORD
               value: 'cor'
-            - name: IDAM_API_URL
-              value: 'http://idam-api:8080'
-            - name: S2S_URL
-              value: 'http://service-auth-provider-app:8489'
 #            db
             - name: SPRING_DATASOURCE_URL
               value: 'jdbc:postgresql://shared-database:5432/cor?ssl=disable'
