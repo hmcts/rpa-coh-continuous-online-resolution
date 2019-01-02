@@ -52,7 +52,7 @@ spec:
               value: 'cor'
 #            db
             - name: SPRING_DATASOURCE_URL
-              value: 'jdbc:postgresql://10.97.18.239:5432/cor?ssl=disable'
+              value: 'jdbc:postgresql://shared-database:5432/cor?ssl=disable'
             - name: SPRING_DATASOURCE_USERNAME
               value: 'cor'
             - name: SPRING_DATASOURCE_PASSWORD
