@@ -212,14 +212,14 @@ spec:
           ports:
             - containerPort: 5432
               name: postgres
-#          volumeMounts:
-#            - mountPath: /docker-entrypoint-initdb.d
-#              name: initdb
-#              readOnly: true
-#      volumes:
-#        - name: initdb
-#          configMap:
-#            name: shared-database-initdb
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: initdb
+              readOnly: true
+      volumes:
+        - name: initdb
+          configMap:
+            name: shared-database-initdb
 ---
 #
 # SERVICE - Expose the postgres container internally to the cluster
