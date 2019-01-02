@@ -99,8 +99,6 @@ spec:
               value: 'false'
             - name: ENABLE_S2S_HEALTH_CHECK
               value: 'false'
-            - name: ENABLE_LIQUIBASE
-              value: 'true'
           resources:
             requests:
               memory: '1024Mi'
@@ -162,6 +160,7 @@ metadata:
   namespace: ${NAMESPACE}
 data:
   initdb.sql: |
+    DROP ROLE IF EXISTS cor;
     CREATE USER cor WITH PASSWORD 'cor';
     CREATE DATABASE cor WITH OWNER = cor ENCODING = 'UTF-8' CONNECTION LIMIT = -1;
 ---
