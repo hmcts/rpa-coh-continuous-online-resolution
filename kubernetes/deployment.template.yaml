@@ -153,16 +153,16 @@ spec:
 #
 # DATABASE - Create a DB to run PRs on
 #
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: shared-database-initdb
-  namespace: ${NAMESPACE}
-data:
-  initdb.sql: |
-    DROP ROLE IF EXISTS cor;
-    CREATE USER cor WITH PASSWORD 'cor';
-    CREATE DATABASE cor WITH OWNER = cor ENCODING = 'UTF-8' CONNECTION LIMIT = -1;
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: shared-database-initdb
+#  namespace: ${NAMESPACE}
+#data:
+#  initdb.sql: |
+#    DROP ROLE IF EXISTS cor;
+#    CREATE USER cor WITH PASSWORD 'cor';
+#    CREATE DATABASE cor WITH OWNER = cor ENCODING = 'UTF-8' CONNECTION LIMIT = -1;
 ---
 #
 # NAMESPACE - Defines a logical grouping of resources
@@ -211,14 +211,14 @@ spec:
           ports:
             - containerPort: 5432
               name: postgres
-          volumeMounts:
-            - mountPath: /docker-entrypoint-initdb.d
-              name: initdb
-              readOnly: true
-      volumes:
-        - name: initdb
-          configMap:
-            name: shared-database-initdb
+#          volumeMounts:
+#            - mountPath: /docker-entrypoint-initdb.d
+#              name: initdb
+#              readOnly: true
+#      volumes:
+#        - name: initdb
+#          configMap:
+#            name: shared-database-initdb
 ---
 #
 # SERVICE - Expose the postgres container internally to the cluster
