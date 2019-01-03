@@ -160,7 +160,6 @@ metadata:
   namespace: ${NAMESPACE}
 data:
   initdb.sql: |
-    CREATE USER cor WITH PASSWORD 'cor';
     CREATE DATABASE cor WITH OWNER = cor ENCODING = 'UTF-8' CONNECTION LIMIT = -1;
 ---
 #
