@@ -35,11 +35,11 @@ spec:
             - name: APPINSIGHTS_INSTRUMENTATIONKEY
               value: 'test_app'
             - name: IDAM_API_URL
-              value: 'https://preprod-idamapi.reform.hmcts.net:3511'
+              value: "https://preprod-idamapi.reform.hmcts.net:3511"
             - name: S2S_URL
-              value: 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+              value: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
             - name: test-url
-              value: 'http://localhost:8080'
+              value: "http://localhost:8080"
 #            Import from main.tf
 #           Use the postgres db created for the app further down the file
             - name: POSTGRES_HOST
