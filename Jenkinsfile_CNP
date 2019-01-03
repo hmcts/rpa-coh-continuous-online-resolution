@@ -37,6 +37,7 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 // THESE CAN BE PICKED UP IN INTEGRATION-TEST CODE DIRECTLY
 env.IDAM_API_URL = 'https://preprod-idamapi.reform.hmcts.net:3511'
 env.S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+env.SPRING_DATASOURCE_URL = 'jdbc:postgresql://shared-database:5432/cor?ssl=disable'
 
 withPipeline(type , product, component) {
     setVaultName('coh-cor')
