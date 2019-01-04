@@ -131,6 +131,25 @@ spec:
     app: ${SERVICE_NAME}
 ---
 #
+# SERVICE - exposes containers internally to the cluster - enables service discovery via internal DNS
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: shared-database
+  namespace: ${NAMESPACE}
+  labels:
+    app: shared-database
+spec:
+  ports:
+    - name: postgres-port
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: shared-database
+---
+#
 # INGRESS - makes it accessible from outside the cluster
 #
 apiVersion: extensions/v1beta1
@@ -234,4 +253,3 @@ spec:
     - port: 5432
   selector:
     app: shared-database
-  clusterIP: None
