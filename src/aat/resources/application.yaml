@@ -13,7 +13,7 @@ spring:
         temp:
           use_jdbc_metadata_defaults: false
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/coh?sslmode=${POSTGRES_SSL_MODE:disable}}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/cor?sslmode=${POSTGRES_SSL_MODE:disable}}
     username: ${SPRING_DATASOURCE_USERNAME:cor}
     password: ${SPRING_DATASOURCE_PASSWORD:cor}
     platform: postgresql
