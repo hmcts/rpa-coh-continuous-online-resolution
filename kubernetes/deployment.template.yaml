@@ -189,7 +189,7 @@ spec:
         app: shared-database
     spec:
       containers:
-        - image: postgres:10-alpine
+        - image: postgres
           name: shared-database
           env:
           - name: POSTGRES_DB
