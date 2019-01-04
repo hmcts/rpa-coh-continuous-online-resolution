@@ -42,7 +42,7 @@ withPipeline(type , product, component) {
 // THESE CAN BE PICKED UP IN INTEGRATION-TEST CODE DIRECTLY
             env.IDAM_API_URL = 'https://preprod-idamapi.reform.hmcts.net:3511'
             env.S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-            env.SPRING_DATASOURCE_URL = 'jdbc:postgresql://localhost:5432/cor?ssl=disable'
+            env.SPRING_DATASOURCE_URL = 'jdbc:postgresql://shared-database-b7c496cf8-hczv8:5432/cor?ssl=disable'
         }
     }
     setVaultName('coh-cor')
