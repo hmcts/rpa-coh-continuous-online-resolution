@@ -119,7 +119,6 @@ public class BaseSteps {
     private void prepareAuthenticationTokens() throws Exception {
         findIdamUserIdByEmail();
         registerIfNecessary();
-        System.out.println("IdAM user ID is " + idamUser);
         getIdamToken();
         getS2sToken();
     }
