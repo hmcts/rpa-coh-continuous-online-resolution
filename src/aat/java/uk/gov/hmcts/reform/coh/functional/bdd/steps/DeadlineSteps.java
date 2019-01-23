@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.Question;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.utils.ExpiryCalendar;
@@ -50,8 +51,8 @@ public class DeadlineSteps extends BaseSteps {
     private ResponseErrorHandler oldErrorHandler;
 
     @Autowired
-    public DeadlineSteps(TestContext testContext) {
-        super(testContext);
+    public DeadlineSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
+        super(testContext, idamAuthentication);
     }
 
     @Before

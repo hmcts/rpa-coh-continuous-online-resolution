@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.coh.domain.RelistingHistory;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -38,8 +39,8 @@ import static org.junit.Assert.assertThat;
 public class OnlineHearingSteps extends BaseSteps {
 
     @Autowired
-    public OnlineHearingSteps(TestContext testContext) {
-        super(testContext);
+    public OnlineHearingSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
+        super(testContext, idamAuthentication);
     }
 
     @Before
