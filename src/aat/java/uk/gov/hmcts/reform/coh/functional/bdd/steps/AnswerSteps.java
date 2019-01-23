@@ -22,6 +22,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.AnswerResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.OnlineHearingRepository;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 import uk.gov.hmcts.reform.coh.service.AnswerService;
@@ -50,8 +51,8 @@ public class AnswerSteps extends BaseSteps {
     private QuestionRepository questionRepository;
 
     @Autowired
-    public AnswerSteps(TestContext testContext) {
-        super(testContext);
+    public AnswerSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
+        super(testContext, idamAuthentication);
     }
 
     @Before

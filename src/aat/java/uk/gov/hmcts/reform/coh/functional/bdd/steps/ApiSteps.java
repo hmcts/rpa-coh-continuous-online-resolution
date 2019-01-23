@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.controller.onlinehearing.CreateOnlineHearingRespo
 import uk.gov.hmcts.reform.coh.controller.onlinehearing.OnlineHearingRequest;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.*;
@@ -85,8 +86,8 @@ public class ApiSteps extends BaseSteps {
     private Map<SessionEventForwardingRegister, String> originalSettings = new HashMap<>();
 
     @Autowired
-    public ApiSteps(TestContext testContext) {
-        super(testContext);
+    public ApiSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
+        super(testContext, idamAuthentication);
     }
 
     @Before
