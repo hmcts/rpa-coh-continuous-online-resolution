@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.coh.controller.events.EventRegistrationRequest;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
-import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import java.io.IOException;
@@ -32,14 +31,11 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -223,6 +219,26 @@ public class EventForwardingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validJson))
                 .andExpect(status().isFailedDependency());
+    }
+
+    @Test
+    public void testGetSessionEventForwardingRegisterTrue() throws Exception {
+        EventRegistrationRequest eventRegistrationRequest = JsonUtils.toObjectFromJson(validJson, EventRegistrationRequest.class);
+        eventRegistrationRequest.setActive(true);
+        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(eventRegistrationRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetSessionEventForwardingRegisterFalse() throws Exception {
+        EventRegistrationRequest eventRegistrationRequest = JsonUtils.toObjectFromJson(validJson, EventRegistrationRequest.class);
+        eventRegistrationRequest.setActive(false);
+        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(eventRegistrationRequest)))
+                .andExpect(status().isOk());
     }
 
     private void mockSessionEventForwardingRegisterService(boolean isPresent) {
