@@ -66,6 +66,15 @@ public class SessionEventService {
 
         SessionEventForwardingRegister register = optRegister.get();
 
+        if (!register.getActive()) {
+            log.warn(
+                "Session event registry entry is inactive: jurisdiction = {}, event type name = {}",
+                onlineHearing.getJurisdiction().getJurisdictionName(),
+                sessionEventType.getEventTypeName()
+            );
+            throw new EntityNotFoundException("Session event registry entry is inactive");
+        }
+
         SessionEventForwardingState pendingState = sessionEventForwardingStateRepository
             .findByForwardingStateName(
                 SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()

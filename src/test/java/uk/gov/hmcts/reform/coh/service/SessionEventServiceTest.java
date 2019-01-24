@@ -146,4 +146,10 @@ public class SessionEventServiceTest {
 
         assertEquals(eventId, firstOne.getEventId());
     }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void throws_exception_when_event_registry_is_inactive() {
+        sessionEventForwardingRegister.setActive(false);
+        sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
+    }
 }
