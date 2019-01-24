@@ -156,13 +156,13 @@ public class EventForwardingController {
         Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
 
-        log.debug("Attempting to update event register to: " + request);
+        log.debug("Attempting to update event register to : {} ", request);
         return new SessionEventForwardingRegister.Builder()
                 .sessionEventType(eventType.orElseThrow(() -> new EntityNotFoundException(EVENT_TYPE_NOT_FOUND)))
                 .jurisdiction(jurisdiction.orElseThrow(() -> new EntityNotFoundException(JURISDICTION_NOT_FOUND)))
                 .forwardingEndpoint(request.getEndpoint())
                 .maximumRetries(request.getMaxRetries())
-                .withActive(request.getActive() != null ? request.getActive().booleanValue() : true)
+                .withActive(request.getActive() != null ? request.getActive().booleanValue() : Boolean.TRUE)
                 .registrationDate(new Date())
                 .build();
     }
