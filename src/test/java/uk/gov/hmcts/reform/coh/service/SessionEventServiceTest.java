@@ -18,6 +18,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -121,5 +122,26 @@ public class SessionEventServiceTest {
         given(sessionEventRepository.findAllByOnlineHearing(onlineHearing)).willReturn(Arrays.asList(sessionEvent));
         List<SessionEvent> optSessionEvent = sessionEventService.retrieveByOnlineHearing(onlineHearing);
         assertEquals(sessionEvent, optSessionEvent.get(0));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void throws_exception_when_pending_state_is_not_in_the_db() {
+        given(sessionEventForwardingStateRepository.findByForwardingStateName(SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName())).willReturn(Optional.empty());
+        sessionEventService.createSessionEvent(onlineHearing, EventTypes.QUESTION_ROUND_ISSUED.getEventType());
+    }
+
+    @Test
+    public void returns_old_pending_session_event() {
+        UUID eventId = UUID.randomUUID();
+
+        sessionEvent.setEventId(eventId);
+
+        given(sessionEventRepository.findFirstByOnlineHearingAndSessionEventForwardingRegisterAndSessionEventForwardingState(
+            any(), any(), any()
+        )).willReturn(Optional.of(sessionEvent));
+
+        SessionEvent firstOne = sessionEventService.createSessionEvent(onlineHearing, sessionEventTypeName);
+
+        assertEquals(eventId, firstOne.getEventId());
     }
 }
