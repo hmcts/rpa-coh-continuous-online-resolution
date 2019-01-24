@@ -64,6 +64,31 @@ public class SessionEventService {
             throw new EntityNotFoundException(message);
         }
 
+        SessionEventForwardingState pendingState = sessionEventForwardingStateRepository
+            .findByForwardingStateName(
+                SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()
+            ).orElseThrow(() -> {
+                String error = "Missing event forwarding pending state";
+                log.warn(error);
+                return new EntityNotFoundException(error);
+            });
+
+        Optional<SessionEvent> oldSessionEvent = sessionEventRepository
+            .findFirstByOnlineHearingAndSessionEventForwardingRegisterAndSessionEventForwardingState(
+                onlineHearing,
+                optRegister.get(),
+                pendingState
+            );
+
+        if (oldSessionEvent.isPresent()) {
+            log.warn(
+                "Session event already pending: online hearing id = {}, event type name = {}",
+                onlineHearing.getOnlineHearingId(),
+                optRegister.get().getSessionEventType().getEventTypeName()
+            );
+            return oldSessionEvent.get();
+        }
+
         SessionEvent sessionEvent = new SessionEvent();
         sessionEvent.setOnlineHearing(onlineHearing);
         sessionEvent.setSessionEventForwardingRegister(optRegister.get());
