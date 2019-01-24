@@ -72,7 +72,7 @@ public class SessionEventService {
                 onlineHearing.getJurisdiction().getJurisdictionName(),
                 sessionEventType.getEventTypeName()
             );
-            throw new EntityNotFoundException("Session event registry entry is inactive");
+            return null;
         }
 
         SessionEventForwardingState pendingState = sessionEventForwardingStateRepository

@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -147,9 +148,10 @@ public class SessionEventServiceTest {
         assertEquals(eventId, firstOne.getEventId());
     }
 
-    @Test(expected = EntityNotFoundException.class)
+    @Test
     public void throws_exception_when_event_registry_is_inactive() {
         sessionEventForwardingRegister.setActive(false);
-        sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
+        SessionEvent newEvent = sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
+        assertNull(newEvent);
     }
 }
