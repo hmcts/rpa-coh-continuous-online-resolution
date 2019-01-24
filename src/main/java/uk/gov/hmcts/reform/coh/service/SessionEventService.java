@@ -66,7 +66,7 @@ public class SessionEventService {
 
         SessionEventForwardingRegister register = optRegister.get();
 
-        if (!register.getActive()) {
+        if (register.getActive() != null && !register.getActive()) {
             log.warn(
                 "Session event registry entry is inactive: jurisdiction = {}, event type name = {}",
                 onlineHearing.getJurisdiction().getJurisdictionName(),
