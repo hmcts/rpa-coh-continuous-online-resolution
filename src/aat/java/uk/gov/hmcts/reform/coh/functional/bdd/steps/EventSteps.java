@@ -217,7 +217,7 @@ public class EventSteps extends BaseSteps {
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
     }
 
-    @Then("^the event register active is '(.*)'$")
+    @Then("^the event register active should be '(.*)'$")
     public void theEventRegisterActiveIs(String active) {
         Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);

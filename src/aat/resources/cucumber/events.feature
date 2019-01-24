@@ -85,7 +85,7 @@ Feature: Event features
     When a PUT request is sent to register
     Then the response code is 200
     And the event register endpoint is 'http://foo.com'
-    And the event register active is 'false'
+    And the event register active should be 'false'
 
   Scenario: Subscribe to an event with invalid jurisdiction
     Given a standard event register request
