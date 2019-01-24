@@ -241,6 +241,16 @@ public class EventForwardingControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    public void testGetSessionEventForwardingRegisterNull() throws Exception {
+        EventRegistrationRequest eventRegistrationRequest = JsonUtils.toObjectFromJson(validJson, EventRegistrationRequest.class);
+        eventRegistrationRequest.setActive(null);
+        mockMvc.perform(delete(CohUriBuilder.buildEventRegisterPost())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtils.toJson(eventRegistrationRequest)))
+                .andExpect(status().isOk());
+    }
+
     private void mockSessionEventForwardingRegisterService(boolean isPresent) {
         if (isPresent) {
             given(sessionEventForwardingRegisterService.retrieveEventForwardingRegister(
