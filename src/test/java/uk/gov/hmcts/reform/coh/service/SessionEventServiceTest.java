@@ -53,6 +53,7 @@ public class SessionEventServiceTest {
     private OnlineHearing onlineHearing;
 
     private Jurisdiction jurisdiction;
+    private SessionEventForwardingRegister sessionEventForwardingRegister;
 
     @Before
     public void setUp() {
@@ -69,7 +70,7 @@ public class SessionEventServiceTest {
         SessionEventForwardingState forwardingState = new SessionEventForwardingState();
         forwardingState.setForwardingStateName(forwardingStateName);
 
-        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister();
+        sessionEventForwardingRegister = new SessionEventForwardingRegister();
         sessionEventForwardingRegister.setJurisdiction(jurisdiction);
         sessionEventForwardingRegister.setForwardingEndpoint("http://google.com");
         sessionEventForwardingRegister.setMaximumRetries(3);
