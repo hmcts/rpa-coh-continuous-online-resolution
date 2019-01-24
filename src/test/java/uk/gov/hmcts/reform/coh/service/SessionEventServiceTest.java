@@ -75,6 +75,7 @@ public class SessionEventServiceTest {
         sessionEventForwardingRegister.setForwardingEndpoint("http://google.com");
         sessionEventForwardingRegister.setMaximumRetries(3);
         sessionEventForwardingRegister.setSessionEventType(sessionEventType);
+        sessionEventForwardingRegister.setActive(true);
 
         sessionEvent = new SessionEvent();
         sessionEvent.setOnlineHearing(onlineHearing);
