@@ -27,6 +27,7 @@ import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.*;
 import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.service.*;
+import uk.gov.hmcts.reform.coh.states.SessionEventForwardingStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
 import javax.persistence.EntityNotFoundException;
@@ -380,5 +381,27 @@ public class ApiSteps extends BaseSteps {
             .allMatch(se -> se.getRetries() == expectedRetries);
 
         assertTrue(hasExpectedRetries);
+    }
+
+    @When("^(\\d+) (.+) events? (?:are|is) added$")
+    public void answer_submittedEventsAreTriggered(int number, String eventType) {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        for (int i = 0; i < number; i++) {
+            sessionEventService.createSessionEvent(onlineHearing, eventType);
+        }
+    }
+
+    @Then("there (?:are|is) (\\d+) (.+) events? in the queue")
+    public void there_are_x_event_types_in_the_queue(int number, String eventType) {
+        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        List<SessionEvent> sessionEvents = sessionEventService.retrieveByOnlineHearing(onlineHearing);
+        long actual = sessionEvents.stream()
+            .filter(sessionEvent -> eventType
+                .equals(sessionEvent.getSessionEventForwardingRegister().getSessionEventType().getEventTypeName()))
+            .filter(sessionEvent -> SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()
+                .equals(sessionEvent.getSessionEventForwardingState().getForwardingStateName()))
+            .count();
+
+        assertEquals(number, actual);
     }
 }

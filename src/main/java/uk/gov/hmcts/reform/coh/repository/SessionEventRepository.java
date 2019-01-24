@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingState;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -25,4 +26,10 @@ public interface SessionEventRepository extends CrudRepository<SessionEvent, UUI
     List<SessionEvent> findAllBySessionEventForwardingRegister(SessionEventForwardingRegister sessionEventForwardingRegister);
 
     List<SessionEvent> findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(SessionEventForwardingRegister sessionEventForwardingRegister, SessionEventForwardingState eventForwardingState);
+
+    Optional<SessionEvent> findFirstByOnlineHearingAndSessionEventForwardingRegisterAndSessionEventForwardingState(
+        OnlineHearing onlineHearing,
+        SessionEventForwardingRegister sessionEventForwardingRegister,
+        SessionEventForwardingState sessionEventForwardingState
+    );
 }
