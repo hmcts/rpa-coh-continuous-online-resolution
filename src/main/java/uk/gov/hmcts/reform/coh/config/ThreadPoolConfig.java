@@ -9,11 +9,16 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration
 public class ThreadPoolConfig {
 
-    static private final Logger log = LoggerFactory.getLogger(ThreadPoolConfig.class);
-    static private int errorCount;
+    private static final Logger log = LoggerFactory.getLogger(ThreadPoolConfig.class);
+    private static int errorCount;
 
     public static int getUnhandledTaskExceptionCount() {
         return errorCount;
+    }
+
+    private static void handleError(Throwable t) {
+        log.error("Unhandled exception during task. {}: {}", t.getClass(), t.getMessage(), t);
+        errorCount++;
     }
 
     @Bean
@@ -21,10 +26,7 @@ public class ThreadPoolConfig {
         ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
 
         threadPoolTaskScheduler.setThreadNamePrefix("EventNotifierTask-");
-        threadPoolTaskScheduler.setErrorHandler(t -> {
-            log.error("Unhandled exception during task. {}: {}", t.getClass(), t.getMessage(), t);
-            errorCount++;
-        });
+        threadPoolTaskScheduler.setErrorHandler(ThreadPoolConfig::handleError);
 
         return threadPoolTaskScheduler;
     }
