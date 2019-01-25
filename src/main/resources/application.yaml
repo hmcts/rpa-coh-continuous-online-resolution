@@ -102,7 +102,7 @@ deadline:
 
 scheduling:
   enabled: true
-  lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
+  lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT2M} # 10 minutes in ISO-8601
 
 event-scheduler:
     event-notifier:
