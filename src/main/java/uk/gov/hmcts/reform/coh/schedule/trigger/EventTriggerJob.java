@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.schedule.trigger;
 
+import net.javacrumbs.shedlock.core.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ public class EventTriggerJob {
     @Autowired
     private EventTriggerFactory factory;
 
+    @SchedulerLock(name = "EventTrigger")
     @Scheduled(cron  = "${event-scheduler.event-trigger.cron}")
     public void execute() {
 
