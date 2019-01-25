@@ -149,7 +149,7 @@ public class SessionEventServiceTest {
     }
 
     @Test
-    public void throws_exception_when_event_registry_is_inactive() {
+    public void ignores_inactive_registry() {
         sessionEventForwardingRegister.setActive(false);
         SessionEvent newEvent = sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
         assertNull(newEvent);
