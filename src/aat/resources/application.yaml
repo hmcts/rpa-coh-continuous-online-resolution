@@ -36,6 +36,10 @@ base-urls:
 deadline:
   extension-days: 7
 
+scheduling:
+  enabled: false
+  lock_at_most_for: ${SCHEDULING_LOCK_AT_MOST_FOR:PT10M} # 10 minutes in ISO-8601
+
 event-scheduler:
     event-notifier:
       fixed-delay: 360000
