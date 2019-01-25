@@ -20,7 +20,7 @@ public class ThreadPoolConfig {
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
 
-        threadPoolTaskScheduler.setThreadNamePrefix("SendLetterTask-");
+        threadPoolTaskScheduler.setThreadNamePrefix("EventNotifierTask-");
         threadPoolTaskScheduler.setErrorHandler(t -> {
             log.error("Unhandled exception during task. {}: {}", t.getClass(), t.getMessage(), t);
             errorCount++;
