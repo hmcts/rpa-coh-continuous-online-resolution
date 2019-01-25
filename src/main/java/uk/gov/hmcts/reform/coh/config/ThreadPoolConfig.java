@@ -9,8 +9,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration
 public class ThreadPoolConfig {
 
-    static private final Logger log = LoggerFactory.getLogger(ThreadPoolConfig.class);
-    static private int errorCount;
+    private static int errorCount;
+
+    private static final Logger log = LoggerFactory.getLogger(ThreadPoolConfig.class);
 
     public static int getUnhandledTaskExceptionCount() {
         return errorCount;
