@@ -80,3 +80,14 @@ databaseChangeLog:
             path: sql/session_event_forwarding_register.sql
             splitStatements: false
             relativeToChangelogFile: true
+
+  - changeSet:
+      id: schedlock
+      author: KarolJastrzebski
+      validCheckSum: ANY
+      runAlways: true
+      changes:
+        - sqlFile:
+            path: sql/shedlock.sql
+            splitStatements: false
+            relativeToChangelogFile: true
