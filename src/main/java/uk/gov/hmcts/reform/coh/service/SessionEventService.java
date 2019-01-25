@@ -64,6 +64,17 @@ public class SessionEventService {
             throw new EntityNotFoundException(message);
         }
 
+        SessionEventForwardingRegister register = optRegister.get();
+
+        if (register.getActive() != null && !register.getActive()) {
+            log.warn(
+                "Session event registry entry is inactive: jurisdiction = {}, event type name = {}",
+                onlineHearing.getJurisdiction().getJurisdictionName(),
+                sessionEventType.getEventTypeName()
+            );
+            return null;
+        }
+
         SessionEventForwardingState pendingState = sessionEventForwardingStateRepository
             .findByForwardingStateName(
                 SessionEventForwardingStates.EVENT_FORWARDING_PENDING.getStateName()
@@ -76,7 +87,7 @@ public class SessionEventService {
         Optional<SessionEvent> oldSessionEvent = sessionEventRepository
             .findFirstByOnlineHearingAndSessionEventForwardingRegisterAndSessionEventForwardingState(
                 onlineHearing,
-                optRegister.get(),
+                register,
                 pendingState
             );
 
@@ -84,14 +95,14 @@ public class SessionEventService {
             log.warn(
                 "Session event already pending: online hearing id = {}, event type name = {}",
                 onlineHearing.getOnlineHearingId(),
-                optRegister.get().getSessionEventType().getEventTypeName()
+                register.getSessionEventType().getEventTypeName()
             );
             return oldSessionEvent.get();
         }
 
         SessionEvent sessionEvent = new SessionEvent();
         sessionEvent.setOnlineHearing(onlineHearing);
-        sessionEvent.setSessionEventForwardingRegister(optRegister.get());
+        sessionEvent.setSessionEventForwardingRegister(register);
         sessionEvent.setSessionEventForwardingState(optForwardingState.get());
 
         return sessionEventRepository.save(sessionEvent);

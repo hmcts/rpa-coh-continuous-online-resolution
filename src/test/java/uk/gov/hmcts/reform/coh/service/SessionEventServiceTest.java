@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -53,6 +54,7 @@ public class SessionEventServiceTest {
     private OnlineHearing onlineHearing;
 
     private Jurisdiction jurisdiction;
+    private SessionEventForwardingRegister sessionEventForwardingRegister;
 
     @Before
     public void setUp() {
@@ -69,11 +71,12 @@ public class SessionEventServiceTest {
         SessionEventForwardingState forwardingState = new SessionEventForwardingState();
         forwardingState.setForwardingStateName(forwardingStateName);
 
-        SessionEventForwardingRegister sessionEventForwardingRegister = new SessionEventForwardingRegister();
+        sessionEventForwardingRegister = new SessionEventForwardingRegister();
         sessionEventForwardingRegister.setJurisdiction(jurisdiction);
         sessionEventForwardingRegister.setForwardingEndpoint("http://google.com");
         sessionEventForwardingRegister.setMaximumRetries(3);
         sessionEventForwardingRegister.setSessionEventType(sessionEventType);
+        sessionEventForwardingRegister.setActive(true);
 
         sessionEvent = new SessionEvent();
         sessionEvent.setOnlineHearing(onlineHearing);
@@ -143,5 +146,12 @@ public class SessionEventServiceTest {
         SessionEvent firstOne = sessionEventService.createSessionEvent(onlineHearing, sessionEventTypeName);
 
         assertEquals(eventId, firstOne.getEventId());
+    }
+
+    @Test
+    public void ignores_inactive_registry() {
+        sessionEventForwardingRegister.setActive(false);
+        SessionEvent newEvent = sessionEventService.createSessionEvent(onlineHearing, sessionEventType);
+        assertNull(newEvent);
     }
 }
