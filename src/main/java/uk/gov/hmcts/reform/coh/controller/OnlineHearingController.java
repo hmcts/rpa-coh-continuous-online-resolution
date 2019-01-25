@@ -34,7 +34,7 @@ import java.util.*;
 @RequestMapping("/continuous-online-hearings")
 public class OnlineHearingController {
 
-    private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
+    private static final Logger log = LoggerFactory.getLogger(OnlineHearingController.class);
 
     private static final String STARTING_STATE = OnlineHearingStates.STARTED.getStateName();
 

@@ -81,9 +81,11 @@ Feature: Event features
     Given a standard event register request
     And jurisdiction ' "Long", with id ' "42" ' and max question rounds ' "5" ' is created
     And the registration endpoint is 'http://foo.com'
+    And the registration active is 'false'
     When a PUT request is sent to register
     Then the response code is 200
     And the event register endpoint is 'http://foo.com'
+    And the event register active should be 'false'
 
   Scenario: Subscribe to an event with invalid jurisdiction
     Given a standard event register request

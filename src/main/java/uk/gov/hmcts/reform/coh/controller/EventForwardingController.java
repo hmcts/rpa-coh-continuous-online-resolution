@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.coh.controller;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,8 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.JURISDICTI
 @RestController
 @RequestMapping("/continuous-online-hearings/events")
 public class EventForwardingController {
+
+    private static final Logger log = LoggerFactory.getLogger(EventForwardingController.class);
 
     private final SessionEventForwardingRegisterService sessionEventForwardingRegisterService;
 
@@ -152,12 +156,13 @@ public class EventForwardingController {
         Optional<SessionEventType> eventType = sessionEventTypeService.retrieveEventType(request.getEventType());
         Optional<Jurisdiction> jurisdiction = jurisdictionService.getJurisdictionWithName(request.getJurisdiction());
 
+        log.debug("Attempting to update event register to : {} ", request);
         return new SessionEventForwardingRegister.Builder()
                 .sessionEventType(eventType.orElseThrow(() -> new EntityNotFoundException(EVENT_TYPE_NOT_FOUND)))
                 .jurisdiction(jurisdiction.orElseThrow(() -> new EntityNotFoundException(JURISDICTION_NOT_FOUND)))
                 .forwardingEndpoint(request.getEndpoint())
                 .maximumRetries(request.getMaxRetries())
-                .withActive(true)
+                .withActive(request.getActive() != null ? request.getActive().booleanValue() : Boolean.TRUE)
                 .registrationDate(new Date())
                 .build();
     }

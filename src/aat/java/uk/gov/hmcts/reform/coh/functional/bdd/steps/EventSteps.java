@@ -29,11 +29,11 @@ import uk.gov.hmcts.reform.coh.schedule.notifiers.EventNotifierJob;
 import uk.gov.hmcts.reform.coh.schedule.trigger.EventTriggerJob;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
-import javax.persistence.EntityNotFoundException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -203,11 +203,25 @@ public class EventSteps extends BaseSteps {
         testContext.getScenarioContext().getEventRegistrationRequest().setEndpoint(endpoint);
     }
 
+    @And("^the registration active is '(.*)'$")
+    public void theRegisterActiveIs(String active) {
+        if (!"empty".equals(active)) {
+            testContext.getScenarioContext().getEventRegistrationRequest().setActive(new Boolean(active));
+        }
+    }
+
     @Then("^the event register endpoint is '(.*)'$")
     public void theEventRegisterEndpointIs(String endpoint) {
         Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
         List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
         assertEquals(endpoint, register.get(0).getForwardingEndpoint());
+    }
+
+    @Then("^the event register active should be '(.*)'$")
+    public void theEventRegisterActiveIs(String active) {
+        Jurisdiction jurisdiction = testContext.getScenarioContext().getCurrentJurisdiction();
+        List<SessionEventForwardingRegister> register = sessionEventForwardingRegisterRepository.findByJurisdiction(jurisdiction);
+        assertEquals(new Boolean(active), register.get(0).getActive());
     }
 
     @And("^the event register is saved")

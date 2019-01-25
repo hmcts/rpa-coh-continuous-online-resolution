@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.coh.controller.events;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.ToString;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.Max;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
+@ToString(callSuper=true, includeFieldNames=true)
 public class EventRegistrationRequest extends SessionEventRequest {
 
     @NotNull(message = "Endpoint Required")
@@ -22,6 +24,9 @@ public class EventRegistrationRequest extends SessionEventRequest {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty(allowableValues = "range[0,5]", value = "The number of retry attempt to send a notification message. Default 3")
     private Integer maxRetries = 3;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean active;
 
     public String getEndpoint() {
         return endpoint;
@@ -38,4 +43,8 @@ public class EventRegistrationRequest extends SessionEventRequest {
     public void setMaxRetries(Integer maxRetries) {
         this.maxRetries = maxRetries;
     }
+
+    public Boolean getActive() { return active; }
+
+    public void setActive(Boolean active) { this.active = active; }
 }
