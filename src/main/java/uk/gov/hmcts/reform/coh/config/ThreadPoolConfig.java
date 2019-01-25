@@ -17,15 +17,17 @@ public class ThreadPoolConfig {
         return errorCount;
     }
 
+    private static void handleError(Throwable t) {
+        log.error("Unhandled exception during task. {}: {}", t.getClass(), t.getMessage(), t);
+        errorCount++;
+    }
+
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
 
         threadPoolTaskScheduler.setThreadNamePrefix("EventNotifierTask-");
-        threadPoolTaskScheduler.setErrorHandler(t -> {
-            log.error("Unhandled exception during task. {}: {}", t.getClass(), t.getMessage(), t);
-            errorCount++;
-        });
+        threadPoolTaskScheduler.setErrorHandler(ThreadPoolConfig::handleError);
 
         return threadPoolTaskScheduler;
     }
