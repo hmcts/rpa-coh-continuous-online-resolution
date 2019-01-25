@@ -69,7 +69,7 @@ apply from: 'liquibase.gradle'
 
 def versions = [
         postgresql         : '42.2.2',
-        springBoot         : '2.0.2.RELEASE',
+        springBoot         : plugins.getPlugin("org.springframework.boot").class.package.getImplementationVersion(),
         springfoxSwagger   : '2.7.0',
         h2                 : '1.4.197',
         liquibase          : '3.5.3',
