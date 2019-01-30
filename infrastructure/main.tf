@@ -102,6 +102,12 @@ module "local_key_vault" {
   product_group_object_id = "5d9cd025-a293-4b97-a0e5-6f43efce02c0"
 }
 
+resource "azurerm_key_vault_secret" "S2S-TOKEN" {
+  name = "s2s-token"
+  value = "${data.azurerm_key_vault_secret.s2s_secret.value}"
+  vault_uri = "${module.local_key_vault.key_vault_uri}"
+}
+
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name = "${local.app_full_name}-POSTGRES-USER"
   value = "${module.db.user_name}"
