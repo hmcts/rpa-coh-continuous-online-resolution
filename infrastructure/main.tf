@@ -103,7 +103,7 @@ module "local_key_vault" {
 }
 
 resource "azurerm_key_vault_secret" "S2S-TOKEN" {
-  name = "s2s-token"
+  name = "microservicekey-coh-cor"
   value = "${data.azurerm_key_vault_secret.s2s_secret.value}"
   vault_uri = "${module.local_key_vault.key_vault_uri}"
 }
