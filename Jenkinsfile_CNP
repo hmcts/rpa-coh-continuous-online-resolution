@@ -39,7 +39,6 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
-    loadVaultSecrets(secrets)
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
@@ -64,4 +63,6 @@ withPipeline(type , product, component) {
                 reportName           : "Functional Tests"
         ]
     }
+
+    loadVaultSecrets(secrets)
 }
