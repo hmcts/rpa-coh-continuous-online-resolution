@@ -1,0 +1,30 @@
+postgresql:
+  postgresqlUsername: cor
+  postgresqlPassword: cor
+  postgresqlDatabase: cor
+  persistence:
+    enabled: false
+
+java:
+  image: ${IMAGE_NAME}
+  ingressHost: ${SERVICE_FQDN}
+  applicationPort: 8080
+  environment:
+    REFORM_TEAM: coh
+    REFORM_SERVICE_NAME: coh-cor
+    REFORM_SERVICE_TYPE: java
+    REFORM_ENVIRONMENT: preview
+    POSTGRES_HOST: ${SERVICE_NAME}-postgres
+    POSTGRES_PORT: 5432
+    POSTGRES_DATABASE: cor
+    POSTGRES_USER: cor
+    POSTGRES_PASSWORD: cor
+    SPRING_DATASOURCE_URL: jdbc:postgresql://${SERVICE_NAME}-postgres:5432/cor
+    SPRING_DATASOURCE_USERNAME: cor
+    SPRING_DATASOURCE_PASSWORD: cor
+    MAX_ACTIVE_DB_CONNECTIONS: 70
+    S2S_TOKEN: ${S2S_TOKEN}
+    S2S_NAMES_WHITELIST: jui_webapp,sscs
+    APPINSIGHTS_INSTRUMENTATIONKEY: ${APPINSIGHTS_INSTRUMENTATIONKEY}
+    ROOT_LOGGING_LEVEL: INFO
+    LOG_OUTPUT: single
