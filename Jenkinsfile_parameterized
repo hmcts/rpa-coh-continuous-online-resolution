@@ -40,6 +40,7 @@ withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
     enableDockerBuild()
+    installCharts()
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
