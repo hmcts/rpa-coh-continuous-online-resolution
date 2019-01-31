@@ -36,6 +36,11 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     ]
 }
 
+def vaultOverrides = [
+        'preview' : 'aat',
+        'spreview': 'saat'
+]
+
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
@@ -66,5 +71,6 @@ withPipeline(type , product, component) {
         ]
     }
 
+    overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
 }
