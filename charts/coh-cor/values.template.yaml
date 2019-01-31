@@ -9,6 +9,7 @@ java:
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   applicationPort: 8080
+  memoryLimits: 2048Mi
   environment:
     SERVER_PORT: 8080
     REFORM_TEAM: coh
