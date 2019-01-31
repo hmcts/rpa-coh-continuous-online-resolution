@@ -20,9 +20,11 @@ def component = "cor"
 
 def channel = '#coh-pipeline'
 
-List<LinkedHashMap<String, Object>> secrets = [
-        secret('cor-s2s-token', 'TEST_S2S_TOKEN'),
-        secret('s2s-token', 'S2S_TOKEN')
+def secrets = [
+        's2s-${env}': [
+                secret('microservicekey-jui-webapp', 'TEST_S2S_TOKEN'),
+                secret('microservicekey-coh-cor', 'S2S_TOKEN')
+        ]
 ]
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -34,9 +36,15 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     ]
 }
 
+def vaultOverrides = [
+        'preview' : 'aat',
+        'spreview': 'saat'
+]
+
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
+    overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
 
     after('functionalTest:aat') {
