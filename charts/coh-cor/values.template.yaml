@@ -4,8 +4,9 @@ postgresql:
   postgresqlDatabase: cor
   persistence:
     enabled: false
-  annotations:
-    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  service:
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 
 java:
   image: ${IMAGE_NAME}
