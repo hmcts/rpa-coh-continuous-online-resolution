@@ -1,10 +1,13 @@
-FROM openjdk:8-jre-alpine
+FROM hmcts/cnp-java-base:openjdk-jre-8-alpine-1.2
 
 MAINTAINER "HMCTS Team <https://github.com/hmcts>"
 LABEL maintainer = "HMCTS Team <https://github.com/hmcts>"
 
-WORKDIR /opt/app
-COPY build/libs/continuous-online-hearing.jar .
+ENV APP continuous-online-hearing.jar
+ENV APPLICATION_TOTAL_MEMORY 2048M
+ENV APPLICATION_SIZE_ON_DISK_IN_MB 70
+
+COPY build/libs/$APP /opt/app/
 
 ENV JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7005"
 
@@ -13,4 +16,4 @@ HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" curl --s
 EXPOSE 8080 5005
 EXPOSE 7005 7005
 
-ENTRYPOINT exec java ${JAVA_OPTS} -jar "/opt/app/continuous-online-hearing.jar"
+ENTRYPOINT exec java ${JAVA_OPTS} -jar /opt/app/$APP
