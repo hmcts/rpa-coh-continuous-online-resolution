@@ -15,5 +15,3 @@ HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" curl --s
 
 EXPOSE 8080 5005
 EXPOSE 7005 7005
-
-ENTRYPOINT exec java ${JAVA_OPTS} -jar /opt/app/$APP
