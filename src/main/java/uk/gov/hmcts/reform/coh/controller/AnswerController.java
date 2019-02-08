@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.coh.controller;
 
+import com.google.common.collect.ImmutableMap;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.hmcts.reform.coh.appinsights.EventRepository;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
@@ -58,6 +61,9 @@ public class AnswerController {
 
     @Autowired
     private SessionEventService sessionEventService;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     @ApiOperation(value = "Add Answer", notes = "A POST request is used to create an answer")
     @ApiResponses(value = {
@@ -199,27 +205,48 @@ public class AnswerController {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
+            eventRepository.trackEvent("Online hearing not found", ImmutableMap.of(
+                "onlineHearingId", onlineHearingId.toString()
+            ));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
         ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
         if (!validationResult.isValid()) {
+            eventRepository.trackEvent("Invalid answer request", ImmutableMap.of(
+                "onlineHearingId", onlineHearingId.toString(),
+                "reason", validationResult.getReason()
+            ));
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
         }
 
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
         if(!optionalAnswerState.isPresent()){
+            eventRepository.trackEvent("Invalid answer state", ImmutableMap.of(
+                "onlineHearingId", onlineHearingId.toString(),
+                "requestedState", request.getAnswerState()
+            ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid answer state");
         }
 
         Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
         if(!optAnswer.isPresent()){
+            eventRepository.trackEvent("Answer does not exist", ImmutableMap.of(
+                "onlineHearingId", onlineHearingId.toString(),
+                "requestedAnswerId", answerId.toString()
+            ));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer does not exist");
         }
 
         // Submitted answers cannot be updated
         Answer savedAnswer = optAnswer.get();
         if(savedAnswer.getAnswerState().getState().equals(AnswerStates.SUBMITTED.getStateName())){
+            eventRepository.trackEvent("Submitted answers cannot be updated", ImmutableMap.of(
+                "onlineHearingId", onlineHearingId.toString(),
+                "answerId", answerId.toString(),
+                "state", savedAnswer.getAnswerState().getState(),
+                "requestedState", request.getAnswerState()
+            ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Submitted answers cannot be updated");
         }
 
@@ -236,6 +263,13 @@ public class AnswerController {
 
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
+            eventRepository.trackEvent("Not found answer error", ImmutableMap.of(
+                "onlineHearingId", onlineHearingId.toString(),
+                "answerId", answerId.toString(),
+                "requestedText", request.getAnswerText(),
+                "requestedState", request.getAnswerState(),
+                "error", e.getMessage()
+            ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
         }
     }
