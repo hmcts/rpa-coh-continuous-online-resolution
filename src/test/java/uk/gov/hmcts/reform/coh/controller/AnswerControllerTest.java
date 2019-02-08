@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.gov.hmcts.reform.coh.appinsights.EventRepository;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.domain.*;
@@ -69,6 +70,9 @@ public class AnswerControllerTest {
 
     @Mock
     private SessionEventService sessionEventService;
+
+    @Mock
+    private EventRepository eventRepository;
 
     @InjectMocks
     private AnswerController answerController;
@@ -442,7 +446,7 @@ public class AnswerControllerTest {
 
     @Test
     public void testUpdateAnswersFailDueToInvalidStateTransition() throws Exception {
-        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willThrow(NotFoundException.class);
+        given(answerService.updateAnswer(any(Answer.class), any(Answer.class))).willThrow(new NotFoundException("a"));
 
         mockMvc.perform(MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid)
                 .contentType(MediaType.APPLICATION_JSON)
