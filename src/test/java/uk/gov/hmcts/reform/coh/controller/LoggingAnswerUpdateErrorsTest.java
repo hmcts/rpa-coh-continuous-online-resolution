@@ -234,6 +234,6 @@ public class LoggingAnswerUpdateErrorsTest {
         assertThat(trackedEventProperties.getValue())
             .containsEntry("onlineHearingId", onlineHearingId)
             .containsEntry("answerId", answer.getAnswerId().toString())
-            .containsKeys("requestedText", "requestedState", "error");
+            .containsKeys("requestedState", "error");
     }
 }
