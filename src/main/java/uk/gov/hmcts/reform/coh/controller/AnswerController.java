@@ -266,7 +266,6 @@ public class AnswerController {
             eventRepository.trackEvent("Not found answer error", ImmutableMap.of(
                 "onlineHearingId", onlineHearingId.toString(),
                 "answerId", answerId.toString(),
-                "requestedText", request.getAnswerText(),
                 "requestedState", request.getAnswerState(),
                 "error", e.getMessage()
             ));
