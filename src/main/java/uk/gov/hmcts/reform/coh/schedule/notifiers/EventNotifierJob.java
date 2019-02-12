@@ -104,7 +104,7 @@ public class EventNotifierJob {
                     }
                     sessionEventService.updateSessionEvent(sessionEvent);
                 } else {
-                    log.debug("Unable to send notification to endpoint: {}. Endpoint returned {}", register.getForwardingEndpoint(), response.getStatusCodeValue());
+                    log.warn("Unable to send notification to endpoint: {}. Endpoint returned {}", register.getForwardingEndpoint(), response.getStatusCodeValue());
                     doFailureUpdate(register, sessionEvent);
                 }
             } catch (Exception e) {
