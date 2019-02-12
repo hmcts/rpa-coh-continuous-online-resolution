@@ -47,6 +47,11 @@ withPipeline(type , product, component) {
     enableDockerBuild()
     installCharts()
 
+    before('functionalTest:preview') {
+        def lbIP = "10.97.17.121"
+        env.SPRING_DATASOURCE_URL = "jdbc:postgresql://${lbIP}:5432/cor"
+    }
+
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
         publishHTML target: [
