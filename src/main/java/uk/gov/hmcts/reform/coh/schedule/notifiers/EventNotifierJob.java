@@ -104,7 +104,7 @@ public class EventNotifierJob {
                     }
                     sessionEventService.updateSessionEvent(sessionEvent);
                 } else {
-                    log.warn("Unable to send notification to endpoint: {}", register.getForwardingEndpoint());
+                    log.warn("Unable to send notification to endpoint: {}. Endpoint returned {}", register.getForwardingEndpoint(), response.getStatusCodeValue());
                     doFailureUpdate(register, sessionEvent);
                 }
             } catch (Exception e) {
@@ -115,7 +115,6 @@ public class EventNotifierJob {
     }
 
     protected void doFailureUpdate(SessionEventForwardingRegister register, SessionEvent sessionEvent) {
-        log.warn("Unable to send notification to endpoint: {}", register.getForwardingEndpoint());
 
         sessionEvent.setRetries(sessionEvent.getRetries() + 1);
         if (sessionEvent.getRetries() >= register.getMaximumRetries()+1) {
