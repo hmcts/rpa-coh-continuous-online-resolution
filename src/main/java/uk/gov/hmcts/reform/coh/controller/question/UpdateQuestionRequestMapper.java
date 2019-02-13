@@ -11,5 +11,6 @@ public final class UpdateQuestionRequestMapper {
         question.setQuestionHeaderText(updateQuestionRequest.getQuestionHeaderText());
         question.setQuestionOrdinal(Integer.parseInt(updateQuestionRequest.getQuestionRound()));
         question.setLinkedQuestions(updateQuestionRequest.getLinkedQuestionId());
+        question.setOwnerReferenceId(updateQuestionRequest.getOwnerReference());
     }
 }
