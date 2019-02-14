@@ -54,8 +54,8 @@ public class UpdateQuestionRequestMapperTest {
 
     @Test
     public void maps_linked_question_id() {
-        request.setLinkedQuestionId(ImmutableSet.of(UUID.randomUUID()));
-        question.setLinkedQuestions(null);
+        request.setLinkedQuestionId(ImmutableSet.of(UUID.fromString("70e81346-df7b-420a-bd8e-419825d10a27")));
+        question.setLinkedQuestions(ImmutableSet.of(UUID.fromString("deee64ad-7cd1-4904-ab93-3561f842f2ba")));
 
         UpdateQuestionRequestMapper.map(question, request);
 
