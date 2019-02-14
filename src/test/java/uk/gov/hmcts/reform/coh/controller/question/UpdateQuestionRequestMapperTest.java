@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.coh.controller.question;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.reform.coh.domain.Question;
 
@@ -11,13 +12,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpdateQuestionRequestMapperTest {
 
+    private UpdateQuestionRequest request;
+    private Question question;
+
+    @Before
+    public void setUp() {
+        request = new UpdateQuestionRequest();
+        request.setQuestionRound("1");
+        question = new Question();
+    }
+
     @Test
     public void maps_question_text() {
-        UpdateQuestionRequest request = new UpdateQuestionRequest();
-        request.setQuestionRound("1");
         request.setQuestionBodyText("Requested");
-
-        Question question = new Question();
         question.setQuestionText("Current");
 
         UpdateQuestionRequestMapper.map(question, request);
@@ -27,11 +34,7 @@ public class UpdateQuestionRequestMapperTest {
 
     @Test
     public void maps_question_header() {
-        UpdateQuestionRequest request = new UpdateQuestionRequest();
-        request.setQuestionRound("1");
         request.setQuestionHeaderText("Requested");
-
-        Question question = new Question();
         question.setQuestionHeaderText("Current");
 
         UpdateQuestionRequestMapper.map(question, request);
@@ -41,10 +44,7 @@ public class UpdateQuestionRequestMapperTest {
 
     @Test
     public void maps_question_round() {
-        UpdateQuestionRequest request = new UpdateQuestionRequest();
         request.setQuestionRound("1");
-
-        Question question = new Question();
         question.setQuestionOrdinal(0);
 
         UpdateQuestionRequestMapper.map(question, request);
@@ -54,11 +54,7 @@ public class UpdateQuestionRequestMapperTest {
 
     @Test
     public void maps_linked_question_id() {
-        UpdateQuestionRequest request = new UpdateQuestionRequest();
-        request.setQuestionRound("1");
         request.setLinkedQuestionId(ImmutableSet.of(UUID.randomUUID()));
-
-        Question question = new Question();
         question.setLinkedQuestions(null);
 
         UpdateQuestionRequestMapper.map(question, request);
@@ -68,11 +64,7 @@ public class UpdateQuestionRequestMapperTest {
 
     @Test
     public void maps_owner_id() {
-        UpdateQuestionRequest request = new UpdateQuestionRequest();
-        request.setQuestionRound("1");
         request.setOwnerReference("The Owner");
-
-        Question question = new Question();
         question.setOwnerReferenceId("To be updated");
 
         UpdateQuestionRequestMapper.map(question, request);
