@@ -19,6 +19,7 @@ public class UpdateQuestionRequestMapperTest {
     public void setUp() {
         request = new UpdateQuestionRequest();
         request.setQuestionRound("1");
+        request.setQuestionOrdinal("1");
         question = new Question();
     }
 
@@ -45,11 +46,11 @@ public class UpdateQuestionRequestMapperTest {
     @Test
     public void maps_question_round() {
         request.setQuestionRound("1");
-        question.setQuestionOrdinal(0);
+        question.setQuestionRound(0);
 
         UpdateQuestionRequestMapper.map(question, request);
 
-        assertThat(question.getQuestionOrdinal()).isEqualTo(Integer.parseInt(request.getQuestionRound()));
+        assertThat(question.getQuestionRound()).isEqualTo(Integer.parseInt(request.getQuestionRound()));
     }
 
     @Test
