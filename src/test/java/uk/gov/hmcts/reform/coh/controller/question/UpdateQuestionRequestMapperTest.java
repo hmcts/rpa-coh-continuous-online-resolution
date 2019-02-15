@@ -19,6 +19,7 @@ public class UpdateQuestionRequestMapperTest {
     public void setUp() {
         request = new UpdateQuestionRequest();
         request.setQuestionRound("1");
+        request.setQuestionOrdinal("1");
         question = new Question();
     }
 
