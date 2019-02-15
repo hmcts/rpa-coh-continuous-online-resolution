@@ -9,7 +9,7 @@ public final class UpdateQuestionRequestMapper {
     public static final void map(Question question, UpdateQuestionRequest updateQuestionRequest) {
         question.setQuestionText(updateQuestionRequest.getQuestionBodyText());
         question.setQuestionHeaderText(updateQuestionRequest.getQuestionHeaderText());
-        question.setQuestionOrdinal(Integer.parseInt(updateQuestionRequest.getQuestionRound()));
+        question.setQuestionRound(Integer.parseInt(updateQuestionRequest.getQuestionRound()));
         question.setLinkedQuestions(updateQuestionRequest.getLinkedQuestionId());
         question.setOwnerReferenceId(updateQuestionRequest.getOwnerReference());
     }

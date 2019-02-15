@@ -45,11 +45,11 @@ public class UpdateQuestionRequestMapperTest {
     @Test
     public void maps_question_round() {
         request.setQuestionRound("1");
-        question.setQuestionOrdinal(0);
+        question.setQuestionRound(0);
 
         UpdateQuestionRequestMapper.map(question, request);
 
-        assertThat(question.getQuestionOrdinal()).isEqualTo(Integer.parseInt(request.getQuestionRound()));
+        assertThat(question.getQuestionRound()).isEqualTo(Integer.parseInt(request.getQuestionRound()));
     }
 
     @Test
