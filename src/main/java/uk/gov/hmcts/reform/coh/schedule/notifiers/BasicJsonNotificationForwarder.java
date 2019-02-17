@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,10 +45,15 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
     String baseUrl;
 
     private final AuthTokenGenerator authTokenGenerator;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     @Autowired
-    public BasicJsonNotificationForwarder(AuthTokenGenerator authTokenGenerator) {
+    public BasicJsonNotificationForwarder(
+        AuthTokenGenerator authTokenGenerator,
+        RestTemplateBuilder restTemplateBuilder
+    ) {
         this.authTokenGenerator = Objects.requireNonNull(authTokenGenerator);
+        this.restTemplateBuilder = restTemplateBuilder;
     }
 
     @Override
@@ -98,6 +104,6 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
     }
 
     public RestTemplate getRestTemplate() {
-        return new RestTemplate();
+        return restTemplateBuilder.build();
     }
 }

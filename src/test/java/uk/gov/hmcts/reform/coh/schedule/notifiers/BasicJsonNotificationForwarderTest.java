@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,9 @@ public class BasicJsonNotificationForwarderTest {
     @Mock
     private AuthTokenGenerator authTokenGenerator;
 
+    @Mock
+    private RestTemplateBuilder restTemplateBuilder;
+
     private NotificationRequest request;
 
     private String google = "http://www.google.com";
@@ -57,9 +61,10 @@ public class BasicJsonNotificationForwarderTest {
         register = new SessionEventForwardingRegister();
         register.setForwardingEndpoint(google);
 
-        forwarder = Mockito.spy(new BasicJsonNotificationForwarder(authTokenGenerator));
+        forwarder = Mockito.spy(new BasicJsonNotificationForwarder(authTokenGenerator, restTemplateBuilder));
 
         restTemplate = Mockito.mock(RestTemplate.class);
+        when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
         mapper = Mockito.mock(ObjectMapper.class);
 
