@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -131,5 +133,15 @@ public class BasicJsonNotificationForwarderTest {
         verify(restTemplate).exchange(anyString(), any(HttpMethod.class), captor.capture(), any(Class.class));
 
         assertThat(captor.getValue().getHeaders().getFirst("ServiceAuthorization")).isEqualTo(randomToken);
+    }
+
+    @Test
+    public void wrapsRestClientExceptionInNotificationException() {
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
+            .thenThrow(RestClientException.class);
+
+        Throwable thrown = catchThrowable(() -> forwarder.sendEndpoint(register, request));
+
+        assertThat(thrown).isInstanceOf(NotificationException.class);
     }
 }
