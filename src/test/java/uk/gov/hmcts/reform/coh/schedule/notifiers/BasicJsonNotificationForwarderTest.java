@@ -144,4 +144,14 @@ public class BasicJsonNotificationForwarderTest {
 
         assertThat(thrown).isInstanceOf(NotificationException.class);
     }
+
+    @Test
+    public void returnsGeneratedServiceAuthorizationHeader() throws Exception {
+        String aValue = "any value would do";
+        when(authTokenGenerator.generate()).thenReturn(aValue);
+
+        forwarder.sendEndpoint(register, request);
+
+        assertThat(forwarder.getLastServiceAuthorization()).isEqualTo(aValue);
+    }
 }
