@@ -6,11 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
@@ -34,15 +31,16 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
     private static HttpHeaders URL_ENCODED_HEADER;
 
-    private static String IDAM_SERVICE_TOKEN = "test_idam_service";
+    private static final String IDAM_SERVICE_TOKEN = "test_idam_service";
+
     static {
         URL_ENCODED_HEADER = new HttpHeaders();
-        URL_ENCODED_HEADER.add("Content-Type", "application/json");
+        URL_ENCODED_HEADER.setContentType(MediaType.APPLICATION_JSON);
         URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, IDAM_SERVICE_TOKEN);
     }
 
     @Value("${base-urls.test-url}")
-    String baseUrl;
+    private String baseUrl;
 
     private final AuthTokenGenerator authTokenGenerator;
     private final RestTemplateBuilder restTemplateBuilder;
