@@ -23,14 +23,10 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class BasicJsonNotificationForwarderTest {
@@ -132,26 +128,14 @@ public class BasicJsonNotificationForwarderTest {
         ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
         verify(restTemplate).exchange(anyString(), any(HttpMethod.class), captor.capture(), any(Class.class));
 
-        assertThat(captor.getValue().getHeaders().getFirst("ServiceAuthorization")).isEqualTo(randomToken);
+        assertThat(forwarder.getLastServiceAuthorization()).isEqualTo(randomToken);
     }
 
-    @Test
-    public void wrapsRestClientExceptionInNotificationException() {
+    @Test(expected = NotificationException.class)
+    public void wrapsRestClientExceptionInNotificationException() throws Exception {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
             .thenThrow(RestClientException.class);
 
-        Throwable thrown = catchThrowable(() -> forwarder.sendEndpoint(register, request));
-
-        assertThat(thrown).isInstanceOf(NotificationException.class);
-    }
-
-    @Test
-    public void returnsGeneratedServiceAuthorizationHeader() throws Exception {
-        String aValue = "any value would do";
-        when(authTokenGenerator.generate()).thenReturn(aValue);
-
         forwarder.sendEndpoint(register, request);
-
-        assertThat(forwarder.getLastServiceAuthorization()).isEqualTo(aValue);
     }
 }
