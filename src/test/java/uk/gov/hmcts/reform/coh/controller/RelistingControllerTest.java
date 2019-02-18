@@ -10,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.coh.config.WebConfig;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
@@ -49,9 +48,6 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildRelist
 @ActiveProfiles({"local"})
 @WebMvcTest(value = {OnlineHearingController.class}, secure = false)
 public class RelistingControllerTest {
-
-    @MockBean
-    private WebConfig webConfig;
 
     @MockBean
     private OnlineHearingService onlineHearingService;

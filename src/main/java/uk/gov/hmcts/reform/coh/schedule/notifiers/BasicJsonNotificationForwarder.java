@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.auth.checker.core.service.ServiceRequestAuthorizer;
+import uk.gov.hmcts.reform.auth.checker.core.user.UserRequestAuthorizer;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
 
 import java.io.IOException;
@@ -35,8 +36,8 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
 
     static {
         URL_ENCODED_HEADER = new HttpHeaders();
-        URL_ENCODED_HEADER.setContentType(MediaType.APPLICATION_JSON);
-        URL_ENCODED_HEADER.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, IDAM_SERVICE_TOKEN);
+        URL_ENCODED_HEADER.add("Content-Type", "application/json");
+        URL_ENCODED_HEADER.add(UserRequestAuthorizer.AUTHORISATION, IDAM_SERVICE_TOKEN);
     }
 
     @Value("${base-urls.test-url}")
@@ -82,11 +83,11 @@ public class BasicJsonNotificationForwarder implements NotificationForwarder<Not
     }
 
     private void generateS2SHeader() {
-        URL_ENCODED_HEADER.set(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, authTokenGenerator.generate());
+        URL_ENCODED_HEADER.set(ServiceRequestAuthorizer.AUTHORISATION, authTokenGenerator.generate());
     }
 
     public String getLastServiceAuthorization() {
-        return URL_ENCODED_HEADER.getFirst(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION);
+        return URL_ENCODED_HEADER.getFirst(ServiceRequestAuthorizer.AUTHORISATION);
     }
 
     public String refactorEndpoint(String endpoint) {

@@ -8,13 +8,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.auth.checker.core.service.ServiceRequestAuthorizer;
+import uk.gov.hmcts.reform.auth.checker.core.user.UserRequestAuthorizer;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointFactory;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.handlers.IdamHeaderInterceptor;
 import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 
@@ -59,10 +60,10 @@ public class BaseSteps {
         header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
         Optional.ofNullable(testContext.getHttpContext().getIdamAuthorRef())
-            .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_AUTHORIZATION, "Bearer " + token));
+            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, "Bearer " + token));
 
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
-            .ifPresent(token -> header.add(IdamHeaderInterceptor.IDAM_SERVICE_AUTHORIZATION, token));
+            .ifPresent(token -> header.add(ServiceRequestAuthorizer.AUTHORISATION, token));
     }
 
     private void prepareAuthenticationTokens() {
