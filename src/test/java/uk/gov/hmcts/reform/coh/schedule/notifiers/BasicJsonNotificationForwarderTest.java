@@ -7,12 +7,14 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.coh.domain.SessionEventForwardingRegister;
@@ -24,10 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class BasicJsonNotificationForwarderTest {
@@ -48,6 +47,9 @@ public class BasicJsonNotificationForwarderTest {
     @Mock
     private AuthTokenGenerator authTokenGenerator;
 
+    @Mock
+    private RestTemplateBuilder restTemplateBuilder;
+
     private NotificationRequest request;
 
     private String google = "http://www.google.com";
@@ -57,9 +59,10 @@ public class BasicJsonNotificationForwarderTest {
         register = new SessionEventForwardingRegister();
         register.setForwardingEndpoint(google);
 
-        forwarder = Mockito.spy(new BasicJsonNotificationForwarder(authTokenGenerator));
+        forwarder = Mockito.spy(new BasicJsonNotificationForwarder(authTokenGenerator, restTemplateBuilder));
 
         restTemplate = Mockito.mock(RestTemplate.class);
+        when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
         mapper = Mockito.mock(ObjectMapper.class);
 
@@ -125,6 +128,14 @@ public class BasicJsonNotificationForwarderTest {
         ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
         verify(restTemplate).exchange(anyString(), any(HttpMethod.class), captor.capture(), any(Class.class));
 
-        assertThat(captor.getValue().getHeaders().getFirst("ServiceAuthorization")).isEqualTo(randomToken);
+        assertThat(forwarder.getLastServiceAuthorization()).isEqualTo(randomToken);
+    }
+
+    @Test(expected = NotificationException.class)
+    public void wrapsRestClientExceptionInNotificationException() throws Exception {
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
+            .thenThrow(RestClientException.class);
+
+        forwarder.sendEndpoint(register, request);
     }
 }
