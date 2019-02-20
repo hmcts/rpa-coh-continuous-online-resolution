@@ -93,6 +93,7 @@ public class QuestionRoundDeadlineElapsedTest {
     public void testQuestionStateUpdatedAndUpdateQuestionInvoked() {
         trigger.execute();
         verify(questionService, times(1)).updateQuestionForced(question);
+        assertEquals(1, question.getQuestionStateHistories().size());
         assertEquals(elapsed, question.getQuestionState());
     }
 
