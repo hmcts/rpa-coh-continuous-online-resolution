@@ -38,6 +38,7 @@ public class QuestionRoundDeadlineElapsed extends AbstractQuestionRoundEventTrig
         List<Question> questions = questionService.retrieveQuestionsDeadlineExpiredAndQuestionStates(calendar.getTime(), Arrays.asList(issuedState, grantedState));
         questions.forEach(q -> {
             q.setQuestionState(elapsedState);
+            q.updateQuestionStateHistory(elapsedState);
             questionService.updateQuestionForced(q);
             log.info("Updated question {} to {}", q.getQuestionId(), elapsedState);
         });
