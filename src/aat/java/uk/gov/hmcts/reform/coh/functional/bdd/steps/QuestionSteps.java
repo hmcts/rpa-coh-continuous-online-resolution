@@ -25,7 +25,6 @@ import uk.gov.hmcts.reform.coh.domain.QuestionStateHistory;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.responses.QuestionResponseUtils;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
-import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.QuestionRepository;
 
 import java.io.IOException;
@@ -49,8 +48,8 @@ public class QuestionSteps extends BaseSteps {
     private QuestionRepository questionRepository;
 
     @Autowired
-    public QuestionSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
-        super(testContext, idamAuthentication);
+    public QuestionSteps(TestContext testContext) {
+        super(testContext);
     }
 
     @Before

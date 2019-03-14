@@ -1,10 +1,6 @@
 package uk.gov.hmcts.reform.coh.idam;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.coh.idam.client.LoggingIdamClient;
 import uk.gov.hmcts.reform.coh.idam.client.RestTemplateIdamClient;
 
@@ -13,11 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
-@Component
-@Scope("singleton")
-public class IdamAuthentication implements AutoCloseable {
-
-    private static final Logger log = LoggerFactory.getLogger(IdamAuthentication.class);
+public abstract class AbstractIdamAuthentication implements AutoCloseable {
 
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -28,14 +20,10 @@ public class IdamAuthentication implements AutoCloseable {
     protected String role;
 
     @Value("${base-urls.idam-user-email}")
-    private String email;
-
+    protected String email;
+    protected IdamClient client;
     private long delay = 25;
-
     private TimeUnit unit = TimeUnit.SECONDS;
-
-    private IdamClient client;
-
     private String token;
 
     @PostConstruct
@@ -45,18 +33,10 @@ public class IdamAuthentication implements AutoCloseable {
     }
 
     private void refreshToken() {
-        Integer userId = client.findUserByEmail(email);
-        if (userId == 0) {
-            client.createAccount(email, role);
-            userId = client.findUserByEmail(email);
-        }
-        token = client.lease(userId, role);
-        if (token != null && !"".equals(token)) {
-            log.info("Token refreshed");
-        } else {
-            log.warn("Empty token!");
-        }
+        token = getNewToken();
     }
+
+    abstract protected String getNewToken();
 
     public String getToken() {
         return token;
