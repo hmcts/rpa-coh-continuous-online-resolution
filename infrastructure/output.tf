@@ -12,6 +12,10 @@ output "idam_api_url" {
   value = "${var.idam_api_url}"
 }
 
+output "oauth2_client_redirect" {
+  value = "${var.idam_redirect_url}"
+}
+
 output "s2s_url" {
   value = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
 }
