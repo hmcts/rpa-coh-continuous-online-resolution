@@ -65,7 +65,7 @@ public class RestTemplateIdamClient implements IdamClient {
     }
 
     @Override
-    public void createAccount(String email, String role, String password) {
+    public void createAccount(String email, String password, String role) {
         ImmutableMap<String, Object> body = ImmutableMap.of(
             "email", email,
             "password", password,

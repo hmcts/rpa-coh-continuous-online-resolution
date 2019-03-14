@@ -21,7 +21,7 @@ public class StrategicIdamAuthentication extends AbstractIdamAuthentication {
     @Override
     protected String getNewToken() {
         String password = DigestUtils.sha1Hex(email);
-        client.createAccount(email, role, password);
+        client.createAccount(email, password, role);
         String code = client.authenticate(email, password, "code", clientId, redirectUrl);
         return client.exchangeCode(code, "authorization_code", clientId, clientSecret, redirectUrl);
     }

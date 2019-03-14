@@ -14,8 +14,8 @@ public class LoggingIdamClient implements IdamClient {
     }
 
     @Override
-    public void createAccount(String email, String role, String password) {
-        subject.createAccount(email, role, password);
+    public void createAccount(String email, String password, String role) {
+        subject.createAccount(email, password, role);
         log.info("Created account for {} as {}", email, role);
     }
 

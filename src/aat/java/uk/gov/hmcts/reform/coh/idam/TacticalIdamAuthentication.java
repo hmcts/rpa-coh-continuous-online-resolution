@@ -15,7 +15,7 @@ public class TacticalIdamAuthentication extends AbstractIdamAuthentication {
     protected String getNewToken() {
         Integer userId = client.findUserByEmail(email);
         if (userId == 0) {
-            client.createAccount(email, role, UUID.randomUUID().toString());
+            client.createAccount(email, UUID.randomUUID().toString(), role);
             userId = client.findUserByEmail(email);
         }
         return client.lease(userId, role);

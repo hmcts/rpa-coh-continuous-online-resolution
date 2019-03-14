@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.coh.idam;
 
 public interface IdamClient {
 
-    void createAccount(String email, String role, String password);
+    void createAccount(String email, String password, String role);
 
     Integer findUserByEmail(String email);
 
