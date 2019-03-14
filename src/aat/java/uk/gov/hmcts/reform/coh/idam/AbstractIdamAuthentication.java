@@ -33,10 +33,10 @@ public abstract class AbstractIdamAuthentication implements AutoCloseable {
     }
 
     private void refreshToken() {
-        token = newToken();
+        token = getNewToken();
     }
 
-    abstract protected String newToken();
+    abstract protected String getNewToken();
 
     public String getToken() {
         return token;

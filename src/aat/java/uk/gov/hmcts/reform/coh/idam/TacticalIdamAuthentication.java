@@ -12,7 +12,7 @@ import java.util.UUID;
 public class TacticalIdamAuthentication extends AbstractIdamAuthentication {
 
     @Override
-    protected String newToken() {
+    protected String getNewToken() {
         Integer userId = client.findUserByEmail(email);
         if (userId == 0) {
             client.createAccount(email, role, UUID.randomUUID().toString());
