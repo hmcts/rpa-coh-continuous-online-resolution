@@ -43,10 +43,6 @@ public class RestTemplateIdamClient implements IdamClient {
         return new RestTemplate(simpleClientHttpRequestFactory);
     }
 
-    private static void withValidHttpCodes(Consumer<RestTemplate> consumer, int... codes) {
-        withValidHttpCodes(new RestTemplate(), consumer, codes);
-    }
-
     private static void withValidHttpCodes(RestTemplate rt, Consumer<RestTemplate> consumer, int... codes) {
         ResponseErrorHandler oldErrorHandler = rt.getErrorHandler();
         rt.setErrorHandler(new ResponseErrorHandler() {
