@@ -14,6 +14,6 @@ data "azurerm_key_vault_secret" "idam-sscs-oauth2-client-secret" {
 
 resource "azurerm_key_vault_secret" "idam-sscs-secret" {
   name = "idam-sscs-oauth2-client-secret"
-  value = "${data.azurerm_key_vault_secret.idam-sscs-oauth2-client-secret}"
+  value = "${data.azurerm_key_vault_secret.idam-sscs-oauth2-client-secret.value}"
   vault_uri = "${module.local_key_vault.key_vault_uri}"
 }
