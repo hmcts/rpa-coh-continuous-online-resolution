@@ -70,6 +70,6 @@ idam:
 
 oauth2:
   client:
-    id: ${OAUTH2_CLIENT_ID:sscs}
-    secret: ${OAUTH2_CLIENT_SECRET:AAAAAAAAAAAAAAAA}
-    redirect: ${OAUTH2_CLIENT_REDIRECT:https://localhost:9000/poc}
+    id: ${OAUTH2_CLIENT_ID:webshow}
+    secret: ${FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
+    redirect: ${OAUTH2_CLIENT_REDIRECT:http://localhost:8080/oauth2redirect}

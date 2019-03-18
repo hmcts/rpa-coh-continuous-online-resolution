@@ -24,6 +24,9 @@ def secrets = [
         'coh-cor-${env}': [
                 secret('idam-sscs-oauth2-client-secret', 'OAUTH2_CLIENT_SECRET')
         ],
+        'rpa-${env}': [
+                secret('show-oauth2-token', 'FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET')
+        ],
         's2s-${env}': [
                 secret('microservicekey-jui-webapp', 'TEST_S2S_TOKEN'),
                 secret('microservicekey-coh-cor', 'S2S_TOKEN')

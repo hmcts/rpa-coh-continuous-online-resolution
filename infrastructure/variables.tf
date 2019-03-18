@@ -61,7 +61,7 @@ variable "idam_api_url" {
 }
 
 variable "idam_redirect_url" {
-  default = ""
+  default = "https://em-show-aat.service.core-compute-aat.internal/oauth2/callback"
 }
 
 variable "s2s_url" {
