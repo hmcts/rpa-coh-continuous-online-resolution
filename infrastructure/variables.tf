@@ -60,10 +60,6 @@ variable "idam_api_url" {
   default = "https://preprod-idamapi.reform.hmcts.net:3511"
 }
 
-variable "idam_redirect_url" {
-  default = "https://em-show-aat.service.core-compute-aat.internal/oauth2/callback"
-}
-
 variable "s2s_url" {
   default = "rpe-service-auth-provider"
 }

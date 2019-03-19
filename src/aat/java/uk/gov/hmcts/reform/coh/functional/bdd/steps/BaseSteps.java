@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +16,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
-import uk.gov.hmcts.reform.coh.idam.AbstractIdamAuthentication;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 
 import java.text.DateFormat;
@@ -43,16 +42,14 @@ public class BaseSteps {
     protected String testNotificationUrl;
 
     protected TestContext testContext;
-
-    @Autowired
-    @Qualifier("strategicIdamAuthentication")
-    private AbstractIdamAuthentication idamAuthentication;
+    private final IdamAuthentication idamAuthentication;
 
     protected HttpHeaders header;
 
     @Autowired
-    public BaseSteps(TestContext testContext) {
+    public BaseSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
         this.testContext = testContext;
+        this.idamAuthentication = idamAuthentication;
     }
 
     public void setup() throws Exception {

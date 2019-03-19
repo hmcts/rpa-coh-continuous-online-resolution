@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.JurisdictionRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 import uk.gov.hmcts.reform.coh.repository.SessionEventRepository;
@@ -66,8 +67,8 @@ public class EventSteps extends BaseSteps {
     private ResponseEntity<String> response;
 
     @Autowired
-    public EventSteps(TestContext testContext) {
-        super(testContext);
+    public EventSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
+        super(testContext, idamAuthentication);
     }
 
     @Before
