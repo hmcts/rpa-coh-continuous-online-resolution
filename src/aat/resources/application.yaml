@@ -29,7 +29,7 @@ spring:
 
 base-urls:
   idam-url: ${IDAM_API_URL:http://localhost:4501}
-  idam-user-email: ${IDAM_USER_EMAIL:test-citizen-1@example.com}
+  idam-user-email: ${IDAM_USER_EMAIL:test-citizen@example.com}
   idam-user-role: ${IDAM_API_USER_ROLE:citizen}
   test-url: ${TEST_URL:http://localhost:8080}
 
@@ -67,9 +67,3 @@ idam:
     url: ${S2S_URL:http://localhost:4502}
     microservice: ${TEST_S2S_SERVICE:jui_webapp}
     totp_secret: ${TEST_S2S_TOKEN:AAAAAAAAAAAAAAAA}
-
-oauth2:
-  client:
-    id: ${OAUTH2_CLIENT_ID:webshow}
-    secret: ${FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
-    redirect: ${OAUTH2_CLIENT_REDIRECT:http://localhost:8080/oauth2redirect}

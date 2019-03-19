@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.coh.domain.Decision;
 import uk.gov.hmcts.reform.coh.domain.DecisionReply;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
+import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.DecisionReplyRepository;
 import uk.gov.hmcts.reform.coh.states.DecisionsStates;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
@@ -44,8 +45,8 @@ public class DecisionSteps extends BaseSteps {
     private DecisionReplyRepository decisionReplyRepository;
 
     @Autowired
-    public DecisionSteps(TestContext testContext){
-        super(testContext);
+    public DecisionSteps(TestContext testContext, IdamAuthentication idamAuthentication){
+        super(testContext, idamAuthentication);
     }
 
     @Before

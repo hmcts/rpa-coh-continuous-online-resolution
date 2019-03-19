@@ -14,8 +14,8 @@ public class LoggingIdamClient implements IdamClient {
     }
 
     @Override
-    public void createAccount(String email, String password, String role) {
-        subject.createAccount(email, password, role);
+    public void createAccount(String email, String role) {
+        subject.createAccount(email, role);
         log.info("Created account for {} as {}", email, role);
     }
 
@@ -30,26 +30,6 @@ public class LoggingIdamClient implements IdamClient {
     public String lease(Integer userId, String role) {
         String token = subject.lease(userId, role);
         log.info("Generated token for userId = {}: {}", userId, token);
-        return token;
-    }
-
-    @Override
-    public String authenticate(String user, String password, String responseType, String clientId, String redirectUri) {
-        String code = subject.authenticate(user, password, responseType, clientId, redirectUri);
-        log.info("Generated code for {} from {}", user, clientId);
-        return code;
-    }
-
-    @Override
-    public String exchangeCode(
-        String code,
-        String grantType,
-        String clientId,
-        String clientSecret,
-        String redirectUri
-    ) {
-        String token = subject.exchangeCode(code, grantType, clientId, clientSecret, redirectUri);
-        log.info("Generated token for {}: {}", clientId, token);
         return token;
     }
 }
