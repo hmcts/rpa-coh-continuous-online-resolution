@@ -42,8 +42,6 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     ]
 }
 
-env.OAUTH2_CLIENT_ID = "sscs_cor"
-
 withPipeline(type , product, component) {
     enableSlackNotifications(channel)
     enableDbMigration()
