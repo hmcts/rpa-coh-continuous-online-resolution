@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.functional.bdd.steps;
 
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,6 +17,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEndpointHandler;
 import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
+import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestUtil;
 import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 
@@ -44,12 +46,19 @@ public class BaseSteps {
     protected TestContext testContext;
     private final IdamAuthentication idamAuthentication;
 
+    protected TestUtil testUtil;
+
     protected HttpHeaders header;
 
     @Autowired
     public BaseSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
         this.testContext = testContext;
         this.idamAuthentication = idamAuthentication;
+        try {
+            testUtil = new TestUtil();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setup() throws Exception {
@@ -60,7 +69,7 @@ public class BaseSteps {
         header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
         Optional.ofNullable(testContext.getHttpContext().getIdamAuthorRef())
-            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, "Bearer " + token));
+            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, token));
 
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
             .ifPresent(token -> header.add(ServiceRequestAuthorizer.AUTHORISATION, token));
@@ -72,11 +81,11 @@ public class BaseSteps {
     }
 
     private void getIdamToken() {
-        testContext.getHttpContext().setIdamAuthorRef(idamAuthentication.getToken());
+        testContext.getHttpContext().setIdamAuthorRef(testUtil.getIdamAuth());
     }
 
     private void getS2sToken() {
-        testContext.getHttpContext().setIdamServiceRef(authTokenGenerator.generate());
+        testContext.getHttpContext().setIdamServiceRef(testUtil.getS2sAuth());
     }
 
     protected ResponseEntity<String> sendRequest(CohEntityTypes entity, String methodType, String payload) {

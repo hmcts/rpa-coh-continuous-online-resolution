@@ -65,5 +65,11 @@ aat:
 idam:
   s2s-auth:
     url: ${S2S_URL:http://localhost:4502}
+    totp_secret: ${FUNCTIONAL_TEST_CLIENT_S2S_TOKEN:AAAAAAAAAAAAAAAA}
     microservice: ${TEST_S2S_SERVICE:jui_webapp}
-    totp_secret: ${TEST_S2S_TOKEN:AAAAAAAAAAAAAAAA}
+  api:
+    url: ${IDAM_API_URL:http://localhost:4501}
+  client:
+    id: webshow
+    secret: ${FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
+    redirect_uri: ${IDAM_WEBSHOW_WHITELIST:http://localhost:8080/oauth2redirect}
