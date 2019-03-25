@@ -95,6 +95,7 @@ data "azurerm_key_vault_secret" "s2s_secret" {
 module "local_key_vault" {
   source = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
   product = "${local.app_full_name}"
+  name = "coh-cor-${var.env}"
   env = "${var.env}"
   tenant_id = "${var.tenant_id}"
   object_id = "${var.jenkins_AAD_objectId}"
