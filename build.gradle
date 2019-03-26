@@ -149,7 +149,7 @@ task functional(type: Test) {
     description = 'Executes functional tests'
     setTestClassesDirs(sourceSets.aat.output.classesDirs)
     setClasspath(sourceSets.aat.runtimeClasspath)
-    include "uk/gov/hmcts/reform/coh/functional/**"
+    include "uk/gov/hmcts/reform/coh/functional/rest/**"
 
     environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
 }
