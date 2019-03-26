@@ -27,7 +27,7 @@ services:
     - "3502:8000"
 
   idam-api:
-    image: hmcts.azurecr.io/hmcts/tidam-api:latest
+    image: docker.artifactory.reform.hmcts.net/auth/idam-api:latest
     command: --wait-for-database 60
     environment:
     - IDAM_SUPERUSER_EMAIL
@@ -56,7 +56,6 @@ services:
     - PACKAGES_PROJECT=idam
     - PACKAGES_NAME=idam
     - PACKAGES_VERSION=unkown
-    - IDAM_WEBSHOW_WHITELIST=http://localhost:8080/oauth2redirect
     links:
     - smtp-server
     - idam-database
