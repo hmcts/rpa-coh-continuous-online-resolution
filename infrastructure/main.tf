@@ -135,5 +135,5 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 }
 
 provider "azurerm" {
-  version = "1.22.1"
+  version = "1.19.0"
 }
