@@ -16,7 +16,7 @@ public class Env {
         defaults.setProperty("IDAM_WEBSHOW_WHITELIST", "http://localhost:8080/oauth2redirect");
         defaults.setProperty("FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET", "AAAAAAAAAAAAAAAA");
         defaults.setProperty("S2S_URL", "http://localhost:4502");
-        defaults.setProperty("S2S_TOKEN", "AAAAAAAAAAAAAAAA");
+        defaults.setProperty("FUNCTIONAL_TEST_CLIENT_S2S_TOKEN", "AAAAAAAAAAAAAAAA");
         defaults.setProperty("S2S_SERVICE_NAME", "em_gw");
     }
 
@@ -61,7 +61,7 @@ public class Env {
     }
 
     public static String getS2sSecret() {
-        return require("S2S_TOKEN");
+        return require("FUNCTIONAL_TEST_CLIENT_S2S_TOKEN");
     }
 
     public static String getS2sMicroservice() {
