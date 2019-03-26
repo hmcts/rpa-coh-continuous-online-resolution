@@ -88,9 +88,9 @@ public class AnswerController {
         }
 
         CreateAnswerResponse answerResponse = new CreateAnswerResponse();
+        Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
         try {
 
-            Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
 
             List<QuestionStates> answerableStates
                 = Arrays.asList(QuestionStates.ISSUED, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
@@ -134,7 +134,8 @@ public class AnswerController {
         }
 
         UriComponents uriComponents =
-                uriBuilder.path(CohUriBuilder.buildAnswerGet(onlineHearingId, questionId, answerResponse.getAnswerId())).build();
+                uriBuilder.path(CohUriBuilder.buildAnswerGet(optionalOnlineHearing.get().getOnlineHearingId(),
+                        optionalQuestion.get().getQuestionId(), answerResponse.getAnswerId())).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(answerResponse);
     }
