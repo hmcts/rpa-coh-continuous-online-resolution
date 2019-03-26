@@ -12,7 +12,12 @@ public class OnlineHearingEndpointHandler extends AbstractRequestEndpoint {
 
     @Override
     public String getUrl(HttpMethod method, TestContext testContext) {
-        OnlineHearing onlineHearing = testContext.getScenarioContext().getCurrentOnlineHearing();
+        OnlineHearing onlineHearing = null;
+
+        try {
+            testContext.getScenarioContext().getCurrentOnlineHearing();
+        } catch (Exception e) {
+        }
 
         String url = null;
         if (HttpMethod.POST.equals(method)) {

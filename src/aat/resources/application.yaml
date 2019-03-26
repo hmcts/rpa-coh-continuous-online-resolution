@@ -73,3 +73,16 @@ idam:
     id: webshow
     secret: ${FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
     redirect_uri: ${IDAM_WEBSHOW_WHITELIST:http://localhost:8080/oauth2redirect}
+
+authorization:
+  roles: ${AUTHORIZATION_ROLES:solicitor,citizen,caseworker-sscs-judge,caseworker-sscs,caseworker-sscs-panelmember,jui-panelmember}
+  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:jui_webapp,sscs,divorce,ccd,em_gw}
+
+auth:
+  idam:
+    client:
+      baseUrl: ${IDAM_API_URL:http://localhost:4501}
+  provider:
+    service:
+      client:
+        baseUrl: ${S2S_URL:http://localhost:4502}
