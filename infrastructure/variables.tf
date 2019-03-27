@@ -57,7 +57,7 @@ variable "java_opts" {
 // Endpoints
 ////////////////////////////////////////////////
 variable "idam_api_url" {
-  default = "https://preprod-idamapi.reform.hmcts.net:3511"
+  default = "https://idam-api.aat.platform.hmcts.net"
 }
 
 variable "s2s_url" {
