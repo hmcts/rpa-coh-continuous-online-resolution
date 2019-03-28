@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
+import uk.gov.hmcts.reform.coh.testutil.TestUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,10 +47,13 @@ public class BaseSteps {
 
     protected HttpHeaders header;
 
+    protected TestUtil testUtil;
+
     @Autowired
     public BaseSteps(TestContext testContext, IdamAuthentication idamAuthentication) {
         this.testContext = testContext;
         this.idamAuthentication = idamAuthentication;
+        this.testUtil = new TestUtil();
     }
 
     public void setup() throws Exception {
@@ -60,7 +64,7 @@ public class BaseSteps {
         header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
         Optional.ofNullable(testContext.getHttpContext().getIdamAuthorRef())
-            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, "Bearer " + token));
+            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, token));
 
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
             .ifPresent(token -> header.add(ServiceRequestAuthorizer.AUTHORISATION, token));
@@ -72,11 +76,11 @@ public class BaseSteps {
     }
 
     private void getIdamToken() {
-        testContext.getHttpContext().setIdamAuthorRef(idamAuthentication.getToken());
+        testContext.getHttpContext().setIdamAuthorRef(testUtil.getIdamAuth());
     }
 
     private void getS2sToken() {
-        testContext.getHttpContext().setIdamServiceRef(authTokenGenerator.generate());
+        testContext.getHttpContext().setIdamServiceRef(testUtil.getS2sAuth());
     }
 
     protected ResponseEntity<String> sendRequest(CohEntityTypes entity, String methodType, String payload) {

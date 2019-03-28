@@ -24,6 +24,9 @@ def secrets = [
         's2s-${env}': [
                 secret('microservicekey-jui-webapp', 'TEST_S2S_TOKEN'),
                 secret('microservicekey-coh-cor', 'S2S_TOKEN')
+        ],
+        'rpa-${env}': [
+                secret('show-oauth2-token', 'FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET')
         ]
 ]
 

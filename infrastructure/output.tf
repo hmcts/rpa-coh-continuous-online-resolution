@@ -27,3 +27,7 @@ output "spring_datasource_username" {
 output "spring_datasource_password" {
   value = "${module.db.postgresql_password}"
 }
+
+output "idam_webshow_whitelist" {
+  value = "https://em-show-aat.service.core-compute-aat.internal/oauth2/callback"
+}
