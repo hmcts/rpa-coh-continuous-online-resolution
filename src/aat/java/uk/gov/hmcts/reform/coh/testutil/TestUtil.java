@@ -2,12 +2,11 @@ package uk.gov.hmcts.reform.coh.testutil;
 
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
-import lombok.Getter;
 
-@Getter
 public class TestUtil {
 
     private final String idamAuth;
+
     private final String s2sAuth;
 
     public TestUtil() {
@@ -35,5 +34,13 @@ public class TestUtil {
             .given()
             .header("Authorization", idamAuth)
             .header("ServiceAuthorization", s2sAuth);
+    }
+
+    public String getIdamAuth() {
+        return idamAuth;
+    }
+
+    public String getS2sAuth() {
+        return s2sAuth;
     }
 }
