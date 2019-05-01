@@ -90,4 +90,15 @@
         <cve>CVE-2018-10237</cve>
     </suppress>
 
+
+    <suppress>
+    <notes><![CDATA[
+       relates to CORS
+       ]]></notes>
+    <gav regex="true">.*</gav>
+        <cve>CVE-2019-3795</cve>
+        <cve>CVE-2019-0199</cve>
+        <cve>CVE-2019-0232</cve>
+    </suppress>
+
 </suppressions>
