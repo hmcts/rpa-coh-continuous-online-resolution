@@ -330,6 +330,17 @@ public class AnswerControllerTest {
     }
 
     @Test
+    public void testGetAnswerNotFound() throws Exception {
+
+        given(answerService.retrieveAnswerById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get(ENDPOINT + "/" + uuid)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(""))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testGetAnswersQuestionNotFound() throws Exception {
 
         given(questionService.retrieveQuestionById(any(UUID.class))).willReturn(Optional.empty());
