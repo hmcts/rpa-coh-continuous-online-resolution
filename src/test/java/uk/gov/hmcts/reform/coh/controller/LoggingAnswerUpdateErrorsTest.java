@@ -178,10 +178,7 @@ public class LoggingAnswerUpdateErrorsTest {
 
         verify(eventRepository, times(1)).trackEvent(trackedEventName.capture(), trackedEventProperties.capture());
 
-        assertThat(trackedEventName.getValue()).isEqualTo("Invalid answer request");
-        assertThat(trackedEventProperties.getValue())
-            .containsEntry("onlineHearingId", onlineHearingId)
-            .containsEntry("reason", "Answer state is not valid: answer_drafted");
+        assertThat(trackedEventName.getValue()).isEqualTo("Invalid answer state");
     }
 
     @Test
