@@ -521,6 +521,12 @@ public class AnswerControllerTest {
         expectPostUnprocessableEntity();
     }
 
+    @Test
+    public void testCreateAnswerEmptyState() throws Exception {
+        request.setAnswerState(null);
+        expectPostUnprocessableEntity();
+    }
+
     public void expectPutUnprocessableEntity() throws Exception {
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid);
