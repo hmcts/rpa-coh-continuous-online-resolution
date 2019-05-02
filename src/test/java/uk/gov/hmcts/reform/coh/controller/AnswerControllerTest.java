@@ -515,6 +515,13 @@ public class AnswerControllerTest {
         expectPostUnprocessableEntity();
     }
 
+    @Test
+    public void testCreateAnswerEmptyText() throws Exception {
+        answer.setAnswerText(null);
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RESOLVED));
+        expectPostUnprocessableEntity();
+    }
+
     public void expectPutUnprocessableEntity() throws Exception {
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid);
