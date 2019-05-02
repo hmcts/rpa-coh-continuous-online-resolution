@@ -515,6 +515,18 @@ public class AnswerControllerTest {
         expectPostUnprocessableEntity();
     }
 
+    @Test
+    public void testCreateAnswerEmptyText() throws Exception {
+        request.setAnswerText(null);
+        expectPostUnprocessableEntity();
+    }
+
+    @Test
+    public void testCreateAnswerEmptyState() throws Exception {
+        request.setAnswerState(null);
+        expectPostUnprocessableEntity();
+    }
+
     public void expectPutUnprocessableEntity() throws Exception {
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.put(ENDPOINT + "/" + uuid);
@@ -531,7 +543,7 @@ public class AnswerControllerTest {
 
         mockMvc.perform(builder
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
+                .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity());
     }
 

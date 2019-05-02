@@ -299,7 +299,7 @@ public class AnswerController {
         if (!onlineHearing.getOnlineHearingState().getState().equalsIgnoreCase(OnlineHearingStates.STARTED.getStateName())) {
             result.setValid(false);
             result.setReason("Answers cannot be submitted after the online hearing a decision has been issued or re-listed");
-        } else if (request.getAnswerText() == null || StringUtils.isEmpty(request.getAnswerText())) {
+        } else if (StringUtils.isAllBlank(request.getAnswerText())) {
             result.setValid(false);
             result.setReason("Answer text cannot be empty");
         } else if (StringUtils.isEmpty(request.getAnswerState())) {
