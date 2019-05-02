@@ -517,8 +517,7 @@ public class AnswerControllerTest {
 
     @Test
     public void testCreateAnswerEmptyText() throws Exception {
-        answer.setAnswerText(null);
-        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.RESOLVED));
+        request.setAnswerText(null);
         expectPostUnprocessableEntity();
     }
 
@@ -538,7 +537,7 @@ public class AnswerControllerTest {
 
         mockMvc.perform(builder
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
+                .content(JsonUtils.toJson(request)))
                 .andExpect(status().isUnprocessableEntity());
     }
 
