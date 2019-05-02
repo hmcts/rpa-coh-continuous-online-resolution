@@ -212,6 +212,15 @@ public class AnswerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
+        Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
+        if(!optionalAnswerState.isPresent()){
+            eventRepository.trackEvent("Invalid answer state", ImmutableMap.of(
+                    "onlineHearingId", onlineHearingId.toString(),
+                    "requestedState", request.getAnswerState()
+            ));
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format("Answer state is not valid: %s", request.getAnswerState()));
+        }
+
         ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
         if (!validationResult.isValid()) {
             eventRepository.trackEvent("Invalid answer request", ImmutableMap.of(
@@ -219,15 +228,6 @@ public class AnswerController {
                 "reason", validationResult.getReason()
             ));
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
-        }
-
-        Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
-        if(!optionalAnswerState.isPresent()){
-            eventRepository.trackEvent("Invalid answer state", ImmutableMap.of(
-                "onlineHearingId", onlineHearingId.toString(),
-                "requestedState", request.getAnswerState()
-            ));
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid answer state");
         }
 
         Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
