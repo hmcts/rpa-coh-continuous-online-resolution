@@ -95,47 +95,39 @@ public class AnswerController {
 
         CreateAnswerResponse answerResponse = new CreateAnswerResponse();
         Optional<Question> optionalQuestion = questionService.retrieveQuestionById(questionId);
-        try {
 
-            List<QuestionStates> answerableStates
-                = Arrays.asList(QuestionStates.ISSUED, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
+        List<QuestionStates> answerableStates
+            = Arrays.asList(QuestionStates.ISSUED, QuestionStates.QUESTION_DEADLINE_EXTENSION_GRANTED);
 
-            if (!optionalQuestion.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
-            }
-
-            // For MVP, there'll only be one answer per question
-            List<Answer> answers = answerService.retrieveAnswersByQuestion(optionalQuestion.get());
-            if (!answers.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Question already has an answer");
-            }
-
-            // If a question exists, then it must be in the issued state to be answered
-            if (answerableStates.stream().noneMatch(questionStates
-                -> optionalQuestion.get().getQuestionState().getState().equals(questionStates.getStateName()))) {
-
-                return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("The question can only be answers if it's been issued or a deadline extension has been granted");
-            }
-
-            Answer answer = new Answer();
-            if (answerState.isPresent()) {
-                answer.setAnswerState(answerState.get());
-                answer.registerStateChange();
-            }
-
-            answer.setAnswerText(request.getAnswerText());
-            answer.setQuestion(optionalQuestion.get());
-            answerService.createAnswer(answer);
-            answerResponse.setAnswerId(answer.getAnswerId());
-
-            performQuestionAnswered(optionalOnlineHearing.get(), answer);
-
-        } catch (Exception e) {
-            log.error("Could not create answer", new GenericException(e));
-            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body(e.getMessage());
+        if (!optionalQuestion.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The question does not exist");
         }
+
+        // For MVP, there'll only be one answer per question
+        List<Answer> answers = answerService.retrieveAnswersByQuestion(optionalQuestion.get());
+        if (!answers.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Question already has an answer");
+        }
+
+        // If a question exists, then it must be in the issued state to be answered
+        if (answerableStates.stream().noneMatch(questionStates
+            -> optionalQuestion.get().getQuestionState().getState().equals(questionStates.getStateName()))) {
+
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("The question can only be answers if it's been issued or a deadline extension has been granted");
+        }
+
+        Answer answer = new Answer();
+        answer.setAnswerState(answerState.get());
+        answer.registerStateChange();
+
+        answer.setAnswerText(request.getAnswerText());
+        answer.setQuestion(optionalQuestion.get());
+        answerService.createAnswer(answer);
+        answerResponse.setAnswerId(answer.getAnswerId());
+
+        performQuestionAnswered(optionalOnlineHearing.get(), answer);
 
         UriComponents uriComponents =
                 uriBuilder.path(CohUriBuilder.buildAnswerGet(optionalOnlineHearing.get().getOnlineHearingId(),
