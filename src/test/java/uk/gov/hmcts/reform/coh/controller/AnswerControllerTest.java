@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.appinsights.EventRepository;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
+import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
 import uk.gov.hmcts.reform.coh.domain.*;
 import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
@@ -38,6 +39,7 @@ import java.net.URL;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -536,6 +538,34 @@ public class AnswerControllerTest {
     public void testCreateAnswerEmptyState() throws Exception {
         request.setAnswerState(null);
         expectPostUnprocessableEntity();
+    }
+
+    @Test
+    public void testAnswerValidationHearingState() throws Exception {
+        onlineHearing.setOnlineHearingState(OnlineHearingStateUtils.get(OnlineHearingStates.DECISION_ISSUED));
+        ValidationResult result = answerController.validate(onlineHearing, request);
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void testAnswerTextBlank() throws Exception {
+        request.setAnswerText(null);
+        ValidationResult result = answerController.validate(onlineHearing, request);
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void testAnswerStateBlank() throws Exception {
+        request.setAnswerState(null);
+        ValidationResult result = answerController.validate(onlineHearing, request);
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void testAnswerStateInvalid() throws Exception {
+        request.setAnswerState("foo");
+        ValidationResult result = answerController.validate(onlineHearing, request);
+        assertFalse(result.isValid());
     }
 
     public void expectPutUnprocessableEntity() throws Exception {
