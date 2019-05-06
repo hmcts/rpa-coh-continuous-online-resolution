@@ -82,13 +82,9 @@ public class AnswerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
 
-        // Done like this to satify Sonar. This needs to be refactored.
+        // Done like this to satisfy Sonar. This needs to be refactored.
         Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
         if(!answerState.isPresent()){
-            eventRepository.trackEvent("Invalid answer state", ImmutableMap.of(
-                    "onlineHearingId", onlineHearingId.toString(),
-                    "requestedState", request.getAnswerState()
-            ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format("Answer state is not valid: %s", request.getAnswerState()));
         }
 
