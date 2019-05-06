@@ -296,7 +296,7 @@ public class AnswerController {
         }
     }
 
-    private ValidationResult validate(OnlineHearing onlineHearing, AnswerRequest request) {
+    public ValidationResult validate(OnlineHearing onlineHearing, AnswerRequest request) {
         ValidationResult result = new ValidationResult();
         result.setValid(true);
 
