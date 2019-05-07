@@ -44,6 +44,8 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CommonMessages.ONLINE_HEA
 public class AnswerController {
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
+    private static final String INVALID_ANS_STATE_MESS = "Answer state is not valid: %s";
+
     @Autowired
     private AnswerService answerService;
 
@@ -85,7 +87,7 @@ public class AnswerController {
         // Done like this to satisfy Sonar. This needs to be refactored.
         Optional<AnswerState> answerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
         if(!answerState.isPresent()){
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format("Answer state is not valid: %s", request.getAnswerState()));
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format(INVALID_ANS_STATE_MESS, request.getAnswerState()));
         }
 
         ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
@@ -214,7 +216,7 @@ public class AnswerController {
                     "onlineHearingId", onlineHearingId.toString(),
                     "requestedState", request.getAnswerState()
             ));
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format("Answer state is not valid: %s", request.getAnswerState()));
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format(INVALID_ANS_STATE_MESS, request.getAnswerState()));
         }
 
         ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
@@ -305,7 +307,7 @@ public class AnswerController {
             Optional<AnswerState> optAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
             if (!optAnswerState.isPresent()) {
                 result.setValid(false);
-                result.setReason(String.format("Answer state is not valid: %s", request.getAnswerState()));
+                result.setReason(String.format(INVALID_ANS_STATE_MESS, request.getAnswerState()));
             }
         }
         return result;
