@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.coh.controller;
 
 import com.google.common.collect.ImmutableMap;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -13,7 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.reform.coh.appinsights.EventRepository;
@@ -23,14 +28,24 @@ import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponseMapper;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder;
 import uk.gov.hmcts.reform.coh.controller.validators.ValidationResult;
-import uk.gov.hmcts.reform.coh.domain.*;
+import uk.gov.hmcts.reform.coh.domain.Answer;
+import uk.gov.hmcts.reform.coh.domain.AnswerState;
+import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
+import uk.gov.hmcts.reform.coh.domain.Question;
+import uk.gov.hmcts.reform.coh.domain.QuestionState;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
 import uk.gov.hmcts.reform.coh.exception.GenericException;
-import uk.gov.hmcts.reform.coh.service.*;
+import uk.gov.hmcts.reform.coh.service.AnswerService;
+import uk.gov.hmcts.reform.coh.service.AnswerStateService;
+import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
+import uk.gov.hmcts.reform.coh.service.QuestionService;
+import uk.gov.hmcts.reform.coh.service.QuestionStateService;
+import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +96,8 @@ public class AnswerController {
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createAnswer(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(
+                UUID.fromString(URLDecoder.decode(onlineHearingId.toString())));
         if (!optionalOnlineHearing.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
@@ -134,8 +150,13 @@ public class AnswerController {
         performQuestionAnswered(optionalOnlineHearing.get(), answer);
 
         UriComponents uriComponents =
-                uriBuilder.path(CohUriBuilder.buildAnswerGet(optionalOnlineHearing.get().getOnlineHearingId(),
-                        optionalQuestion.get().getQuestionId(), answerResponse.getAnswerId())).build();
+                uriBuilder.path(
+                        CohUriBuilder.buildAnswerGet(
+                                optionalOnlineHearing.get().getOnlineHearingId(),
+                                optionalQuestion.get().getQuestionId(),
+                                answerResponse.getAnswerId()
+                        )
+                ).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(answerResponse);
     }
