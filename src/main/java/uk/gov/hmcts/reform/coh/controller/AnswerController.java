@@ -45,7 +45,9 @@ import uk.gov.hmcts.reform.coh.states.AnswerStates;
 import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +96,7 @@ public class AnswerController {
             @ApiResponse(code = 422, message = "Validation error")
     })
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createAnswer(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) {
+    public ResponseEntity createAnswer(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) throws UnsupportedEncodingException {
 
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(
                 UUID.fromString(URLDecoder.decode(onlineHearingId.toString())));
@@ -152,7 +154,12 @@ public class AnswerController {
         UriComponents uriComponents =
                 uriBuilder.path(
                         CohUriBuilder.buildAnswerGet(
-                                optionalOnlineHearing.get().getOnlineHearingId(),
+                                UUID.fromString(
+                                        URLEncoder.encode(
+                                                optionalOnlineHearing.get().getOnlineHearingId().toString(),
+                                                java.nio.charset.StandardCharsets.UTF_8.toString()
+                                        )
+                                ),
                                 optionalQuestion.get().getQuestionId(),
                                 answerResponse.getAnswerId()
                         )
