@@ -45,6 +45,8 @@ public class AnswerController {
     private static final Logger log = LoggerFactory.getLogger(AnswerController.class);
 
     private static final String INVALID_ANS_STATE_MESS = "Answer state is not valid: %s";
+    private static final String ONLINE_HEARING_ID = "onlineHearingId";
+    private static final String ANSWER_ID = "answerId";
 
     @Autowired
     private AnswerService answerService;
@@ -205,7 +207,7 @@ public class AnswerController {
         Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
             eventRepository.trackEvent("Online hearing not found", ImmutableMap.of(
-                "onlineHearingId", onlineHearingId.toString()
+                    ONLINE_HEARING_ID, onlineHearingId.toString()
             ));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
@@ -213,7 +215,7 @@ public class AnswerController {
         Optional<AnswerState> optionalAnswerState = answerStateService.retrieveAnswerStateByState(request.getAnswerState());
         if(!optionalAnswerState.isPresent()){
             eventRepository.trackEvent("Invalid answer state", ImmutableMap.of(
-                    "onlineHearingId", onlineHearingId.toString(),
+                    ONLINE_HEARING_ID, onlineHearingId.toString(),
                     "requestedState", request.getAnswerState()
             ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format(INVALID_ANS_STATE_MESS, request.getAnswerState()));
@@ -222,7 +224,7 @@ public class AnswerController {
         ValidationResult validationResult = validate(optionalOnlineHearing.get(), request);
         if (!validationResult.isValid()) {
             eventRepository.trackEvent("Invalid answer request", ImmutableMap.of(
-                "onlineHearingId", onlineHearingId.toString(),
+                ONLINE_HEARING_ID, onlineHearingId.toString(),
                 "reason", validationResult.getReason()
             ));
             return ResponseEntity.unprocessableEntity().body(validationResult.getReason());
@@ -231,7 +233,7 @@ public class AnswerController {
         Optional<Answer> optAnswer = answerService.retrieveAnswerById(answerId);
         if(!optAnswer.isPresent()){
             eventRepository.trackEvent("Answer does not exist", ImmutableMap.of(
-                "onlineHearingId", onlineHearingId.toString(),
+                ONLINE_HEARING_ID, onlineHearingId.toString(),
                 "requestedAnswerId", answerId.toString()
             ));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Answer does not exist");
@@ -241,8 +243,8 @@ public class AnswerController {
         Answer savedAnswer = optAnswer.get();
         if(savedAnswer.getAnswerState().getState().equals(AnswerStates.SUBMITTED.getStateName())){
             eventRepository.trackEvent("Submitted answers cannot be updated", ImmutableMap.of(
-                "onlineHearingId", onlineHearingId.toString(),
-                "answerId", answerId.toString(),
+                ONLINE_HEARING_ID, onlineHearingId.toString(),
+                ANSWER_ID, answerId.toString(),
                 "state", savedAnswer.getAnswerState().getState(),
                 "requestedState", request.getAnswerState()
             ));
@@ -263,8 +265,8 @@ public class AnswerController {
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             eventRepository.trackEvent("Not found answer error", ImmutableMap.of(
-                "onlineHearingId", onlineHearingId.toString(),
-                "answerId", answerId.toString(),
+                ONLINE_HEARING_ID, onlineHearingId.toString(),
+                ANSWER_ID, answerId.toString(),
                 "requestedState", request.getAnswerState(),
                 "error", e.getMessage()
             ));
