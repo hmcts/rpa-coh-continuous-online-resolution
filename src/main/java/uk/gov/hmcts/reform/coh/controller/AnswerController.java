@@ -46,6 +46,7 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -152,7 +153,7 @@ public class AnswerController {
         UriComponents uriComponents =
                 uriBuilder.path(
                         CohUriBuilder.buildAnswerGet(
-                                optionalOnlineHearing.get().getOnlineHearingId(),
+                                UUID.fromString(URLEncoder.encode(optionalOnlineHearing.get().getOnlineHearingId().toString())),
                                 optionalQuestion.get().getQuestionId(),
                                 answerResponse.getAnswerId()
                         )
