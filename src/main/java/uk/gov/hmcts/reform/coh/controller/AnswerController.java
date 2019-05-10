@@ -153,18 +153,27 @@ public class AnswerController {
         UriComponents uriComponents =
                 uriBuilder.path(
                         CohUriBuilder.buildAnswerGet(
-                                UUID.fromString(
-                                        URLEncoder.encode(
-                                                optionalOnlineHearing.get().getOnlineHearingId().toString(),
-                                                java.nio.charset.StandardCharsets.UTF_8.toString()
-                                        )
-                                ),
-                                optionalQuestion.get().getQuestionId(),
-                                answerResponse.getAnswerId()
+                                sanitizeUserInput(optionalOnlineHearing.get().getOnlineHearingId()),
+                                sanitizeUserInput(optionalQuestion.get().getQuestionId()),
+                                sanitizeUserInput(answerResponse.getAnswerId())
                         )
                 ).build();
 
         return ResponseEntity.created(uriComponents.toUri()).body(answerResponse);
+    }
+
+    private UUID sanitizeUserInput(UUID uuid) throws UnsupportedEncodingException {
+
+        if (uuid == null) {
+            return null;
+        }
+
+        return UUID.fromString(
+                URLEncoder.encode(
+                        uuid.toString(),
+                        java.nio.charset.StandardCharsets.UTF_8.toString()
+                )
+        );
     }
 
     @ApiOperation(value = "Get Answer", notes = "A GET request with a request body is used to retrieve an answer")
