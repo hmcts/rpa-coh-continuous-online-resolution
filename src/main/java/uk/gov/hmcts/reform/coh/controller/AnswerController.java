@@ -46,7 +46,6 @@ import uk.gov.hmcts.reform.coh.states.OnlineHearingStates;
 import uk.gov.hmcts.reform.coh.states.QuestionStates;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +63,7 @@ public class AnswerController {
     private static final String INVALID_ANS_STATE_MESS = "Answer state is not valid: %s";
     private static final String ONLINE_HEARING_ID = "onlineHearingId";
     private static final String ANSWER_ID = "answerId";
+    private static final String REQUESTED_STATE = "requestedState";
 
     @Autowired
     private AnswerService answerService;
@@ -98,8 +98,7 @@ public class AnswerController {
     @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createAnswer(UriComponentsBuilder uriBuilder, @PathVariable UUID onlineHearingId, @PathVariable UUID questionId, @RequestBody AnswerRequest request) throws UnsupportedEncodingException {
 
-        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(
-                UUID.fromString(URLDecoder.decode(onlineHearingId.toString())));
+        Optional<OnlineHearing> optionalOnlineHearing = onlineHearingService.retrieveOnlineHearing(onlineHearingId);
         if (!optionalOnlineHearing.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ONLINE_HEARING_NOT_FOUND);
         }
@@ -244,7 +243,7 @@ public class AnswerController {
         if(!optionalAnswerState.isPresent()){
             eventRepository.trackEvent("Invalid answer state", ImmutableMap.of(
                     ONLINE_HEARING_ID, onlineHearingId.toString(),
-                    "requestedState", request.getAnswerState()
+                    REQUESTED_STATE, request.getAnswerState()
             ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(String.format(INVALID_ANS_STATE_MESS, request.getAnswerState()));
         }
@@ -274,7 +273,7 @@ public class AnswerController {
                 ONLINE_HEARING_ID, onlineHearingId.toString(),
                 ANSWER_ID, answerId.toString(),
                 "state", savedAnswer.getAnswerState().getState(),
-                "requestedState", request.getAnswerState()
+                REQUESTED_STATE, request.getAnswerState()
             ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Submitted answers cannot be updated");
         }
@@ -295,7 +294,7 @@ public class AnswerController {
             eventRepository.trackEvent("Not found answer error", ImmutableMap.of(
                 ONLINE_HEARING_ID, onlineHearingId.toString(),
                 ANSWER_ID, answerId.toString(),
-                "requestedState", request.getAnswerState(),
+                REQUESTED_STATE, request.getAnswerState(),
                 "error", e.getMessage()
             ));
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(e.getMessage());
