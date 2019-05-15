@@ -85,4 +85,5 @@ withPipeline(type , product, component) {
                 reportName           : "Functional Tests"
         ]
     }
+    installCharts()
 }
