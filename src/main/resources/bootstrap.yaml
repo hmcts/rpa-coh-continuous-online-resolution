@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    propertiesvolume:
+      enabled: true
+      prefixed: true
+      paths: /mnt/secrets/s2s, /mnt/secrets/rpa
+      aliases:
+        s2s.microservicekey-coh-cor: S2S_TOKEN
+        rpa.AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY

@@ -100,6 +100,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
     testCompileOnly 'org.projectlombok:lombok:1.18.10'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: '3.0.1'
+    compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: '4.0.0'
+    compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.4'
+    compile group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4'
 }
 
 bootJar {
@@ -178,4 +182,8 @@ task smoke(type: Test) {
     include "uk/gov/hmcts/reform/coh/smoke/**"
 
     environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+}
+
+dependencyCheck {
+    suppressionFile = 'dependency-check-suppressions.xml'
 }
