@@ -36,6 +36,11 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     ]
 }
 
+// Vars for Kubernetes
+env.IDAM_API_URL = 'https://idam-api.aat.platform.hmcts.net'
+env.S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+// env.TEST_URL = 'https://coh-cor-aat-staging.service.core-compute-aat.internal'
+
 def vaultOverrides = [
         'preview' : 'aat',
         'spreview': 'saat'
@@ -71,4 +76,5 @@ withPipeline(type , product, component) {
     }
 
     loadVaultSecrets(secrets)
+    installCharts()
 }

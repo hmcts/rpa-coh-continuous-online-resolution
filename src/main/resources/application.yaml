@@ -37,6 +37,9 @@ base-urls:
   test-url: ${TEST_URL:http://localhost:8080}
 
 management:
+  endpoint:
+    health:
+      show-details: "always"
   endpoints:
     web:
       base-path: '/'
