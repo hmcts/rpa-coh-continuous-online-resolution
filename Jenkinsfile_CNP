@@ -46,6 +46,7 @@ def vaultOverrides = [
         'spreview': 'saat'
 ]
 
+// TODO Figure out why Jenkinsfile isn't running the installCharts() command
 withPipeline(type , product, component) {
     overrideVaultEnvironments(vaultOverrides)
     enableSlackNotifications(channel)
