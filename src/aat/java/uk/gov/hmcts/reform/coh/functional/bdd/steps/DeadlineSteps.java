@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResponseErrorHandler;
+import uk.gov.hmcts.reform.coh.Application;
 import uk.gov.hmcts.reform.coh.controller.question.AllQuestionsResponse;
 import uk.gov.hmcts.reform.coh.controller.question.QuestionResponse;
 import uk.gov.hmcts.reform.coh.domain.Question;
@@ -35,7 +36,7 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @ActiveProfiles("cucumber")
 public class DeadlineSteps extends BaseSteps {
 

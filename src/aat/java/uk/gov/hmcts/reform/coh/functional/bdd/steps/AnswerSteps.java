@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.hmcts.reform.coh.Application;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerRequest;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.answer.CreateAnswerResponse;
@@ -35,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @ActiveProfiles("cucumber")
 public class AnswerSteps extends BaseSteps {
 

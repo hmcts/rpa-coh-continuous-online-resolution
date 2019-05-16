@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.hmcts.reform.coh.Application;
 import uk.gov.hmcts.reform.coh.controller.answer.AnswerResponse;
 import uk.gov.hmcts.reform.coh.controller.question.*;
 import uk.gov.hmcts.reform.coh.controller.questionrounds.QuestionRoundResponse;
@@ -38,7 +39,7 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildQuesti
 import static uk.gov.hmcts.reform.coh.utils.JsonUtils.*;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @ActiveProfiles("cucumber")
 public class QuestionSteps extends BaseSteps {
 

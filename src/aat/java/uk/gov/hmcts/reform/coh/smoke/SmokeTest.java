@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.coh.Application;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 
 import java.security.KeyManagementException;
@@ -17,10 +18,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @ContextConfiguration
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 @ActiveProfiles("cucumber")
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
