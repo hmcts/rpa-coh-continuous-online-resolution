@@ -100,5 +100,25 @@
         <cve>CVE-2019-0199</cve>
         <cve>CVE-2019-0232</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-core-8.5.37.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-core:.*$</gav>
+        <cve>CVE-2019-0221</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.9.8.jar
+   ]]></notes>
+        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+        <cve>CVE-2019-12086</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-8.5.37.jar
+   ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat\.embed:tomcat-embed-websocket:.*$</gav>
+        <cve>CVE-2019-0221</cve>
+    </suppress>
 </suppressions>
