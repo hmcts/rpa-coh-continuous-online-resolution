@@ -24,6 +24,9 @@ def secrets = [
         's2s-${env}': [
                 secret('microservicekey-jui-webapp', 'TEST_S2S_TOKEN'),
                 secret('microservicekey-coh-cor', 'S2S_TOKEN')
+        ],
+        'rpa-${env}': [
+                secret('show-oauth2-token', 'FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET')
         ]
 ]
 
@@ -35,6 +38,8 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
       envVariable: envVar
     ]
 }
+
+env.IDAM_WEBSHOW_WHITELIST = 'https://em-show-aat.service.core-compute-aat.internal/oauth2/callback'
 
 def vaultOverrides = [
         'preview' : 'aat',
@@ -72,4 +77,8 @@ withPipeline(type , product, component) {
     }
 
     loadVaultSecrets(secrets)
+
+    after('smoketest:aat') {
+        sh "rm -rf infrastructure/"
+    }
 }

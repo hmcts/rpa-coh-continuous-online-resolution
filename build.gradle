@@ -54,7 +54,8 @@ def versions = [
         springfoxSwagger   : '2.7.0',
         h2                 : '1.4.197',
         liquibase          : '3.5.3',
-        shedlock           : '2.2.1'
+        shedlock           : '2.2.1',
+        jackson            : '2.9.8'
 ]
 
 dependencies {
@@ -73,12 +74,21 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
     compile group: 'com.microsoft.azure', name: 'applicationinsights-core', version: '2.1.1'
     compile group: 'commons-validator', name: 'commons-validator', version: '1.6'
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org:${versions.jackson}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc:${versions.jackson}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jackson}"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${versions.jackson}"
+    compile "com.fasterxml.jackson.core:jackson-annotations:${versions.jackson}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
+    testCompile("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: 'com.vaadin.external.google', module: 'android-json'
+    }
     testCompile("org.springframework.security:spring-security-test")
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
     testCompile group: 'info.cukes', name: 'cucumber-core', version: '1.2.5'
     testCompile group: 'info.cukes', name: 'cucumber-spring', version: '1.2.5'
+    testCompile 'io.rest-assured:rest-assured:3.2.0'
     testCompile("com.h2database:h2:${versions.h2}")
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-appinsights', version: '3.0.1'
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: '4.0.0'

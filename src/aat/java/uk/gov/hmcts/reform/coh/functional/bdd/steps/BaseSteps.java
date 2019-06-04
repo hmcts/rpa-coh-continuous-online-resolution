@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.coh.functional.bdd.requests.CohEntityTypes;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestContext;
 import uk.gov.hmcts.reform.coh.functional.bdd.utils.TestTrustManager;
 import uk.gov.hmcts.reform.coh.idam.IdamAuthentication;
+import uk.gov.hmcts.reform.coh.idam.IdamHelper;
 import uk.gov.hmcts.reform.coh.repository.SessionEventForwardingRegisterRepository;
 
 import java.text.DateFormat;
@@ -60,7 +61,7 @@ public class BaseSteps {
         header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
         Optional.ofNullable(testContext.getHttpContext().getIdamAuthorRef())
-            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, "Bearer " + token));
+            .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, token));
 
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
             .ifPresent(token -> header.add(ServiceRequestAuthorizer.AUTHORISATION, token));

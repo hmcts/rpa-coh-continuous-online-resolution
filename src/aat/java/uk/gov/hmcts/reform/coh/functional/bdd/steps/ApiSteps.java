@@ -230,8 +230,6 @@ public class ApiSteps extends BaseSteps {
                 .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
             String responseString = response.getBody();
 
-            System.out.println(String.format("XXXXX %s", responseString));
-
             testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
