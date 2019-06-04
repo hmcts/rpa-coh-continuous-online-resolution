@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.coh.idam;
 
 import io.restassured.RestAssured;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,6 +14,8 @@ import java.util.Base64;
 
 @Component
 public class IdamHelper {
+
+    private static final Logger log = LoggerFactory.getLogger(IdamHelper.class);
 
     private static final String USERNAME = "testytesttest@test.net";
     private static final String PASSWORD = "4590fgvhbfgbDdffm3lk4j";
@@ -35,7 +40,7 @@ public class IdamHelper {
             try {
                 return getIdamTokenFromApi();
             } catch (RuntimeException e) {
-                System.out.println("Failed to get IDAM token, trying again");
+                log.info("Failed to get IDAM token, trying again");
             }
         }
 
@@ -48,6 +53,8 @@ public class IdamHelper {
         String code = getCode();
         String token = getToken(code);
 
+        log.debug(String.format("Generated USER token: %s", token));
+
         return "Bearer " + token;
     }
 
@@ -57,6 +64,11 @@ public class IdamHelper {
         jsonObject.put("password", PASSWORD);
         jsonObject.put("forename", "test");
         jsonObject.put("surname", "test");
+        JSONArray roles = new JSONArray();
+        JSONObject role = new JSONObject();
+        role.put("code", "citizen");
+        roles.put(0, role);
+        jsonObject.put("roles", roles);
 
         RestAssured
             .given()
