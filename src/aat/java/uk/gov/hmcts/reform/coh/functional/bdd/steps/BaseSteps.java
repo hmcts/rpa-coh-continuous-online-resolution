@@ -60,11 +60,15 @@ public class BaseSteps {
 
         header = new HttpHeaders();
         header.setContentType(MediaType.APPLICATION_JSON);
+
         Optional.ofNullable(testContext.getHttpContext().getIdamAuthorRef())
             .ifPresent(token -> header.add(UserRequestAuthorizer.AUTHORISATION, token));
 
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
             .ifPresent(token -> header.add(ServiceRequestAuthorizer.AUTHORISATION, token));
+
+        System.out.println(String.format("Headers: \n%s", header.toString()));
+
     }
 
     private void prepareAuthenticationTokens() {

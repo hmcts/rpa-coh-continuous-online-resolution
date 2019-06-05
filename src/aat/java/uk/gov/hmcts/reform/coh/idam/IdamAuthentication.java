@@ -44,7 +44,7 @@ public class IdamAuthentication implements AutoCloseable {
     }
 
     public String getToken() {
-        return token;
+        return idamHelper.getIdamToken();
     }
 
     @Override
