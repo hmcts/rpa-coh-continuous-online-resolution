@@ -42,7 +42,11 @@ public class EventQueueController {
     private final SessionEventService sessionEventService;
 
     @Autowired
-    public EventQueueController(SessionEventService sessionEventService, SessionEventForwardingStateService sessionEventForwardingStateService, SessionEventForwardingRegisterService sessionEventForwardingRegisterService, SessionEventTypeService sessionEventTypeService, JurisdictionService jurisdictionService) {
+    public EventQueueController(SessionEventService sessionEventService,
+                                SessionEventForwardingStateService sessionEventForwardingStateService,
+                                SessionEventForwardingRegisterService sessionEventForwardingRegisterService,
+                                SessionEventTypeService sessionEventTypeService,
+                                JurisdictionService jurisdictionService) {
         this.sessionEventForwardingRegisterService = sessionEventForwardingRegisterService;
         this.sessionEventTypeService = sessionEventTypeService;
         this.jurisdictionService = jurisdictionService;
@@ -77,34 +81,45 @@ public class EventQueueController {
                 .sessionEventType(eventType.orElseThrow(EntityNotFoundException::new))
                 .build();
 
-        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister = sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
+        Optional<SessionEventForwardingRegister> sessionEventForwardingRegister =
+                sessionEventForwardingRegisterService.retrieveEventForwardingRegister(eventForwardingRegister);
         if (!sessionEventForwardingRegister.isPresent()) {
-            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY).body("No registers for this jurisdiction & event type");
+            return ResponseEntity.status(HttpStatus.FAILED_DEPENDENCY)
+                    .body("No registers for this jurisdiction & event type");
         }
 
         try {
-            SessionEventForwardingState pendingEventForwardingState = getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_PENDING);
+            SessionEventForwardingState pendingEventForwardingState =
+                    getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_PENDING);
 
-            SessionEventForwardingState failedEventForwardingState = getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_FAILED);
+            SessionEventForwardingState failedEventForwardingState =
+                    getSessionEventForwardingState(SessionEventForwardingStates.EVENT_FORWARDING_FAILED);
 
-            sessionEventService.findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(sessionEventForwardingRegister.get(), failedEventForwardingState).stream()                    .forEach(se -> {
-                se.setSessionEventForwardingState(pendingEventForwardingState);
-                se.setRetries(0);
-                sessionEventService.updateSessionEvent(se);
-            });
+            sessionEventService
+                    .findAllBySessionEventForwardingRegisterAndSessionEventForwardingState(
+                            sessionEventForwardingRegister.get(),
+                            failedEventForwardingState
+                    ).stream().forEach(se -> {
+                        se.setSessionEventForwardingState(pendingEventForwardingState);
+                        se.setRetries(0);
+                        sessionEventService.updateSessionEvent(se);
+                    });
         } catch (EntityNotFoundException enfe) {
             log.error(
                 "Pending event forwarding state was not found in the database.",
                 new GenericException(enfe)
             );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We have encounter an error. Please contact support.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("We have encounter an error. Please contact support.");
         }
 
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
     private SessionEventForwardingState getSessionEventForwardingState(SessionEventForwardingStates state) {
-        Optional<SessionEventForwardingState> eventForwardingState = sessionEventForwardingStateService.retrieveEventForwardingStateByName(state.getStateName());
-        return eventForwardingState.orElseThrow(() -> new EntityNotFoundException("Unable to find SessionEventForwardingStates: " + state.getStateName()));
+        Optional<SessionEventForwardingState> eventForwardingState =
+                sessionEventForwardingStateService.retrieveEventForwardingStateByName(state.getStateName());
+        return eventForwardingState.orElseThrow(() ->
+                new EntityNotFoundException("Unable to find SessionEventForwardingStates: " + state.getStateName()));
     }
 }
