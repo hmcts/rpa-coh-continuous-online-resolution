@@ -79,8 +79,4 @@ withPipeline(type , product, component) {
     }
 
     loadVaultSecrets(secrets)
-
-    after('smoketest:aat') {
-        sh "rm -rf infrastructure/"
-    }
 }
