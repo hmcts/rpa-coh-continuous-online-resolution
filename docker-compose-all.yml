@@ -1,0 +1,98 @@
+version: '2.1'
+
+services:
+
+  coh-cor:
+    image: hmctspublic.azurecr.io/coh/cor:latest
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cor-db:5432/cor
+      - SPRING_DATASOURCE_USERNAME=cor
+      - SPRING_DATASOURCE_PASSWORD=cor
+      - IDAM_API_URL=http://idam-api:8080
+      - S2S_URL=http://service-auth-provider-app:8489
+      - APPINSIGHTS_INSTRUMENTATIONKEY=test_app
+      # these environment variables are used by java-logging library
+      - ROOT_LOGGING_LEVEL=INFO
+      - REFORM_SERVICE_TYPE=java
+      - REFORM_SERVICE_NAME=coh-cor
+      - REFORM_TEAM=coh
+      - REFORM_ENVIRONMENT=docker
+    links:
+      - cor-db
+    depends_on:
+      - cor-db
+    ports:
+      - $SERVER_PORT:8080
+      - "7005:7005"
+
+  idam-api:
+    image: hmctsprivate.azurecr.io/tidam/api:latest
+    healthcheck:
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://idam-database:5432/idam
+      SPRING_DATASOURCE_USERNAME: idam-username
+      SPRING_DATASOURCE_PASSWORD: idam-password
+      SPRING_MAIL_HOST: smtp-server
+      IDAM_TESTING_SUPPORT_ENABLED: "true"
+      IDAM_API_OAUTH2_CLIENT_CLIENT_SECRETS_WEBSHOW: AAAAAAAAAAAAAAAA
+      IDAM_WEBSHOW_WHITELIST: http://localhost:8080/oauth2redirect
+      REFORM_SERVICE_NAME: idam-api
+      REFORM_TEAM: idam
+      REFORM_ENVIRONMENT: local
+      http_proxy:
+      https_proxy:
+      no_proxy:
+    ports:
+      - 4501:8080
+    links:
+      - smtp-server
+      - idam-database
+    depends_on:
+      - idam-database
+      - smtp-server
+
+  idam-database:
+    image: postgres
+    environment:
+      - POSTGRES_USER=idam-username
+      - POSTGRES_PASSWORD=idam-password
+      - POSTGRES_DB=idam
+
+  smtp-server:
+    image: mailhog/mailhog
+
+  service-auth-provider-app:
+    image: hmctspublic.azurecr.io/rpe/service-auth-provider:latest
+    environment:
+    - MICROSERVICEKEYS_JUI_WEBAPP=AAAAAAAAAAAAAAAA
+    - MICROSERVICEKEYS_EM_GW=AAAAAAAAAAAAAAAA
+    - MICROSERVICEKEYS_CCD_DATA=AAAAAAAAAAAAAAAA
+    - MICROSERVICEKEYS_CCD_GW=AAAAAAAAAAAAAAAA
+    - MICROSERVICEKEYS_CCD_DEFINITION=AAAAAAAAAAAAAAAA
+    - MICROSERVICEKEYS_COH_COR=AAAAAAAAAAAAAAAA
+    #      logging env vars
+    - REFORM_SERVICE_TYPE=java
+    - REFORM_SERVICE_NAME=service-auth-provider-app
+    - REFORM_TEAM=rpe
+    - REFORM_ENVIRONMENT=docker
+    #      healthcheck env vars
+    - PACKAGES_ENVIRONMENT=docker
+    - PACKAGES_PROJECT=rpe
+    - PACKAGES_NAME=service-auth-provider-app
+    - PACKAGES_VERSION=unkown
+    ports:
+    - "4502:8489"
+
+  cor-db:
+    image: postgres
+    environment:
+     - POSTGRES_USER=cor
+     - POSTGRES_PASSWORD=cor
+     - POSTGRES_DB=cor
+    ports:
+      - 5432:5432
+

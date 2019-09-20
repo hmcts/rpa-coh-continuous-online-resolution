@@ -3,7 +3,7 @@ version: '2.1'
 services:
 
   idam-api:
-    image: hmcts.azurecr.io/hmcts/tidam-api:latest
+    image: hmctsprivate.azurecr.io/tidam/api:latest
     healthcheck:
       interval: 10s
       timeout: 10s
@@ -32,43 +32,43 @@ services:
       - smtp-server
 
   idam-database:
-    image: postgres
-    environment:
-      - POSTGRES_USER=idam-username
-      - POSTGRES_PASSWORD=idam-password
-      - POSTGRES_DB=idam
+      image: postgres
+      environment:
+        - POSTGRES_USER=idam-username
+        - POSTGRES_PASSWORD=idam-password
+        - POSTGRES_DB=idam
 
   smtp-server:
-    image: mailhog/mailhog
+      image: mailhog/mailhog
 
   service-auth-provider-app:
-    image: hmcts/service-auth-provider-app:latest
-    environment:
-    - MICROSERVICEKEYS_JUI_WEBAPP=AAAAAAAAAAAAAAAA
-    - MICROSERVICEKEYS_EM_GW=AAAAAAAAAAAAAAAA
-    - MICROSERVICEKEYS_CCD_DATA=AAAAAAAAAAAAAAAA
-    - MICROSERVICEKEYS_CCD_GW=AAAAAAAAAAAAAAAA
-    - MICROSERVICEKEYS_CCD_DEFINITION=AAAAAAAAAAAAAAAA
-    - MICROSERVICEKEYS_COH_COR=AAAAAAAAAAAAAAAA
-    #      logging env vars
-    - REFORM_SERVICE_TYPE=java
-    - REFORM_SERVICE_NAME=service-auth-provider-app
-    - REFORM_TEAM=rpe
-    - REFORM_ENVIRONMENT=docker
-    #      healthcheck env vars
-    - PACKAGES_ENVIRONMENT=docker
-    - PACKAGES_PROJECT=rpe
-    - PACKAGES_NAME=service-auth-provider-app
-    - PACKAGES_VERSION=unkown
-    ports:
-    - "4502:8489"
+      image: hmctspublic.azurecr.io/rpe/service-auth-provider:latest
+      environment:
+        - MICROSERVICEKEYS_JUI_WEBAPP=AAAAAAAAAAAAAAAA
+        - MICROSERVICEKEYS_EM_GW=AAAAAAAAAAAAAAAA
+        - MICROSERVICEKEYS_CCD_DATA=AAAAAAAAAAAAAAAA
+        - MICROSERVICEKEYS_CCD_GW=AAAAAAAAAAAAAAAA
+        - MICROSERVICEKEYS_CCD_DEFINITION=AAAAAAAAAAAAAAAA
+        - MICROSERVICEKEYS_COH_COR=AAAAAAAAAAAAAAAA
+        #      logging env vars
+        - REFORM_SERVICE_TYPE=java
+        - REFORM_SERVICE_NAME=service-auth-provider-app
+        - REFORM_TEAM=rpe
+        - REFORM_ENVIRONMENT=docker
+        #      healthcheck env vars
+        - PACKAGES_ENVIRONMENT=docker
+        - PACKAGES_PROJECT=rpe
+        - PACKAGES_NAME=service-auth-provider-app
+        - PACKAGES_VERSION=unkown
+      ports:
+        - "4502:8489"
 
   cor-db:
-    image: postgres
-    environment:
-     - POSTGRES_USER=cor
-     - POSTGRES_PASSWORD=cor
-     - POSTGRES_DB=cor
-    ports:
-      - 5432:5432
+      image: postgres
+      environment:
+        - POSTGRES_USER=cor
+        - POSTGRES_PASSWORD=cor
+        - POSTGRES_DB=cor
+      ports:
+        - 5432:5432
 
