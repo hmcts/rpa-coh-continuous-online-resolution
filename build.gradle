@@ -136,6 +136,7 @@ sonarqube {
     properties {
         property "sonar.projectName", "${rootProject.name}"
         property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+        property "sonar.dependencyCheck.reportPath", "${project.buildDir}/reports/dependency-check-report.xml"
         property "sonar.exclusions", coverageExclusionList.join(", ")
     }
 }
