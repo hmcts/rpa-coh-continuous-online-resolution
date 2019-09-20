@@ -1,4 +1,5 @@
-FROM hmcts/cnp-java-base:openjdk-8u191-jre-alpine3.9-2.0.1
+ARG APP_INSIGHTS_AGENT_VERSION=2.3.1
+FROM hmctspublic.azurecr.io/base/java:openjdk-8-distroless-1.1
 
 MAINTAINER "HMCTS Team <https://github.com/hmcts>"
 LABEL maintainer = "HMCTS Team <https://github.com/hmcts>"
