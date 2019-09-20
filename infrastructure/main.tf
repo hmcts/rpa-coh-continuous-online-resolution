@@ -87,11 +87,6 @@ data "azurerm_key_vault_secret" "s2s_secret" {
   vault_uri = "${local.s2s_vault_url}"
 }
 
-//data "azurerm_key_vault_secret" "oauth2_secret" {
-//  name = "cor-oauth2-token"
-//  vault_uri = "${data.azurerm_key_vault.shared_key_vault.vault_uri}"
-//}
-
 module "local_key_vault" {
   source = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
   product = "${local.app_full_name}"

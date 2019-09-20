@@ -51,7 +51,7 @@ def vaultOverrides = [
 withPipeline(type , product, component) {
     overrideVaultEnvironments(vaultOverrides)
     enableSlackNotifications(channel)
-    enableDbMigration()
+    enableDbMigration('coh-cor')
     enableDockerBuild()
 
     after('functionalTest:aat') {
