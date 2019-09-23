@@ -51,7 +51,7 @@ def vaultOverrides = [
 withPipeline(type , product, component) {
     overrideVaultEnvironments(vaultOverrides)
     enableSlackNotifications(channel)
-    enableDbMigration()
+    enableDbMigration('coh-cor')
     enableDockerBuild()
 
     after('functionalTest:aat') {
@@ -79,8 +79,4 @@ withPipeline(type , product, component) {
     }
 
     loadVaultSecrets(secrets)
-
-    after('smoketest:aat') {
-        sh "rm -rf infrastructure/"
-    }
 }
