@@ -18,7 +18,7 @@ def type = "java"
 def product = "coh"
 def component = "cor"
 
-def channel = '#coh-pipeline'
+def channel = '#em-dev-chat'
 
 def secrets = [
         's2s-${env}': [
@@ -50,9 +50,10 @@ def vaultOverrides = [
 
 withPipeline(type , product, component) {
     overrideVaultEnvironments(vaultOverrides)
-    enableSlackNotifications(channel)
+    loadVaultSecrets(secrets)
     enableDbMigration('coh-cor')
     enableDockerBuild()
+    enableSlackNotifications(channel)
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
@@ -77,6 +78,4 @@ withPipeline(type , product, component) {
                 reportName           : "Functional Tests"
         ]
     }
-
-    loadVaultSecrets(secrets)
 }
