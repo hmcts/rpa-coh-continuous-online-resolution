@@ -17,7 +17,7 @@ public class IdamHelper {
 
     private static final Logger log = LoggerFactory.getLogger(IdamHelper.class);
 
-    private static final String USERNAME = "coh2testytesttest@test.net";
+    private static final String USERNAME = "anothercohtestuser@test.net";
     private static final String PASSWORD = "4590fgvhbfgbDdffm3lk4j";
 
     private final String idamUrl;
