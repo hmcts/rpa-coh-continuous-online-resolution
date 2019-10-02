@@ -243,6 +243,7 @@ public class ApiSteps extends BaseSteps {
                 .setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
+            throw hcee;
         }
     }
 
