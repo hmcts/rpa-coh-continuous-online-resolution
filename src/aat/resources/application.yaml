@@ -29,7 +29,7 @@ spring:
 
 base-urls:
   idam-url: ${IDAM_API_URL:http://localhost:4501}
-  idam-user-email: ${IDAM_USER_EMAIL:test-citizen@example.com}
+  idam-user-email: ${IDAM_USER_EMAIL:test-citizen22@example.com}
   idam-user-role: ${IDAM_API_USER_ROLE:citizen}
   test-url: ${TEST_URL:http://localhost:8080}
 
