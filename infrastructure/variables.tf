@@ -65,7 +65,7 @@ variable "s2s_url" {
 }
 
 variable "s2s_names_whitelist" {
-  default = "jui_webapp,sscs,em_gw"
+  default = "jui_webapp,sscs,em_gw,webshow"
   description = "Comma-separated list of service identifiers from S2S."
 }
 
