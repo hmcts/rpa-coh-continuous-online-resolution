@@ -223,10 +223,6 @@ public class ApiSteps extends BaseSteps {
         OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
 
-        retryCreateOnlineHearing(request, onlineHearingRequest, 10);
-    }
-
-    private void retryCreateOnlineHearing(HttpEntity request, OnlineHearingRequest onlineHearingRequest, int numRetries) throws Throwable {
         try {
             ResponseEntity<String> response = restTemplate
                     .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
@@ -246,13 +242,6 @@ public class ApiSteps extends BaseSteps {
 
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
-
-            if (numRetries > 0) {
-                retryCreateOnlineHearing(request, onlineHearingRequest, numRetries - 1);
-            }
-            else {
-                throw hcee;
-            }
         }
     }
 
