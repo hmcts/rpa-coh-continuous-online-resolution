@@ -28,7 +28,7 @@ public class IdamAuthentication implements AutoCloseable {
     @Autowired
     private IdamHelper idamHelper;
 
-    private long delay = 25;
+    private long delay = 300;
 
     private TimeUnit unit = TimeUnit.SECONDS;
 
