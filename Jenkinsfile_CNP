@@ -55,6 +55,13 @@ withPipeline(type , product, component) {
     enableDockerBuild()
     enableSlackNotifications(channel)
 
+    after('test') {
+        sh '''
+        curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
+        sh ./publish-swagger-docs.sh
+         '''
+    }
+
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'
         publishHTML target: [
