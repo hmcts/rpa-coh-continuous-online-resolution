@@ -49,6 +49,9 @@
         <cve>CVE-2018-14335</cve>
         <cve>CVE-2017-7957</cve>
         <cve>CVE-2016-3674</cve>
+        <cve>CVE-2019-16942</cve>
+        <cve>CVE-2019-16943</cve>
+        <cve>CVE-2019-17267</cve>
     </suppress>
     <suppress>
         <notes>Fixed in dom4j v2.1.1</notes>
