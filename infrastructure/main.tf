@@ -76,6 +76,17 @@ module "db" {
   common_tags  = "${var.common_tags}"
 }
 
+module "local_key_vault" {
+  source = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
+  product = "${local.app_full_name}"
+  env = "${var.env}"
+  tenant_id = "${var.tenant_id}"
+  object_id = "${var.jenkins_AAD_objectId}"
+  resource_group_name = "${module.app.resource_group_name}"
+  product_group_object_id = "5d9cd025-a293-4b97-a0e5-6f43efce02c0"
+  common_tags  = "${var.common_tags}"
+}
+
 data "azurerm_key_vault" "shared_key_vault" {
   name = "${local.shared_vault_name}"
   resource_group_name = "${local.shared_vault_name}"
@@ -89,17 +100,6 @@ data "azurerm_key_vault" "s2s_vault" {
 data "azurerm_key_vault_secret" "s2s_secret" {
   name = "microservicekey-coh-cor"
   key_vault_id = "${data.azurerm_key_vault.s2s_vault.id}"
-}
-
-module "local_key_vault" {
-  source = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
-  product = "${local.app_full_name}"
-  env = "${var.env}"
-  tenant_id = "${var.tenant_id}"
-  object_id = "${var.jenkins_AAD_objectId}"
-  resource_group_name = "${module.app.resource_group_name}"
-  product_group_object_id = "5d9cd025-a293-4b97-a0e5-6f43efce02c0"
-  common_tags  = "${var.common_tags}"
 }
 
 data "azurerm_key_vault" "local_key_vault" {
