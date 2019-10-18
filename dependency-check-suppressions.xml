@@ -52,6 +52,7 @@
         <cve>CVE-2019-16942</cve>
         <cve>CVE-2019-16943</cve>
         <cve>CVE-2019-17267</cve>
+        <cve>CVE-2019-17531</cve>
     </suppress>
     <suppress>
         <notes>Fixed in dom4j v2.1.1</notes>
