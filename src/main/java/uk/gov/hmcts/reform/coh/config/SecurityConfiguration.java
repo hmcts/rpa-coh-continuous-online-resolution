@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 
 @Configuration
 @EnableWebSecurity
-@Profile("!cucumber")
+@Profile({"!cucumber & !local"})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final AbstractPreAuthenticatedProcessingFilter filter;
