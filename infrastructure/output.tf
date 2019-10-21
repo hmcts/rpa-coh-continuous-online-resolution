@@ -1,13 +1,3 @@
-// used for db migrations
-output "microserviceName" {
-  value = "${local.app_full_name}"
-}
-
-// used for db migrations
-output "vaultName" {
-  value = "${module.local_key_vault.key_vault_name}"
-}
-
 output "idam_api_url" {
   value = "${var.idam_api_url}"
 }

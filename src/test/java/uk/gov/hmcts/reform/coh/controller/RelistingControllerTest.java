@@ -4,20 +4,25 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
+import uk.gov.hmcts.reform.coh.domain.SessionEventType;
 import uk.gov.hmcts.reform.coh.events.EventTypes;
-import uk.gov.hmcts.reform.coh.service.JurisdictionService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingService;
-import uk.gov.hmcts.reform.coh.service.OnlineHearingStateService;
-import uk.gov.hmcts.reform.coh.service.SessionEventService;
+import uk.gov.hmcts.reform.coh.service.*;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
@@ -32,37 +37,40 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildOnlineHearingGet;
 import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildRelistingGet;
 
 @RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles({"local"})
-@WebMvcTest(value = {OnlineHearingController.class}, secure = false)
 public class RelistingControllerTest {
 
-    @MockBean
+    @Mock
     private OnlineHearingService onlineHearingService;
 
-    @MockBean
+    @Mock
+    private Clock clock;
+
+    @Mock
     private OnlineHearingStateService onlineHearingStateService;
 
-    @MockBean
+    @Mock
     private JurisdictionService jurisdictionService;
 
-    @MockBean
+    @Mock
+    private SessionEventTypeService sessionEventTypeService;
+
+    @Mock
     private SessionEventService sessionEventService;
 
-    @MockBean
-    private Clock clock;
+    @InjectMocks
+    private OnlineHearingController onlineHearingController;
 
     @Autowired
     private MockMvc mockMvc;
@@ -81,6 +89,7 @@ public class RelistingControllerTest {
             .thenReturn(Optional.of(onlineHearing));
 
         when(clock.instant()).thenReturn(Instant.now());
+        mockMvc = MockMvcBuilders.standaloneSetup(onlineHearingController).build();
 
         pathToExistingOnlineHearing = buildOnlineHearingGet(onlineHearing.getOnlineHearingId());
         pathToExistingRelisting = buildRelistingGet(onlineHearing.getOnlineHearingId());
@@ -151,8 +160,9 @@ public class RelistingControllerTest {
     @Test
     public void relistingStateIsCaseInsensitive() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
-        mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+        String response = mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+//            .andExpect(status().isAccepted());
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
             .andExpect(status().isOk())

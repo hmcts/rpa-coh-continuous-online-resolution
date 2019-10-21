@@ -1,16 +1,11 @@
-FROM openjdk:8-jre-alpine
+ARG APP_INSIGHTS_AGENT_VERSION=2.5.0
+FROM hmctspublic.azurecr.io/base/java:openjdk-8-distroless-1.2
 
-MAINTAINER "HMCTS Team <https://github.com/hmcts>"
-LABEL maintainer = "HMCTS Team <https://github.com/hmcts>"
+COPY lib/AI-Agent.xml /opt/app/
+COPY build/libs/continuous-online-hearing.jar /opt/app/
 
-WORKDIR /opt/app
-COPY build/libs/continuous-online-hearing.jar .
-
-ENV JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7005"
-
-HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" curl --silent --fail http://localhost:8080/health
+HEALTHCHECK --interval=10s --timeout=10s --retries=10 CMD http_proxy="" wget -q --spider http://localhost:8080/health || exit 1
 
 EXPOSE 8080 5005
-EXPOSE 7005 7005
 
-ENTRYPOINT exec java ${JAVA_OPTS} -jar "/opt/app/continuous-online-hearing.jar"
+CMD ["continuous-online-hearing.jar"]

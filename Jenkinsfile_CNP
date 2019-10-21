@@ -18,12 +18,15 @@ def type = "java"
 def product = "coh"
 def component = "cor"
 
-def channel = '#coh-pipeline'
+def channel = '#em-dev-chat'
 
 def secrets = [
         's2s-${env}': [
-                secret('microservicekey-jui-webapp', 'TEST_S2S_TOKEN'),
+                secret('microservicekey-em-gw', 'TEST_S2S_TOKEN'),
                 secret('microservicekey-coh-cor', 'S2S_TOKEN')
+        ],
+        'rpa-${env}': [
+                secret('show-oauth2-token', 'FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET')
         ]
 ]
 
@@ -36,10 +39,9 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     ]
 }
 
-// Vars for Kubernetes
 env.IDAM_API_URL = 'https://idam-api.aat.platform.hmcts.net'
 env.S2S_URL = 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
-// env.TEST_URL = 'https://coh-cor-aat-staging.service.core-compute-aat.internal'
+env.IDAM_WEBSHOW_WHITELIST = 'https://em-show-aat.service.core-compute-aat.internal/oauth2/callback'
 
 def vaultOverrides = [
         'preview' : 'aat',
@@ -49,8 +51,17 @@ def vaultOverrides = [
 // TODO Figure out why Jenkinsfile isn't running the installCharts() command
 withPipeline(type , product, component) {
     overrideVaultEnvironments(vaultOverrides)
+    loadVaultSecrets(secrets)
+    enableDbMigration('coh-cor')
+    enableDockerBuild()
     enableSlackNotifications(channel)
-    enableDbMigration()
+
+    after('test') {
+        sh '''
+        curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
+        sh ./publish-swagger-docs.sh
+         '''
+    }
 
     after('functionalTest:aat') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/build/reports/cucumber/**/*'

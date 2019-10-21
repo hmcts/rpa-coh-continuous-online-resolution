@@ -4,7 +4,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQL94Dialect
     database: postgresql
-    show-sql: ${SHOW_SQL:true}
+    show-sql: ${SHOW_SQL:false}
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -29,7 +29,7 @@ spring:
 
 base-urls:
   idam-url: ${IDAM_API_URL:http://localhost:4501}
-  idam-user-email: ${IDAM_USER_EMAIL:test-citizen@example.com}
+  idam-user-email: ${IDAM_USER_EMAIL:test-citizen22@example.com}
   idam-user-role: ${IDAM_API_USER_ROLE:citizen}
   test-url: ${TEST_URL:http://localhost:8080}
 
@@ -65,5 +65,10 @@ aat:
 idam:
   s2s-auth:
     url: ${S2S_URL:http://localhost:4502}
-    microservice: ${TEST_S2S_SERVICE:jui_webapp}
+    microservice: ${TEST_S2S_SERVICE:em_gw}
     totp_secret: ${TEST_S2S_TOKEN:AAAAAAAAAAAAAAAA}
+
+test:
+  client_name: webshow
+  client_secret: ${FUNCTIONAL_TEST_CLIENT_OAUTH_SECRET:AAAAAAAAAAAAAAAA}
+  client_redirect: ${IDAM_WEBSHOW_WHITELIST:http://localhost:8080/oauth2redirect}

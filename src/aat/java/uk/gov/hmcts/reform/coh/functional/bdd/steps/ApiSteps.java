@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.HttpClientErrorException;
@@ -225,21 +222,24 @@ public class ApiSteps extends BaseSteps {
 
         OnlineHearingRequest onlineHearingRequest = JsonUtils.toObjectFromJson(jsonBody, OnlineHearingRequest.class);
         HttpEntity<String> request = new HttpEntity<>(jsonBody, header);
+
         try {
             ResponseEntity<String> response = restTemplate
-                .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
+                    .exchange(baseUrl + "/continuous-online-hearings", HttpMethod.POST, request, String.class);
             String responseString = response.getBody();
+
             testContext.getScenarioContext().setCurrentOnlineHearing(onlineHearingRequest);
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(response);
 
             CreateOnlineHearingResponse newOnlineHearing = JsonUtils
-                .toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
+                    .toObjectFromJson(responseString, CreateOnlineHearingResponse.class);
             testContext.getScenarioContext().getCurrentOnlineHearing()
-                .setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
+                    .setOnlineHearingId(UUID.fromString(newOnlineHearing.getOnlineHearingId()));
             testContext.getScenarioContext().addCaseId(onlineHearingRequest.getCaseId());
 
             testContext.getScenarioContext()
-                .setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
+                    .setCurrentOnlineHearing(onlineHearingRepository.findByCaseId(onlineHearingRequest.getCaseId()).get());
+
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
         }
