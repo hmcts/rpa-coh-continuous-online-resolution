@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = {"src/aat/resources/disabled.cucumber"},
+@CucumberOptions(features = {"src/aat/resources/cucumber"},
         format = {"pretty", "html:build/reports/cucumber/html",
         "json:build/reports/tests/cucumber/cucumber.json",
         "usage:build/reports/tests/cucumber/usage.jsonx",
