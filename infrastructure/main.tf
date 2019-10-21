@@ -62,6 +62,9 @@ module "app" {
     PACKAGES_PROJECT = "${var.team_name}"
     PACKAGES_ENVIRONMENT = "${var.env}"
 
+    SCHEDULING_NOTIFIER_LOCK = "event-notifier-${var.scheduling_lock_env}"
+    SCHEDULING_TRIGGER_LOCK = "event-trigger-${var.scheduling_lock_env}"
+
     LOG_OUTPUT = "${var.log_output}"
   }
 }

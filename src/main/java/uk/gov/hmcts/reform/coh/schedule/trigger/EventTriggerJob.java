@@ -19,7 +19,7 @@ public class EventTriggerJob {
     @Autowired
     private EventTriggerFactory factory;
 
-    @SchedulerLock(name = "EventTrigger")
+    @SchedulerLock(name = "${event-scheduler.event-trigger.lock}")
     @Scheduled(cron  = "${event-scheduler.event-trigger.cron}")
     public void execute() {
 

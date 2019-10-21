@@ -107,9 +107,11 @@ scheduling:
 event-scheduler:
     event-notifier:
       fixed-delay: 10000
+      lock: ${SCHEDULING_NOTIFIER_LOCK:event-notifier-local}
     event-trigger:
       fixed-delay: 60000
       cron: 0 0 1 * * ?
+      lock: ${SCHEDULING_TRIGGER_LOCK:event-trigger-local}
 
 #
 #toggle:
