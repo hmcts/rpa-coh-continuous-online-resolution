@@ -58,7 +58,7 @@ public class EventNotifierJob {
 
     private SessionEventForwardingStates failureState = SessionEventForwardingStates.EVENT_FORWARDING_FAILED;
 
-    @SchedulerLock(name = "${event-scheduler.event-notifier.lock}")
+    @SchedulerLock(name = "EventNotifier")
     @Scheduled(fixedDelayString  = "${event-scheduler.event-notifier.fixed-delay}")
     public void execute() {
 

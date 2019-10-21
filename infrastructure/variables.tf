@@ -106,7 +106,3 @@ variable "endpoints_health_sensitive" {
 variable "endpoints_info_sensitive" {
   default = "true"
 }
-
-variable "scheduling_lock_env" {
-  default = "local"
-}
