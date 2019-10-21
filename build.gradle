@@ -120,6 +120,7 @@ def coverageExclusionList = [
         '**uk/gov/hmcts/reform/coh/Application*',
         '**uk/gov/hmcts/reform/coh/appinsights/*',
         '**uk/gov/hmcts/reform/coh/domain/*',
+        '**uk/gov/hmcts/reform/coh/config/*',
 ]
 
 //(jacocoTestReport | jacocoTestCoverageVerification)
