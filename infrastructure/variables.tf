@@ -106,3 +106,7 @@ variable "endpoints_health_sensitive" {
 variable "endpoints_info_sensitive" {
   default = "true"
 }
+
+variable "managed_identity_object_id" {
+  default = ""
+}
