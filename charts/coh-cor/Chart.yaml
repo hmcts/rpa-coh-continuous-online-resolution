@@ -1,6 +1,6 @@
 name: coh-coh
 home: https://github.com/hmcts/rpa-coh-continuous-online-resolution
-version: 0.0.1
+version: 0.0.2
 description: HMCTS Continuous Online Resolution - Continuous Online Hearing
 maintainers:
   - name: HMCTS COH Team
