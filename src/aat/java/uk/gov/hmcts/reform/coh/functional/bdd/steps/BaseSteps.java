@@ -67,7 +67,7 @@ public class BaseSteps {
         Optional.ofNullable(testContext.getHttpContext().getIdamServiceRef())
             .ifPresent(token -> header.add(ServiceRequestAuthorizer.AUTHORISATION, token));
 
-        // System.out.println(String.format("Headers: \n%s", header.toString()));
+        System.out.println(String.format("Headers: \n%s", header.toString()));
 
     }
 
