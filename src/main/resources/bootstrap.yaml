@@ -3,7 +3,7 @@ spring:
     propertiesvolume:
       enabled: true
       prefixed: true
-      paths: /mnt/secrets/s2s, /mnt/secrets/rpa
+      paths: /mnt/secrets/coh-cor
       aliases:
-        s2s.microservicekey-coh-cor: S2S_TOKEN
-        rpa.AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
+        microservicekey-coh-cor: S2S_TOKEN
+        AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
