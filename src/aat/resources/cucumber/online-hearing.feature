@@ -21,4 +21,4 @@ Feature: Online hearing
     And the response contains the online hearing UUID
     When a GET request is sent for the saved online hearing
     Then the response code is 200
-    And the response contains the following text '"case_125" '
+    And the response contains the following text '"case_126" '
