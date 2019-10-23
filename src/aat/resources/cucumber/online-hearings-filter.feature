@@ -13,7 +13,7 @@ Feature: Online hearing filter feature
     When a get request is sent to ' "/continuous-online-hearings?case_id=case_123"' for the online hearing
     Then the response code is 200
     And the response contains 1 online hearings
-    And the response contains online hearing with case 'case_123'
+    And the response contains online hearing with case 'case_125'
 
   Scenario: Search for multiple online hearings by case id
     And a standard online hearing
@@ -21,7 +21,7 @@ Feature: Online hearing filter feature
     And a POST request is sent for online hearing
     When a get request is sent to ' "/continuous-online-hearings?case_id=case_123&case_id=case_456"' for the online hearing
     And the response contains 2 online hearings
-    And the response contains online hearing with case 'case_123'
+    And the response contains online hearing with case 'case_125'
     And the response contains online hearing with case 'case_456'
 
   Scenario: Search for non-existent state
