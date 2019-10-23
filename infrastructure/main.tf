@@ -10,7 +10,7 @@ locals {
   s2s_vault_url = "https://s2s-${local.local_env}.vault.azure.net/"
   local_ase              = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "core-compute-aat" : "core-compute-saat" : local.ase_name}"
   s2s_url                = "http://rpe-service-auth-provider-${local.local_env}.service.${local.local_ase}.internal"
-
+  tags = "${merge(var.common_tags, map("Team Contact", "#rpe"))}"
   previewVaultName = "${local.app_full_name}-aat"
   nonPreviewVaultName = "${local.app_full_name}-${var.env}"
   vaultName = "${(var.env == "preview" || var.env == "spreview") ? local.previewVaultName : local.nonPreviewVaultName}"
@@ -126,6 +126,11 @@ data "azurerm_key_vault" "s2s_vault" {
   resource_group_name = "rpe-service-auth-provider-${local.local_env}"
 }
 
+data "azurerm_key_vault" "product" {
+  name = "${var.shared_product_name}-${var.env}"
+  resource_group_name = "${var.shared_product_name}-${var.env}"
+}
+
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name = "${var.component}-POSTGRES-USER"
   value = "${module.db.user_name}"
@@ -154,4 +159,22 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name = "${var.component}-POSTGRES-DATABASE"
   value = "${module.db.postgresql_database}"
   key_vault_id = "${module.local_key_vault.key_vault_id}"
+}
+
+# Load AppInsights key from rpa vault
+data "azurerm_key_vault_secret" "app_insights_key" {
+  name      = "AppInsightsInstrumentationKey"
+  key_vault_id = "${data.azurerm_key_vault.product.id}"
+}
+
+resource "azurerm_key_vault_secret" "local_app_insights_key" {
+  name         = "AppInsightsInstrumentationKey"
+  value        = "${data.azurerm_key_vault_secret.app_insights_key.value}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+}
+
+resource "azurerm_resource_group" "rg" {
+  name     = "${var.product}-${var.env}"
+  location = "${var.location}"
+  tags = "${local.tags}"
 }
