@@ -49,7 +49,8 @@ module "app" {
     # idam
     IDAM_API_URL = "${var.idam_api_url}"
     S2S_URL = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
-    S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_secret.value}"
+//    S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_secret.value}"
+    S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_key.value}"
     S2S_NAMES_WHITELIST = "${var.s2s_names_whitelist}"
 
     # logging vars & healthcheck
@@ -93,6 +94,28 @@ module "local_key_vault" {
   managed_identity_object_id = "${var.managed_identity_object_id}"
 }
 
+
+data "azurerm_key_vault" "s2s_vault" {
+  name = "s2s-${local.local_env}"
+  resource_group_name = "rpe-service-auth-provider-${local.local_env}"
+}
+
+data "azurerm_key_vault_secret" "s2s_key" {
+  name      = "microservicekey-em-annotation-app"
+  key_vault_id = "${data.azurerm_key_vault.s2s_vault.id}"
+}
+
+data "azurerm_key_vault" "key_vault" {
+  name = "${module.local_key_vault.key_vault_name}"
+  resource_group_name = "${module.local_key_vault.key_vault_name}"
+}
+
+resource "azurerm_key_vault_secret" "local_s2s_key" {
+  name         = "microservicekey-coh-cor"
+  value        = "${data.azurerm_key_vault_secret.s2s_key.value}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+}
+
 data "azurerm_key_vault" "shared_key_vault" {
   name = "${local.shared_vault_name}"
   resource_group_name = "${local.shared_vault_name}"
@@ -101,11 +124,6 @@ data "azurerm_key_vault" "shared_key_vault" {
 data "azurerm_key_vault" "s2s_vault" {
   name = "s2s-${local.local_env}"
   resource_group_name = "rpe-service-auth-provider-${local.local_env}"
-}
-
-data "azurerm_key_vault_secret" "s2s_secret" {
-  name = "microservicekey-coh-cor"
-  key_vault_id = "${data.azurerm_key_vault.s2s_vault.id}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
