@@ -242,6 +242,11 @@ public class ApiSteps extends BaseSteps {
 
         } catch (HttpClientErrorException hcee) {
             testContext.getHttpContext().setResponseBodyAndStatesForResponse(hcee);
+            System.out.println(hcee.getResponseHeaders());
+            System.out.println(hcee.getMessage());
+            System.out.println(hcee.getStatusText());
+            System.out.println(hcee);
+            hcee.printStackTrace();
         }
     }
 
