@@ -31,7 +31,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilter(filter)
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/error", "/health", "/health/liveness").anonymous()
+            .antMatchers("/error", "/health", "/health/liveness", "/status/health", "/").anonymous()
             .antMatchers("/SSCS/*").anonymous()
             .antMatchers("/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/v2/api-docs").anonymous()
             .anyRequest().authenticated();
