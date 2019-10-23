@@ -2,7 +2,7 @@ spring:
   cloud:
     propertiesvolume:
       enabled: true
-      prefixed: true
+      prefixed: false
       paths: /mnt/secrets/coh-cor
       aliases:
         microservicekey-coh-cor: S2S_TOKEN
