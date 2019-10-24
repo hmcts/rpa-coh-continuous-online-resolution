@@ -18,6 +18,7 @@ cor:
   livenessFailureThreshold: 10
   keyVaults:
     coh-cor:
+      resourceGroup: coh-cor
       secrets:
         - AppInsightsInstrumentationKey
         - microservicekey-coh-cor
