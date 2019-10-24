@@ -17,3 +17,7 @@ output "spring_datasource_username" {
 output "spring_datasource_password" {
   value = "${module.db.postgresql_password}"
 }
+
+output "microservicekey-coh-cor" {
+  value        = "${data.azurerm_key_vault_secret.s2s_key.value}"
+}
