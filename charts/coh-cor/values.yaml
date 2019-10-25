@@ -36,3 +36,4 @@ cor:
     PACKAGES_NAME: cor
     AUTHORIZATION_ROLES: solicitor,citizen,caseworker-sscs-judge,caseworker-sscs,caseworker-sscs-panelmember,jui-panelmember
     S2S_NAMES_WHITELIST: jui_webapp,sscs,divorce,ccd,em_gw
+    LOG_LEVEL : "INFO"
