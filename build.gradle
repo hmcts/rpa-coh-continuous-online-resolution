@@ -51,6 +51,7 @@ dependencyCheck {
 apply from: 'liquibase.gradle'
 
 def versions = [
+        lombok             : '1.16.18',
         postgresql         : '42.2.2',
         springBoot         : plugins.getPlugin("org.springframework.boot").class.package.getImplementationVersion(),
         springfoxSwagger   : '2.7.0',
@@ -61,6 +62,8 @@ def versions = [
 ]
 
 dependencies {
+    compile group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    annotationProcessor group:'org.projectlombok', name :'lombok' , version: versions.lombok
     compile("io.springfox:springfox-swagger2:${versions.springfoxSwagger}")
     compile("io.springfox:springfox-swagger-ui:${versions.springfoxSwagger}")
     compile("org.springframework.boot:spring-boot-starter-web")

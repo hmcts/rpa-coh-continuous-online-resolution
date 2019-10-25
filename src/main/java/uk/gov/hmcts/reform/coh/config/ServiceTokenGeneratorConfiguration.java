@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.coh.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGeneratorFactory;
 import uk.gov.hmcts.reform.authorisation.validators.AuthTokenValidator;
 import uk.gov.hmcts.reform.authorisation.validators.ServiceAuthTokenValidator;
 
+@Slf4j
 @Configuration
 @Lazy
 @EnableFeignClients(basePackageClasses = ServiceAuthorisationApi.class)
@@ -29,6 +31,7 @@ public class ServiceTokenGeneratorConfiguration {
         @Value("${idam.s2s-auth.microservice}") final String microService,
         final ServiceAuthorisationApi serviceAuthorisationApi
     ) {
+        log.info("idam.s2s-auth.totp_secret {} with idam.s2s-auth.microservice {}", secret, microService);
         return AuthTokenGeneratorFactory.createDefaultGenerator(secret, microService, serviceAuthorisationApi);
     }
 }
