@@ -55,7 +55,8 @@ withPipeline(type , product, component) {
     enableDbMigration('coh-cor')
     enableDockerBuild()
     enableSlackNotifications(channel)
-
+    installCharts()
+    enableAksStagingDeployment()
     after('test') {
         sh '''
         curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
@@ -86,6 +87,4 @@ withPipeline(type , product, component) {
                 reportName           : "Functional Tests"
         ]
     }
-    installCharts()
-    enableAksStagingDeployment()
 }

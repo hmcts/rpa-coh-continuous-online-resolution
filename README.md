@@ -3,8 +3,9 @@ continuous-online-hearing
 To run in docker
 ```bash
 
-./gradlew clean assemble
-
+./gradlew clean assemble;
+docker-compose up --build;
+>>>>>>> origin/helm-setup-w-templated-db-details
 az acr login --name hmctspublic --subscription 1c4f0704-a29e-403d-b719-b90c34ef14c9
 az acr login --name hmctsprivate --subscription 1c4f0704-a29e-403d-b719-b90c34ef14c9
 docker-compose -f docker-compose-all.yml up --build
@@ -12,6 +13,8 @@ docker-compose -f docker-compose-all.yml up --build
 
 docker-compose up --build;
 ```
+
+=======
 
 TODO Notes on the current state of this branch
 Work was started on this branch. However, it wasn't finished because big changes needed to be merged into master, right before the app is going live. The work was therefore delayed until it's safe to push stuff into master.
