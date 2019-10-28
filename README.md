@@ -5,7 +5,7 @@ To run in docker
 
 ./gradlew clean assemble;
 docker-compose up --build;
->>>>>>> origin/helm-setup-w-templated-db-details
+
 az acr login --name hmctspublic --subscription 1c4f0704-a29e-403d-b719-b90c34ef14c9
 az acr login --name hmctsprivate --subscription 1c4f0704-a29e-403d-b719-b90c34ef14c9
 docker-compose -f docker-compose-all.yml up --build
