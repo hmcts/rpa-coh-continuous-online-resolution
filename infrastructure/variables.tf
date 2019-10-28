@@ -95,6 +95,10 @@ variable "log_level_dm" {
   default = "INFO"
 }
 
+variable "show_sql" {
+  default = "true"
+}
+
 variable "endpoints_health_sensitive" {
   default = "true"
 }
