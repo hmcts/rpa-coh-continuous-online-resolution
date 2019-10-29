@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 @ContextConfiguration
 @SpringBootTest
@@ -17,8 +16,6 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 public class SmokeTest {
-
-    private RestTemplate restTemplate;
 
     @Value("${base-urls.test-url}")
     protected String baseUrl;
