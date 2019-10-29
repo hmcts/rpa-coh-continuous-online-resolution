@@ -1,6 +1,6 @@
 name: coh-cor
 home: https://github.com/hmcts/rpa-coh-continuous-online-resolution
-version: 0.0.3
+version: 0.0.4
 apiVersion: v1
 description: HMCTS Continuous Online Resolution - Continuous Online Hearing
 maintainers:
