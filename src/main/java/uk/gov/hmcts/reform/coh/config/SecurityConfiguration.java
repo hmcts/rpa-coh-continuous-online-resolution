@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +21,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityConfiguration(AbstractPreAuthenticatedProcessingFilter filter) {
         super();
         this.filter = filter;
+    }
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/swagger-ui.html",
+                "/webjars/springfox-swagger-ui/**",
+                "/swagger-resources/**",
+                "/v2/**",
+                "/health",
+                "/health/liveness",
+                "/status/health",
+                "/loggers/**",
+                "/");
     }
 
     @Override
