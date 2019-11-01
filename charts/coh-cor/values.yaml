@@ -1,8 +1,8 @@
 cor:
   postgresql:
-    postgresqlUsername: coh
-    postgresqlPassword: coh
-    postgresqlDatabase: coh
+    postgresqlUsername: cor
+    postgresqlPassword: cor
+    postgresqlDatabase: cor
     nameOverride: coh-cor-db
 #  TODO Update the docker image
   image: 'hmcts.azurecr.io/hmcts/coh-cor:latest'
@@ -22,6 +22,11 @@ cor:
       secrets:
         - AppInsightsInstrumentationKey
         - microservicekey-coh-cor
+        - cor-POSTGRES-DATABASE
+        - cor-POSTGRES-HOST
+        - cor-POSTGRES-PASS
+        - cor-POSTGRES-PORT
+        - cor-POSTGRES-USER
   environment:
     SPRING_DATASOURCE_URL: jdbc:postgresql://{{ .Release.Name }}-{{ .Values.postgresql.nameOverride}}:5432/{{ .Values.postgresql.postgresqlDatabase}}?ssl=disable
     SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"
