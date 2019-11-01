@@ -84,6 +84,7 @@ dependencies {
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jackson}"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${versions.jackson}"
     compile "com.fasterxml.jackson.core:jackson-annotations:${versions.jackson}"
+    compile "com.zaxxer:HikariCP"
     compile "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
     testCompile("org.springframework.boot:spring-boot-starter-test") {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
