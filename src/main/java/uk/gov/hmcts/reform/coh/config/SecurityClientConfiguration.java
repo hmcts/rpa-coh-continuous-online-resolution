@@ -52,18 +52,18 @@ public class SecurityClientConfiguration {
         return request -> Optional.empty();
     }
 
-//    @Bean
-//    public AbstractPreAuthenticatedProcessingFilter preAuthenticatedProcessingFilter(
-//        AuthenticationManager authenticationManager,
-//        @Qualifier("serviceRequestAuthorizer") RequestAuthorizer<Service> serviceRequestAuthorizer,
-//        RequestAuthorizer<User> userRequestAuthorizer
-//    ) {
-//        AbstractPreAuthenticatedProcessingFilter filter
-//            = new AuthCheckerServiceAndUserFilter(serviceRequestAuthorizer, userRequestAuthorizer);
-//
-//        filter.setAuthenticationManager(authenticationManager);
-//
-//        return filter;
-//    }
+    @Bean
+    public AbstractPreAuthenticatedProcessingFilter preAuthenticatedProcessingFilter(
+        AuthenticationManager authenticationManager,
+        @Qualifier("serviceRequestAuthorizer") RequestAuthorizer<Service> serviceRequestAuthorizer,
+        RequestAuthorizer<User> userRequestAuthorizer
+    ) {
+        AbstractPreAuthenticatedProcessingFilter filter
+            = new AuthCheckerServiceAndUserFilter(serviceRequestAuthorizer, userRequestAuthorizer);
+
+        filter.setAuthenticationManager(authenticationManager);
+
+        return filter;
+    }
 
 }

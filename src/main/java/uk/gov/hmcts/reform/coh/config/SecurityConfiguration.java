@@ -15,13 +15,13 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 @Profile({"!cucumber & !local"})
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-//    private final AbstractPreAuthenticatedProcessingFilter filter;
+    private final AbstractPreAuthenticatedProcessingFilter filter;
 
-//    @Autowired
-//    public SecurityConfiguration(AbstractPreAuthenticatedProcessingFilter filter) {
-//        super();
-//        this.filter = filter;
-//    }
+    @Autowired
+    public SecurityConfiguration(AbstractPreAuthenticatedProcessingFilter filter) {
+        super();
+        this.filter = filter;
+    }
 
     @Override
     public void configure(WebSecurity web) {
@@ -42,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-//            .addFilter(filter)
+            .addFilter(filter)
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/error", "/health", "/health/liveness", "/status/health", "/").permitAll()
