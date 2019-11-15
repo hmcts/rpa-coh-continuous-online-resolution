@@ -1,7 +1,6 @@
 plugins {
     id 'application'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-    // TODO This is causing issues with test configs, but we need to keep a version that's >= 2.1.x.
     id 'org.springframework.boot' version '2.2.0.RELEASE'
     id 'org.owasp.dependencycheck' version '5.2.1'
     id 'com.github.ben-manes.versions' version '0.17.0'
