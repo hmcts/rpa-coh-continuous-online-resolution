@@ -117,11 +117,6 @@ data "azurerm_key_vault" "shared_key_vault" {
   resource_group_name = "${local.shared_vault_name}"
 }
 
-data "azurerm_key_vault" "s2s_vault" {
-  name = "s2s-${local.local_env}"
-  resource_group_name = "rpe-service-auth-provider-${local.local_env}"
-}
-
 data "azurerm_key_vault" "product" {
   name = "${var.shared_product_name}-${var.env}"
   resource_group_name = "${var.shared_product_name}-${var.env}"
