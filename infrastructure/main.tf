@@ -59,6 +59,8 @@ module "app" {
     PACKAGES_PROJECT = "${var.team_name}"
     PACKAGES_ENVIRONMENT = "${var.env}"
 
+    ENABLE_DB_MIGRATE="false"
+
     LOG_OUTPUT = "${var.log_output}"
     managed_identity_object_id = "${var.managed_identity_object_id}"
   }
