@@ -55,6 +55,8 @@ withPipeline(type , product, component) {
     enableDbMigration('coh-cor')
     enableDockerBuild()
     enableSlackNotifications(channel)
+    installCharts()
+    enableAksStagingDeployment()
 
     after('test') {
         onMaster {
@@ -88,8 +90,4 @@ withPipeline(type , product, component) {
                 reportName           : "Functional Tests"
         ]
     }
-
-    loadVaultSecrets(secrets)
-    installCharts()
-    enableAksStagingDeployment()
 }
