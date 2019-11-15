@@ -44,14 +44,10 @@ module "app" {
     SPRING_DATASOURCE_USERNAME = "${module.db.user_name}"
     SPRING_DATASOURCE_PASSWORD = "${module.db.postgresql_password}"
 
-    ENABLE_DB_MIGRATE="false"
-
     # idam
     IDAM_API_URL = "${var.idam_api_url}"
     S2S_URL = "http://${var.s2s_url}-${local.local_env}.service.core-compute-${local.local_env}.internal"
-//    S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_secret.value}"
     S2S_TOKEN = "${data.azurerm_key_vault_secret.s2s_key.value}"
-    S2S_NAMES_WHITELIST = "${var.s2s_names_whitelist}"
 
     # logging vars & healthcheck
     REFORM_SERVICE_NAME = "${local.app_full_name}"

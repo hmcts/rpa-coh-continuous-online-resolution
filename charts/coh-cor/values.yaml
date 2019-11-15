@@ -38,10 +38,8 @@ cor:
     S2S_URL: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     #TEST_URL: https://coh-cor-{{ .Values.global.environment }}-staging.service.core-compute-{{ .Values.global.environment }}.internal
     TEST_URL: http://coh-cor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    ENABLE_DB_MIGRATE: true
+    ENABLE_DB_MIGRATE: false
     PACKAGES_ENVIRONMENT: local
     PACKAGES_PROJECT: coh
     PACKAGES_NAME: cor
-    AUTHORIZATION_ROLES: solicitor,citizen,caseworker-sscs-judge,caseworker-sscs,caseworker-sscs-panelmember,jui-panelmember
-    S2S_NAMES_WHITELIST: jui_webapp,sscs,divorce,ccd,em_gw
     LOG_LEVEL : "INFO"

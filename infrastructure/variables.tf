@@ -64,11 +64,6 @@ variable "s2s_url" {
   default = "rpe-service-auth-provider"
 }
 
-variable "s2s_names_whitelist" {
-  default = "jui_webapp,sscs,em_gw,webshow"
-  description = "Comma-separated list of service identifiers from S2S."
-}
-
 variable "postgresql_user" {
   default = "cor"
 }
