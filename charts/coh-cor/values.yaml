@@ -1,11 +1,10 @@
-cor:
+java:
   postgresql:
     postgresqlUsername: cor
     postgresqlPassword: cor
     postgresqlDatabase: cor
     nameOverride: coh-cor-db
-#  TODO Update the docker image
-  image: 'hmcts.azurecr.io/hmcts/coh-cor:latest'
+  image: 'hmctspublic.azurecr.io/coh/cor:latest'
   aadIdentityName: coh
   applicationPort: 8080
   readinessDelay: 30
@@ -33,11 +32,7 @@ cor:
     SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     # Regardless of environment, point towards AAT instances. Overwrite in product charts if needed
     IDAM_API_BASE_URI: https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net
-#    S2S_BASE_URI: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    #try adding S2S_URL
     S2S_URL: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    #TEST_URL: https://coh-cor-{{ .Values.global.environment }}-staging.service.core-compute-{{ .Values.global.environment }}.internal
-    TEST_URL: http://coh-cor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     ENABLE_DB_MIGRATE: false
     PACKAGES_ENVIRONMENT: local
     PACKAGES_PROJECT: coh
