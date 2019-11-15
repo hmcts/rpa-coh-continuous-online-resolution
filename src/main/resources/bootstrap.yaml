@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    propertiesvolume:
+      enabled: true
+      prefixed: false
+      paths: /mnt/secrets/coh-cor
+      aliases:
+        microservicekey-coh-cor: S2S_TOKEN
+        AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
+        cor-POSTGRES-PASS: SPRING_DATASOURCE_PASSWORD

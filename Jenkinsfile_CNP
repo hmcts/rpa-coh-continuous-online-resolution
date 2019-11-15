@@ -30,6 +30,7 @@ def secrets = [
         ]
 ]
 
+
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
     [ $class: 'AzureKeyVaultSecret',
       secretType: 'Secret',
@@ -54,12 +55,16 @@ withPipeline(type , product, component) {
     enableDbMigration('coh-cor')
     enableDockerBuild()
     enableSlackNotifications(channel)
+    installCharts()
+    enableAksStagingDeployment()
 
     after('test') {
-        sh '''
-        curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
-        sh ./publish-swagger-docs.sh
-         '''
+        onMaster {
+            sh '''
+              curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
+              sh ./publish-swagger-docs.sh
+             '''
+        }
     }
 
     after('functionalTest:aat') {

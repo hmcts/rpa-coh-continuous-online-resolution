@@ -27,3 +27,12 @@ services:
     ports:
     - $SERVER_PORT:8080
     - "7005:7005"
+
+  cor-db:
+    image: postgres
+    environment:
+     - POSTGRES_USER=cor
+     - POSTGRES_PASSWORD=cor
+     - POSTGRES_DB=cor
+    ports:
+     - 5432:5432

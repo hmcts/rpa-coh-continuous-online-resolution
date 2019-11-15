@@ -1,0 +1,39 @@
+java:
+  postgresql:
+    postgresqlUsername: cor
+    postgresqlPassword: cor
+    postgresqlDatabase: cor
+    nameOverride: coh-cor-db
+  image: 'hmctspublic.azurecr.io/coh/cor:latest'
+  aadIdentityName: coh
+  applicationPort: 8080
+  readinessDelay: 30
+  readinessTimeout: 5
+  readinessPeriod: 15
+  readinessFailureThreshold: 10
+  livenessDelay: 30
+  livenessTimeout: 5
+  livenessPeriod: 15
+  livenessFailureThreshold: 10
+  keyVaults:
+    coh-cor:
+      resourceGroup: coh-cor
+      secrets:
+        - AppInsightsInstrumentationKey
+        - microservicekey-coh-cor
+        - cor-POSTGRES-DATABASE
+        - cor-POSTGRES-HOST
+        - cor-POSTGRES-PASS
+        - cor-POSTGRES-PORT
+        - cor-POSTGRES-USER
+  environment:
+    SPRING_DATASOURCE_URL: jdbc:postgresql://coh-cor-postgres-db-{{ .Values.global.environment }}.postgres.database.azure.com:5432/cor?sslmode=require
+    SPRING_DATASOURCE_USERNAME: cor@coh-cor-postgres-db-{{ .Values.global.environment }}
+    # Regardless of environment, point towards AAT instances. Overwrite in product charts if needed
+    IDAM_API_BASE_URI: https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net
+    S2S_URL: http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    ENABLE_DB_MIGRATE: false
+    PACKAGES_ENVIRONMENT: local
+    PACKAGES_PROJECT: coh
+    PACKAGES_NAME: cor
+    LOG_LEVEL : "INFO"

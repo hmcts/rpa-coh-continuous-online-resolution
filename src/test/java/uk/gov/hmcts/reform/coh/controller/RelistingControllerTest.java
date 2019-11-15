@@ -5,11 +5,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.reform.coh.controller.utils.CohISO8601DateFormat;
 import uk.gov.hmcts.reform.coh.domain.OnlineHearing;
 import uk.gov.hmcts.reform.coh.domain.RelistingState;
@@ -21,6 +25,12 @@ import uk.gov.hmcts.reform.coh.service.SessionEventService;
 import uk.gov.hmcts.reform.coh.util.OnlineHearingEntityUtils;
 import uk.gov.hmcts.reform.coh.utils.JsonUtils;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -46,7 +56,7 @@ import static uk.gov.hmcts.reform.coh.controller.utils.CohUriBuilder.buildRelist
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local"})
-@WebMvcTest(value = {OnlineHearingController.class}, secure = false)
+@WebMvcTest(value = {OnlineHearingController.class})
 public class RelistingControllerTest {
 
     @MockBean
@@ -64,8 +74,11 @@ public class RelistingControllerTest {
     @MockBean
     private Clock clock;
 
-    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext context;
+
     private OnlineHearing onlineHearing;
     private String pathToExistingOnlineHearing;
     private String pathToExistingRelisting;
@@ -74,11 +87,16 @@ public class RelistingControllerTest {
     @Before
     public void setup() {
         onlineHearing = OnlineHearingEntityUtils.createTestOnlineHearingEntity();
+
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .build();
+
         when(onlineHearingService.retrieveOnlineHearing(onlineHearing.getOnlineHearingId()))
-            .thenReturn(Optional.of(onlineHearing));
+                .thenReturn(Optional.of(onlineHearing));
 
         when(onlineHearingService.retrieveOnlineHearing(any(OnlineHearing.class)))
-            .thenReturn(Optional.of(onlineHearing));
+                .thenReturn(Optional.of(onlineHearing));
 
         when(clock.instant()).thenReturn(Instant.now());
 
@@ -90,81 +108,81 @@ public class RelistingControllerTest {
     @Test
     public void initiallyReasonIsDraftedAndEmpty() throws Exception {
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.relisting.reason", isEmptyOrNullString()))
-            .andExpect(jsonPath("$.relisting.state", is(RelistingState.DRAFTED.toString())))
-            .andExpect(jsonPath("$.relisting.created", isEmptyOrNullString()))
-            .andExpect(jsonPath("$.relisting.updated", isEmptyOrNullString()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.relisting.reason", isEmptyOrNullString()))
+                .andExpect(jsonPath("$.relisting.state", is(RelistingState.DRAFTED.toString())))
+                .andExpect(jsonPath("$.relisting.created", isEmptyOrNullString()))
+                .andExpect(jsonPath("$.relisting.updated", isEmptyOrNullString()));
     }
 
     @Test
     public void storingADraftReturnsAccepted() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/valid-drafted");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+                .andExpect(status().isAccepted());
     }
 
     @Test
     public void storesDraftedReasonWithCorrespondingOnlineHearing() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/valid-drafted");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+                .andExpect(status().isAccepted());
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.relisting.reason", is("Here is a sample reason.")))
-            .andExpect(jsonPath("$.relisting.state", is("DRAFTED")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.relisting.reason", is("Here is a sample reason.")))
+                .andExpect(jsonPath("$.relisting.state", is("DRAFTED")));
     }
 
     @Test
     public void creatingNewRelistForNonExistingOnlineHearingReturns404() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/valid-drafted");
         mockMvc.perform(put(pathToNonExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(content().string("Not found"));
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Not found"));
     }
 
     @Test
     public void returns400WhenCreatingWithInvalidState() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/invalid-state");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     public void cannotUpdateReasonAfterIssuing() throws Exception {
         String req1 = JsonUtils.getJsonInput("relisting/valid-issued-1");
         mockMvc.perform(put(pathToExistingRelisting).content(req1).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+                .andExpect(status().isAccepted());
 
         String req2 = JsonUtils.getJsonInput("relisting/valid-issued-2");
         mockMvc.perform(put(pathToExistingRelisting).content(req2).contentType(APPLICATION_JSON))
-            .andExpect(status().isConflict())
-            .andExpect(content().string("Already issued"));
+                .andExpect(status().isConflict())
+                .andExpect(content().string("Already issued"));
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.relisting.reason", is("Reason 1")))
-            .andExpect(jsonPath("$.relisting.state", is("ISSUE_PENDING")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.relisting.reason", is("Reason 1")))
+                .andExpect(jsonPath("$.relisting.state", is("ISSUE_PENDING")));
     }
 
     @Test
     public void relistingStateIsCaseInsensitive() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/valid-drafted-case-insensitive");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+                .andExpect(status().isAccepted());
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.relisting.reason", is("Test")))
-            .andExpect(jsonPath("$.relisting.state", is("DRAFTED")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.relisting.reason", is("Test")))
+                .andExpect(jsonPath("$.relisting.state", is("DRAFTED")));
     }
 
     @Test
     public void creatingRelistingRequiresStateField() throws Exception {
         String request = "{}";
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -173,9 +191,9 @@ public class RelistingControllerTest {
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.relisting.reason", isEmptyOrNullString()))
-            .andExpect(jsonPath("$.relisting.state", is("ISSUE_PENDING")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.relisting.reason", isEmptyOrNullString()))
+                .andExpect(jsonPath("$.relisting.state", is("ISSUE_PENDING")));
     }
 
     @Test
@@ -184,7 +202,7 @@ public class RelistingControllerTest {
 
         String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+                .andExpect(status().isAccepted());
 
         String relisted = EventTypes.ONLINE_HEARING_RELISTED.getEventType();
         verify(sessionEventService, times(1)).createSessionEvent(onlineHearing, relisted);
@@ -199,7 +217,7 @@ public class RelistingControllerTest {
 
         String request = JsonUtils.getJsonInput("relisting/valid-issued-1");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isAccepted());
+                .andExpect(status().isAccepted());
 
         ArgumentCaptor<OnlineHearing> onlineHearingCaptor = ArgumentCaptor.forClass(OnlineHearing.class);
         verify(onlineHearingService, times(1)).updateOnlineHearing(onlineHearingCaptor.capture());
@@ -235,7 +253,7 @@ public class RelistingControllerTest {
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(jsonPath("$.relisting.created", is(CohISO8601DateFormat.format(created))));
+                .andExpect(jsonPath("$.relisting.created", is(CohISO8601DateFormat.format(created))));
     }
 
     @Test
@@ -257,7 +275,7 @@ public class RelistingControllerTest {
         Date expected = Date.from(after1Second);
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(jsonPath("$.relisting.updated", is(CohISO8601DateFormat.format(expected))));
+                .andExpect(jsonPath("$.relisting.updated", is(CohISO8601DateFormat.format(expected))));
     }
 
     @Test
@@ -276,15 +294,15 @@ public class RelistingControllerTest {
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON));
 
         mockMvc.perform(get(pathToExistingOnlineHearing).contentType(APPLICATION_JSON))
-            .andExpect(jsonPath("$.relisting.updated", is(CohISO8601DateFormat.format(updated))));
+                .andExpect(jsonPath("$.relisting.updated", is(CohISO8601DateFormat.format(updated))));
     }
 
     @Test
     public void relistingWithIssuePendingReturnsBadRequest() throws Exception {
         String request = JsonUtils.getJsonInput("relisting/invalid-issue-pending");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Invalid state"));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid state"));
     }
 
     @Test
@@ -293,7 +311,7 @@ public class RelistingControllerTest {
 
         String request = JsonUtils.getJsonInput("relisting/valid-drafted");
         mockMvc.perform(put(pathToExistingRelisting).content(request).contentType(APPLICATION_JSON))
-            .andExpect(status().isConflict());
+                .andExpect(status().isConflict());
     }
 
     @Test
